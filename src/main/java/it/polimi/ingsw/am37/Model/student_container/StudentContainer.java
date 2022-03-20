@@ -33,7 +33,7 @@ public abstract class StudentContainer {
 
 	/**
 	 * Add all the students of the provided container to this
-	 * @param other
+	 * @param other	the source container to merge in this
 	 */
 	public void uniteContainers(StudentContainer other) throws IllegalArgumentException, StudentSpaceException {
 		if(other == null) throw new IllegalArgumentException("other container must not be null");

@@ -1,8 +1,20 @@
 package it.polimi.ingsw.am37.Model.student_container;
 
+/**
+ * Exception thrown when there an action couldn't be performed due to size limitation in containers;
+ */
 public class StudentSpaceException extends RuntimeException{
+    /**
+     * Represent the type of exception
+     * @see StudentSpaceExceptionType
+     */
     StudentSpaceExceptionType type;
 
+    /**
+     * Enum to define possible type of Exception:
+     * - tooMuch means num is too high for available space;
+     * - tooFew means have been tried to remove too many students
+     */
     private enum StudentSpaceExceptionType {
         TOOMUCH("Too much student to add"),
         TOOFEW("Too much student to remove");
@@ -12,6 +24,9 @@ public class StudentSpaceException extends RuntimeException{
         }
     }
 
+    /**
+     * Override with type printing
+     */
     @Override
     public String getMessage() {
         return super.getMessage()+"type: "+type.code;
