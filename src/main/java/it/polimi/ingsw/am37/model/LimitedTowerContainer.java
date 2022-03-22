@@ -1,8 +1,4 @@
-package it.polimi.ingsw.am37.Model;
-
-import it.polimi.ingsw.am37.Model.TowerColor;
-
-import java.util.*;
+package it.polimi.ingsw.am37.model;
 
 /**
  * This class is used to store some information about towers and their use, this class is used

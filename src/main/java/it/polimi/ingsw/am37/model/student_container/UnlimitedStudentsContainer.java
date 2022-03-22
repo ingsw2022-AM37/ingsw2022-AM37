@@ -1,18 +1,19 @@
-package it.polimi.ingsw.am37.Model.student_container;
+package it.polimi.ingsw.am37.model.student_container;
 
-import it.polimi.ingsw.am37.Model.FactionColor;
+import it.polimi.ingsw.am37.model.FactionColor;
 
 import java.util.Arrays;
 
 /**
  * Container for students tile with the ability to remove students if needed
  */
-public class UnlimitedStudentContainer extends StudentContainer {
+public class UnlimitedStudentsContainer extends StudentsContainer {
 
     /**
      * Default constructor
      */
-    public UnlimitedStudentContainer() {
+    public UnlimitedStudentsContainer() {
+        super();
     }
 
     /**
@@ -24,7 +25,7 @@ public class UnlimitedStudentContainer extends StudentContainer {
      */
     @Override
     public void addStudents(int num, FactionColor color) throws IllegalArgumentException {
-        if (num > 0) throw new IllegalArgumentException("Num must be an int >= 0 but is " + num);
+        if (num < 0) throw new IllegalArgumentException("Num must be an int >= 0 but is " + num);
         if (color == null) throw new IllegalArgumentException("color is null");
         student[color.getIndex()] += num;
     }
@@ -36,7 +37,7 @@ public class UnlimitedStudentContainer extends StudentContainer {
      * @param color the color of students to remove
      */
     public void removeStudents(int num, FactionColor color) throws IllegalArgumentException, StudentSpaceException {
-        if (num <= 0) throw new IllegalArgumentException("num parameter must be strictly positive");
+        if (num < 0) throw new IllegalArgumentException("num parameter must be strictly positive");
         if (color == null) throw new IllegalArgumentException("Colors couldn't be null");
         if (student[color.getIndex()] >= num) student[color.getIndex()] -= num;
         else {

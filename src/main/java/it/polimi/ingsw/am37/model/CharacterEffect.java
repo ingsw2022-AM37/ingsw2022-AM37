@@ -1,6 +1,4 @@
-package it.polimi.ingsw.am37.Model;
-
-import java.util.*;
+package it.polimi.ingsw.am37.model;
 
 /**
  * 

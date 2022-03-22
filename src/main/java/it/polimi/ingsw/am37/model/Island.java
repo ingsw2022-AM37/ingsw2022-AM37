@@ -1,6 +1,6 @@
-package it.polimi.ingsw.am37.Model;
+package it.polimi.ingsw.am37.model;
 
-import it.polimi.ingsw.am37.Model.student_container.FixedUnlimitedStudentContainer;
+import it.polimi.ingsw.am37.model.student_container.FixedUnlimitedStudentsContainer;
 
 import java.util.ArrayList;
 
@@ -13,9 +13,9 @@ public class Island {
     /**
      * It represents the students on the island
      *
-     * @see FixedUnlimitedStudentContainer
+     * @see FixedUnlimitedStudentsContainer
      */
-    private final FixedUnlimitedStudentContainer studentsOnIsland;
+    private final FixedUnlimitedStudentsContainer studentsOnIsland;
     /**
      * Indicate if there is a tower and eventually its color
      *
@@ -38,7 +38,7 @@ public class Island {
     /**
      * Default constructor
      */
-    public Island(boolean isMotherNature, FixedUnlimitedStudentContainer studentsOnIsland) {
+    public Island(boolean isMotherNature, FixedUnlimitedStudentsContainer studentsOnIsland) {
         this.isMotherNature = isMotherNature;
         this.hasNoEntryTile = false;
         this.numIslandsUnited = 1;
@@ -85,9 +85,9 @@ public class Island {
 
     /**
      * @param cont It's the array of students which will be added to the island's one
-     * @see FixedUnlimitedStudentContainer
+     * @see FixedUnlimitedStudentsContainer
      */
-    public void addStudents(FixedUnlimitedStudentContainer cont) {
+    public void addStudents(FixedUnlimitedStudentsContainer cont) {
         this.studentsOnIsland.uniteContainers(cont);
     }
 
@@ -143,9 +143,9 @@ public class Island {
 
     /**
      * @return The students on the island
-     * @see FixedUnlimitedStudentContainer
+     * @see FixedUnlimitedStudentsContainer
      */
-    public FixedUnlimitedStudentContainer getStudentsOnIsland() {
+    public FixedUnlimitedStudentsContainer getStudentsOnIsland() {
         return this.studentsOnIsland;
     }
 

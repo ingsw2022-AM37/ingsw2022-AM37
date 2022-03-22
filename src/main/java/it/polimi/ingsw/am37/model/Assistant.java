@@ -1,8 +1,4 @@
-package it.polimi.ingsw.am37.Model;
-
-import it.polimi.ingsw.am37.Model.Wizard;
-
-import java.util.*;
+package it.polimi.ingsw.am37.model;
 
 /**
  * There are ten assistant cards for each wizard, if possible equal cards can't be used in the same turn

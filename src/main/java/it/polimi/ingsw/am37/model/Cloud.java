@@ -1,6 +1,6 @@
-package it.polimi.ingsw.am37.Model;
+package it.polimi.ingsw.am37.model;
 
-import it.polimi.ingsw.am37.Model.student_container.LimitedStudentContainer;
+import it.polimi.ingsw.am37.model.student_container.LimitedStudentsContainer;
 
 /**
  * This class represent the Clouds in the game.
@@ -13,15 +13,15 @@ public class Cloud {
 	public Cloud(boolean isFor2) {
 		this.isFor2 = isFor2;
 		if(this.isFor2)
-			studentsOnCloud = new LimitedStudentContainer(3);
+			studentsOnCloud = new LimitedStudentsContainer(3);
 		else
-			studentsOnCloud = new LimitedStudentContainer(4);
+			studentsOnCloud = new LimitedStudentsContainer(4);
 	}
 
 	/**
 	 * It represents the students that are on the Cloud at the start of every turn.
 	 */
-	private final LimitedStudentContainer studentsOnCloud;
+	private final LimitedStudentsContainer studentsOnCloud;
 
 	/**
 	 * It is needed to know if the game is played by two or three Players.

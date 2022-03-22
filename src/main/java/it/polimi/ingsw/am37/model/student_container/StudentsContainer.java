@@ -1,10 +1,10 @@
-package it.polimi.ingsw.am37.Model.student_container;
-import it.polimi.ingsw.am37.Model.FactionColor;
+package it.polimi.ingsw.am37.model.student_container;
+import it.polimi.ingsw.am37.model.FactionColor;
 
 /**
  * Abstract class to manage students tile in the model.
  */
-public abstract class StudentContainer {
+public abstract class StudentsContainer {
 
 	/**
 	 * General array of 5 integers, for the index of each student colors is used ad enumeration
@@ -12,7 +12,7 @@ public abstract class StudentContainer {
 	 */
 	protected int[] student;
 
-	public StudentContainer(){
+	public StudentsContainer(){
 		student = new int[]{0,0,0,0,0};
 	}
 
@@ -35,12 +35,30 @@ public abstract class StudentContainer {
 	 * Add all the students of the provided container to this
 	 * @param other	the source container to merge in this
 	 */
-	public void uniteContainers(StudentContainer other) throws IllegalArgumentException, StudentSpaceException {
+	public void uniteContainers(StudentsContainer other) throws IllegalArgumentException, StudentSpaceException {
 		if(other == null) throw new IllegalArgumentException("other container must not be null");
 		for (FactionColor color :
 				FactionColor.values()) {
-			addStudents(other.getByColor(color), color);
+			try {
+				addStudents(other.getByColor(color), color);
+			} catch (StudentSpaceException e) {
+				e.printStackTrace();
+			}
 		}
+	}
+
+	/**
+	 * Return the number of all students in this
+	 * @return the number of students in the containers
+	 */
+	public int size() {
+		int sum=0;
+		for (FactionColor color :
+				FactionColor.values()) {
+			sum+=getByColor(color);
+		}
+		return sum;
+
 	}
 
 }

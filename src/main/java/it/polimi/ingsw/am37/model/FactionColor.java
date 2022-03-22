@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am37.Model;
+package it.polimi.ingsw.am37.model;
 
 /**
  * This class is used to identify different teams for students and professors

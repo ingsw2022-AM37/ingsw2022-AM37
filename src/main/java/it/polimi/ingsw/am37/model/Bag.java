@@ -1,7 +1,7 @@
-package it.polimi.ingsw.am37.Model;
+package it.polimi.ingsw.am37.model;
 
-import it.polimi.ingsw.am37.Model.student_container.LimitedStudentContainer;
-import it.polimi.ingsw.am37.Model.student_container.UnlimitedStudentContainer;
+import it.polimi.ingsw.am37.model.student_container.LimitedStudentsContainer;
+import it.polimi.ingsw.am37.model.student_container.UnlimitedStudentsContainer;
 import java.util.Random;
 
 /**
@@ -12,18 +12,18 @@ public class Bag {
 	/**
 	 * Default constructor, it fills the Bag with 2 students from each Faction.
 	 * @see FactionColor
-	 * @see UnlimitedStudentContainer
+	 * @see UnlimitedStudentsContainer
 	 */
 	public Bag() {
-		studentsAvailable = new UnlimitedStudentContainer();
+		studentsAvailable = new UnlimitedStudentsContainer();
 		for(FactionColor color : FactionColor.values())
-			studentsAvailable.addStudents(2, color);
+			studentsAvailable.addStudents(24, color);
 	}
 
 	/**
 	 * It represents the students in the Bag.
 	 */
-	private final UnlimitedStudentContainer studentsAvailable;
+	private final UnlimitedStudentsContainer studentsAvailable;
 
 
 	/**
@@ -31,13 +31,13 @@ public class Bag {
 	 * @param num The number of students to extracts.
 	 * @return A LimitedStudentContainer that contains the students extracted by FactionColor.
 	 * @throws IllegalArgumentException If there are not enough students to extract.
-	 * @see LimitedStudentContainer
+	 * @see LimitedStudentsContainer
 	 * @see FactionColor
 	 */
-	public LimitedStudentContainer extractStudents(int num) {
+	public LimitedStudentsContainer extractStudents(int num) {
 		if(studentsAvailable.size() < num)
 			throw new IllegalArgumentException("there are not enough students to extract");
-		LimitedStudentContainer studentsExtracted;
+		LimitedStudentsContainer studentsExtracted;
 		int[] colorBound = new int[]{0,0,0,0,0};
 		Random colorGenerator = new Random();
 		FactionColor colorExtracted;
@@ -47,7 +47,7 @@ public class Bag {
 				colorBound[colorExtracted.getIndex()]++;
 			else i--;
 		}
-		studentsExtracted = new LimitedStudentContainer(colorBound);
+		studentsExtracted = new LimitedStudentsContainer(colorBound);
 		for(FactionColor color : FactionColor.values()) {
 			studentsExtracted.addStudents(colorBound[color.getIndex()], color);
 			studentsAvailable.removeStudents(colorBound[color.getIndex()], color);

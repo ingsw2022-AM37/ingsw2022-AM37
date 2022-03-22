@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am37.Model;
+package it.polimi.ingsw.am37.model;
 
 /**
  * This enumeration represents possible teams for each of the four wizard: every wizard

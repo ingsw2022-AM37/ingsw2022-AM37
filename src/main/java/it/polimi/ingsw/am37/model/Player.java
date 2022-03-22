@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am37.Model;
+package it.polimi.ingsw.am37.model;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 
@@ -16,7 +16,7 @@ public class Player {
 		this.assistantsDeck = new ArrayList<>();
 		this.board = board;
 		this.lastAssistantPlayed = null;
-		this.team = WizardTeam.NONE;
+		this.team = null;
 	}
 
 	/**
@@ -111,8 +111,8 @@ public class Player {
 	 * @throws IllegalArgumentException if the team received from parameters is not set to a specific team.
 	 */
 	public void createDeck(WizardTeam team) {
-		if(team != WizardTeam.NONE)
-			throw new IllegalArgumentException("the team can't be NONE");
+		if(team == null)
+			throw new IllegalArgumentException("the team can't be NULL");
 		this.team = team;
 		this.assistantsDeck = new ArrayList<>();
 		int movement = 0;
@@ -132,7 +132,7 @@ public class Player {
 	 * @param to The arrival Island.
 	 */
 	public void moveMotherNature(Island from, Island to){
-		from.removeMotherNature();
+		from.unsetMotherNature();
 		to.setMotherNature();
 	}
 }

@@ -1,16 +1,16 @@
-package it.polimi.ingsw.am37.Model.student_container;
+package it.polimi.ingsw.am37.model.student_container;
 
-import it.polimi.ingsw.am37.Model.FactionColor;
+import it.polimi.ingsw.am37.model.FactionColor;
 
 /**
  * Container for students tile, only adding students is allowed
  */
-public class FixedUnlimitedStudentContainer extends StudentContainer {
+public class FixedUnlimitedStudentsContainer extends StudentsContainer {
 
     /**
      * Default constructor
      */
-    public FixedUnlimitedStudentContainer() {
+    public FixedUnlimitedStudentsContainer() {
     }
 
 

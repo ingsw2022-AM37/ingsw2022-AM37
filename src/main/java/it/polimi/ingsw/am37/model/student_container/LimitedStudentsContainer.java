@@ -1,12 +1,12 @@
-package it.polimi.ingsw.am37.Model.student_container;
+package it.polimi.ingsw.am37.model.student_container;
 
 import java.util.*;
-import it.polimi.ingsw.am37.Model.FactionColor;
+import it.polimi.ingsw.am37.model.FactionColor;
 
 /**
  * Container for students tile with limited amount set generally or by color and ability to remose students if needed
  */
-public class LimitedStudentContainer extends StudentContainer {
+public class LimitedStudentsContainer extends StudentsContainer {
 
 	/**
 	 * The maximum amount of students in this container
@@ -23,7 +23,7 @@ public class LimitedStudentContainer extends StudentContainer {
 	 * @param max	the maximum amounts of student desired
 	 * @throws IllegalArgumentException	throw when argument is negative
 	 */
-	public LimitedStudentContainer(int max) throws IllegalArgumentException {
+	public LimitedStudentsContainer(int max) throws IllegalArgumentException {
 		if(max>=0) maxSize = max;
 		else throw new IllegalArgumentException("max("+max+" must be >=0 ");
 	}
@@ -33,7 +33,7 @@ public class LimitedStudentContainer extends StudentContainer {
 	 * @param maxByColor	array of maximum amount for each color, all elements must be positive and at least one strictly positive
 	 * @throws IllegalArgumentException	thrown when parameter is badly formatted
 	 */
-	public LimitedStudentContainer(int [] maxByColor) throws IllegalArgumentException{
+	public LimitedStudentsContainer(int [] maxByColor) throws IllegalArgumentException{
 		maxSizeForColor = new int[5];
 		if(Arrays.stream(maxByColor).parallel().allMatch(c -> c>=0) && Arrays.stream(maxByColor).anyMatch(c-> c>0))
 			maxSizeForColor = Arrays.copyOf(maxByColor, maxByColor.length);

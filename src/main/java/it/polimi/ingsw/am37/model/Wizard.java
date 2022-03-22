@@ -1,6 +1,4 @@
-package it.polimi.ingsw.am37.Model;
-
-import java.util.*;
+package it.polimi.ingsw.am37.model;
 
 /**
  * Each Wizard is identified by a team and after being chosen it gives access to ten assistant cards of the same team

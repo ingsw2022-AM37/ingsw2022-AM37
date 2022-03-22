@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am37.Model;
+package it.polimi.ingsw.am37.model;
 
 /**
  * In matches with two or three players each player control towers with a specific color,
