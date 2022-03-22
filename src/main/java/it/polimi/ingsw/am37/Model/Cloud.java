@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am37.Model;
 
 import it.polimi.ingsw.am37.Model.student_container.LimitedStudentContainer;
+import it.polimi.ingsw.am37.Model.student_container.StudentContainer;
 
 /**
  * This class represent the Clouds in the game.
@@ -21,7 +22,7 @@ public class Cloud {
 	/**
 	 * It represents the students that are on the Cloud at the start of every turn.
 	 */
-	private final LimitedStudentContainer studentsOnCloud;
+	private LimitedStudentContainer studentsOnCloud;
 
 	/**
 	 * It is needed to know if the game is played by two or three Players.
@@ -31,19 +32,20 @@ public class Cloud {
 
 
 	/**
-	 * @param num The number of students that you want to add.
-	 * @param color The color of students that you want to add.
+	 * @param students Students used to fill the Cloud.
 	 */
-	public void addStudents(int num, FactionColor color) {
-		studentsOnCloud.addStudents(num, color);
+	public void addStudents(StudentContainer students) {
+		studentsOnCloud.uniteContainers(students);
 	}
 
 	/**
-	 * @param num The number of students that you want to remove.
-	 * @param color The color of students that you want to remove.
+	 * @return The students on the Cloud.
 	 */
-	public void removeStudents(int num, FactionColor color) {
-		studentsOnCloud.removeStudents(num, color);
+	public LimitedStudentContainer removeStudents() {
+
+		LimitedStudentContainer temp = studentsOnCloud;
+		studentsOnCloud = new LimitedStudentContainer(isFor2 ? 3 : 4);
+		return studentsOnCloud;
 	}
 
 	/**
