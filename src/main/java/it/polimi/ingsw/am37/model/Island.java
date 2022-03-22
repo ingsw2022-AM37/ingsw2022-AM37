@@ -99,6 +99,8 @@ public class Island {
      * @throws IllegalArgumentException When islandId doesn't identify an island
      */
     public void uniteIfPossible(ArrayList<Island> islands, int islandId) throws IllegalArgumentException {
+        boolean UnitedDx = false;
+
         if (islandId < 0 || islandId >= islands.size())
             throw new IllegalArgumentException("IslandId should be the index of the island you are looking to unify");
 
@@ -116,6 +118,7 @@ public class Island {
                 this.numIslandsUnited = this.numIslandsUnited + islands.get(islandId + 1).getNumIslands();
                 this.studentsOnIsland.uniteContainers(islands.get(islandId + 1).getStudentsOnIsland());
 
+                UnitedDx = true;
                 islands.remove(islandId + 1);
             }
         }
@@ -125,11 +128,12 @@ public class Island {
                 this.numIslandsUnited = this.numIslandsUnited + islands.get(islandId - 1).getNumIslands();
                 this.studentsOnIsland.uniteContainers(islands.get(islandId - 1).getStudentsOnIsland());
 
+                islandId--;
                 islands.remove(islandId - 1);
             }
         }
 
-        if (islandId == islands.size() - 1) {
+        if (islandId == islands.size() - 1 && !UnitedDx) {
             if ((islands.get(islandId).getCurrentTower()) == islands.get(0).getCurrentTower()) {
                 this.numIslandsUnited = this.numIslandsUnited + islands.get(0).getNumIslands();
                 this.studentsOnIsland.uniteContainers(islands.get(0).getStudentsOnIsland());
