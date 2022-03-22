@@ -103,7 +103,7 @@ public class Island {
             throw new IllegalArgumentException("IslandId should be the index of the island you are looking to unify");
 
         if (islandId == 0) {
-            if ((islands.get(islandId).getCurrentTower()).equals(islands.get(islands.size() - 1).getCurrentTower())) {
+            if ((islands.get(islandId).getCurrentTower()) == islands.get(islands.size() - 1).getCurrentTower()) {
                 this.numIslandsUnited = this.numIslandsUnited + islands.get(islands.size() - 1).getNumIslands();
                 this.studentsOnIsland.uniteContainers(islands.get(islands.size() - 1).getStudentsOnIsland());
 
@@ -112,7 +112,7 @@ public class Island {
         }
 
         if (islandId + 1 < islands.size()) {
-            if ((islands.get(islandId).getCurrentTower()).equals(islands.get(islandId + 1).getCurrentTower())) {
+            if ((islands.get(islandId).getCurrentTower()) == islands.get(islandId + 1).getCurrentTower()) {
                 this.numIslandsUnited = this.numIslandsUnited + islands.get(islandId + 1).getNumIslands();
                 this.studentsOnIsland.uniteContainers(islands.get(islandId + 1).getStudentsOnIsland());
 
@@ -121,17 +121,16 @@ public class Island {
         }
 
         if (islandId - 1 >= 0) {
-            if ((islands.get(islandId).getCurrentTower()).equals(islands.get(islandId - 1).getCurrentTower())) {
+            if ((islands.get(islandId).getCurrentTower()) == islands.get(islandId - 1).getCurrentTower())  {
                 this.numIslandsUnited = this.numIslandsUnited + islands.get(islandId - 1).getNumIslands();
                 this.studentsOnIsland.uniteContainers(islands.get(islandId - 1).getStudentsOnIsland());
 
                 islands.remove(islandId - 1);
-                islandId = islandId - 1;
             }
         }
 
         if (islandId == islands.size() - 1) {
-            if ((islands.get(islandId).getCurrentTower()).equals(islands.get(0).getCurrentTower())) {
+            if ((islands.get(islandId).getCurrentTower()) == islands.get(0).getCurrentTower()) {
                 this.numIslandsUnited = this.numIslandsUnited + islands.get(0).getNumIslands();
                 this.studentsOnIsland.uniteContainers(islands.get(0).getStudentsOnIsland());
 
@@ -166,7 +165,7 @@ public class Island {
     /**
      * Remove the presence of MotherNature
      */
-    public void removeMotherNature() {
+    public void unsetMotherNature() {
         this.isMotherNature = false;
     }
 
@@ -191,19 +190,18 @@ public class Island {
      *
      * @param players It's the ArrayList of all players, it gives the access to all boards
      * @return The player who conquered the island
-     * @FactionColor
      * @see Player
      */
     public Player checkConqueror(ArrayList<Player> players) {
-        ArrayList<Integer> playerPower = new ArrayList<Integer>();
-        boolean[] controlledProf = new boolean[5];
+        ArrayList<Integer> playerPower = new ArrayList<>();
+        boolean[] controlledProf;
 
         int indexMaxController = 0;
         int boolToInt;
         int tmp;
 
         for (int i = 0; i < players.size(); i++) {
-            controlledProf = players.get(i).getBoard.getProfTable;
+            controlledProf = players.get(i).getBoard().getProfTable();
             tmp = 0;
             for (FactionColor color : FactionColor.values()) {
                 boolToInt = controlledProf[color.getIndex()] ? 1 : 0;
