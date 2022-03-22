@@ -2,6 +2,7 @@ package it.polimi.ingsw.am37.model;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 
+
 /**
  * This class represents the in-game player, it does not represent the person playing the game, therefore it will not
  * have all the attributes that can be associated with a physical player.
