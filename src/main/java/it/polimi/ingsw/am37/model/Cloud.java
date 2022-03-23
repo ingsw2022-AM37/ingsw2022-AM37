@@ -45,7 +45,7 @@ public class Cloud {
 
 		LimitedStudentsContainer temp = studentsOnCloud;
 		studentsOnCloud = new LimitedStudentsContainer(isFor2 ? 3 : 4);
-		return studentsOnCloud;
+		return temp;
 	}
 
 	/**
