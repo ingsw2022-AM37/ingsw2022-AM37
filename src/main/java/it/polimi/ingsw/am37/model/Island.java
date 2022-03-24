@@ -11,6 +11,11 @@ import java.util.ArrayList;
 public class Island {
 
     /**
+     * It's the number of students of the last conquest of the island, useful to check who will be the next conqueror
+     */
+    private int numStudentsControlling = 0;
+
+    /**
      * It represents the students on the island
      *
      * @see FixedUnlimitedStudentsContainer
@@ -190,7 +195,7 @@ public class Island {
     }
 
     /**
-     * The method check which player has the most students on the island, a player have students of one color when he controls their professor
+     * The method check which player has the most students on the island, a player have students of one color when he controls their professor. Each player has a towerColor and the tower means who is controlling it. Switches of conqueror(and of towers) are possible.
      *
      * @param players It's the ArrayList of all players, it gives the access to all boards
      * @return The player who conquered the island
@@ -203,6 +208,8 @@ public class Island {
         int indexMaxController = 0;
         int boolToInt;
         int tmp;
+        int stolenConqueror = 0;
+        boolean switchConqueror = false;
 
         for (int i = 0; i < players.size(); i++) {
             controlledProf = players.get(i).getBoard().getProfTable();
@@ -213,15 +220,33 @@ public class Island {
             }
             playerPower.add(i, tmp);
         }
-        tmp = 0;
-        for (int i = 0; i < playerPower.size(); i++)
-            if (playerPower.get(i) > tmp) {
-                indexMaxController = i;
-                tmp = playerPower.get(i);
-            }
+
+        if(this.tower == TowerColor.NONE) {
+            for (int i = 0; i < playerPower.size(); i++)
+                if (playerPower.get(i) > this.numStudentsControlling) {
+                    indexMaxController = i;
+                    this.numStudentsControlling = playerPower.get(i);
+                }
+            players.get(indexMaxController).getBoard().removeTowers(this.numIslandsUnited);
+        }
+        else{
+            stolenConqueror = indexMaxController;
+            for (int i = 0; i < playerPower.size(); i++)
+                if (playerPower.get(i) > this.numStudentsControlling) {
+                    indexMaxController = i;
+                    this.numStudentsControlling = playerPower.get(i);
+                    switchConqueror = true;
+                }
+        }
+
+        if(switchConqueror){
+            players.get(stolenConqueror).getBoard().addTowers(this.numIslandsUnited);
+            players.get(indexMaxController).getBoard().removeTowers(this.numIslandsUnited);
+        }
+
+        this.tower = players.get(indexMaxController).getBoard().getTowers().getcurrentTower();
 
         return players.get(indexMaxController);
 
     }
-
 }

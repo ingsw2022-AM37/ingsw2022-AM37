@@ -2,7 +2,6 @@ package it.polimi.ingsw.am37.model;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 
-
 /**
  * This class represents the in-game player, it does not represent the person playing the game, therefore it will not
  * have all the attributes that can be associated with a physical player.
@@ -12,10 +11,9 @@ public class Player {
 	/**
 	 * Default constructor
 	 */
-	public Player(Board board) {
+	public Player() {
 		this.numberOfCoins = 0;
 		this.assistantsDeck = new ArrayList<>();
-		this.board = board;
 		this.lastAssistantPlayed = null;
 		this.team = null;
 	}
@@ -29,7 +27,7 @@ public class Player {
 	 * It represents the school Board, each Player must own a board in order to play.
 	 * @see Board
  	 */
-	private final Board board;
+	private Board board;
 
 	/**
 	 * It represents the set of Assistant cards that every player owns, each Player must own a deck in order to play.
@@ -135,5 +133,12 @@ public class Player {
 	public void moveMotherNature(Island from, Island to){
 		from.unsetMotherNature();
 		to.setMotherNature();
+	}
+
+	/**
+	 * @param board The board controlled by this player
+	 */
+	public void setBoard(Board board){
+		this.board = board;
 	}
 }

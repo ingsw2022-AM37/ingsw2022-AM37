@@ -10,6 +10,11 @@ import it.polimi.ingsw.am37.model.student_container.LimitedStudentsContainer;
 public class Board {
 
     /**
+     * It's the number of coins, if they are disabled it's useless. It's used to check if the number of coins is constant between board and its player
+     */
+    private int numberOfCoins = 0;
+
+    /**
      * Container for the towers
      */
     final LimitedTowerContainer towerArea;
@@ -46,16 +51,15 @@ public class Board {
 
     /**
      * The default constructor create empty entrance and dining rooms and fill the tower containers
-     *
-     * @param numOfPlayer  the number of player in this match, use it to use different limits on the containers
-     * @param player       the player that own this board
-     * @param color        the color of tower of the player
+     * @param numOfPlayer the number of player in this match, use it to use different limits on the containers
+     * @param color the color of tower of the player
      * @param coinsEnabled the flag to activate coins logic
+     * @param player It's the owner of the board
      */
-    public Board(int numOfPlayer, Player player, TowerColor color, boolean coinsEnabled) {
-        this.player = player;
+    public Board(int numOfPlayer, TowerColor color, boolean coinsEnabled, Player player) {
         this.numOfPlayer = numOfPlayer;
         this.coinsEnabled = coinsEnabled;
+        this.player = player;
         switch (numOfPlayer) {
             case 2 -> towerArea = new LimitedTowerContainer(8, 8, color);
             case 3 -> towerArea = new LimitedTowerContainer(6, 8, color);
@@ -66,22 +70,23 @@ public class Board {
         entranceArea = new LimitedStudentsContainer(numOfPlayer == 3 ? 9 : 7);
         diningRoom = new LimitedStudentsContainer(new int[]{10, 10, 10, 10, 10});
         profTable = new boolean[]{false, false, false, false, false};
+        if(coinsEnabled)
+            this.numberOfCoins = 15;
     }
 
     /**
      * The advanced constructor create empty dining room and fill the tower container, also fill
      * the entrance with provided container to speed up the process
-     *
      * @param numOfPlayer  the number of player in this match, use it to use different limits on the containers
-     * @param player       the player that own this board
      * @param color        the color of tower of the player
      * @param coinsEnabled the flag to activate coins logic
      * @param entrance     the container of the students extracted from the bag at the beginning
+     * @param player It's the owner of the board
      */
-    public Board(int numOfPlayer, Player player, TowerColor color, boolean coinsEnabled, LimitedStudentsContainer entrance) {
+    public Board(int numOfPlayer, TowerColor color, boolean coinsEnabled, LimitedStudentsContainer entrance, Player player) {
         this.numOfPlayer = numOfPlayer;
-        this.player = player;
         this.coinsEnabled = coinsEnabled;
+        this.player = player;
         switch (numOfPlayer) {
             case 2 -> towerArea = new LimitedTowerContainer(8, 8, color);
             case 3 -> towerArea = new LimitedTowerContainer(6, 8, color);
@@ -91,6 +96,8 @@ public class Board {
         this.entranceArea = entrance;
         diningRoom = new LimitedStudentsContainer(new int[]{10, 10, 10, 10, 10});
         profTable = new boolean[]{false, false, false, false, false};
+        if(coinsEnabled)
+            this.numberOfCoins = 15;
     }
 
     /**
@@ -224,4 +231,5 @@ public class Board {
     public Player getPlayer() {
         return player;
     }
+
 }

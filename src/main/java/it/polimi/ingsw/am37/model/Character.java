@@ -40,7 +40,7 @@ public class Character implements CharacterEffect {
 	 * @param Option 
 	 * @return
 	 */
-	public void useEffect(option Option) {
+	public void useEffect(Option option) {
 		// TODO implement here
 		return null;
 	}
@@ -49,7 +49,7 @@ public class Character implements CharacterEffect {
 	 * @param Option option 
 	 * @return
 	 */
-	public void useEffect(void Option option) {
+	public void useEffect(Option option) {
 		// TODO implement here
 		return null;
 	}
