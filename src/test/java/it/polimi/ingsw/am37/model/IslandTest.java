@@ -15,6 +15,7 @@ class IslandTest {
 
     @Test
     void checkConqueror() {
+
         ArrayList<Player> players = new ArrayList<>();
         Player player;
 
@@ -22,7 +23,7 @@ class IslandTest {
             players.add(new Player());
 
         players.get(0).setBoard(new Board(2, TowerColor.BLACK, true, players.get(0) ));
-        players.get(1).setBoard(new Board(2,TowerColor.GRAY , true, players.get(1) ));
+        players.get(1).setBoard(new Board(2, TowerColor.GRAY, true, players.get(1) ));
 
         players.get(0).getBoard().addProf(FactionColor.GREEN);
         players.get(1).getBoard().addProf(FactionColor.PINK);
@@ -43,10 +44,20 @@ class IslandTest {
         players.get(0).getBoard().addProf(FactionColor.BLUE);
         players.get(0).getBoard().addProf(FactionColor.RED);
 
+        int n = players.get(0).getBoard().getTowers().getCurrentSize();
+        assertEquals(8, n);
+        int m = players.get(1).getBoard().getTowers().getCurrentSize();
+        assertEquals(7, m);
+
         player = island.checkConqueror(players);
         assertEquals(players.get(0), player);
         assertEquals(TowerColor.BLACK, island.getCurrentTower());
 
+        int z = players.get(0).getBoard().getTowers().getCurrentSize();
+        assertEquals(7, n);
+        int k = players.get(1).getBoard().getTowers().getCurrentSize();
+        assertEquals(8, m);
+
     }
-    }
+
 }

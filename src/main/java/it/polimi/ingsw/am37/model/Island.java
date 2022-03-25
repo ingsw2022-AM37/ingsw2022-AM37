@@ -11,6 +11,11 @@ import java.util.ArrayList;
 public class Island {
 
     /**
+     *
+     */
+    private int indexExConqueror;
+
+    /**
      * It's the number of students of the last conquest of the island, useful to check who will be the next conqueror
      */
     private int numStudentsControlling = 0;
@@ -208,7 +213,6 @@ public class Island {
         int indexMaxController = 0;
         int boolToInt;
         int tmp;
-        int stolenConqueror = 0;
         boolean switchConqueror = false;
 
         for (int i = 0; i < players.size(); i++) {
@@ -226,11 +230,12 @@ public class Island {
                 if (playerPower.get(i) > this.numStudentsControlling) {
                     indexMaxController = i;
                     this.numStudentsControlling = playerPower.get(i);
+
                 }
             players.get(indexMaxController).getBoard().removeTowers(this.numIslandsUnited);
         }
         else{
-            stolenConqueror = indexMaxController;
+            indexExConqueror = indexMaxController;
             for (int i = 0; i < playerPower.size(); i++)
                 if (playerPower.get(i) > this.numStudentsControlling) {
                     indexMaxController = i;
@@ -240,7 +245,7 @@ public class Island {
         }
 
         if(switchConqueror){
-            players.get(stolenConqueror).getBoard().addTowers(this.numIslandsUnited);
+            players.get(indexExConqueror).getBoard().addTowers(this.numIslandsUnited);
             players.get(indexMaxController).getBoard().removeTowers(this.numIslandsUnited);
         }
 
