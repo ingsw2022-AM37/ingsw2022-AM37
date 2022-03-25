@@ -24,7 +24,7 @@ public class LimitedStudentsContainer extends StudentsContainer {
 	 * @throws IllegalArgumentException	throw when argument is negative
 	 */
 	public LimitedStudentsContainer(int max) throws IllegalArgumentException {
-		if(max>=0) maxSize = max;
+		if(max < 0) maxSize = max;
 		else throw new IllegalArgumentException("max("+max+" must be >=0 ");
 	}
 
@@ -35,6 +35,7 @@ public class LimitedStudentsContainer extends StudentsContainer {
 	 */
 	public LimitedStudentsContainer(int [] maxByColor) throws IllegalArgumentException{
 		maxSizeForColor = new int[5];
+		maxSize = -1;
 		if(Arrays.stream(maxByColor).parallel().allMatch(c -> c>=0) && Arrays.stream(maxByColor).anyMatch(c-> c>0))
 			maxSizeForColor = Arrays.copyOf(maxByColor, maxByColor.length);
 		else throw new IllegalArgumentException("Parameter array"+ Arrays.toString(maxByColor) +" is badly formatted: all elements must be positive and at least one bigger than 0");
@@ -48,9 +49,9 @@ public class LimitedStudentsContainer extends StudentsContainer {
 	 */
 	@Override
 	public void addStudents(int num, FactionColor color) throws IllegalArgumentException, StudentSpaceException{
-		if (num>0) throw new IllegalArgumentException("Num must be an int >= 0 but is "+num);
+		if (num < 0) throw new IllegalArgumentException("Num must be an int >= 0 but is "+num);
 		if (color == null) throw new IllegalArgumentException("color is null");
-		if(num+student[color.getIndex()]>maxSizeForColor[color.getIndex()])
+		if( maxSize == -1 && num+student[color.getIndex()]>maxSizeForColor[color.getIndex()])
 		{
 			throw new StudentSpaceException("Space error for color "+color+" (curr, num, limit): ("+student[color.getIndex()]+","+num+","+maxSizeForColor[color.getIndex()]+");", true);
 		}
@@ -68,7 +69,7 @@ public class LimitedStudentsContainer extends StudentsContainer {
 	 * @param color	the color of students to remove
 	 */
 	public void removeStudents(int num, FactionColor color) throws IllegalArgumentException, StudentSpaceException{
-		if(num<=0) throw new IllegalArgumentException("num parameter must be strictly positive");
+		if(num < 0) throw new IllegalArgumentException("num parameter must be strictly positive");
 		if(color == null) throw new IllegalArgumentException("Colors couldn't be null");
 		if(student[color.getIndex()]>= num) student[color.getIndex()] -= num;
 		else {
