@@ -1,7 +1,7 @@
 package it.polimi.ingsw.am37.model.student_container;
 
-import java.util.*;
 import it.polimi.ingsw.am37.model.FactionColor;
+import java.util.Arrays;
 
 /**
  * Container for students tile with limited amount set generally or by color and ability to remose students if needed

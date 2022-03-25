@@ -42,7 +42,6 @@ public class Cloud {
 	 * @return The students on the Cloud.
 	 */
 	public LimitedStudentsContainer removeStudents() {
-
 		LimitedStudentsContainer temp = studentsOnCloud;
 		studentsOnCloud = new LimitedStudentsContainer(isFor2 ? 3 : 4);
 		return temp;

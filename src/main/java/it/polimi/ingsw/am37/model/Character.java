@@ -1,3 +1,4 @@
+package it.polimi.ingsw.am37.model;
 
 import java.util.*;
 
@@ -29,29 +30,24 @@ public class Character implements CharacterEffect {
 
 
 	/**
-	 * @return
+	 *
 	 */
 	private void increasePrice() {
 		// TODO implement here
-		return null;
 	}
 
 	/**
-	 * @param Option 
-	 * @return
+	 * @return current price of the character
 	 */
-	public void useEffect(Option option) {
-		// TODO implement here
-		return null;
+	public int getCurrentPrice() {
+		return currentPrice;
 	}
 
 	/**
-	 * @param Option option 
-	 * @return
+	 * @param option
 	 */
 	public void useEffect(Option option) {
 		// TODO implement here
-		return null;
 	}
 
 }

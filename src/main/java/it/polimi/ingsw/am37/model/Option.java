@@ -1,9 +1,4 @@
 package it.polimi.ingsw.am37.model;
-import it.polimi.ingsw.am37.model.Island;
-import it.polimi.ingsw.am37.model.Player;
-import javafx.scene.paint.Color;
-
-import java.util.*;
 
 /**
  * 
@@ -29,7 +24,7 @@ public class Option {
 	/**
 	 * 
 	 */
-	public Color color;
+	public FactionColor color;
 
 	/**
 	 * 
