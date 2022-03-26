@@ -1,4 +1,7 @@
 package it.polimi.ingsw.am37.model;
+import it.polimi.ingsw.am37.model.character.Character;
+import it.polimi.ingsw.am37.model.character.Option;
+
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 

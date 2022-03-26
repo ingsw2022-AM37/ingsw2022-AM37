@@ -10,51 +10,46 @@ import it.polimi.ingsw.am37.model.student_container.LimitedStudentsContainer;
 public class Board {
 
     /**
-     * It's the number of coins, if they are disabled it's useless. It's used to check if the number of coins is constant between board and its player
-     */
-    private int numberOfCoins = 0;
-
-    /**
      * Container for the towers
      */
     final LimitedTowerContainer towerArea;
-
     /**
      * Container for the students in the entrance zone
      */
     final LimitedStudentsContainer entranceArea;
-
     /**
      * Container for the students in the dining room
      */
     final LimitedStudentsContainer diningRoom;
-
     /**
      * Represent the table of professors using an array of boolean; each element its true if professor is in
      */
     final boolean[] profTable;
-
     /**
      * Reference to the player who this board belongs to
      */
     final Player player;
-
     /**
      * The number of player in this match, use it to hold different logic switching on it
      */
     final int numOfPlayer;
-
     /**
      * Flag for show if the coin logic should be enabled
      */
     boolean coinsEnabled;
+    /**
+     * It's the array of coins over the board.Represented as a matrix where first dimensions is color and secondo are
+     * the three coins on a color table; if coinsEnable is false is useless
+     */
+    private boolean[][] coinsArray;
 
     /**
      * The default constructor create empty entrance and dining rooms and fill the tower containers
-     * @param numOfPlayer the number of player in this match, use it to use different limits on the containers
-     * @param color the color of tower of the player
+     *
+     * @param numOfPlayer  the number of player in this match, use it to use different limits on the containers
+     * @param color        the color of tower of the player
      * @param coinsEnabled the flag to activate coins logic
-     * @param player It's the owner of the board
+     * @param player       It's the owner of the board
      */
     public Board(int numOfPlayer, TowerColor color, boolean coinsEnabled, Player player) {
         this.numOfPlayer = numOfPlayer;
@@ -70,18 +65,27 @@ public class Board {
         entranceArea = new LimitedStudentsContainer(numOfPlayer == 3 ? 9 : 7);
         diningRoom = new LimitedStudentsContainer(new int[]{10, 10, 10, 10, 10});
         profTable = new boolean[]{false, false, false, false, false};
-        if(coinsEnabled)
-            this.numberOfCoins = 15;
+        if (coinsEnabled) {
+            coinsArray = new boolean[5][3];
+            for (FactionColor col :
+                    FactionColor.values()) {
+                coinsArray[col.getIndex()][0] = true;
+                coinsArray[col.getIndex()][1] = true;
+                coinsArray[col.getIndex()][2] = true;
+            }
+        }
+
     }
 
     /**
      * The advanced constructor create empty dining room and fill the tower container, also fill
      * the entrance with provided container to speed up the process
+     *
      * @param numOfPlayer  the number of player in this match, use it to use different limits on the containers
      * @param color        the color of tower of the player
      * @param coinsEnabled the flag to activate coins logic
      * @param entrance     the container of the students extracted from the bag at the beginning
-     * @param player It's the owner of the board
+     * @param player       It's the owner of the board
      */
     public Board(int numOfPlayer, TowerColor color, boolean coinsEnabled, LimitedStudentsContainer entrance, Player player) {
         this.numOfPlayer = numOfPlayer;
@@ -96,8 +100,15 @@ public class Board {
         this.entranceArea = entrance;
         diningRoom = new LimitedStudentsContainer(new int[]{10, 10, 10, 10, 10});
         profTable = new boolean[]{false, false, false, false, false};
-        if(coinsEnabled)
-            this.numberOfCoins = 15;
+        if (coinsEnabled) {
+            coinsArray = new boolean[5][3];
+            for (FactionColor col :
+                    FactionColor.values()) {
+                coinsArray[col.getIndex()][0] = true;
+                coinsArray[col.getIndex()][1] = true;
+                coinsArray[col.getIndex()][2] = true;
+            }
+        }
     }
 
     /**
@@ -163,7 +174,9 @@ public class Board {
      */
     public void addStudentToDining(LimitedStudentsContainer container) {
         diningRoom.uniteContainers(container);
-        player.receiveCoin();
+        for (int i = 0; i < calculateCoin(diningRoom); i++) {
+            player.receiveCoin();
+        }
     }
 
     /**
@@ -208,18 +221,16 @@ public class Board {
     /**
      * Return the number of coins taken this turn for each color
      *
-     * @param previous the state of the dining room before the insert
-     * @param current  the state of the dining room after the insert
+     * @param current the state of the dining room after the insert
      * @return the number of coins taken
      */
-    private int calculateCoin(LimitedStudentsContainer previous, LimitedStudentsContainer current) {
+    private int calculateCoin(LimitedStudentsContainer current) {
         int coins = 0;
         for (FactionColor color :
                 FactionColor.values()) {
-            if (previous.getByColor(color) % 3 == 0)
-                coins += (current.getByColor(color) - previous.getByColor(color)) / 3;
-            else for (int i = previous.getByColor(color); i <= current.getByColor(color); i++) {
-                if (i % 3 == 0) coins++;
+            if (coinsArray[color.getIndex()][current.getByColor(color) / 3]) {
+                coinsArray[color.getIndex()][current.getByColor(color) / 3] = false;
+                coins++;
             }
         }
         return coins;
