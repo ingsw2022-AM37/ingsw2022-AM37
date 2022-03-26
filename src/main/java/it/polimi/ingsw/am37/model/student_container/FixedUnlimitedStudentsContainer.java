@@ -23,7 +23,7 @@ public class FixedUnlimitedStudentsContainer extends StudentsContainer {
      */
     @Override
     public void addStudents(int num, FactionColor color) throws IllegalArgumentException {
-        if (num > 0) throw new IllegalArgumentException("Num must be an int >= 0 but is " + num);
+        if (num < 0) throw new IllegalArgumentException("Num must be an int >= 0 but is " + num);
         if (color == null) throw new IllegalArgumentException("color is null");
         student[color.getIndex()] += num;
     }

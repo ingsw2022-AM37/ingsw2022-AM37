@@ -14,13 +14,11 @@ public class Wizard {
 
 	/**
 	 * Represents wizard's team
-	 * @see WizardTeam
 	 */
 	private final WizardTeam team;
 
 	/**
 	 * @return the team of the wizard
-	 * @see WizardTeam
 	 */
 	public WizardTeam getTeam() {
 		return this.team;
