@@ -17,7 +17,6 @@ public class LimitedTowerContainer {
 
 	/**
 	 * Indicate the color of all towers
-	 * @see TowerColor
 	 */
 	private final TowerColor currentTower;
 
@@ -49,9 +48,8 @@ public class LimitedTowerContainer {
 
 	/**
 	 * @return The color of towers
-	 * @see TowerColor
 	 */
-	public TowerColor getcurrentTower() {
+	public TowerColor getCurrentTower() {
 		return this.currentTower;
 	}
 
@@ -68,7 +66,7 @@ public class LimitedTowerContainer {
 	 * @throws IllegalArgumentException The parameter is wrong if negative, zero or the difference is lower than zero
 	 */
 	public void removeTowers(int num) throws IllegalArgumentException {
-		if(num<0)
+		if(num<=0)
 			throw new IllegalArgumentException("Negative number or zero");
 
 		int tmp = this.currentSize - num;

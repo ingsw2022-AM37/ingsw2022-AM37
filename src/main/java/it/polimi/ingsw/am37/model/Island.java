@@ -11,9 +11,9 @@ import java.util.ArrayList;
 public class Island {
 
     /**
-     *
+     * It's used for checkConqueror, it's the index of the current player conqueror
      */
-    private int indexExConqueror;
+    private int indexCurrentConqueror;
 
     /**
      * It's the number of students of the last conquest of the island, useful to check who will be the next conqueror
@@ -23,13 +23,11 @@ public class Island {
     /**
      * It represents the students on the island
      *
-     * @see FixedUnlimitedStudentsContainer
      */
     private final FixedUnlimitedStudentsContainer studentsOnIsland;
     /**
      * Indicate if there is a tower and eventually its color
      *
-     * @see TowerColor
      */
     private TowerColor tower;
     /**
@@ -79,7 +77,6 @@ public class Island {
 
     /**
      * @param color It's the color of tower needed to be imposed to the island
-     * @see TowerColor
      */
     public void setTower(TowerColor color) {
         this.tower = color;
@@ -87,7 +84,6 @@ public class Island {
 
     /**
      * @return The current color of tower in the island
-     * @see TowerColor
      */
     public TowerColor getCurrentTower() {
         return this.tower;
@@ -95,7 +91,6 @@ public class Island {
 
     /**
      * @param cont It's the array of students which will be added to the island's one
-     * @see FixedUnlimitedStudentsContainer
      */
     public void addStudents(FixedUnlimitedStudentsContainer cont) {
         this.studentsOnIsland.uniteContainers(cont);
@@ -114,7 +109,7 @@ public class Island {
         if (islandId < 0 || islandId >= islands.size())
             throw new IllegalArgumentException("IslandId should be the index of the island you are looking to unify");
 
-        if (islandId == 0) {
+        if (islandId == 0 && islands.size()>1) {
             if ((islands.get(islandId).getCurrentTower()) == islands.get(islands.size() - 1).getCurrentTower()) {
                 this.numIslandsUnited = this.numIslandsUnited + islands.get(islands.size() - 1).getNumIslands();
                 this.studentsOnIsland.uniteContainers(islands.get(islands.size() - 1).getStudentsOnIsland());
@@ -123,7 +118,7 @@ public class Island {
             }
         }
 
-        if (islandId + 1 < islands.size()) {
+        if (islandId + 1 < islands.size() && islands.size()>1) {
             if ((islands.get(islandId).getCurrentTower()) == islands.get(islandId + 1).getCurrentTower()) {
                 this.numIslandsUnited = this.numIslandsUnited + islands.get(islandId + 1).getNumIslands();
                 this.studentsOnIsland.uniteContainers(islands.get(islandId + 1).getStudentsOnIsland());
@@ -133,17 +128,17 @@ public class Island {
             }
         }
 
-        if (islandId - 1 >= 0) {
+        if (islandId - 1 >= 0 && islands.size()>1) {
             if ((islands.get(islandId).getCurrentTower()) == islands.get(islandId - 1).getCurrentTower())  {
                 this.numIslandsUnited = this.numIslandsUnited + islands.get(islandId - 1).getNumIslands();
                 this.studentsOnIsland.uniteContainers(islands.get(islandId - 1).getStudentsOnIsland());
 
-                islandId--;
                 islands.remove(islandId - 1);
+                islandId--;
             }
         }
 
-        if (islandId == islands.size() - 1 && !UnitedDx) {
+        if (islandId == islands.size() - 1 && !UnitedDx && islands.size()>1) {
             if ((islands.get(islandId).getCurrentTower()) == islands.get(0).getCurrentTower()) {
                 this.numIslandsUnited = this.numIslandsUnited + islands.get(0).getNumIslands();
                 this.studentsOnIsland.uniteContainers(islands.get(0).getStudentsOnIsland());
@@ -156,7 +151,6 @@ public class Island {
 
     /**
      * @return The students on the island
-     * @see FixedUnlimitedStudentsContainer
      */
     public FixedUnlimitedStudentsContainer getStudentsOnIsland() {
         return this.studentsOnIsland;
@@ -193,7 +187,6 @@ public class Island {
     /**
      * @param color It's the color of the number of students we want to find
      * @return The number of students on the Island of one color
-     * @see FactionColor
      */
     public int getByColor(FactionColor color) {
         return this.studentsOnIsland.getByColor(color);
@@ -204,13 +197,12 @@ public class Island {
      *
      * @param players It's the ArrayList of all players, it gives the access to all boards
      * @return The player who conquered the island
-     * @see Player
      */
     public Player checkConqueror(ArrayList<Player> players) {
         ArrayList<Integer> playerPower = new ArrayList<>();
         boolean[] controlledProf;
 
-        int indexMaxController = 0;
+        int indexExConqueror = 0; //in teoria non serve inizializzazione ma da errore
         int boolToInt;
         int tmp;
         boolean switchConqueror = false;
@@ -228,17 +220,17 @@ public class Island {
         if(this.tower == TowerColor.NONE) {
             for (int i = 0; i < playerPower.size(); i++)
                 if (playerPower.get(i) > this.numStudentsControlling) {
-                    indexMaxController = i;
+                    indexCurrentConqueror = i;
                     this.numStudentsControlling = playerPower.get(i);
 
                 }
-            players.get(indexMaxController).getBoard().removeTowers(this.numIslandsUnited);
+            players.get(indexCurrentConqueror).getBoard().removeTowers(this.numIslandsUnited);
         }
         else{
-            indexExConqueror = indexMaxController;
+            indexExConqueror = indexCurrentConqueror;
             for (int i = 0; i < playerPower.size(); i++)
                 if (playerPower.get(i) > this.numStudentsControlling) {
-                    indexMaxController = i;
+                    indexCurrentConqueror = i;
                     this.numStudentsControlling = playerPower.get(i);
                     switchConqueror = true;
                 }
@@ -246,12 +238,12 @@ public class Island {
 
         if(switchConqueror){
             players.get(indexExConqueror).getBoard().addTowers(this.numIslandsUnited);
-            players.get(indexMaxController).getBoard().removeTowers(this.numIslandsUnited);
+            players.get(indexCurrentConqueror).getBoard().removeTowers(this.numIslandsUnited);
         }
 
-        this.tower = players.get(indexMaxController).getBoard().getTowers().getcurrentTower();
+        this.tower = players.get(indexCurrentConqueror).getBoard().getTowers().getCurrentTower();
 
-        return players.get(indexMaxController);
+        return players.get(indexCurrentConqueror);
 
     }
 }
