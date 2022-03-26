@@ -10,33 +10,37 @@ import it.polimi.ingsw.am37.model.student_container.LimitedStudentsContainer;
 public class Board {
 
     /**
+     * Size constants;
+     */
+    private static final int maxTowerSizeFor2 = 8, maxTowerSizeFor3 = 6, maxEntranceSizeFor2 = 7, maxEntranceSizeFor3 = 9;
+    /**
      * Container for the towers
      */
-    final LimitedTowerContainer towerArea;
+    private final LimitedTowerContainer towerArea;
     /**
      * Container for the students in the entrance zone
      */
-    final LimitedStudentsContainer entranceArea;
+    private final LimitedStudentsContainer entranceArea;
     /**
      * Container for the students in the dining room
      */
-    final LimitedStudentsContainer diningRoom;
+    private final LimitedStudentsContainer diningRoom;
     /**
      * Represent the table of professors using an array of boolean; each element its true if professor is in
      */
-    final boolean[] profTable;
+    private final boolean[] profTable;
     /**
      * Reference to the player who this board belongs to
      */
-    final Player player;
+    private final Player player;
     /**
      * The number of player in this match, use it to hold different logic switching on it
      */
-    final int numOfPlayer;
+    private final int numOfPlayer;
     /**
      * Flag for show if the coin logic should be enabled
      */
-    boolean coinsEnabled;
+    private boolean coinsEnabled;
     /**
      * It's the array of coins over the board.Represented as a matrix where first dimensions is color and secondo are
      * the three coins on a color table; if coinsEnable is false is useless
@@ -56,13 +60,13 @@ public class Board {
         this.coinsEnabled = coinsEnabled;
         this.player = player;
         switch (numOfPlayer) {
-            case 2 -> towerArea = new LimitedTowerContainer(8, 8, color);
-            case 3 -> towerArea = new LimitedTowerContainer(6, 8, color);
-            case 4 -> towerArea = new LimitedTowerContainer(8, 0, color);
+            case 2 -> towerArea = new LimitedTowerContainer(maxTowerSizeFor2, maxTowerSizeFor2, color);
+            case 3 -> towerArea = new LimitedTowerContainer(maxTowerSizeFor3, maxTowerSizeFor3, color);
+            case 4 -> towerArea = new LimitedTowerContainer(maxTowerSizeFor2, 0, color);
             default -> throw new IllegalArgumentException("number of player must be between 2 and 4");
 
         }
-        entranceArea = new LimitedStudentsContainer(numOfPlayer == 3 ? 9 : 7);
+        entranceArea = new LimitedStudentsContainer(numOfPlayer == 3 ? maxEntranceSizeFor3 : maxEntranceSizeFor2);
         diningRoom = new LimitedStudentsContainer(new int[]{10, 10, 10, 10, 10});
         profTable = new boolean[]{false, false, false, false, false};
         if (coinsEnabled) {
@@ -92,9 +96,9 @@ public class Board {
         this.coinsEnabled = coinsEnabled;
         this.player = player;
         switch (numOfPlayer) {
-            case 2 -> towerArea = new LimitedTowerContainer(8, 8, color);
-            case 3 -> towerArea = new LimitedTowerContainer(6, 8, color);
-            case 4 -> towerArea = new LimitedTowerContainer(8, 0, color);
+            case 2 -> towerArea = new LimitedTowerContainer(maxTowerSizeFor2, maxTowerSizeFor2, color);
+            case 3 -> towerArea = new LimitedTowerContainer(maxTowerSizeFor3, maxTowerSizeFor3, color);
+            case 4 -> towerArea = new LimitedTowerContainer(maxTowerSizeFor2, 0, color);
             default -> throw new IllegalArgumentException("number of player must be between 2 and 4");
         }
         this.entranceArea = entrance;
