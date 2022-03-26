@@ -24,7 +24,7 @@ public class Assistant extends Wizard {
 	 * Each assistant has a moveMNMovement which specific the maximum number of islands on which you
 	 * can move MotherNature in clockwise
 	 */
-	private final int moveMNMovement;
+	private int moveMNMovement;
 
 
 	/**
@@ -41,4 +41,7 @@ public class Assistant extends Wizard {
 		return this.moveMNMovement;
 	}
 
+	public void increaseMNMovement(int i) {
+		this.moveMNMovement += i;
+	}
 }

@@ -1,4 +1,6 @@
-package it.polimi.ingsw.am37.model;
+package it.polimi.ingsw.am37.model.character;
+
+import it.polimi.ingsw.am37.model.character.Option;
 
 /**
  * 
