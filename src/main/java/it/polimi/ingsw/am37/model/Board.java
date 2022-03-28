@@ -42,6 +42,11 @@ public class Board {
     private boolean[][] coinsArray;
 
     /**
+     * Represent the space between coins
+     */
+    static final int spaceBetweenCoins = 3;
+
+    /**
      * The default constructor create empty entrance and dining rooms and fill the tower containers
      *
      * @param numOfPlayer  the number of player in this match, use it to use different limits on the containers
@@ -179,6 +184,7 @@ public class Board {
         diningRoom.removeStudents(Math.min(num, diningRoom.getByColor(color)), color);
         LimitedStudentsContainer temp = new LimitedStudentsContainer(num);
         temp.addStudents(Math.min(num, diningRoom.getByColor(color)), color);
+        if (coinsEnabled) checkCoins(diningRoom);
         return temp;
     }
 
@@ -213,7 +219,6 @@ public class Board {
      * @return the number of coins taken
      */
     private int calculateCoin(LimitedStudentsContainer current) {
-        final int spaceBetweenCoins = 3;
         int coins = 0;
         for (FactionColor color :
                 FactionColor.values()) {
@@ -224,6 +229,16 @@ public class Board {
             }
         }
         return coins;
+    }
+
+    private void checkCoins(LimitedStudentsContainer current) {
+        for (FactionColor color :
+                FactionColor.values()) {
+            int firstNotTakenCoinIndex = current.getByColor(color) / spaceBetweenCoins;
+            for (int i = firstNotTakenCoinIndex; i < coinsArray[color.getIndex()].length; i++) {
+                coinsArray[color.getIndex()][i] = true;
+            }
+        }
     }
 
     /**
