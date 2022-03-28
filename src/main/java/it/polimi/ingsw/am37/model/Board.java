@@ -232,16 +232,6 @@ public class Board {
         return coins;
     }
 
-    private void checkCoins(LimitedStudentsContainer current) {
-        for (FactionColor color :
-                FactionColor.values()) {
-            int firstNotTakenCoinIndex = current.getByColor(color) / spaceBetweenCoins;
-            for (int i = firstNotTakenCoinIndex; i < coinsArray[color.getIndex()].length; i++) {
-                coinsArray[color.getIndex()][i] = true;
-            }
-        }
-    }
-
     /**
      * Check and reassess the state of given coins when some students are removed
      *
