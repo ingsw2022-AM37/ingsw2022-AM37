@@ -2,6 +2,8 @@ package it.polimi.ingsw.am37.model;
 
 import it.polimi.ingsw.am37.model.student_container.LimitedStudentsContainer;
 
+import java.util.Arrays;
+
 
 /**
  * The class represent the player board in the game. This hold the tower and students container,
@@ -9,10 +11,6 @@ import it.polimi.ingsw.am37.model.student_container.LimitedStudentsContainer;
  */
 public class Board {
 
-    /**
-     * Size constants;
-     */
-    private static final int maxTowerSizeFor2 = 8, maxTowerSizeFor3 = 6, maxEntranceSizeFor2 = 7, maxEntranceSizeFor3 = 9;
     /**
      * Container for the towers
      */
@@ -34,13 +32,9 @@ public class Board {
      */
     private final Player player;
     /**
-     * The number of player in this match, use it to hold different logic switching on it
-     */
-    private final int numOfPlayer;
-    /**
      * Flag for show if the coin logic should be enabled
      */
-    private boolean coinsEnabled;
+    private final boolean coinsEnabled;
     /**
      * It's the array of coins over the board.Represented as a matrix where first dimensions is color and secondo are
      * the three coins on a color table; if coinsEnable is false is useless
@@ -56,7 +50,15 @@ public class Board {
      * @param player       It's the owner of the board
      */
     public Board(int numOfPlayer, TowerColor color, boolean coinsEnabled, Player player) {
-        this.numOfPlayer = numOfPlayer;
+        //default variables for settings
+        final int
+                maxTowerSizeFor2 = 8,
+                maxTowerSizeFor3 = 6,
+                maxEntranceSizeFor2 = 7,
+                maxEntranceSizeFor3 = 9,
+                maxTableSize = 10,
+                coinsOnStudentTable = 3;
+        // Begin of real method
         this.coinsEnabled = coinsEnabled;
         this.player = player;
         switch (numOfPlayer) {
@@ -64,18 +66,18 @@ public class Board {
             case 3 -> towerArea = new LimitedTowerContainer(maxTowerSizeFor3, maxTowerSizeFor3, color);
             case 4 -> towerArea = new LimitedTowerContainer(maxTowerSizeFor2, 0, color);
             default -> throw new IllegalArgumentException("number of player must be between 2 and 4");
-
         }
         entranceArea = new LimitedStudentsContainer(numOfPlayer == 3 ? maxEntranceSizeFor3 : maxEntranceSizeFor2);
-        diningRoom = new LimitedStudentsContainer(new int[]{10, 10, 10, 10, 10});
-        profTable = new boolean[]{false, false, false, false, false};
+        int[] temp = new int[FactionColor.values().length];
+        Arrays.fill(temp, maxTableSize);
+        diningRoom = new LimitedStudentsContainer(temp);
+        profTable = new boolean[FactionColor.values().length];
+        Arrays.fill(profTable, false);
         if (coinsEnabled) {
-            coinsArray = new boolean[5][3];
+            coinsArray = new boolean[FactionColor.values().length][coinsOnStudentTable];
             for (FactionColor col :
                     FactionColor.values()) {
-                coinsArray[col.getIndex()][0] = true;
-                coinsArray[col.getIndex()][1] = true;
-                coinsArray[col.getIndex()][2] = true;
+                Arrays.fill(coinsArray[col.getIndex()], true);
             }
         }
 
@@ -92,27 +94,8 @@ public class Board {
      * @param player       It's the owner of the board
      */
     public Board(int numOfPlayer, TowerColor color, boolean coinsEnabled, LimitedStudentsContainer entrance, Player player) {
-        this.numOfPlayer = numOfPlayer;
-        this.coinsEnabled = coinsEnabled;
-        this.player = player;
-        switch (numOfPlayer) {
-            case 2 -> towerArea = new LimitedTowerContainer(maxTowerSizeFor2, maxTowerSizeFor2, color);
-            case 3 -> towerArea = new LimitedTowerContainer(maxTowerSizeFor3, maxTowerSizeFor3, color);
-            case 4 -> towerArea = new LimitedTowerContainer(maxTowerSizeFor2, 0, color);
-            default -> throw new IllegalArgumentException("number of player must be between 2 and 4");
-        }
-        this.entranceArea = entrance;
-        diningRoom = new LimitedStudentsContainer(new int[]{10, 10, 10, 10, 10});
-        profTable = new boolean[]{false, false, false, false, false};
-        if (coinsEnabled) {
-            coinsArray = new boolean[5][3];
-            for (FactionColor col :
-                    FactionColor.values()) {
-                coinsArray[col.getIndex()][0] = true;
-                coinsArray[col.getIndex()][1] = true;
-                coinsArray[col.getIndex()][2] = true;
-            }
-        }
+        this(numOfPlayer, color, coinsEnabled, player);
+        entranceArea.uniteContainers(entrance);
     }
 
     /**
@@ -178,23 +161,24 @@ public class Board {
      */
     public void addStudentToDining(LimitedStudentsContainer container) {
         diningRoom.uniteContainers(container);
-        for (int i = 0; i < calculateCoin(diningRoom); i++) {
-            player.receiveCoin();
+        if (coinsEnabled) {
+            for (int i = 0; i < calculateCoin(diningRoom); i++) {
+                player.receiveCoin();
+            }
         }
     }
 
     /**
-     * Remove the students from dining rooms. This functions must be used only by the theft
-     * character to remove 3 students from the dining room; if there are fewer than 3 students
-     * of the specified color, all of them are removed.
+     * Remove the students from dining rooms. If there are less than num students, all of them are removed without raising exception
      *
+     * @param num   the max number of students to remove
      * @param color the color of students to remove
      * @return a container with the removed students
      */
-    public LimitedStudentsContainer removeStudentFromDining(FactionColor color) {
-        diningRoom.removeStudents(Math.min(3, diningRoom.getByColor(color)), color);
-        LimitedStudentsContainer temp = new LimitedStudentsContainer(3);
-        temp.addStudents(Math.min(3, diningRoom.getByColor(color)), color);
+    public LimitedStudentsContainer removeStudentFromDining(int num, FactionColor color) {
+        diningRoom.removeStudents(Math.min(num, diningRoom.getByColor(color)), color);
+        LimitedStudentsContainer temp = new LimitedStudentsContainer(num);
+        temp.addStudents(Math.min(num, diningRoom.getByColor(color)), color);
         return temp;
     }
 
@@ -229,11 +213,13 @@ public class Board {
      * @return the number of coins taken
      */
     private int calculateCoin(LimitedStudentsContainer current) {
+        final int spaceBetweenCoins = 3;
         int coins = 0;
         for (FactionColor color :
                 FactionColor.values()) {
-            if (coinsArray[color.getIndex()][current.getByColor(color) / 3]) {
-                coinsArray[color.getIndex()][current.getByColor(color) / 3] = false;
+            int lastTakenCoinIndex = current.getByColor(color) / spaceBetweenCoins - 1;
+            if (lastTakenCoinIndex >= 0 && coinsArray[color.getIndex()][lastTakenCoinIndex]) {
+                coinsArray[color.getIndex()][lastTakenCoinIndex] = false;
                 coins++;
             }
         }
