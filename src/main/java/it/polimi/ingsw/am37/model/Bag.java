@@ -10,14 +10,17 @@ import java.util.Random;
 public class Bag {
 
 	/**
+	 * It represents the number of students in the bag when the game starts.
+	 */
+	private final static int startingStudentsPerColor = 24;
+
+	/**
 	 * Default constructor, it fills the Bag with 2 students from each Faction.
-	 * @see FactionColor
-	 * @see UnlimitedStudentsContainer
 	 */
 	public Bag() {
 		studentsAvailable = new UnlimitedStudentsContainer();
 		for(FactionColor color : FactionColor.values())
-			studentsAvailable.addStudents(24, color);
+			studentsAvailable.addStudents(startingStudentsPerColor, color);
 	}
 
 	/**
@@ -25,14 +28,11 @@ public class Bag {
 	 */
 	private final UnlimitedStudentsContainer studentsAvailable;
 
-
 	/**
 	 * It extracts students from the Bag.
 	 * @param num The number of students to extracts.
 	 * @return A LimitedStudentContainer that contains the students extracted by FactionColor.
 	 * @throws IllegalArgumentException If there are not enough students to extract.
-	 * @see LimitedStudentsContainer
-	 * @see FactionColor
 	 */
 	public LimitedStudentsContainer extractStudents(int num) {
 		if(studentsAvailable.size() < num)
@@ -53,5 +53,12 @@ public class Bag {
 			studentsAvailable.removeStudents(colorBound[color.getIndex()], color);
 		}
 		return studentsExtracted;
+	}
+
+	/**
+	 * @return the number of the students in the Bag.
+	 */
+	public int size(){
+		return studentsAvailable.size();
 	}
 }

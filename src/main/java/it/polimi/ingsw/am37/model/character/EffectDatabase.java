@@ -146,7 +146,7 @@ public class EffectDatabase {
         ArrayList<Integer> indexes = database.get(effect);
         ArrayList<BiConsumer<Option, State>> consumers = new ArrayList<>();
         for (Integer index : indexes) {
-            consumers.add(baseEffects[index]);
+            consumers.add(baseEffects.get(index));
         }
         return consumers;
     }

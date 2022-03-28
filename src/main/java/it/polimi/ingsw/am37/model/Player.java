@@ -1,7 +1,8 @@
 package it.polimi.ingsw.am37.model;
+
 import it.polimi.ingsw.am37.model.character.Character;
 import it.polimi.ingsw.am37.model.character.Option;
-
+import javax.management.InstanceAlreadyExistsException;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 
@@ -16,7 +17,6 @@ public class Player {
 	 */
 	public Player() {
 		this.numberOfCoins = 0;
-		this.assistantsDeck = new ArrayList<>();
 		this.lastAssistantPlayed = null;
 		this.team = null;
 	}
@@ -28,27 +28,23 @@ public class Player {
 
 	/**
 	 * It represents the school Board, each Player must own a board in order to play.
-	 * @see Board
- 	 */
+	 */
 	private Board board;
 
 	/**
 	 * It represents the set of Assistant cards that every player owns, each Player must own a deck in order to play.
-	 * @see Assistant
 	 */
 	private ArrayList<Assistant> assistantsDeck;
 
 	/**
 	 * It represents the team chosen by the Player, every player must choose a team. The team determines the Assistant
 	 * deck that he will receive.
-	 * @see WizardTeam
 	 */
 	private WizardTeam team;
 
 	/**
 	 * It represents the last Assistant Played in the turn, it is needed to calculate the movement of Mother Nature
 	 * and the order of the next turn.
-	 * @see Assistant
 	 */
 	private Assistant lastAssistantPlayed;
 
@@ -85,36 +81,14 @@ public class Player {
 	}
 
 	/**
-	 * @return It returns the lastAssistantPlayed.
-	 */
-	public Assistant getLastAssistantPlayed() {
-		return this.lastAssistantPlayed;
-	}
-
-	/**
-	 * @return It's the Board that the player owns.
-	 */
-	public Board getBoard() {
-		return this.board;
-	}
-
-	/**
-	 *
-	 * @return The Wizard Team in the deck that the player owns.
-	 */
-	public WizardTeam getTeam() {
-		return this.team;
-	}
-
-	/**
 	 * It creates the Assistant deck from the Wizard Team received from parameters
 	 * and sets the team as the team received from parameter.
 	 * @param team The Wizard Team to which the deck belongs.
-	 * @throws IllegalArgumentException if the team received from parameters is not set to a specific team.
+	 * @throws InstanceAlreadyExistsException if an instance of the assistantDeck is already present.
 	 */
-	public void createDeck(WizardTeam team) {
-		if(team == null)
-			throw new IllegalArgumentException("the team can't be NULL");
+	public void createDeck(WizardTeam team) throws InstanceAlreadyExistsException {
+		if(assistantsDeck != null)
+			throw new InstanceAlreadyExistsException("Can't create a deck for this Player. A deck already exists");
 		this.team = team;
 		this.assistantsDeck = new ArrayList<>();
 		int movement = 0;
@@ -132,16 +106,45 @@ public class Player {
 	 * Moves Mother Nature on the Island received from parameters.
 	 * @param from The Island of departure.
 	 * @param to The arrival Island.
+	 * @throws IllegalArgumentException If the Islands are NULL or if the Player is trying to move Mother Nature to
+	 * the same island she is on.
 	 */
-	public void moveMotherNature(Island from, Island to){
+	public void moveMotherNature(Island from, Island to) throws  IllegalArgumentException{
+		if(from == null || to == null)
+			throw new IllegalArgumentException("The Islands should not be NULL");
+		if(from.equals(to))
+			throw new IllegalArgumentException("You are trying to move Mother Nature to the same island she is on. " +
+					"You must move Mother Nature.");
+
 		from.unsetMotherNature();
 		to.setMotherNature();
 	}
 
 	/**
-	 * @param board The board controlled by this player
+	 * @return It returns the lastAssistantPlayed.
+	 */
+	public Assistant getLastAssistantPlayed() {
+		return this.lastAssistantPlayed;
+	}
+
+	/**
+	 * @param board The board controlled by the Player.
 	 */
 	public void setBoard(Board board){
 		this.board = board;
+	}
+
+	/**
+	 * @return It's the Board that the player owns.
+	 */
+	public Board getBoard() {
+		return this.board;
+	}
+
+	/**
+	 * @return The deck of Assistants that the Player has.
+	 */
+	public ArrayList<Assistant> getAssistantsDeck() {
+		return assistantsDeck;
 	}
 }
