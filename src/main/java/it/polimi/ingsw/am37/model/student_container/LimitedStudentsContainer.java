@@ -24,8 +24,8 @@ public class LimitedStudentsContainer extends StudentsContainer {
 	 * @throws IllegalArgumentException	throw when argument is negative
 	 */
 	public LimitedStudentsContainer(int max) throws IllegalArgumentException {
-		if(max < 0) maxSize = max;
-		else throw new IllegalArgumentException("max("+max+" must be >=0 ");
+		if (max >= 0) maxSize = max;
+		else throw new IllegalArgumentException("max(" + max + " must be >=0 ");
 	}
 
 	/**
@@ -51,14 +51,11 @@ public class LimitedStudentsContainer extends StudentsContainer {
 	public void addStudents(int num, FactionColor color) throws IllegalArgumentException, StudentSpaceException{
 		if (num < 0) throw new IllegalArgumentException("Num must be an int >= 0 but is "+num);
 		if (color == null) throw new IllegalArgumentException("color is null");
-		if( maxSize == -1 && num+student[color.getIndex()]>maxSizeForColor[color.getIndex()])
-		{
-			throw new StudentSpaceException("Space error for color "+color+" (curr, num, limit): ("+student[color.getIndex()]+","+num+","+maxSizeForColor[color.getIndex()]+");", true);
-		}
-		else if (Arrays.stream(student).sum()+num>maxSize){
-			throw new StudentSpaceException("General space error (curr, num, limit): ("+Arrays.stream(student).sum()+","+num+","+maxSize+");", true);
-		}
-		else {
+		if (maxSize == -1 && num + student[color.getIndex()] > maxSizeForColor[color.getIndex()]) {
+			throw new StudentSpaceException("Space error for color " + color + " (curr, num, limit): (" + student[color.getIndex()] + "," + num + "," + maxSizeForColor[color.getIndex()] + ");", true);
+		} else if (maxSize != -1 && Arrays.stream(student).sum() + num > maxSize) {
+			throw new StudentSpaceException("General space error (curr, num, limit): (" + Arrays.stream(student).sum() + "," + num + "," + maxSize + ");", true);
+		} else {
 			student[color.getIndex()] += num;
 		}
 	}

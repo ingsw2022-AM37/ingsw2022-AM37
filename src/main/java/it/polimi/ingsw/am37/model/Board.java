@@ -36,10 +36,16 @@ public class Board {
      */
     private final boolean coinsEnabled;
     /**
-     * It's the array of coins over the board.Represented as a matrix where first dimensions is color and secondo are
-     * the three coins on a color table; if coinsEnable is false is useless
+     * It's the array of coins over the board.Represented as a matrix where first dimensions is color index and second is
+     * the three coins on a color table; if coinsEnable is false is useless, else it's used to track given and not give
+     * coins on the board
      */
     private boolean[][] coinsArray;
+
+    /**
+     * Represent the space between coins
+     */
+    static final int spaceBetweenCoins = 3;
 
     /**
      * The default constructor create empty entrance and dining rooms and fill the tower containers
@@ -179,6 +185,7 @@ public class Board {
         diningRoom.removeStudents(Math.min(num, diningRoom.getByColor(color)), color);
         LimitedStudentsContainer temp = new LimitedStudentsContainer(num);
         temp.addStudents(Math.min(num, diningRoom.getByColor(color)), color);
+        if (coinsEnabled) checkCoins(diningRoom);
         return temp;
     }
 
@@ -213,7 +220,6 @@ public class Board {
      * @return the number of coins taken
      */
     private int calculateCoin(LimitedStudentsContainer current) {
-        final int spaceBetweenCoins = 3;
         int coins = 0;
         for (FactionColor color :
                 FactionColor.values()) {
@@ -224,6 +230,21 @@ public class Board {
             }
         }
         return coins;
+    }
+
+    /**
+     * Check and reassess the state of given coins when some students are removed
+     *
+     * @param current the state of the dining room after the removal
+     */
+    private void checkCoins(LimitedStudentsContainer current) {
+        for (FactionColor color :
+                FactionColor.values()) {
+            int firstNotTakenCoinIndex = current.getByColor(color) / spaceBetweenCoins;
+            for (int i = firstNotTakenCoinIndex; i < coinsArray[color.getIndex()].length; i++) {
+                coinsArray[color.getIndex()][i] = true;
+            }
+        }
     }
 
     /**
