@@ -45,4 +45,12 @@ public class UnlimitedStudentsContainer extends StudentsContainer {
         }
     }
 
+    public void removeContainer(LimitedStudentsContainer container) throws StudentSpaceException {
+        for (FactionColor color :
+                FactionColor.values()) {
+            if (this.getByColor(color) < container.getByColor(color)) throw new StudentSpaceException(false);
+            this.removeStudents(container.getByColor(color), color);
+        }
+    }
+
 }
