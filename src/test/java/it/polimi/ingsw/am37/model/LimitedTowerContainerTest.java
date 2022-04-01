@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am37.model;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -7,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class LimitedTowerContainerTest {
 
     @Test
+    @DisplayName("Tests adding towers and possible exception")
     void addTowers() {
 
         LimitedTowerContainer towerTest = new LimitedTowerContainer(8,0,TowerColor.BLACK);
@@ -28,6 +30,7 @@ class LimitedTowerContainerTest {
     }
 
     @Test
+    @DisplayName("Tests removing towers and possible exception ")
     void removeTowers() {
 
         LimitedTowerContainer towerTest = new LimitedTowerContainer(7,7,TowerColor.GRAY);
@@ -48,6 +51,7 @@ class LimitedTowerContainerTest {
     }
 
     @Test
+    @DisplayName("Tests adding and removing towers in sequence")
     void mixTowers(){
 
         LimitedTowerContainer towerTest = new LimitedTowerContainer(7,7,TowerColor.WHITE);
