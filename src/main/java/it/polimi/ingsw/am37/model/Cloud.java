@@ -14,10 +14,15 @@ public class Cloud {
 	public Cloud(boolean isFor2) {
 		this.isFor2 = isFor2;
 		if(this.isFor2)
-			studentsOnCloud = new LimitedStudentsContainer(3);
+			studentsOnCloud = new LimitedStudentsContainer(studentsPerCloud2Players);
 		else
-			studentsOnCloud = new LimitedStudentsContainer(4);
+			studentsOnCloud = new LimitedStudentsContainer(getStudentsPerCloud3Players);
 	}
+
+	/**
+	 * They represent the number of students that can be placed on a Cloud based on the number of Players.
+	 */
+	private final static int studentsPerCloud2Players = 3, getStudentsPerCloud3Players = 4;
 
 	/**
 	 * It represents the students that are on the Cloud at the start of every turn.
@@ -28,8 +33,6 @@ public class Cloud {
 	 * It is needed to know if the game is played by two or three Players.
 	 */
 	private final boolean isFor2;
-
-
 
 	/**
 	 * @param students Students used to fill the Cloud.
@@ -43,7 +46,7 @@ public class Cloud {
 	 */
 	public LimitedStudentsContainer removeStudents() {
 		LimitedStudentsContainer temp = studentsOnCloud;
-		studentsOnCloud = new LimitedStudentsContainer(isFor2 ? 3 : 4);
+		studentsOnCloud = new LimitedStudentsContainer(isFor2 ? studentsPerCloud2Players : getStudentsPerCloud3Players);
 		return temp;
 	}
 
@@ -62,4 +65,10 @@ public class Cloud {
 		return isFor2;
 	}
 
+	/**
+	 * @return The number of students on the Cloud.
+	 */
+	public int size(){
+		return studentsOnCloud.size();
+	}
 }
