@@ -15,22 +15,17 @@ public class Island {
     /**
      * It's used for checkConqueror, it's the index of the current player conqueror
      */
-    private int indexCurrentConqueror;
-    
+    private Player currentConqueror;
+
     /**
      * It represents the students on the island
-     *
      */
     private final FixedUnlimitedStudentsContainer studentsOnIsland;
     /**
      * Indicate if there is a tower and eventually its color
-     *
      */
     private TowerColor tower;
-    /**
-     * Indicate if there is MotherNature
-     */
-    private boolean isMotherNature;
+
     /**
      * Indicate if there is a NoEntryTile which can prevent the conquest from one player
      */
@@ -43,8 +38,7 @@ public class Island {
     /**
      * Default constructor
      */
-    public Island(boolean isMotherNature, FixedUnlimitedStudentsContainer studentsOnIsland) {
-        this.isMotherNature = isMotherNature;
+    public Island(FixedUnlimitedStudentsContainer studentsOnIsland) {
         this.hasNoEntryTile = false;
         this.numIslandsUnited = 1;
         this.tower = TowerColor.NONE;
@@ -94,62 +88,6 @@ public class Island {
     }
 
     /**
-     * The method checks if an island has next to it another island (or islands) with the same color of tower, if yes then they will be merged in Island with index islandId and others are eliminated
-     *
-     * @param islands  It's the ArrayList of all islands used to compare the current island with others in order to find if a union is possible
-     * @param islandId It's needed to point to the island where there is MotherNature
-     * @throws IllegalArgumentException When islandId doesn't identify an island
-     */
-    public void uniteIfPossible(ArrayList<Island> islands, int islandId) throws IllegalArgumentException {
-        boolean UnitedDx = false;
-
-        if (islandId < 0 || islandId >= islands.size())
-            throw new IllegalArgumentException("IslandId should be the index of the island you are looking to unify");
-
-        if(islands.get(islandId).getCurrentTower()!=TowerColor.NONE) {
-
-            if (islandId == 0 && islands.size() > 1) {
-                if ((islands.get(islandId).getCurrentTower()) == islands.get(islands.size() - 1).getCurrentTower()) {
-                    this.numIslandsUnited = this.numIslandsUnited + islands.get(islands.size() - 1).getNumIslands();
-                    this.studentsOnIsland.uniteContainers(islands.get(islands.size() - 1).getStudentsOnIsland());
-
-                    islands.remove(islands.size() - 1);
-                }
-            }
-
-            if (islandId + 1 < islands.size() && islands.size() > 1) {
-                if ((islands.get(islandId).getCurrentTower()) == islands.get(islandId + 1).getCurrentTower()) {
-                    this.numIslandsUnited = this.numIslandsUnited + islands.get(islandId + 1).getNumIslands();
-                    this.studentsOnIsland.uniteContainers(islands.get(islandId + 1).getStudentsOnIsland());
-
-                    UnitedDx = true;
-                    islands.remove(islandId + 1);
-                }
-            }
-
-            if (islandId - 1 >= 0 && islands.size() > 1) {
-                if ((islands.get(islandId).getCurrentTower()) == islands.get(islandId - 1).getCurrentTower()) {
-                    this.numIslandsUnited = this.numIslandsUnited + islands.get(islandId - 1).getNumIslands();
-                    this.studentsOnIsland.uniteContainers(islands.get(islandId - 1).getStudentsOnIsland());
-
-                    islands.remove(islandId - 1);
-                    islandId--;
-                }
-            }
-
-            if (islandId == islands.size() - 1 && !UnitedDx && islands.size() > 1) {
-                if ((islands.get(islandId).getCurrentTower()) == islands.get(0).getCurrentTower()) {
-                    this.numIslandsUnited = this.numIslandsUnited + islands.get(0).getNumIslands();
-                    this.studentsOnIsland.uniteContainers(islands.get(0).getStudentsOnIsland());
-
-                    islands.remove(0);
-
-                }
-            }
-        }
-    }
-
-    /**
      * @return The students on the island
      */
     public FixedUnlimitedStudentsContainer getStudentsOnIsland() {
@@ -164,24 +102,10 @@ public class Island {
     }
 
     /**
-     * Apply the presence of MotherNature
+     * @param num The number of islands which form the bigger one
      */
-    public void setMotherNature() {
-        this.isMotherNature = true;
-    }
-
-    /**
-     * Remove the presence of MotherNature
-     */
-    public void unsetMotherNature() {
-        this.isMotherNature = false;
-    }
-
-    /**
-     * @return If MotherNature is on the island or not
-     */
-    public boolean getMotherNature() {
-        return this.isMotherNature;
+    public void setNumIslands(int num) {
+        this.numIslandsUnited = num;
     }
 
     /**
@@ -193,98 +117,16 @@ public class Island {
     }
 
     /**
-     * The method check which player has the most students on the island, a player have students of one color when he controls their professor. Each player has a towerColor and the tower means who is controlling it. Switches of conqueror(and of towers) are possible.
-     *
-     * @param players It's the ArrayList of all players, it gives the access to all boards
-     * @return The player who conquered the island
+     * @return The current conqueror of the island
      */
-
-    public Player checkConqueror(ArrayList<Player> players) throws NoIslandConquerorException, NoEntryTileException {
-
-        ArrayList<Integer> playerPower = new ArrayList<>();
-        boolean[] controlledProf;
-
-        int indexExConqueror = 0;
-        int boolToInt;
-        int tmp;
-        boolean switchConqueror = false;
-        int numStudentsControlling = 0;
-        int max1 = 0;
-        int max2 = 0;
-        int indmax1 = 0;
-        int indmax2 = 0;
-
-        for (int i = 0; i < players.size(); i++) {
-            controlledProf = players.get(i).getBoard().getProfTable();
-            tmp = 0;
-            for (FactionColor color : FactionColor.values()) {
-                boolToInt = controlledProf[color.getIndex()] ? this.studentsOnIsland.getByColor(color) : 0;
-                tmp = tmp + boolToInt;
-            }
-            playerPower.add(i, tmp);
-        }
-
-        if(this.tower == TowerColor.NONE) {
-
-            for (int i = 0; i < playerPower.size(); i++) {
-                if (playerPower.get(i) > max1) {
-                    max2 = max1;
-                    max1 = playerPower.get(i);
-                } else if (playerPower.get(i) > max2)
-                    max2 = playerPower.get(i);
-            }
-            if (max1 == max2)
-                throw new NoIslandConquerorException();
-
-            for (int i = 0; i < playerPower.size(); i++)
-                if (playerPower.get(i) > numStudentsControlling) {
-                    this.indexCurrentConqueror = i;
-                    numStudentsControlling = playerPower.get(i);
-                }
-            players.get(this.indexCurrentConqueror).getBoard().removeTowers(this.numIslandsUnited);
-        }
-
-        else{
-
-            for (int i = 0; i < playerPower.size(); i++) {
-                if (playerPower.get(i) > max1) {
-                    max2 = max1;
-                    indmax2 = indmax1;
-                    max1 = playerPower.get(i);
-                    indmax1 = i;
-                } else if (playerPower.get(i) > max2) {
-                    max2 = playerPower.get(i);
-                    indmax2 = i;
-                }
-            }
-            if (max1 == max2 && max1>playerPower.get(this.indexCurrentConqueror) + this.numIslandsUnited  && players.get(indmax1).getBoard().getTowers().getCurrentTower()!=this.tower && players.get(indmax2).getBoard().getTowers().getCurrentTower()!=this.tower)
-                throw new NoIslandConquerorException();
-
-            numStudentsControlling = playerPower.get(this.indexCurrentConqueror);
-            indexExConqueror = this.indexCurrentConqueror;
-            for (int i = 0; i < playerPower.size(); i++)
-                if (playerPower.get(i) > numStudentsControlling + (switchConqueror ? 0 : this.numIslandsUnited) && players.get(i).getBoard().getTowers().getCurrentTower()!=this.getCurrentTower()) {
-                    this.indexCurrentConqueror = i;
-                    numStudentsControlling = playerPower.get(i);
-                    if(indexExConqueror!=this.indexCurrentConqueror)
-                        switchConqueror = true;
-                }
-        }
-
-        if(switchConqueror){
-            players.get(indexExConqueror).getBoard().addTowers(this.numIslandsUnited);
-            players.get(this.indexCurrentConqueror).getBoard().removeTowers(this.numIslandsUnited);
-        }
-
-        this.tower = players.get(this.indexCurrentConqueror).getBoard().getTowers().getCurrentTower();
-
-        return players.get(this.indexCurrentConqueror);
-
+    public Player getCurrentConqueror() {
+        return this.currentConqueror;
     }
 
-
-
-
-
-
+    /**
+     * @param currentConqueror The current conqueror of the island
+     */
+    public void setCurrentConqueror(Player currentConqueror) {
+        this.currentConqueror = currentConqueror;
+    }
 }
