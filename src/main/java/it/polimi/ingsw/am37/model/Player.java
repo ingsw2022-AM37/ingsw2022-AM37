@@ -5,6 +5,7 @@ import it.polimi.ingsw.am37.model.character.Option;
 import javax.management.InstanceAlreadyExistsException;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * This class represents the in-game player, it does not represent the person playing the game, therefore it will not
@@ -34,7 +35,7 @@ public class Player {
 	/**
 	 * It represents the set of Assistant cards that every player owns, each Player must own a deck in order to play.
 	 */
-	private ArrayList<Assistant> assistantsDeck;
+	private HashMap<Integer, Assistant> assistantsDeck;
 
 	/**
 	 * It represents the team chosen by the Player, every player must choose a team. The team determines the Assistant
@@ -61,7 +62,7 @@ public class Player {
 	 * @throws InvalidParameterException If assistantToBePlayed isn't in the assistantsDeck.
 	 */
 	public void useAssistant(Assistant assistantToBePlayed) throws InvalidParameterException {
-		if(!this.assistantsDeck.contains(assistantToBePlayed))
+		if (!this.assistantsDeck.containsKey(assistantToBePlayed.getCardValue()))
 			throw new InvalidParameterException("This Assistant can't be played because it is not part of your deck.");
 		this.assistantsDeck.remove(assistantToBePlayed);
 		this.lastAssistantPlayed = assistantToBePlayed;
@@ -90,34 +91,16 @@ public class Player {
 		if(assistantsDeck != null)
 			throw new InstanceAlreadyExistsException("Can't create a deck for this Player. A deck already exists");
 		this.team = team;
-		this.assistantsDeck = new ArrayList<>();
+		this.assistantsDeck = new HashMap<>();
 		int movement = 0;
 		for(int i = 1; i <= 10; i++) {
 			if(i % 2 == 0)
-				this.assistantsDeck.add(new Assistant(team, i, movement));
+				this.assistantsDeck.put(i, new Assistant(team, i, movement));
 			else {
 				movement++;
-				this.assistantsDeck.add(new Assistant(team, i, movement));
+				this.assistantsDeck.put(i, new Assistant(team, i, movement));
 			}
 		}
-	}
-
-	/**
-	 * Moves Mother Nature on the Island received from parameters.
-	 * @param from The Island of departure.
-	 * @param to The arrival Island.
-	 * @throws IllegalArgumentException If the Islands are NULL or if the Player is trying to move Mother Nature to
-	 * the same island she is on.
-	 */
-	public void moveMotherNature(Island from, Island to) throws  IllegalArgumentException{
-		if(from == null || to == null)
-			throw new IllegalArgumentException("The Islands should not be NULL");
-		if(from.equals(to))
-			throw new IllegalArgumentException("You are trying to move Mother Nature to the same island she is on. " +
-					"You must move Mother Nature.");
-
-		from.unsetMotherNature();
-		to.setMotherNature();
 	}
 
 	/**
@@ -144,7 +127,7 @@ public class Player {
 	/**
 	 * @return The deck of Assistants that the Player has.
 	 */
-	public ArrayList<Assistant> getAssistantsDeck() {
+	public HashMap<Integer, Assistant> getAssistantsDeck() {
 		return assistantsDeck;
 	}
 }
