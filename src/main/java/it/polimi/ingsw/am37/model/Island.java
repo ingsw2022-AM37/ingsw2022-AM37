@@ -1,10 +1,6 @@
 package it.polimi.ingsw.am37.model;
 
-import it.polimi.ingsw.am37.model.exceptions.NoEntryTileException;
-import it.polimi.ingsw.am37.model.exceptions.NoIslandConquerorException;
 import it.polimi.ingsw.am37.model.student_container.FixedUnlimitedStudentsContainer;
-
-import java.util.ArrayList;
 
 /**
  * At the beginning of the game there are twelve islands, they can have students on them and tower which represents

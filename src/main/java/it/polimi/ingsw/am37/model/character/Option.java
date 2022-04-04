@@ -15,42 +15,40 @@ public class Option {
     /**
      * The island used by characters effect
      */
-    private Island island;
+    private final Island island;
 
     /**
      * The player that has called the character
      */
-    private Player player;
+    private final Player player;
     /**
      * The color some characters activate effect on
      */
-    private FactionColor color;
+    private final FactionColor color;
     /**
      * An int parameter used by some characters
      */
-    private int intPar;
+    private final int intPar;
     /**
      * the bag some
      */
-    private Bag bag;
+    private final Bag bag;
     /**
      * The game controller that has all game references
      */
-    private GameManager controller;
+    private final GameManager controller;
     /**
      * The student container with selected students to remove
      */
-    private LimitedStudentsContainer removeContainer;
+    private final LimitedStudentsContainer removeContainer;
     /**
      * The student container with selected students to add
      */
-    private LimitedStudentsContainer addContainer;
+    private final LimitedStudentsContainer addContainer;
 
     /**
      * Default constructor
      */
-
-
     public Option(Island island, Player player, FactionColor color, int intPar, Bag bag, GameManager controller, LimitedStudentsContainer removeContainer, LimitedStudentsContainer addContainer) {
         this.island = island;
         this.player = player;

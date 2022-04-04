@@ -1,15 +1,30 @@
 package it.polimi.ingsw.am37.model.character;
 
-import it.polimi.ingsw.am37.model.character.Option;
+import java.util.ArrayList;
+import java.util.function.BiConsumer;
 
 /**
- * 
+ * This class represents the effect of the Character
  */
-public interface CharacterEffect {
+public class CharacterEffect {
 
 	/**
-	 * @param option
+	 * It's the set of basic effects that make up the character's effect.
 	 */
-	void useEffect(Option option);
+	private ArrayList<BiConsumer<Option, State>> baseEffects;
+
+	public CharacterEffect() {
+
+	}
+
+	/**
+	 * @param option It's the parameters needed to run the effect
+	 */
+	public void useEffect(Option option) {
+		for (BiConsumer<Option, State> singleEffect : baseEffects) {
+			//FIXME add a proper state
+			singleEffect.accept(option, new State());
+		}
+	}
 
 }

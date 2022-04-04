@@ -12,13 +12,13 @@ import java.util.stream.Collectors;
 public final class EffectDatabase {
 
     /**
-     * Represent the base effects to access all the possible method. They are composed
+     * Represents the base effects to access all the possible method. They are composed
      * to create required characters
      */
     private static final ArrayList<BiConsumer<Option, State>> baseEffects = new ArrayList<>();
 
     /**
-     *
+     * Default Constructor. It creates every single base effect possible in the game.
      */
     public EffectDatabase() {
 

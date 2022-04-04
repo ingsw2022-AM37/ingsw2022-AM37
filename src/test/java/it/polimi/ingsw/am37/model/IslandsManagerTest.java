@@ -1,9 +1,7 @@
 package it.polimi.ingsw.am37.model;
 
-import it.polimi.ingsw.am37.model.exceptions.MNmovementWrongException;
 import it.polimi.ingsw.am37.model.exceptions.NoIslandConquerorException;
 import it.polimi.ingsw.am37.model.student_container.FixedUnlimitedStudentsContainer;
-import it.polimi.ingsw.am37.model.student_container.UnlimitedStudentsContainer;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -13,9 +11,11 @@ import java.util.ArrayList;
 import static org.junit.jupiter.api.Assertions.*;
 
 class IslandsManagerTest {
-
+    /**
+     * Tests uniteIfPossible with the second of four islands, the middle two are compatible.
+     */
     @Test
-    @DisplayName("Tests uniteIfPossible with the second of four islands, the middle two are compatible ")
+    @DisplayName("Tests uniteIfPossible with the second of four islands, the middle two are compatible")
     void uniteIfPossible1() {
 
         ArrayList<Island> islands = new ArrayList<>();
@@ -62,8 +62,11 @@ class IslandsManagerTest {
             assertEquals(10, islands.get(2).getStudentsOnIsland().getByColor(color));
     }
 
+    /**
+     * Tests uniteIfPossible with the third of four islands all compatible.
+     */
     @Test
-    @DisplayName("Tests uniteIfPossible with the third of four islands all compatible ")
+    @DisplayName("Tests uniteIfPossible with the third of four islands all compatible")
     void uniteIfPossible2() {
 
         ArrayList<Island> islands = new ArrayList<>();
@@ -101,8 +104,11 @@ class IslandsManagerTest {
 
     }
 
+    /**
+     * Tests uniteIfPossible with the first of three islands all compatible.
+     */
     @Test
-    @DisplayName("Tests uniteIfPossible with the first of three islands all compatible ")
+    @DisplayName("Tests uniteIfPossible with the first of three islands all compatible")
     void uniteIfPossible3() {
 
         ArrayList<Island> islands = new ArrayList<>();
@@ -134,8 +140,11 @@ class IslandsManagerTest {
 
     }
 
+    /**
+     * Tests uniteIfPossible with the second of four islands all compatible, then with the first two times
+     */
     @Test
-    @DisplayName("Tests uniteIfPossible with the second of four islands all compatible, then with the first two times ")
+    @DisplayName("Tests uniteIfPossible with the second of four islands all compatible, then with the first two times")
     void uniteIfPossible4() {
 
         ArrayList<Island> islands = new ArrayList<>();
@@ -189,6 +198,9 @@ class IslandsManagerTest {
 
     }
 
+    /**
+     * Tests the conqueror of the island after changes or after no changes.
+     */
     @Test
     @DisplayName("Tests the conqueror of the island after changes or after no changes")
     void checkConquerorForTwo() {
@@ -251,7 +263,9 @@ class IslandsManagerTest {
         assertEquals(8, v);
     }
 
-
+    /**
+     * Tests the conqueror of the island after changes or after no changes or when there isn't a winner.
+     */
     @Test
     @DisplayName("Tests the conqueror of the island after changes or after no changes or when there isn't a winner")
     void checkConquerorForThree() {
@@ -337,9 +351,12 @@ class IslandsManagerTest {
         assertEquals(5, h);
     }
 
-
+    /**
+     * Tests uniteIfPossible and checkConqueror united, this is a full match emulation with difficult situations
+     * only used add and remove prof instead of addStudents and removeStudents.
+     */
     @Test
-    @DisplayName("Tests uniteIfPossible and checkConqueror united, this is a full match emulation with difficult situations, only used add and remove prof instead of addStudents and removeStudents ")
+    @DisplayName("Tests uniteIfPossible and checkConqueror united, this is a full match emulation with difficult situations, only used add and remove prof instead of addStudents and removeStudents")
     void mixedTest() {
 
         ArrayList<Island> islands = new ArrayList<>();
@@ -486,9 +503,12 @@ class IslandsManagerTest {
         assertEquals(2, islands.get(2).getNumIslands());
     }
 
+    /**
+     * This test checks the initialization of islands
+     */
     @Test
     @DisplayName("This test checks the initialization of islands")
-        //THIS METHOD IS RANDOM, SO I USE PRINT AND NOT ASSERT
+    //THIS METHOD IS RANDOM, SO I USE PRINT AND NOT ASSERT
     void setUp() {
         ArrayList<Island> islands = new ArrayList<>();
         IslandsManager islandsManager = new IslandsManager(islands);
@@ -518,6 +538,11 @@ class IslandsManagerTest {
         System.out.println("Total students on islands: " + cont);
     }
 
+    /**
+     * Tests the possible movement of Mother Nature starting from random position
+     *
+     * @throws InstanceAlreadyExistsException If the instance already exists.
+     */
     @Test
     //THIS TEST CAN FAIL BECAUSE AN EXCEPTION CAN BE LAUNCHED, BUT IT'S BASED ON MOTHER NATURE INITIAL POSITION WHICH IS RANDOM
     //SO THIS ISN'T WRONG. FOR THIS REASON I USE PRINT AND NOT ASSERT.
@@ -568,6 +593,9 @@ class IslandsManagerTest {
 
     }
 
+    /**
+     * Tests the use of characters in checkConqueror.
+     */
     @Test
     @DisplayName("Use characters in checkConqueror")
     void testCharacter() {

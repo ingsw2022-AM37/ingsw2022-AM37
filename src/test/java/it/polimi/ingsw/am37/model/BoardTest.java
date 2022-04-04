@@ -21,6 +21,9 @@ class BoardTest {
         container.addStudents(3, FactionColor.GREEN);
     }
 
+    /**
+     * Test base constructor.
+     */
     @Test
     @DisplayName("Test base constructor")
     void testConstructor() {
@@ -44,6 +47,9 @@ class BoardTest {
         }
     }
 
+    /**
+     * Test coins logic initialization.
+     */
     @Test
     @DisplayName("Test coins logic initialization")
     void testConstructorWithCoinLogic() {
@@ -61,6 +67,9 @@ class BoardTest {
         }
     }
 
+    /**
+     * Test constructor against all possibility of num of player.
+     */
     @Test
     @DisplayName("Test constructor against all possibility of num of player")
     void testConstructorWithAllPlayers() {
@@ -73,6 +82,9 @@ class BoardTest {
         assertThrows(IllegalArgumentException.class, () -> new Board(5, TowerColor.BLACK, false, new Player()));
     }
 
+    /**
+     * Test advanced constructor with provided container.
+     */
     @Test
     @DisplayName("Test advanced constructor with provided container")
     void testAdvancedConstructor() {
@@ -80,6 +92,9 @@ class BoardTest {
         assertTrue(board.getEntrance().size() > 0);
     }
 
+    /**
+     * Test CalculateCoin when no coins should be provided.
+     */
     @Test
     @DisplayName("Test CalculateCoin when no coins should be provided")
     void testCalculateCoinNoCoin() {
@@ -102,6 +117,9 @@ class BoardTest {
 
     }
 
+    /**
+     * Test CalculateCoin when just one coin should be provided.
+     */
     @Test
     @DisplayName("Test CalculateCoin when just one coin should be provided")
     void testCalculateCoinWithCoin() {
@@ -123,6 +141,9 @@ class BoardTest {
         }
     }
 
+    /**
+     * Test CalculateCoin when there are exactly three students.
+     */
     @Test
     @DisplayName("Test CalculateCoin when there are exactly three students")
     void testCalculateCoin3Students() {
@@ -144,6 +165,9 @@ class BoardTest {
         }
     }
 
+    /**
+     * Test CalculateCoin when students are removed and then re-added.
+     */
     @Test
     @DisplayName("Test CalculateCoin when students are removed and then re-added")
     void testCalculateCoinsAfterRemoving() {
@@ -177,6 +201,9 @@ class BoardTest {
         }
     }
 
+    /**
+     * Test remove students from dining
+     */
     @Test
     @DisplayName("Test remove students from dining")
     void testRemoveStudentFromDining() {
@@ -189,8 +216,11 @@ class BoardTest {
         assertEquals(3, board.getDiningRoom().getByColor(FactionColor.GREEN));
     }
 
+    /**
+     * Test remove from dining more students than are presents.
+     */
     @Test
-    @DisplayName("Test remove from dining more students than are presents ")
+    @DisplayName("Test remove from dining more students than are presents")
     void testRemoveStudentsFromDiningWhenTooFew() {
         board = new Board(2, TowerColor.BLACK, false, new Player());
         LimitedStudentsContainer container = new LimitedStudentsContainer(5);
