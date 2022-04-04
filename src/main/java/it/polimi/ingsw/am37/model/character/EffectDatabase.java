@@ -1,7 +1,6 @@
 package it.polimi.ingsw.am37.model.character;
 
 import it.polimi.ingsw.am37.model.FactionColor;
-import it.polimi.ingsw.am37.model.Player;
 import it.polimi.ingsw.am37.model.student_container.FixedUnlimitedStudentsContainer;
 import it.polimi.ingsw.am37.model.student_container.UnlimitedStudentsContainer;
 
@@ -44,10 +43,7 @@ public final class EffectDatabase {
         );
         //3 - add to bag
         baseEffects.add(3,
-                (option, state) -> {
-                    // FIXME need a bag.addStudents
-                    // option.getBag().
-                }
+                (option, state) -> option.getBag().addStudents(state.serviceContainer)
         );
         //4 - add to island
         baseEffects.add(4,
@@ -60,14 +56,12 @@ public final class EffectDatabase {
         //5 - professors with tie students
         baseEffects.add(5,
                 (option, state) -> {
-                    //FIXME need the right flag
+                    //TODO finish this method
                 }
         );
         //6 - use check conqueror on option.island
         baseEffects.add(6,
-                (option, state) -> {
-                    //FIXME need the right flag
-                }
+                (option, state) -> option.getController().getIslandsManager().motherNatureActionNoMovement(option.getIsland(), option.getController().getTurnManager().getPlayers())
         );
         //7 - increase mother nature movement in assistant
         baseEffects.add(7,
@@ -83,9 +77,7 @@ public final class EffectDatabase {
         );
         //10 - set no Tower
         baseEffects.add(10,
-                (option, state) -> {
-                    //FIXME need the right flag
-                }
+                (option, state) -> option.getController().getIslandsManager().setNoTowerFlag()
         );
         //11 - add to entrance
         baseEffects.add(11,
@@ -111,20 +103,20 @@ public final class EffectDatabase {
         //15 - increase influence
         baseEffects.add(15,
                 (option, state) -> {
-                    // FIXME need the right flag
+                    int powerBonus = 2; //TODO consider using variable option parameter
+                    option.getController().getIslandsManager().setPowerBonusFlag(powerBonus);
                 }
         );
         //16 - do not count a color
         baseEffects.add(16,
-                (option, state) -> {
-                    // FIXME need the right flag
-                }
+                (option, state) -> option.getController().getIslandsManager().setDisabledColorFlag(option.getColor())
         );
         //17 - remove from all player some student of a color
         baseEffects.add(17,
                 (option, state) -> {
-                    //FIXME need method getPlayers in controller
-                    //option.getController().getPlayers.foreach(player -> player.getBoard().removeStudentFromDining(option.getIntPar(), option.getColor()));
+                    final int studentsToRemove = 3; //TODO check possible parametrization
+                    int par = option.getIntPar() <= 0 ? studentsToRemove : option.getIntPar();
+                    option.getController().getTurnManager().getPlayers().forEach(player -> player.getBoard().removeStudentFromDining(option.getIntPar(), option.getColor()));
                 }
         );
     }
