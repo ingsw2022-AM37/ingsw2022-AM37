@@ -2,8 +2,11 @@ package it.polimi.ingsw.am37.model;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
 import javax.management.InstanceAlreadyExistsException;
 import java.security.InvalidParameterException;
+import java.util.stream.IntStream;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -73,9 +76,10 @@ public class PlayerTest {
         } catch (InstanceAlreadyExistsException e) {
             e.printStackTrace();
         }
-        Assistant firstAssistant = player.getAssistantsDeck().get(0);
-        while (player.getAssistantsDeck().size() > 0)
-            player.useAssistant(player.getAssistantsDeck().get(0));
+        Assistant firstAssistant = player.getAssistantsDeck().get(1);
+        int size = player.getAssistantsDeck().size();
+        IntStream.rangeClosed(1, size).forEach(i -> player.useAssistant(player.getAssistantsDeck().get(i)));
+
         assertThrows(InvalidParameterException.class, () -> player.useAssistant(firstAssistant));
     }
 }
