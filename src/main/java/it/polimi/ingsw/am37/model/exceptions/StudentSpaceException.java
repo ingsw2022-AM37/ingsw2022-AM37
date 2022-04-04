@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am37.model.student_container;
+package it.polimi.ingsw.am37.model.exceptions;
 
 /**
  * Exception thrown when there an action couldn't be performed due to size limitation in containers;

@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am37.model.student_container;
 import it.polimi.ingsw.am37.model.FactionColor;
+import it.polimi.ingsw.am37.model.exceptions.StudentSpaceException;
 
 /**
  * Abstract class to manage students tile in the model.
