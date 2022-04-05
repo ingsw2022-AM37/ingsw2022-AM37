@@ -274,18 +274,18 @@ public class IslandsManager {
      */
     public void moveMotherNature(Island island) throws MNmovementWrongException {
         int moveForward;
-        boolean canReturnedOnInitialPosition = false;
 
-        if (islands.indexOf(island) >= islands.indexOf(getMotherNaturePosition()))
+        if (islands.indexOf(island) == islands.indexOf(getMotherNaturePosition()))
+            moveForward = islands.size();
+
+        else if (islands.indexOf(island) > islands.indexOf(getMotherNaturePosition()))
             moveForward = islands.indexOf(island) - islands.indexOf(getMotherNaturePosition());
-        else {
+        else
             moveForward = islands.size() - islands.indexOf(getMotherNaturePosition()) + islands.indexOf(island);
-            canReturnedOnInitialPosition = true;
-        }
 
         int destinationMotherNature = islands.indexOf(this.motherNaturePosition);
 
-        if (moveForward > currentPlayer.getLastAssistantPlayed().getMNMovement() + this.additionalMNFlag || (moveForward == 0 && !canReturnedOnInitialPosition))
+        if (moveForward > currentPlayer.getLastAssistantPlayed().getMNMovement() + this.additionalMNFlag || moveForward == 0)
             throw new MNmovementWrongException();
 
         for (int contMovement = 0; contMovement < moveForward; contMovement++) {
