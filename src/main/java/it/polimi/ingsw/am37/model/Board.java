@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am37.model;
 
+import it.polimi.ingsw.am37.model.exceptions.StudentSpaceException;
 import it.polimi.ingsw.am37.model.student_container.LimitedStudentsContainer;
 
 import java.util.Arrays;
@@ -76,7 +77,13 @@ public class Board {
         entranceArea = new LimitedStudentsContainer(numOfPlayer == 3 ? maxEntranceSizeFor3 : maxEntranceSizeFor2);
         int[] temp = new int[FactionColor.values().length];
         Arrays.fill(temp, maxTableSize);
-        diningRoom = new LimitedStudentsContainer(temp);
+        diningRoom = new LimitedStudentsContainer(temp) {
+            @Override
+            public void addStudents(int num, FactionColor color) throws IllegalArgumentException, StudentSpaceException {
+                super.addStudents(num, color);
+
+            }
+        };
         profTable = new boolean[FactionColor.values().length];
         Arrays.fill(profTable, false);
         if (coinsEnabled) {
