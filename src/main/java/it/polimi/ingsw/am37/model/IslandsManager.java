@@ -25,8 +25,8 @@ public class IslandsManager {
     /**
      * Default constructor
      */
-    public IslandsManager(ArrayList<Island> islands) {
-        this.islands = islands;
+    public IslandsManager() {
+        this.islands = new ArrayList<>();
         this.noTowerFlag = false;
         this.powerBonusFlag = 0;
         currentPlayer = null;
@@ -94,7 +94,7 @@ public class IslandsManager {
      * @param island It's needed to point to the island where there is MotherNature
      * @throws IllegalArgumentException When islandId doesn't identify an island
      */
-    public void uniteIfPossible(Island island) throws IllegalArgumentException {
+    public void uniteIfPossible(Island island) {
 
         int islandId = islands.indexOf(island);
         boolean UnitedDx = false;
@@ -167,7 +167,7 @@ public class IslandsManager {
 
         if (island.getNoEntryTile()) {
             island.removeNoEntryTile();
-            //remove noEntryTile from character
+            this.stateCharacterNoEntryTile.setNoEntryTile(this.stateCharacterNoEntryTile.getNoEntryTile() + 1);
             return null;
         }
 
@@ -274,15 +274,18 @@ public class IslandsManager {
      */
     public void moveMotherNature(Island island) throws MNmovementWrongException {
         int moveForward;
+        boolean canReturnedOnInitialPosition = false;
 
         if (islands.indexOf(island) >= islands.indexOf(getMotherNaturePosition()))
             moveForward = islands.indexOf(island) - islands.indexOf(getMotherNaturePosition());
-        else
+        else {
             moveForward = islands.size() - islands.indexOf(getMotherNaturePosition()) + islands.indexOf(island);
+            canReturnedOnInitialPosition = true;
+        }
 
         int destinationMotherNature = islands.indexOf(this.motherNaturePosition);
 
-        if (moveForward > currentPlayer.getLastAssistantPlayed().getMNMovement() + this.additionalMNFlag || moveForward == 0)
+        if (moveForward > currentPlayer.getLastAssistantPlayed().getMNMovement() + this.additionalMNFlag || (moveForward == 0 && !canReturnedOnInitialPosition))
             throw new MNmovementWrongException();
 
         for (int contMovement = 0; contMovement < moveForward; contMovement++) {
