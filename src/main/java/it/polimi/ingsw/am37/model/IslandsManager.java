@@ -25,8 +25,8 @@ public class IslandsManager {
     /**
      * Default constructor
      */
-    public IslandsManager(ArrayList<Island> islands) {
-        this.islands = islands;
+    public IslandsManager() {
+        this.islands = new ArrayList<>();
         this.noTowerFlag = false;
         this.powerBonusFlag = 0;
         currentPlayer = null;
@@ -49,10 +49,8 @@ public class IslandsManager {
         int motherNatureHere = random.nextInt(0, 12);
 
         ArrayList<FactionColor> initialFalseBag = new ArrayList<>();
-        for (FactionColor color : FactionColor.values())
-            initialFalseBag.add(color);
-        for (FactionColor color : FactionColor.values())
-            initialFalseBag.add(color);
+        Collections.addAll(initialFalseBag, FactionColor.values());
+        Collections.addAll(initialFalseBag, FactionColor.values());
         Collections.shuffle(initialFalseBag);
 
         for (int i = 0; i < numOfInitialIslands; i++) {
@@ -96,7 +94,7 @@ public class IslandsManager {
      * @param island It's needed to point to the island where there is MotherNature
      * @throws IllegalArgumentException When islandId doesn't identify an island
      */
-    public void uniteIfPossible(Island island) throws IllegalArgumentException {
+    public void uniteIfPossible(Island island) {
 
         int islandId = islands.indexOf(island);
         boolean UnitedDx = false;
@@ -115,7 +113,6 @@ public class IslandsManager {
             if (islandId + 1 < islands.size() && islands.size() > 1) {
                 if ((islands.get(islandId).getCurrentTower()) == islands.get(islandId + 1).getCurrentTower()) {
                     islands.get(islandId).setNumIslands(islands.get(islandId).getNumIslands() + islands.get(islandId + 1).getNumIslands());
-                    ;
                     islands.get(islandId).getStudentsOnIsland().uniteContainers(islands.get(islandId + 1).getStudentsOnIsland());
 
                     UnitedDx = true;
@@ -126,7 +123,6 @@ public class IslandsManager {
             if (islandId - 1 >= 0 && islands.size() > 1) {
                 if ((islands.get(islandId).getCurrentTower()) == islands.get(islandId - 1).getCurrentTower()) {
                     islands.get(islandId).setNumIslands(islands.get(islandId).getNumIslands() + islands.get(islandId - 1).getNumIslands());
-                    ;
                     islands.get(islandId).getStudentsOnIsland().uniteContainers(islands.get(islandId - 1).getStudentsOnIsland());
 
                     islands.remove(islandId - 1);
@@ -137,7 +133,6 @@ public class IslandsManager {
             if (islandId == islands.size() - 1 && !UnitedDx && islands.size() > 1) {
                 if ((islands.get(islandId).getCurrentTower()) == islands.get(0).getCurrentTower()) {
                     islands.get(islandId).setNumIslands(islands.get(islandId).getNumIslands() + islands.get(0).getNumIslands());
-                    ;
                     islands.get(islandId).getStudentsOnIsland().uniteContainers(islands.get(0).getStudentsOnIsland());
 
                     islands.remove(0);
@@ -172,7 +167,7 @@ public class IslandsManager {
 
         if (island.getNoEntryTile()) {
             island.removeNoEntryTile();
-            //tolgo noEntryTile da personaggio
+            this.stateCharacterNoEntryTile.setNoEntryTile(this.stateCharacterNoEntryTile.getNoEntryTile() + 1);
             return null;
         }
 
@@ -264,7 +259,7 @@ public class IslandsManager {
      *
      * @param island  It's the island where you want to move Mother Nature
      * @param players The list of all players
-     * @throws MNmovementWrongException
+     * @throws MNmovementWrongException If the movement can't be performed.
      */
     public void motherNatureActionMovement(Island island, ArrayList<Player> players) throws MNmovementWrongException {
         moveMotherNature(island);
@@ -275,20 +270,22 @@ public class IslandsManager {
      * This method is used for moving Mother Nature
      *
      * @param island It's the island where you want to move Mother Nature
-     * @throws MNmovementWrongException
+     * @throws MNmovementWrongException If the movement can't be performed.
      */
     public void moveMotherNature(Island island) throws MNmovementWrongException {
         int moveForward;
+        boolean canReturnedOnInitialPosition = false;
 
         if (islands.indexOf(island) >= islands.indexOf(getMotherNaturePosition()))
             moveForward = islands.indexOf(island) - islands.indexOf(getMotherNaturePosition());
-        else
+        else {
             moveForward = islands.size() - islands.indexOf(getMotherNaturePosition()) + islands.indexOf(island);
+            canReturnedOnInitialPosition = true;
+        }
 
-        int indexIslandMotherNature = islands.indexOf(this.motherNaturePosition);
-        int destinationMotherNature = indexIslandMotherNature;
+        int destinationMotherNature = islands.indexOf(this.motherNaturePosition);
 
-        if (moveForward > currentPlayer.getLastAssistantPlayed().getMNMovement() + this.additionalMNFlag || moveForward == 0)
+        if (moveForward > currentPlayer.getLastAssistantPlayed().getMNMovement() + this.additionalMNFlag || (moveForward == 0 && !canReturnedOnInitialPosition))
             throw new MNmovementWrongException();
 
         for (int contMovement = 0; contMovement < moveForward; contMovement++) {
@@ -301,7 +298,7 @@ public class IslandsManager {
     }
 
     /**
-     * @param color It's the color to be disabled in a island's conquer, it's basically a flag
+     * @param color It's the color to be disabled on an island's conquer, it's basically a flag
      */
     public void setDisabledColorFlag(FactionColor color) {
         this.disabledColorFlag = color;
