@@ -167,7 +167,7 @@ public class IslandsManager {
 
         if (island.getNoEntryTile()) {
             island.removeNoEntryTile();
-            this.stateCharacterNoEntryTile.setNoEntryTile(this.stateCharacterNoEntryTile.getNoEntryTile() + 1);
+            this.stateCharacterNoEntryTile.setNoEntryTiles(this.stateCharacterNoEntryTile.getNoEntryTiles() + 1);
             return null;
         }
 
