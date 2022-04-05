@@ -26,19 +26,19 @@ public final class EffectDatabase {
                 (option, state) -> {
                     for (FactionColor color :
                             FactionColor.values()) {
-                        state.container.removeStudents(option.getRemoveContainer().getByColor(color), color);
+                        state.getContainer().removeStudents(option.getRemoveContainer().getByColor(color), color);
                     }
                 }
         );
         //1 - service to card
         baseEffects.add(1,
-                (option, state) -> state.container.uniteContainers(state.serviceContainer)
+                (option, state) -> state.getContainer().uniteContainers(state.getServiceContainer())
         );
         //2 - remove from bag
         baseEffects.add(2,
                 (option, state) -> {
-                    state.serviceContainer = new UnlimitedStudentsContainer();
-                    state.serviceContainer.uniteContainers(option.getBag().extractStudents(option.getIntPar()));
+                    state.setServiceContainer(new UnlimitedStudentsContainer());
+                    state.getServiceContainer().uniteContainers(option.getBag().extractStudents(option.getIntPar()));
                 }
         );
         //3 - add to bag
@@ -69,7 +69,7 @@ public final class EffectDatabase {
         );
         //8 - remove noEntry tile
         baseEffects.add(8,
-                (option, state) -> state.noEntryTiles--
+                (option, state) -> state.setNoEntryTiles(state.getNoEntryTiles() - 1)
         );
         //9 - add noEntry tile to island
         baseEffects.add(9,
