@@ -43,7 +43,7 @@ public final class EffectDatabase {
         );
         //3 - add to bag
         baseEffects.add(3,
-                (option, state) -> option.getBag().addStudents(state.serviceContainer)
+                (option, state) -> option.getBag().addStudents(state.getServiceContainer())
         );
         //4 - add to island
         baseEffects.add(4,
@@ -73,7 +73,11 @@ public final class EffectDatabase {
         );
         //9 - add noEntry tile to island
         baseEffects.add(9,
-                (option, state) -> option.getIsland().setNoEntryTile()
+                (option, state) -> {
+                    if (state.getNoEntryTiles() > 0)
+                        option.getIsland().setNoEntryTile();
+                }
+
         );
         //10 - set no Tower
         baseEffects.add(10,
@@ -115,8 +119,7 @@ public final class EffectDatabase {
         baseEffects.add(17,
                 (option, state) -> {
                     final int studentsToRemove = 3; //TODO check possible parametrization
-                    int par = option.getIntPar() <= 0 ? studentsToRemove : option.getIntPar();
-                    option.getController().getTurnManager().getPlayers().forEach(player -> player.getBoard().removeStudentFromDining(option.getIntPar(), option.getColor()));
+                    option.getController().getTurnManager().getPlayers().forEach(player -> player.getBoard().removeStudentFromDining(studentsToRemove, option.getColor()));
                 }
         );
     }

@@ -8,6 +8,12 @@ public class State {
     private int noEntryTiles;
     private UnlimitedStudentsContainer serviceContainer;
 
+    public State(LimitedStudentsContainer container, int noEntryTiles) {
+        this.container = container;
+        this.noEntryTiles = noEntryTiles;
+        this.serviceContainer = new UnlimitedStudentsContainer();
+    }
+
     public LimitedStudentsContainer getContainer() {
         return container;
     }
