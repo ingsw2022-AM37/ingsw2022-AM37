@@ -1,4 +1,4 @@
-Rules not defined in Eriantys' documentation:
+### Rules not defined in Eriantys' documentation:
 
 1) Coins are limited, if you pick one of them in a certain position in your board's dining room and after    
    playing a character you are with your students in that position again there won't be a coin there.
@@ -8,7 +8,9 @@ Rules not defined in Eriantys' documentation:
 3) In an unlikely draw beetwen two players if the third one was the ex winner he will keeps his position.
    
    Example: In island n.2 there is the following situation (no characters are played): 
+   
    a) player one has the tower and one controlled student;
+   
    b) players two and three have four controlled students each;
    player one takes advantages of this situation and keeps the tower after checking the next conqueror.
 
