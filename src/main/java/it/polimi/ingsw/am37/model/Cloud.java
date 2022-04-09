@@ -8,21 +8,21 @@ import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
  */
 public class Cloud {
 
-	/**
-	 * Default constructor
-	 */
-	public Cloud(boolean isFor2) {
-		this.isFor2 = isFor2;
-		if(this.isFor2)
-			studentsOnCloud = new LimitedStudentsContainer(studentsPerCloud2Players);
-		else
-			studentsOnCloud = new LimitedStudentsContainer(getStudentsPerCloud3Players);
-	}
+    /**
+     * They represent the number of students that can be placed on a Cloud based on the number of Players.
+     */
+    private final static int studentsPerCloud2Players = 3, studentsPerCloud3Players = 4;
 
-	/**
-	 * They represent the number of students that can be placed on a Cloud based on the number of Players.
-	 */
-	private final static int studentsPerCloud2Players = 3, getStudentsPerCloud3Players = 4;
+    /**
+     * Default constructor
+     */
+    public Cloud(boolean isFor2) {
+        this.isFor2 = isFor2;
+        if (this.isFor2)
+            studentsOnCloud = new LimitedStudentsContainer(studentsPerCloud2Players);
+        else
+            studentsOnCloud = new LimitedStudentsContainer(studentsPerCloud3Players);
+	}
 
 	/**
 	 * It represents the students that are on the Cloud at the start of every turn.
@@ -46,7 +46,7 @@ public class Cloud {
 	 */
 	public LimitedStudentsContainer removeStudents() {
 		LimitedStudentsContainer temp = studentsOnCloud;
-		studentsOnCloud = new LimitedStudentsContainer(isFor2 ? studentsPerCloud2Players : getStudentsPerCloud3Players);
+        studentsOnCloud = new LimitedStudentsContainer(isFor2 ? studentsPerCloud2Players : studentsPerCloud3Players);
 		return temp;
 	}
 

@@ -12,14 +12,44 @@ import java.util.Random;
 
 public class IslandsManager {
 
-    private final static int numOfInitialIslands = 12;
+    /**
+     * Who is playing
+     */
     private Player currentPlayer;
+
+    /**
+     * Total islands
+     */
     private ArrayList<Island> islands;
+
+    /**
+     * Position of Mother Nature
+     */
     private Island motherNaturePosition;
+
+    /**
+     * If towers aren't used in affinity check
+     */
     private boolean noTowerFlag;
+
+    /**
+     * If a certain color is disabled in affinity check
+     */
     private FactionColor disabledColorFlag;
+
+    /**
+     * If current player has a bonus in affinity check
+     */
     private int powerBonusFlag;
+
+    /**
+     * If you can move Mother Nature longer
+     */
     private int additionalMNFlag;
+
+    /**
+     * State of the character with no entry tiles
+     */
     private State stateCharacterNoEntryTile = null;
 
     /**
@@ -45,6 +75,8 @@ public class IslandsManager {
      * This is a one-time method, it creates islands, set Mother Nature on a random one and put a student on each island, excluding the one with Mother Nature and the opposite one
      */
     public void setUp() {
+        final int numOfInitialIslands = 12;
+
         Random random = new Random();
         int motherNatureHere = random.nextInt(0, 12);
 
@@ -54,7 +86,7 @@ public class IslandsManager {
         Collections.shuffle(initialFalseBag);
 
         for (int i = 0; i < numOfInitialIslands; i++) {
-            islands.add(i, new Island(new FixedUnlimitedStudentsContainer()));
+            islands.add(i, new Island(new FixedUnlimitedStudentsContainer(), i));
             if (i == motherNatureHere) {
                 this.motherNaturePosition = islands.get(i);
             }
@@ -105,8 +137,9 @@ public class IslandsManager {
                 if ((islands.get(islandId).getCurrentTower()) == islands.get(islands.size() - 1).getCurrentTower()) {
                     islands.get(islandId).setNumIslands(islands.get(islandId).getNumIslands() + islands.get(islands.size() - 1).getNumIslands());
                     islands.get(islandId).getStudentsOnIsland().uniteContainers(islands.get(islands.size() - 1).getStudentsOnIsland());
-
+                    int temp = islands.get(islands.size() - 1).getNoEntryTile();
                     islands.remove(islands.size() - 1);
+                    island.addNoEntryTile(temp);
                 }
             }
 
@@ -116,7 +149,11 @@ public class IslandsManager {
                     islands.get(islandId).getStudentsOnIsland().uniteContainers(islands.get(islandId + 1).getStudentsOnIsland());
 
                     UnitedDx = true;
+                    int temp = islands.get(islandId + 1).getNoEntryTile();
                     islands.remove(islandId + 1);
+                    island.addNoEntryTile(temp);
+                    for (int i = islandId + 1; i < islands.size(); i++)
+                        islands.get(i).setIslandId(islands.get(i).getIslandId() - 1);
                 }
             }
 
@@ -124,8 +161,11 @@ public class IslandsManager {
                 if ((islands.get(islandId).getCurrentTower()) == islands.get(islandId - 1).getCurrentTower()) {
                     islands.get(islandId).setNumIslands(islands.get(islandId).getNumIslands() + islands.get(islandId - 1).getNumIslands());
                     islands.get(islandId).getStudentsOnIsland().uniteContainers(islands.get(islandId - 1).getStudentsOnIsland());
-
+                    int temp = islands.get(islandId - 1).getNoEntryTile();
                     islands.remove(islandId - 1);
+                    island.addNoEntryTile(temp);
+                    for (int i = islandId - 1; i < islands.size(); i++)
+                        islands.get(i).setIslandId(islands.get(i).getIslandId() - 1);
                     islandId--;
                 }
             }
@@ -134,8 +174,11 @@ public class IslandsManager {
                 if ((islands.get(islandId).getCurrentTower()) == islands.get(0).getCurrentTower()) {
                     islands.get(islandId).setNumIslands(islands.get(islandId).getNumIslands() + islands.get(0).getNumIslands());
                     islands.get(islandId).getStudentsOnIsland().uniteContainers(islands.get(0).getStudentsOnIsland());
-
+                    int temp = islands.get(0).getNoEntryTile();
                     islands.remove(0);
+                    island.addNoEntryTile(temp);
+                    for (int i = 0; i < islands.size(); i++)
+                        islands.get(i).setIslandId(islands.get(i).getIslandId() - 1);
 
                 }
             }
@@ -149,8 +192,9 @@ public class IslandsManager {
      * @param island  The island in the array we are looking to
      * @param players It's the ArrayList of all players, it gives the access to all boards
      * @return The player who conquered the island
+     * @throws NoIslandConquerorException If there isn't a new conqueror due to a draw between the two possible winners
      */
-    public Player checkConqueror(Island island, ArrayList<Player> players) {
+    public Player checkConqueror(Island island, ArrayList<Player> players) throws NoIslandConquerorException {
 
         HashMap<Player, Integer> playerPower = new HashMap<>();
         boolean[] controlledProf;
@@ -165,7 +209,7 @@ public class IslandsManager {
         Player playerMax1 = null;
         Player playerMax2 = null;
 
-        if (island.getNoEntryTile()) {
+        if (island.getNoEntryTile() > 0) {
             island.removeNoEntryTile();
             this.stateCharacterNoEntryTile.setNoEntryTiles(this.stateCharacterNoEntryTile.getNoEntryTiles() + 1);
             return null;
@@ -183,9 +227,7 @@ public class IslandsManager {
             playerPower.put(player, tmp);
         }
 
-        for (Player player : players)
-            if (player.getBoard().getTowers().getCurrentTower() == currentPlayer.getBoard().getTowers().getCurrentTower())
-                playerPower.put(player, powerBonusFlag + playerPower.get(player));
+        playerPower.put(currentPlayer, powerBonusFlag + playerPower.get(currentPlayer));
 
         if (island.getCurrentTower() == TowerColor.NONE) {
 
@@ -227,8 +269,7 @@ public class IslandsManager {
                 if (playerPower.get(player) > numStudentsControlling + ((switchConqueror || this.noTowerFlag) ? 0 : island.getNumIslands()) && player.getBoard().getTowers().getCurrentTower() != island.getCurrentTower()) {
                     island.setCurrentConqueror(player);
                     numStudentsControlling = playerPower.get(player);
-                    if (exConqueror.getBoard().getTowers().getCurrentTower() != island.getCurrentConqueror().getBoard().getTowers().getCurrentTower())
-                        switchConqueror = true;
+                    switchConqueror = true;
                 }
         }
 
@@ -314,7 +355,7 @@ public class IslandsManager {
     /**
      * It deletes all effects of flags
      */
-    public void resetFlag() {
+    public void resetFlags() {
         this.noTowerFlag = false;
         this.powerBonusFlag = 0;
         this.disabledColorFlag = null;
@@ -333,6 +374,13 @@ public class IslandsManager {
      */
     public void setAdditionalMNFlag(int num) {
         this.additionalMNFlag = num;
+    }
+
+    /**
+     * @param state A character's state linked to all islands
+     */
+    public void setStateCharacterNoEntryTile(State state) {
+        this.stateCharacterNoEntryTile = state;
     }
 
 }

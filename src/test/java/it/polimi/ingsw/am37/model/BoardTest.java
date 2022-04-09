@@ -21,6 +21,9 @@ class BoardTest {
         container.addStudents(3, FactionColor.GREEN);
     }
 
+    /**
+     * Test base constructor
+     */
     @Test
     @DisplayName("Test base constructor")
     void testConstructor() {
@@ -44,6 +47,9 @@ class BoardTest {
         }
     }
 
+    /**
+     * Test coins logic initialization
+     */
     @Test
     @DisplayName("Test coins logic initialization")
     void testConstructorWithCoinLogic() {
@@ -61,6 +67,9 @@ class BoardTest {
         }
     }
 
+    /**
+     * Test constructor against all possibility of num of player
+     */
     @Test
     @DisplayName("Test constructor against all possibility of num of player")
     void testConstructorWithAllPlayers() {
@@ -73,130 +82,13 @@ class BoardTest {
         assertThrows(IllegalArgumentException.class, () -> new Board(5, TowerColor.BLACK, false, new Player()));
     }
 
+    /**
+     * Test advanced constructor with provided container
+     */
     @Test
     @DisplayName("Test advanced constructor with provided container")
     void testAdvancedConstructor() {
         board = new Board(2, TowerColor.BLACK, false, container, new Player());
         assertTrue(board.getEntrance().size() > 0);
-    }
-
-    @Test
-    @DisplayName("Test CalculateCoin when no coins should be provided")
-    void testCalculateCoinNoCoin() {
-        Player player = new Player();
-        board = new Board(2, TowerColor.BLACK, true, player);
-        LimitedStudentsContainer container = new LimitedStudentsContainer(2);
-        container.addStudents(2, FactionColor.BLUE);
-        board.addStudentToDining(container);
-        Field privateField;
-        try {
-            privateField = Player.class.getDeclaredField("numberOfCoins");
-            privateField.setAccessible(true);
-            assertEquals(0, privateField.get(player));
-            privateField = Board.class.getDeclaredField("coinsArray");
-            privateField.setAccessible(true);
-            assertArrayEquals(new boolean[]{true, true, true}, ((boolean[][]) privateField.get(board))[FactionColor.BLUE.getIndex()]);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    @Test
-    @DisplayName("Test CalculateCoin when just one coin should be provided")
-    void testCalculateCoinWithCoin() {
-        Player player = new Player();
-        board = new Board(2, TowerColor.BLACK, true, player);
-        LimitedStudentsContainer container = new LimitedStudentsContainer(6);
-        container.addStudents(5, FactionColor.BLUE);
-        board.addStudentToDining(container);
-        Field privateField;
-        try {
-            privateField = Player.class.getDeclaredField("numberOfCoins");
-            privateField.setAccessible(true);
-            assertEquals(1, privateField.get(player));
-            privateField = Board.class.getDeclaredField("coinsArray");
-            privateField.setAccessible(true);
-            assertArrayEquals(new boolean[]{false, true, true}, ((boolean[][]) privateField.get(board))[FactionColor.BLUE.getIndex()]);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Test
-    @DisplayName("Test CalculateCoin when there are exactly three students")
-    void testCalculateCoin3Students() {
-        Player player = new Player();
-        board = new Board(2, TowerColor.BLACK, true, player);
-        LimitedStudentsContainer container = new LimitedStudentsContainer(3);
-        container.addStudents(3, FactionColor.BLUE);
-        board.addStudentToDining(container);
-        Field privateField;
-        try {
-            privateField = Player.class.getDeclaredField("numberOfCoins");
-            privateField.setAccessible(true);
-            assertEquals(1, privateField.get(player));
-            privateField = Board.class.getDeclaredField("coinsArray");
-            privateField.setAccessible(true);
-            assertArrayEquals(new boolean[]{false, true, true}, ((boolean[][]) privateField.get(board))[FactionColor.BLUE.getIndex()]);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Test
-    @DisplayName("Test CalculateCoin when students are removed and then re-added")
-    void testCalculateCoinsAfterRemoving() {
-        Player player = new Player();
-        board = new Board(2, TowerColor.BLACK, true, player);
-        LimitedStudentsContainer container = new LimitedStudentsContainer(3);
-        container.addStudents(3, FactionColor.BLUE);
-        board.addStudentToDining(container);
-        board.removeStudentFromDining(2, FactionColor.BLUE);
-        Field privateField;
-        try {
-            privateField = Player.class.getDeclaredField("numberOfCoins");
-            privateField.setAccessible(true);
-            assertEquals(1, privateField.get(player));
-            privateField = Board.class.getDeclaredField("coinsArray");
-            privateField.setAccessible(true);
-            assertArrayEquals(new boolean[]{true, true, true}, ((boolean[][]) privateField.get(board))[FactionColor.BLUE.getIndex()]);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            e.printStackTrace();
-        }
-        board.addStudentToDining(container);
-        try {
-            privateField = Player.class.getDeclaredField("numberOfCoins");
-            privateField.setAccessible(true);
-            assertEquals(2, privateField.get(player));
-            privateField = Board.class.getDeclaredField("coinsArray");
-            privateField.setAccessible(true);
-            assertArrayEquals(new boolean[]{false, true, true}, ((boolean[][]) privateField.get(board))[FactionColor.BLUE.getIndex()]);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Test
-    @DisplayName("Test remove students from dining")
-    void testRemoveStudentFromDining() {
-        board = new Board(2, TowerColor.BLACK, false, new Player());
-        LimitedStudentsContainer container = new LimitedStudentsContainer(5);
-        container.addStudents(5, FactionColor.GREEN);
-        board.addStudentToDining(container);
-        board.removeStudentFromDining(2, FactionColor.GREEN);
-        assertEquals(3, board.getDiningRoom().size());
-        assertEquals(3, board.getDiningRoom().getByColor(FactionColor.GREEN));
-    }
-
-    @Test
-    @DisplayName("Test remove from dining more students than are presents ")
-    void testRemoveStudentsFromDiningWhenTooFew() {
-        board = new Board(2, TowerColor.BLACK, false, new Player());
-        LimitedStudentsContainer container = new LimitedStudentsContainer(5);
-        container.addStudents(1, FactionColor.GREEN);
-        board.addStudentToDining(container);
-        assertDoesNotThrow(() -> board.removeStudentFromDining(2, FactionColor.GREEN));
-        assertEquals(0, board.getDiningRoom().size());
     }
 }

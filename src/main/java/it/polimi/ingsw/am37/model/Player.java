@@ -130,4 +130,8 @@ public class Player {
     public HashMap<Integer, Assistant> getAssistantsDeck() {
         return assistantsDeck;
     }
+
+    public void setLastAssistantPlayedNull() {
+        this.lastAssistantPlayed = null;
+    }
 }
