@@ -17,3 +17,14 @@
    An equivalent situation can happen with professors if a certain character, which enables removing students from dining rooms, is played.
    This can take to an "extreme" situation: if you have a color's professor with some students and all players lose all students of that color, 
    you will keep the professor without having his students.
+
+4) Characters increase their price only after the first time they are used and they keep their new value during the match.
+
+5) It's possible to have more noEntryTiles on one island.
+
+6) Farmer effect (the second character illustrated in Erianty's rules) lasts one turn.
+   
+   Example: a) player one has two red students in his dining room ;
+            b) player two has two red students in his dining room and their professor;
+            player one uses Farmer's effect and takes control of red's professor, at the end of his turn if player one hasn't more red student compared to player two
+            the professor will come back to him.
