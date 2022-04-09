@@ -16,7 +16,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class TurnManagerTest {
 
+    /**
+     * Tests adding students to dining rooms and simulate a match
+     */
     @Test
+    @DisplayName("Tests adding students to dining rooms and simulate a match")
     void addStudentsToDining() {
 
         TurnManager turnManager = new TurnManager(false, 3);
@@ -131,7 +135,11 @@ class TurnManagerTest {
         assertTrue(turnManager.getPlayers().get(2).getBoard().getProfTable()[FactionColor.RED.getIndex()]);
     }
 
+    /**
+     * Tests removing students from dining rooms, simulate a match and tests draw case
+     */
     @Test
+    @DisplayName("Tests removing students from dining rooms, simulate a match and tests draw case")
     void removeStudentsFromDining() {
 
 
@@ -218,7 +226,11 @@ class TurnManagerTest {
         }
     }
 
+    /**
+     * Tests initialization of players, boards and other parameters
+     */
     @Test
+    @DisplayName("Tests initialization of players, boards and other parameters")
     void setUp() {
 
         TurnManager turnManager = new TurnManager(true, 3);
@@ -245,7 +257,11 @@ class TurnManagerTest {
         }
     }
 
+    /**
+     * Tests removing students from cloud and giving them to a board's entrance
+     */
     @Test
+    @DisplayName("Tests removing students from cloud and giving them to a board's entrance")
     void studentCloudToEntrance() {
 
         Cloud cloud = new Cloud(false);
@@ -275,7 +291,11 @@ class TurnManagerTest {
         }
     }
 
+    /**
+     * Tests removing students from entrance and giving them to island
+     */
     @Test
+    @DisplayName("Tests removing students from entrance and giving them to island")
     void studentsEntranceToIsland() {
 
         TurnManager turnManager = new TurnManager(false, 2);
@@ -318,10 +338,14 @@ class TurnManagerTest {
         assertEquals(1, turnManager.getPlayers().get(0).getBoard().getEntrance().getByColor(FactionColor.PINK));
         for (FactionColor color : FactionColor.values())
             if (color != FactionColor.GREEN && color != FactionColor.PINK && color != FactionColor.BLUE)
-                assertEquals(1, turnManager.getPlayers().get(0).getBoard().getEntrance().getByColor(FactionColor.PINK));
+                assertEquals(0, turnManager.getPlayers().get(0).getBoard().getEntrance().getByColor(color));
     }
 
+    /**
+     * Tests adding students to dining with taking control of professors with draw
+     */
     @Test
+    @DisplayName("Tests adding students to dining with taking control of professors with draw")
     public void addStudentsToDiningWithDraw() {
 
         TurnManager turnManager = new TurnManager(false, 3);
@@ -407,6 +431,103 @@ class TurnManagerTest {
     }
 
 
+    /**
+     * Tests removing students from a player and losing two professors to two different players
+     */
+    @Test
+    @DisplayName("Tests removing students from a player and losing two professors to two different players")
+    public void removeFromDiningMultiple() {
+
+        TurnManager turnManager = new TurnManager(false, 3);
+        turnManager.setUp(new Bag());
+
+        turnManager.setCurrentPlayer(turnManager.getPlayers().get(0));
+        LimitedStudentsContainer temp = new LimitedStudentsContainer(15);
+        temp.addStudents(3, FactionColor.GREEN);
+        temp.addStudents(3, FactionColor.BLUE);
+        turnManager.addStudentsToDining(temp);
+
+        turnManager.setCurrentPlayer(turnManager.getPlayers().get(1));
+        temp = new LimitedStudentsContainer(15);
+        temp.addStudents(4, FactionColor.GREEN);
+        temp.addStudents(4, FactionColor.PINK);
+        turnManager.addStudentsToDining(temp);
+
+        turnManager.setCurrentPlayer(turnManager.getPlayers().get(2));
+        temp = new LimitedStudentsContainer(15);
+        temp.addStudents(3, FactionColor.BLUE);
+        temp.addStudents(3, FactionColor.PINK);
+        turnManager.addStudentsToDining(temp);
+
+        turnManager.setCurrentPlayer(turnManager.getPlayers().get(1));
+        temp = new LimitedStudentsContainer(15);
+        temp.addStudents(2, FactionColor.GREEN);
+        temp.addStudents(2, FactionColor.PINK);
+
+        turnManager.removeStudentsFromDining(temp);
+        assertTrue(turnManager.getPlayers().get(0).getBoard().getProfTable()[FactionColor.GREEN.getIndex()]);
+        assertTrue(turnManager.getPlayers().get(2).getBoard().getProfTable()[FactionColor.PINK.getIndex()]);
+        assertFalse(turnManager.getPlayers().get(1).getBoard().getProfTable()[FactionColor.GREEN.getIndex()]);
+        assertFalse(turnManager.getPlayers().get(1).getBoard().getProfTable()[FactionColor.PINK.getIndex()]);
+        assertTrue(turnManager.getPlayers().get(0).getBoard().getProfTable()[FactionColor.BLUE.getIndex()]);
+        assertEquals(3, turnManager.getPlayers().get(0).getBoard().getDiningRoom().getByColor(FactionColor.GREEN));
+        assertEquals(3, turnManager.getPlayers().get(2).getBoard().getDiningRoom().getByColor(FactionColor.PINK));
+        assertEquals(2, turnManager.getPlayers().get(1).getBoard().getDiningRoom().getByColor(FactionColor.GREEN));
+        assertEquals(2, turnManager.getPlayers().get(1).getBoard().getDiningRoom().getByColor(FactionColor.PINK));
+
+    }
+
+    /**
+     * Tests adding students and taking control of two professors in one time from different players
+     */
+    @Test
+    @DisplayName("Tests adding students and taking control of two professors in one time from different players")
+    public void addDiningMultiple() {
+
+        TurnManager turnManager = new TurnManager(false, 3);
+        turnManager.setUp(new Bag());
+
+        turnManager.setCurrentPlayer(turnManager.getPlayers().get(0));
+        LimitedStudentsContainer temp = new LimitedStudentsContainer(15);
+        temp.addStudents(3, FactionColor.GREEN);
+        temp.addStudents(3, FactionColor.BLUE);
+        turnManager.addStudentsToDining(temp);
+
+        turnManager.setCurrentPlayer(turnManager.getPlayers().get(1));
+        temp = new LimitedStudentsContainer(15);
+        temp.addStudents(2, FactionColor.GREEN);
+        temp.addStudents(2, FactionColor.PINK);
+        turnManager.addStudentsToDining(temp);
+
+        turnManager.setCurrentPlayer(turnManager.getPlayers().get(2));
+        temp = new LimitedStudentsContainer(15);
+        temp.addStudents(3, FactionColor.BLUE);
+        temp.addStudents(3, FactionColor.PINK);
+        turnManager.addStudentsToDining(temp);
+
+        turnManager.setProfWithDraw();
+        turnManager.setCurrentPlayer(turnManager.getPlayers().get(1));
+        temp = new LimitedStudentsContainer(15);
+        temp.addStudents(1, FactionColor.GREEN);
+        temp.addStudents(1, FactionColor.PINK);
+        turnManager.addStudentsToDining(temp);
+
+        assertFalse(turnManager.getPlayers().get(0).getBoard().getProfTable()[FactionColor.GREEN.getIndex()]);
+        assertFalse(turnManager.getPlayers().get(2).getBoard().getProfTable()[FactionColor.PINK.getIndex()]);
+        assertTrue(turnManager.getPlayers().get(1).getBoard().getProfTable()[FactionColor.GREEN.getIndex()]);
+        assertTrue(turnManager.getPlayers().get(1).getBoard().getProfTable()[FactionColor.PINK.getIndex()]);
+        assertTrue(turnManager.getPlayers().get(0).getBoard().getProfTable()[FactionColor.BLUE.getIndex()]);
+        assertEquals(3, turnManager.getPlayers().get(0).getBoard().getDiningRoom().getByColor(FactionColor.GREEN));
+        assertEquals(3, turnManager.getPlayers().get(2).getBoard().getDiningRoom().getByColor(FactionColor.PINK));
+        assertEquals(3, turnManager.getPlayers().get(1).getBoard().getDiningRoom().getByColor(FactionColor.GREEN));
+        assertEquals(3, turnManager.getPlayers().get(1).getBoard().getDiningRoom().getByColor(FactionColor.PINK));
+
+
+    }
+
+    /**
+     * Test CalculateCoin when no coins should be provided
+     */
     @Test
     @DisplayName("Test CalculateCoin when no coins should be provided")
     void testCalculateCoinNoCoin() {
@@ -434,7 +555,9 @@ class TurnManagerTest {
 
     }
 
-
+    /**
+     * Test CalculateCoin when just one coin should be provided
+     */
     @Test
     @DisplayName("Test CalculateCoin when just one coin should be provided")
     void testCalculateCoinWithCoin() {
@@ -462,6 +585,9 @@ class TurnManagerTest {
     }
 
 
+    /**
+     * Test CalculateCoin when there are exactly three students
+     */
     @Test
     @DisplayName("Test CalculateCoin when there are exactly three students")
     void testCalculateCoin3Students() {
@@ -488,7 +614,9 @@ class TurnManagerTest {
         }
     }
 
-
+    /**
+     * Test CalculateCoin when students are removed and then re-added
+     */
     @Test
     @DisplayName("Test CalculateCoin when students are removed and then re-added")
     void testCalculateCoinsAfterRemoving() {
@@ -529,7 +657,9 @@ class TurnManagerTest {
         }
     }
 
-
+    /**
+     * Test remove students from dining
+     */
     @Test
     @DisplayName("Test remove students from dining")
     void testRemoveStudentFromDining() {
@@ -550,7 +680,9 @@ class TurnManagerTest {
         assertEquals(3, board.getDiningRoom().getByColor(FactionColor.GREEN));
     }
 
-
+    /**
+     * Test remove from dining more students than are presents
+     */
     @Test
     @DisplayName("Test remove from dining more students than are presents ")
     void testRemoveStudentsFromDiningWhenTooFew() {

@@ -17,22 +17,27 @@ public class TurnManager {
      * If you can take a professor even if there is a draw
      */
     boolean profWithDraw;
+
     /**
      * Players in the game
      */
     private ArrayList<Player> players;
+
     /**
      * Who is playinh
      */
     private Player currentPlayer;
+
     /**
      * If coins are enabled in the game
      */
     private boolean coinsEnabled;
+
     /**
      * Total number of players
      */
     private int numOfPlayers;
+
     /**
      * Map to memorize who used profWithDraw to steal professors, at the end of the turn it will be reverted
      */
