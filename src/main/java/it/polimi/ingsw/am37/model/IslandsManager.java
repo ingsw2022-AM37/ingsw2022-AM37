@@ -72,7 +72,8 @@ public class IslandsManager {
     }
 
     /**
-     * This is a one-time method, it creates islands, set Mother Nature on a random one and put a student on each island, excluding the one with Mother Nature and the opposite one
+     * This is a one-time method, it creates islands, set Mother Nature on a random one and put a student on each
+     * island, excluding the one with Mother Nature and the opposite one
      */
     public void setUp() {
         final int numOfInitialIslands = 12;
@@ -121,7 +122,8 @@ public class IslandsManager {
     }
 
     /**
-     * The method checks if an island has next to it another island (or islands) with the same color of tower, if yes then they will be merged in Island with index islandId and others are eliminated
+     * The method checks if an island has next to it another island (or islands) with the same color of tower, if yes
+     * then they will be merged in Island with index islandId and others are eliminated
      *
      * @param island It's needed to point to the island where there is MotherNature
      * @throws IllegalArgumentException When islandId doesn't identify an island
@@ -187,7 +189,9 @@ public class IslandsManager {
     }
 
     /**
-     * The method check which player has the most students on the island, a player have students of one color when he controls their professor. Each player has a towerColor and the tower means who is controlling it. Switches of conqueror(and of towers) are possible.
+     * The method check which player has the most students on the island, a player have students of one color when he
+     * controls their professor. Each player has a towerColor and the tower means who is controlling it. Switches of
+     * conqueror(and of towers) are possible.
      *
      * @param island  The island in the array we are looking to
      * @param players It's the ArrayList of all players, it gives the access to all boards
@@ -260,13 +264,15 @@ public class IslandsManager {
                     playerMax2 = player;
                 }
             }
-            if (max1 == max2 && max1 > playerPower.get(island.getCurrentConqueror()) + (this.noTowerFlag ? 0 : island.getNumIslands()) && playerMax1.getBoard().getTowers().getCurrentTower() != island.getCurrentTower() && playerMax2.getBoard().getTowers().getCurrentTower() != island.getCurrentTower())
+            if (max1 == max2 && max1 > playerPower.get(island.getCurrentConqueror()) + (this.noTowerFlag ? 0 :
+                    island.getNumIslands()) && playerMax1.getBoard().getTowers().getCurrentTower() != island.getCurrentTower() && playerMax2.getBoard().getTowers().getCurrentTower() != island.getCurrentTower())
                 throw new NoIslandConquerorException();
 
             numStudentsControlling = playerPower.get(island.getCurrentConqueror());
             exConqueror = island.getCurrentConqueror();
             for (Player player : players)
-                if (playerPower.get(player) > numStudentsControlling + ((switchConqueror || this.noTowerFlag) ? 0 : island.getNumIslands()) && player.getBoard().getTowers().getCurrentTower() != island.getCurrentTower()) {
+                if (playerPower.get(player) > numStudentsControlling + ((switchConqueror || this.noTowerFlag) ? 0 :
+                        island.getNumIslands()) && player.getBoard().getTowers().getCurrentTower() != island.getCurrentTower()) {
                     island.setCurrentConqueror(player);
                     numStudentsControlling = playerPower.get(player);
                     switchConqueror = true;
@@ -298,11 +304,13 @@ public class IslandsManager {
     /**
      * This method is used for moving Mother Nature and use checkConqueror and uniteIfPossible
      *
-     * @param island  It's the island where you want to move Mother Nature
-     * @param players The list of all players
+     * @param stepsForward It's the island where you want to move Mother Nature
+     * @param players      The list of all players
      * @throws MNmovementWrongException If the movement can't be performed.
      */
-    public void motherNatureActionMovement(Island island, ArrayList<Player> players) throws MNmovementWrongException {
+    public void motherNatureActionMovement(int stepsForward, ArrayList<Player> players) throws MNmovementWrongException {
+        int temp = islands.indexOf(getMotherNaturePosition()) + stepsForward;
+        Island island = islands.get(temp > islands.size() ? temp - islands.size() : temp);
         moveMotherNature(island);
         motherNatureActionNoMovement(island, players);
     }
