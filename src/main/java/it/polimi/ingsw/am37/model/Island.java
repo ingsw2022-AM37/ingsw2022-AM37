@@ -1,9 +1,7 @@
 package it.polimi.ingsw.am37.model;
 
-import it.polimi.ingsw.am37.model.exceptions.NoEntryTileException;
-import it.polimi.ingsw.am37.model.exceptions.NoIslandConquerorException;
 import it.polimi.ingsw.am37.model.student_container.FixedUnlimitedStudentsContainer;
-import it.polimi.ingsw.am37.model.student_container.LimitedStudentsContainer;
+import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
 
 import java.util.ArrayList;
 
@@ -92,7 +90,7 @@ public class Island {
     /**
      * @param cont It's the array of students which will be added to the island's one
      */
-    public void addStudents(FixedUnlimitedStudentsContainer cont) {
+    public void addStudents(StudentsContainer cont) {
         this.studentsOnIsland.uniteContainers(cont);
     }
 

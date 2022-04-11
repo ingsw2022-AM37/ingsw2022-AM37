@@ -5,6 +5,7 @@ import it.polimi.ingsw.am37.model.exceptions.NoIslandConquerorException;
 import it.polimi.ingsw.am37.model.exceptions.NoProfChangeException;
 import it.polimi.ingsw.am37.model.student_container.FixedUnlimitedStudentsContainer;
 import it.polimi.ingsw.am37.model.student_container.LimitedStudentsContainer;
+import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
 import it.polimi.ingsw.am37.model.student_container.UnlimitedStudentsContainer;
 
 import java.util.ArrayList;
@@ -69,7 +70,7 @@ public class TurnManager {
      *
      * @param container The students added to current player's dining room
      */
-    public void addStudentsToDining(LimitedStudentsContainer container) {
+    public void addStudentsToDining(StudentsContainer container) {
 
         currentPlayer.getBoard().getDiningRoom().uniteContainers(container);
 
@@ -332,7 +333,6 @@ public class TurnManager {
 
         if (notPlayedInRound.isEmpty()) {
             notPlayedInRound.addAll(players);
-            ;
         }
 
 

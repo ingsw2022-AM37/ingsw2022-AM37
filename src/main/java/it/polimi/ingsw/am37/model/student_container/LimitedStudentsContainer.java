@@ -81,7 +81,7 @@ public class LimitedStudentsContainer extends StudentsContainer {
         }
     }
 
-    public void removeContainer(LimitedStudentsContainer container) throws StudentSpaceException {
+    public void removeContainer(StudentsContainer container) throws StudentSpaceException {
         for (FactionColor color :
                 FactionColor.values()) {
             if (this.getByColor(color) < container.getByColor(color)) throw new StudentSpaceException(false);
