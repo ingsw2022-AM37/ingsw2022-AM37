@@ -1,7 +1,7 @@
 package it.polimi.ingsw.am37.model;
 
 import it.polimi.ingsw.am37.model.character.Character;
-import it.polimi.ingsw.am37.model.character.CharacterEffect;
+import it.polimi.ingsw.am37.model.character.EffectHandler;
 import it.polimi.ingsw.am37.model.character.Effect;
 import it.polimi.ingsw.am37.model.character.Option;
 import it.polimi.ingsw.am37.model.exceptions.AssistantImpossibleToPlay;
@@ -129,7 +129,7 @@ public class GameManager {
             Collections.shuffle(temp);
             for (int i = 0; i < NUMBEROFCHARACTERS; i++) {
                 Effect effect = temp.get(i);
-                characters[i] = new Character(effect.getInitialPrice(), effect, new CharacterEffect(effect, bag));
+                characters[i] = new Character(effect.getInitialPrice(), effect, bag);
             }
         }
     }
