@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am37.model;
 
 import it.polimi.ingsw.am37.model.student_container.LimitedStudentsContainer;
+import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
 
 import java.util.Arrays;
 
@@ -170,14 +171,14 @@ public class Board {
     /**
      * @param container the input container
      */
-    public void addStudentsToEntrance(LimitedStudentsContainer container) {
+    public void addStudentsToEntrance(StudentsContainer container) {
         entranceArea.uniteContainers(container);
     }
 
     /**
      * @param container the students who want to remove
      */
-    public void removeStudentsFromEntrance(LimitedStudentsContainer container) {
+    public void removeStudentsFromEntrance(StudentsContainer container) {
         for (FactionColor color :
                 FactionColor.values()) {
             entranceArea.removeStudents(container.getByColor(color), color);

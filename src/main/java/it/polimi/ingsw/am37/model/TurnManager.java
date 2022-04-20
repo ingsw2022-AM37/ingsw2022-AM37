@@ -92,7 +92,7 @@ public class TurnManager {
      * @param container The students needed to be removed from currentPlayer dining room
      * @throws NoProfChangeException When there is a draw situation
      */
-    public void removeStudentsFromDining(LimitedStudentsContainer container) throws NoProfChangeException {
+    public void removeStudentsFromDining(StudentsContainer container) throws NoProfChangeException {
 
         HashMap<Player, Integer> playerPower = new HashMap<>();
         boolean[] controlledProf;
