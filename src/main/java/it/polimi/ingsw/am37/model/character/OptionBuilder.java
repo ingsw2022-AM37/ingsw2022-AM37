@@ -4,10 +4,9 @@ import it.polimi.ingsw.am37.model.*;
 import it.polimi.ingsw.am37.model.student_container.LimitedStudentsContainer;
 
 /**
- * Builder class to create the class Option with optional parameters.
- * The default not initialized values are null for objects and -1 for intPar; controller and player must be provided
- *
- * @see Option
+ * Builder class to create the class {@link Option} with optional parameters. The default not initialized values are
+ * null for objects and -1 for intPar; controller and player must be provided. Each possible field option could be set
+ * using the method in this class that as the same name of the field in {@link Option} class
  */
 public class OptionBuilder {
 
@@ -17,8 +16,8 @@ public class OptionBuilder {
     private int intPar;
     private Bag bag;
     private GameManager controller;
-    private LimitedStudentsContainer removeContainer;
-    private LimitedStudentsContainer addContainer;
+    private LimitedStudentsContainer primaryContainer;
+    private LimitedStudentsContainer secondaryContainer;
 
     private OptionBuilder(GameManager controller, Player player) {
         this.controller = controller;
@@ -50,18 +49,23 @@ public class OptionBuilder {
         return this;
     }
 
-    public OptionBuilder removeContainer(LimitedStudentsContainer container) {
-        this.removeContainer = container;
+    public OptionBuilder primaryContainer(LimitedStudentsContainer container) {
+        this.primaryContainer = container;
         return this;
     }
 
-    public OptionBuilder addContainer(LimitedStudentsContainer container) {
-        this.addContainer = container;
+    public OptionBuilder secondaryContainer(LimitedStudentsContainer container) {
+        this.secondaryContainer = container;
+        return this;
+    }
+
+    public OptionBuilder player(Player player) {
+        this.player = player;
         return this;
     }
 
     public Option build() {
-        return new Option(island, player, color, intPar, bag, controller, removeContainer, addContainer);
+        return new Option(island, player, color, intPar, bag, controller, primaryContainer, secondaryContainer);
     }
 
     public void clear() {
@@ -71,7 +75,7 @@ public class OptionBuilder {
         intPar = -1;
         bag = null;
         controller = null;
-        removeContainer = null;
-        addContainer = null;
+        primaryContainer = null;
+        secondaryContainer = null;
     }
 }
