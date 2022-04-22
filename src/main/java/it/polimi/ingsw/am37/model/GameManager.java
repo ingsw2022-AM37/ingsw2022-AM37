@@ -147,8 +147,9 @@ public class GameManager {
         }
         final int maxForMovement = 3;
         if (container.size() > maxForMovement) throw new RuntimeException();
-        Island island = islandsManager.getIslands().stream().
-                filter(island1 -> island1.getIslandId() == islandId)
+        Island island = islandsManager.getIslands()
+                .stream()
+                .filter(island1 -> island1.getIslandId() == islandId)
                 .findFirst()
                 .orElseThrow();
         turnManager.getCurrentPlayer().getBoard().getEntrance().removeContainer(container);
@@ -208,5 +209,17 @@ public class GameManager {
     public void playCharacter(Character character, Option option) {
         Character used = Arrays.stream(characters).filter(character::equals).findFirst().orElseThrow();
         used.useEffect(option);
+    }
+
+    /**
+     * Choose a cloud
+     */
+    void chooseCloud(String cloudId) {
+        Cloud currentCloud = clouds.stream()
+                .filter(cloud -> cloud.getCloudId().equals(cloudId))
+                .findFirst()
+                .orElseThrow();
+        turnManager.getCurrentPlayer().getBoard().getEntrance().uniteContainers(currentCloud.removeStudents());
+        currentCloud.addStudents(bag.extractStudents(currentCloud.getIsFor2() ? 2 : 3));
     }
 }
