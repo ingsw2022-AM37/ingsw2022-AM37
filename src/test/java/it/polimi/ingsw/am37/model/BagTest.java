@@ -28,8 +28,7 @@ public class BagTest
     public void extractOkayAmountOfStudents(){
         Bag bag = new Bag();
         bag.extractStudents(50);
-        assertEquals(bag.size(), 70);
-
+        assertEquals(70, bag.size());
     }
 
     /**
@@ -40,6 +39,6 @@ public class BagTest
     public void extractExactStudents(){
         Bag bag = new Bag();
         bag.extractStudents(120);
-        assertEquals(bag.size(), 0);
+        assertEquals(0, bag.size());
     }
 }

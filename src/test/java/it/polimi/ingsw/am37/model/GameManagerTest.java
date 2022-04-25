@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import javax.management.InstanceAlreadyExistsException;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Random;
@@ -91,14 +92,17 @@ class GameManagerTest {
 
     @Test
     @DisplayName("Test assistant logic")
-    @Disabled //FIXME remove when method turnManager.nextManager is functional
     public void testPlayAssistant() {
         GameManager manager = new GameManager(2, false);
         manager.prepareGame();
         assertNull(manager.getTurnManager().getCurrentPlayer().getLastAssistantPlayed());
         Player oldPlayer = manager.getTurnManager().getCurrentPlayer();
-        Assistant assistant = new Assistant(WizardTeam.TEAM1, 4, 5);
-        manager.playAssistant(assistant);
+        try {
+            manager.getTurnManager().createDeck(WizardTeam.TEAM1);
+        } catch (InstanceAlreadyExistsException e) {
+            e.printStackTrace();
+        }
+        manager.playAssistant(oldPlayer.getAssistantsDeck().get(4));
         assertNotNull(oldPlayer.getLastAssistantPlayed());
         assertNotEquals(oldPlayer, manager.getTurnManager().getCurrentPlayer());
         assertNull(manager.getTurnManager().getCurrentPlayer().getLastAssistantPlayed());
