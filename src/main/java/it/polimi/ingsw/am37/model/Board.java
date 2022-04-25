@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am37.model;
 
 import it.polimi.ingsw.am37.model.student_container.LimitedStudentsContainer;
+import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
 
 import java.util.Arrays;
 
@@ -161,35 +162,6 @@ public class Board {
     }
 
     /**
-     * Unite the container provided with the dining room
-     *
-     * @param container the input container
-     */
-    public void addStudentToDining(LimitedStudentsContainer container) {
-        diningRoom.uniteContainers(container);
-        if (coinsEnabled) {
-            for (int i = 0; i < calculateCoin(diningRoom); i++) {
-                player.receiveCoin();
-            }
-        }
-    }
-
-    /**
-     * Remove the students from dining rooms. If there are less than num students, all of them are removed without raising exception
-     *
-     * @param num   the max number of students to remove
-     * @param color the color of students to remove
-     * @return a container with the removed students
-     */
-    public LimitedStudentsContainer removeStudentFromDining(int num, FactionColor color) {
-        diningRoom.removeStudents(Math.min(num, diningRoom.getByColor(color)), color);
-        LimitedStudentsContainer temp = new LimitedStudentsContainer(num);
-        temp.addStudents(Math.min(num, diningRoom.getByColor(color)), color);
-        if (coinsEnabled) checkCoins(diningRoom);
-        return temp;
-    }
-
-    /**
      * @return the entrance student container
      */
     public LimitedStudentsContainer getEntrance() {
@@ -199,14 +171,14 @@ public class Board {
     /**
      * @param container the input container
      */
-    public void addStudentsToEntrance(LimitedStudentsContainer container) {
+    public void addStudentsToEntrance(StudentsContainer container) {
         entranceArea.uniteContainers(container);
     }
 
     /**
      * @param container the students who want to remove
      */
-    public void removeStudentsFromEntrance(LimitedStudentsContainer container) {
+    public void removeStudentsFromEntrance(StudentsContainer container) {
         for (FactionColor color :
                 FactionColor.values()) {
             entranceArea.removeStudents(container.getByColor(color), color);
@@ -219,7 +191,7 @@ public class Board {
      * @param current the state of the dining room after the insert
      * @return the number of coins taken
      */
-    private int calculateCoin(LimitedStudentsContainer current) {
+    public int calculateCoin(LimitedStudentsContainer current) {
         int coins = 0;
         for (FactionColor color :
                 FactionColor.values()) {
@@ -237,7 +209,7 @@ public class Board {
      *
      * @param current the state of the dining room after the removal
      */
-    private void checkCoins(LimitedStudentsContainer current) {
+    public void checkCoins(LimitedStudentsContainer current) {
         for (FactionColor color :
                 FactionColor.values()) {
             int firstNotTakenCoinIndex = current.getByColor(color) / spaceBetweenCoins;

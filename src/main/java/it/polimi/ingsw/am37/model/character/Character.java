@@ -1,18 +1,25 @@
 package it.polimi.ingsw.am37.model.character;
 
+import it.polimi.ingsw.am37.model.Bag;
+
+import java.util.Objects;
+
 /**
- * This class represents the Character in the game.
+ * This class represents the Character in the game. They have special effects to modify and improve the game. They are
+ * activated and usable only if advancedMove is enabled in {@link it.polimi.ingsw.am37.model.GameManager}. Each
+ * character has a starting price and a current price. When used each player needs to get the price. Use their effect
+ * with the {@link this#useEffect(Option)} and the first usage cause the starting price to increase.
  */
 public class Character {
 
     /**
      * The effect that distinguishes the character.
      */
-    private final CharacterEffect effect;
+    private final EffectHandler effectHandler;
     /**
      * The id of the Effect.
      */
-    private final Effect effectId;
+    private final Effect effectType;
     /**
      * The starting price of the Character, it can change during the game.
      */
@@ -25,11 +32,11 @@ public class Character {
     /**
      * Default constructor
      */
-    public Character(int startPrice, Effect character, CharacterEffect effect) {
+    public Character(int startPrice, Effect effectType, Bag bag) {
         this.startPrice = startPrice;
         this.currentPrice = startPrice;
-        this.effectId = character;
-        this.effect = effect;
+        this.effectType = effectType;
+        this.effectHandler = new EffectHandler(effectType, bag);
     }
 
     /**
@@ -50,8 +57,19 @@ public class Character {
      * @param option The option parameters used to use the Effect.
      */
     public void useEffect(Option option) {
-        effect.useEffect(option);
-        increasePrice();
+        effectHandler.useEffect(option);
+        if (startPrice == currentPrice) increasePrice();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Character character)) return false;
+        return effectType == character.effectType;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(effectType);
+    }
 }
