@@ -179,8 +179,7 @@ public class IslandsManager {
                     int temp = islands.get(0).getNoEntryTile();
                     islands.remove(0);
                     island.addNoEntryTile(temp);
-                    for (int i = 0; i < islands.size(); i++)
-                        islands.get(i).setIslandId(islands.get(i).getIslandId() - 1);
+                    for (Island value : islands) value.setIslandId(value.getIslandId() - 1);
 
                 }
             }

@@ -3,8 +3,6 @@ package it.polimi.ingsw.am37.model;
 import it.polimi.ingsw.am37.model.student_container.FixedUnlimitedStudentsContainer;
 import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
 
-import java.util.ArrayList;
-
 /**
  * At the beginning of the game there are twelve islands, they can have students on them and tower which represents
  * that a player is controlling them. Islands can be united and once this happens can't be reversed
@@ -24,7 +22,7 @@ public class Island {
     /**
      * It represents the students on the island
      */
-    private final FixedUnlimitedStudentsContainer studentsOnIsland;
+    private final StudentsContainer studentsOnIsland;
     /**
      * Indicate if there is a tower and eventually its color
      */
@@ -97,7 +95,7 @@ public class Island {
     /**
      * @return The students on the island
      */
-    public FixedUnlimitedStudentsContainer getStudentsOnIsland() {
+    public StudentsContainer getStudentsOnIsland() {
         return this.studentsOnIsland;
     }
 

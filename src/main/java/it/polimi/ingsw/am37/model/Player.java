@@ -105,8 +105,9 @@ public class Player {
         int movement = 0;
         for (int i = 1; i <= 10; i++) {
             if (i % 2 == 0)
-                this.assistantsDeck.put(i, new Assistant(team, i, movement));
-            else this.assistantsDeck.put(i, new Assistant(team, i, ++movement));
+                this.assistantsDeck.put(i-1, new Assistant(team, i, movement));
+            else
+                this.assistantsDeck.put(i-1, new Assistant(team, i, ++movement));
         }
     }
 
@@ -141,8 +142,8 @@ public class Player {
     /**
      * reset the last assistant as null
      */
-    public void setLastAssistantPlayedNull() {
-        this.lastAssistantPlayed = null;
+    public void setLastAssistantPlayed(Assistant assistant) {
+        this.lastAssistantPlayed = assistant;
     }
 
     /**

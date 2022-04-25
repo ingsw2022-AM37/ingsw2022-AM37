@@ -13,4 +13,8 @@ public class AssistantImpossibleToPlay extends RuntimeException {
     public AssistantImpossibleToPlay(Throwable cause) {
         super(cause);
     }
+
+    public AssistantImpossibleToPlay(String message) {
+        super(message);
+    }
 }
