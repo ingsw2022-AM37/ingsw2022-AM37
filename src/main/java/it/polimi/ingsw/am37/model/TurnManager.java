@@ -1,58 +1,60 @@
 package it.polimi.ingsw.am37.model;
 
 import it.polimi.ingsw.am37.model.exceptions.AssistantImpossibleToPlay;
-import it.polimi.ingsw.am37.model.exceptions.NoIslandConquerorException;
 import it.polimi.ingsw.am37.model.exceptions.NoProfChangeException;
 import it.polimi.ingsw.am37.model.student_container.FixedUnlimitedStudentsContainer;
 import it.polimi.ingsw.am37.model.student_container.LimitedStudentsContainer;
 import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
-import it.polimi.ingsw.am37.model.student_container.UnlimitedStudentsContainer;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Random;
+import javax.management.InstanceAlreadyExistsException;
+import java.util.*;
 
 public class TurnManager {
 
     /**
      * If you can take a professor even if there is a draw
      */
-    boolean profWithDraw;
+    private boolean getProfWithDraw;
 
     /**
      * Players in the game
      */
-    private ArrayList<Player> players;
+    private final ArrayList<Player> players;
 
     /**
-     * Who is playinh
+     * Who is playing
      */
     private Player currentPlayer;
 
     /**
      * If coins are enabled in the game
      */
-    private boolean coinsEnabled;
+    private final boolean coinsEnabled;
 
     /**
      * Total number of players
      */
-    private int numOfPlayers;
+    private final int numOfPlayers;
 
     /**
-     * Map to memorize who used profWithDraw to steal professors, at the end of the turn it will be reverted
+     * Map to memorize who used getProfWithDraw to steal professors, at the end of the turn it will be reverted
      */
     private HashMap<FactionColor, Player> stolenProf;
-
-    /**
-     * Players who haven't played in the round yet
-     */
-    private ArrayList<Player> notPlayedInRound;
 
     /**
      * Players in the order of when they choose their assistant
      */
     private ArrayList<Player> orderPlayed;
+
+    /**
+     * It represents the Assistant played per Player in the current turn.
+     */
+    private HashMap<Player, Assistant> assistantPlayed;
+
+    /**
+     * It is needed to establish the players' next turn order
+     */
+    private HashMap<Player, Assistant> nextTurnPlayer;
 
     /**
      * Default constructor
@@ -61,9 +63,9 @@ public class TurnManager {
         this.players = new ArrayList<>();
         this.coinsEnabled = coinsEnabled;
         this.numOfPlayers = numOfPlayers;
-        this.profWithDraw = false;
+        this.getProfWithDraw = false;
+        this.assistantPlayed = new HashMap<>();
     }
-
 
     /**
      * This method moves students and checks also the professors and coins
@@ -96,15 +98,15 @@ public class TurnManager {
 
         HashMap<Player, Integer> playerPower = new HashMap<>();
         boolean[] controlledProf;
-        Player exProfOwner = null;
+        Player exProfOwner;
         int boolToInt;
-        boolean switchProf = false;
-        int numStudentsControlling = 0;
-        int max1 = 0;
-        int max2 = 0;
-        Player playerMax1 = null;
-        Player playerMax2 = null;
-        Player currentProfOwner = null;
+        boolean switchProf;
+        int numStudentsControlling;
+        int max1;
+        int max2;
+        Player playerMax1;
+        Player playerMax2;
+        Player currentProfOwner;
 
 
         currentPlayer.getBoard().getDiningRoom().removeContainer(container);
@@ -113,11 +115,8 @@ public class TurnManager {
 
         for (FactionColor color : FactionColor.values()) {
             if (container.getByColor(color) > 0) {
-
                 playerPower = new HashMap<>();
-                exProfOwner = null;
                 switchProf = false;
-                numStudentsControlling = 0;
                 max1 = 0;
                 max2 = 0;
                 playerMax1 = null;
@@ -167,7 +166,7 @@ public class TurnManager {
     /**
      * @param assistant Assistant played by the currentPlayer
      */
-    public void useAssistant(Assistant assistant) {
+    private void useAssistant(Assistant assistant) {
         currentPlayer.useAssistant(assistant);
     }
 
@@ -177,42 +176,37 @@ public class TurnManager {
      * @param bag Bag containing total students of the game
      */
     public void setUp(Bag bag) {
-
         Random random = new Random();
-
-        for (int cont = 0; cont < numOfPlayers; cont++)
-            players.add(new Player());
-
         final int studentEntranceThreePlayers = 9;
         final int studentEntranceTwoPlayers = 7;
+        this.orderPlayed = new ArrayList<>();
+        this.stolenProf = new HashMap<>();
+        this.nextTurnPlayer = new HashMap<>();
 
+        for (int cont = 0; cont < numOfPlayers; cont++)
+            this.players.add(new Player());
         int i = 0;
         for (Player player : players) {
             player.setBoard(new Board(numOfPlayers, TowerColor.values()[i], coinsEnabled, player));
             i++;
         }
-
         if (numOfPlayers == 2 || numOfPlayers == 4)
             for (Player player : players) {
                 player.getBoard().addStudentsToEntrance(bag.extractStudents(studentEntranceTwoPlayers));
             }
-
         else
             for (Player player : players) {
                 player.getBoard().addStudentsToEntrance(bag.extractStudents(studentEntranceThreePlayers));
             }
-
         this.currentPlayer = getPlayers().get(random.nextInt(getPlayers().size()));
-
-        this.orderPlayed = new ArrayList<>();
-        this.notPlayedInRound = new ArrayList<>();
-
-        orderPlayed.add(0, currentPlayer);
-
-        stolenProf = new HashMap<>();
-
-        notPlayedInRound.addAll(players);
-
+        int counter = 0;
+        i = players.indexOf(currentPlayer);
+        while (counter <= numOfPlayers){
+            this.orderPlayed.add(players.get(i));
+            counter++;
+            i = (i+1)%numOfPlayers;
+        }
+        this.orderPlayed.addAll(players);
     }
 
     /**
@@ -223,6 +217,8 @@ public class TurnManager {
     }
 
     /**
+     * Moves Students from the entrance to a specific Island
+     *
      * @param island    Island to where you move students
      * @param container Students you have picked from currentPlayer's entrance
      */
@@ -242,17 +238,17 @@ public class TurnManager {
     }
 
     /**
-     * Flag to conquer professors even if you have same the number of students of your opponent
+     * Sets the flag to conquer professors even if you have same the number of students of your opponent
      */
     public void setProfWithDraw() {
-        this.profWithDraw = true;
+        this.getProfWithDraw = true;
     }
 
     /**
      * Method used for deleting all characters' effects
      */
     public void resetFlags() {
-        this.profWithDraw = false;
+        this.getProfWithDraw = false;
         for (FactionColor color : FactionColor.values())
             if (stolenProf.containsKey(color)) {
                 stolenProf.get(color).getBoard().addProf(color);
@@ -294,7 +290,7 @@ public class TurnManager {
         } else {
             if (!currentPlayer.getBoard().getProfTable()[color.getIndex()]) {
                 for (Player player : players) {
-                    if (profWithDraw) {
+                    if (getProfWithDraw) {
                         if (currentPlayer.getBoard().getDiningRoom().getByColor(color) >= player.getBoard().getDiningRoom().getByColor(color) && player.getBoard().getProfTable()[color.getIndex()] && currentPlayer.getBoard().getTowers().getCurrentTower() != player.getBoard().getTowers().getCurrentTower()) {
                             exControllingStudents = player;
                             stolenProf.put(color, player);
@@ -315,63 +311,64 @@ public class TurnManager {
         }
     }
 
-    //Idea: notPlayedInRound ha tutti i player che devono ancora giocare il proprio turno, ma ovviamente in questo
-    // metodo hanno tutti giocato il proprio assistente di già. Devo dunque controllare chi ha l'assistente
-    // con il numero più basso tra quelli presenti in notPlayedInRound e fare setCurrentPlayer, poi lo tolgo da
-    // notPlayedInRound. All'inizio del metodo faccio un if, se notPlayedInRound è vuoto lo riempo con tutti i player.
-    // mi salvo in firstToChoseAssistant il primo che tolgo da notPlayedInRound --> NO
-    // HO CAMBIATO: ora c'è orderPlayed: firstToChoseAssistant è orderPlayed.get(0), questa modifca serve:
-    // ad esempio gli ultimi due giocatori hanno giocato un assistente uguale perchè obbligati, chi inizia?
-    // quello che ha giocato prima l'assistente, ovvero fai il controllo di chi ha l'assistente più basso,
-    // se due o più hanno il più basso uguale allora
-    //1) prendi chi di quelli viene prima in orderPlayed
-    // 2) ELIMINI il giocatore che è settato come currentPlayer da orderPlad --> IMPORTANTE!!!
+    /**
+     * Checks whether the given Assistant can be played and if so it plays it
+     *
+     * @param assistant the Assistant that the current Player wants to play
+     * @throws AssistantImpossibleToPlay
+     */
+    public void playAssistant(Assistant assistant) throws AssistantImpossibleToPlay {
+        for (Player p : players) {
+            if (!p.equals(currentPlayer)) {
+                if (p.getLastAssistantPlayed() == assistant)
+                    //if in the current player's deck there is another playable card different from another player's card
+                    if (currentPlayer.getAssistantsDeck().keySet().stream().anyMatch(cardValue -> (assistant.getCardValue() != cardValue)))
+                        throw new AssistantImpossibleToPlay("Can't play an Assistant already played by another Player in the same turn, play an another one");
 
-    //--> //praticamente OderPlayed si riempe nel metodo sotto uno a uno e si svuota qui uno a uno, invece notPlayedInRound si riempono
-    //e svuotano in entrambi i metodi(uno riempe tutto e toglie uno a uno e laltro viceversa
-    public void nextTurnPlayer() {
-
-        if (notPlayedInRound.isEmpty()) {
-            notPlayedInRound.addAll(players);
+            }
         }
-
+        useAssistant(assistant);
+        this.nextTurnPlayer.put(currentPlayer, assistant);
+        if (orderPlayed.indexOf(currentPlayer) != orderPlayed.size())
+            setCurrentPlayer(orderPlayed.get(orderPlayed.indexOf(currentPlayer) + 1));
 
     }
 
-    // anche qui uso notPlayedInRound, serve un if all'inizio per riempire l'array quando questo è vuoto.
-    // scorro tutti i giocatori ( senza fare controlli specifici) PARTENDO da currentPlayer( penso quindi che devi usare gli indici e un contatore pari a size
-    // , es: current = 1, parto da 1, faccio 2 e poi torno a 0) e chiamo useAssistant, man mano li tolgo da currentlayer e li aggiungi
-    // in ordine in orderPlayed
-    public void nextTurnAssistant(Assistant assistant) throws AssistantImpossibleToPlay {
-
-        //quando faccio il ciclo dei Players per vedere che l'assistente che ho giocato
-        //(parametro in input del metodo) sia diverso da tutti gli altri lastAssistant mi ricordo di
-        // escludere il player stesso, o con torre o con currentPlayer
-        //dopo il primo if, se non c'è nessun assistante tra i last degli altri lo gioco
-        // altrimenti serve un altro if per controllare tra i deck degli altri giocatori
-        //(escludo sempre il corrente) se c'era una possibilità di giocare un assistente
-        // diverso i lastassistant degli altri giocatori, se c'era lancio l'eccezione,
-        // altrimenti gioco la carta
-        //IMPORTANTE: mi salvo anche l'ordine in cui i giocatori hanno giocato l'assistente,
-        // questo perchè a fronte di un pareggio possibile in nextTurnPlayer gioca chi ha usato prima
-        // l'assistente, quindi ho tolto l'indice mentre ho messo un arraylist di players ordinato in base
-        // all'ordine con cui hanno giocato gli assistenti
-
-
-        // NEI TEST USA setUp PERCHE LA CREAZIONE DEGLI ARRAYLIST LA FA IN SETUP, NON NEL COSTRUTTORE!!!
-
-        boolean neverEqualToOtherAssistant = false;
-
-        if (notPlayedInRound.isEmpty()) {
-            notPlayedInRound.addAll(players);
-            this.currentPlayer = orderPlayed.get(0);
-            for (Player player : players)
-                player.setLastAssistantPlayedNull();
+    /**
+     *
+     */
+    public void createDeck(WizardTeam team) throws InstanceAlreadyExistsException {
+        try {
+            currentPlayer.createDeck(team);
+        } catch (InstanceAlreadyExistsException exception) {
+            throw new InstanceAlreadyExistsException(exception.toString());
         }
-
-        if (notPlayedInRound.size() == numOfPlayers)
-            orderPlayed.add(0, currentPlayer);
-
     }
 
+    /**
+     * last method called before the turn ends
+     */
+    public void nextTurn() {
+        resetFlags();
+        //orderPlayed.clear();
+        this.orderPlayed.addAll(this.nextTurnPlayer.keySet().stream().sorted(
+                new Comparator<>() {
+                    /**
+                     * Compares the card value played by two Players.
+                     *
+                     * @param p1 the Player to compare
+                     * @param p2 the Player to compare
+                     * @return <0: if p1 < p2, then p1 should play before p2
+                     * >0: if p1 > p2, then p1 should play after p2
+                     */
+                    @Override
+                    public int compare(Player p1, Player p2) {
+                        if ((nextTurnPlayer.get(p1).getCardValue() - nextTurnPlayer.get(p2).getCardValue()) == 0) {
+                            return (orderPlayed.indexOf(p1) < orderPlayed.indexOf(p2)) ? -1 : 1;
+                        }
+                        return nextTurnPlayer.get(p1).getCardValue() - nextTurnPlayer.get(p2).getCardValue();
+                    }
+                }).toList());
+        setCurrentPlayer(orderPlayed.get(0));
+    }
 }

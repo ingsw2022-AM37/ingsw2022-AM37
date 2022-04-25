@@ -1,7 +1,6 @@
 package it.polimi.ingsw.am37.model;
 
 import it.polimi.ingsw.am37.model.character.Character;
-import it.polimi.ingsw.am37.model.character.EffectHandler;
 import it.polimi.ingsw.am37.model.character.Effect;
 import it.polimi.ingsw.am37.model.character.Option;
 import it.polimi.ingsw.am37.model.exceptions.AssistantImpossibleToPlay;
@@ -185,7 +184,7 @@ public class GameManager {
             throw new IllegalArgumentException("Assistant must not be null");
         }
         try {
-            turnManager.nextTurnAssistant(assistant);
+            turnManager.playAssistant(assistant);
         } catch (AssistantImpossibleToPlay exception) {
             throw new AssistantImpossibleToPlay(exception);
         }
@@ -214,12 +213,19 @@ public class GameManager {
     /**
      * Choose a cloud
      */
-    void chooseCloud(String cloudId) {
+    public void chooseCloud(String cloudId) {
         Cloud currentCloud = clouds.stream()
                 .filter(cloud -> cloud.getCloudId().equals(cloudId))
                 .findFirst()
                 .orElseThrow();
         turnManager.getCurrentPlayer().getBoard().getEntrance().uniteContainers(currentCloud.removeStudents());
         currentCloud.addStudents(bag.extractStudents(currentCloud.getIsFor2() ? 2 : 3));
+    }
+
+    /**
+     *
+     */
+    private void nextTurn(){
+        turnManager.nextTurn();
     }
 }
