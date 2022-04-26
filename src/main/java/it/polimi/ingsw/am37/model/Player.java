@@ -6,6 +6,7 @@ import it.polimi.ingsw.am37.model.character.Option;
 import javax.management.InstanceAlreadyExistsException;
 import java.security.InvalidParameterException;
 import java.util.HashMap;
+import java.util.UUID;
 
 /**
  * This class represents the in-game player, it does not represent the person playing the game, therefore it will not
@@ -14,12 +15,18 @@ import java.util.HashMap;
 public class Player {
 
     /**
+     * ID of the player for unique references
+     */
+    private final String playerId;
+
+    /**
      * Default constructor
      */
     public Player() {
         this.numberOfCoins = 0;
         this.lastAssistantPlayed = null;
         this.team = null;
+        this.playerId = UUID.randomUUID().toString();
     }
 
     /**
@@ -98,8 +105,9 @@ public class Player {
         int movement = 0;
         for (int i = 1; i <= 10; i++) {
             if (i % 2 == 0)
-                this.assistantsDeck.put(i, new Assistant(team, i, movement));
-            else this.assistantsDeck.put(i, new Assistant(team, i, ++movement));
+                this.assistantsDeck.put(i-1, new Assistant(team, i, movement));
+            else
+                this.assistantsDeck.put(i-1, new Assistant(team, i, ++movement));
         }
     }
 
@@ -129,5 +137,26 @@ public class Player {
      */
     public HashMap<Integer, Assistant> getAssistantsDeck() {
         return assistantsDeck;
+    }
+
+    /**
+     * reset the last assistant as null
+     */
+    public void setLastAssistantPlayed(Assistant assistant) {
+        this.lastAssistantPlayed = assistant;
+    }
+
+    /**
+     * @return the id of the player
+     */
+    public String getPlayerId() {
+        return playerId;
+    }
+
+    /**
+     * @return the team associated to this player deck
+     */
+    public WizardTeam getTeam() {
+        return team;
     }
 }

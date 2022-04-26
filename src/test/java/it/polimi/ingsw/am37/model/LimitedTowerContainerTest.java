@@ -6,8 +6,9 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class LimitedTowerContainerTest {
+
     /**
-     * Tests adding towers and possible exception.
+     * Tests adding towers and possible exception
      */
     @Test
     @DisplayName("Tests adding towers and possible exception")
@@ -35,7 +36,7 @@ class LimitedTowerContainerTest {
      * Tests removing towers and possible exception
      */
     @Test
-    @DisplayName("Tests removing towers and possible exception")
+    @DisplayName("Tests removing towers and possible exception ")
     void removeTowers() {
 
         LimitedTowerContainer towerTest = new LimitedTowerContainer(7, 7, TowerColor.GRAY);

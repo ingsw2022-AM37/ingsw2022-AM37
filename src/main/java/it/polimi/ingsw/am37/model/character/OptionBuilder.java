@@ -4,10 +4,9 @@ import it.polimi.ingsw.am37.model.*;
 import it.polimi.ingsw.am37.model.student_container.LimitedStudentsContainer;
 
 /**
- * Builder class to create the class Option with optional parameters.
- * The default not initialized values are null for objects and -1 for intPar; controller and player must be provided
- *
- * @see Option
+ * Builder class to create the class {@link Option} with optional parameters. The default not initialized values are
+ * null for objects and -1 for intPar; controller and player must be provided. Each possible field option could be set
+ * using the method in this class that as the same name of the field in {@link Option} class
  */
 public class OptionBuilder {
 
@@ -17,8 +16,8 @@ public class OptionBuilder {
     private int intPar;
     private Bag bag;
     private GameManager controller;
-    private LimitedStudentsContainer removeContainer;
-    private LimitedStudentsContainer addContainer;
+    private LimitedStudentsContainer primaryContainer;
+    private LimitedStudentsContainer secondaryContainer;
 
     private OptionBuilder(GameManager controller, Player player) {
         this.controller = controller;
@@ -30,72 +29,45 @@ public class OptionBuilder {
         return new OptionBuilder(controller, player);
     }
 
-    /**
-     * @param island the parameter to set.
-     * @return The updated builder.
-     */
     public OptionBuilder island(Island island) {
         this.island = island;
         return this;
     }
 
-    /**
-     * @param color the parameter to set.
-     * @return The updated builder.
-     */
     public OptionBuilder color(FactionColor color) {
         this.color = color;
         return this;
     }
 
-    /**
-     * @param intPar the parameter to set.
-     * @return The updated builder.
-     */
     public OptionBuilder intPar(int intPar) {
         this.intPar = intPar;
         return this;
     }
 
-    /**
-     * @param bag the parameter to set.
-     * @return The updated builder.
-     */
     public OptionBuilder bag(Bag bag) {
         this.bag = bag;
         return this;
     }
 
-    /**
-     * @param container the parameter to set.
-     * @return The updated builder.
-     */
-    public OptionBuilder removeContainer(LimitedStudentsContainer container) {
-        this.removeContainer = container;
+    public OptionBuilder primaryContainer(LimitedStudentsContainer container) {
+        this.primaryContainer = container;
         return this;
     }
 
-    /**
-     * @param container the parameter to set.
-     * @return The updated builder.
-     */
-    public OptionBuilder addContainer(LimitedStudentsContainer container) {
-        this.addContainer = container;
+    public OptionBuilder secondaryContainer(LimitedStudentsContainer container) {
+        this.secondaryContainer = container;
         return this;
     }
 
-    /**
-     * Builds the Option with the given parameters
-     *
-     * @return The constructed Option
-     */
+    public OptionBuilder player(Player player) {
+        this.player = player;
+        return this;
+    }
+
     public Option build() {
-        return new Option(island, player, color, intPar, bag, controller, removeContainer, addContainer);
+        return new Option(island, player, color, intPar, bag, controller, primaryContainer, secondaryContainer);
     }
 
-    /**
-     * Resets every single parameter for a new use of Option.
-     */
     public void clear() {
         island = null;
         player = null;
@@ -103,7 +75,7 @@ public class OptionBuilder {
         intPar = -1;
         bag = null;
         controller = null;
-        removeContainer = null;
-        addContainer = null;
+        primaryContainer = null;
+        secondaryContainer = null;
     }
 }

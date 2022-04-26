@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am37.model;
 
 import it.polimi.ingsw.am37.model.student_container.LimitedStudentsContainer;
+import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
 import it.polimi.ingsw.am37.model.student_container.UnlimitedStudentsContainer;
 import java.util.Random;
 
@@ -58,7 +59,16 @@ public class Bag {
 	/**
 	 * @return the number of the students in the Bag.
 	 */
-	public int size(){
+	public int size() {
 		return studentsAvailable.size();
+	}
+
+	/**
+	 * Add students to the bag
+	 *
+	 * @param container the student to add to bag
+	 */
+	public void addStudents(StudentsContainer container) {
+		studentsAvailable.uniteContainers(container);
 	}
 }

@@ -1,7 +1,11 @@
 package it.polimi.ingsw.am37.model;
 
+import it.polimi.ingsw.am37.model.exceptions.MNmovementWrongException;
 import it.polimi.ingsw.am37.model.exceptions.NoIslandConquerorException;
 import it.polimi.ingsw.am37.model.student_container.FixedUnlimitedStudentsContainer;
+import it.polimi.ingsw.am37.model.student_container.UnlimitedStudentsContainer;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -11,11 +15,12 @@ import java.util.ArrayList;
 import static org.junit.jupiter.api.Assertions.*;
 
 class IslandsManagerTest {
+
     /**
-     * Tests uniteIfPossible with the second of four islands, the middle two are compatible.
+     * Tests uniteIfPossible with the second of four islands, the middle two are compatible
      */
     @Test
-    @DisplayName("Tests uniteIfPossible with the second of four islands, the middle two are compatible")
+    @DisplayName("Tests uniteIfPossible with the second of four islands, the middle two are compatible ")
     void uniteIfPossible1() {
 
         IslandsManager islandsManager = new IslandsManager();
@@ -33,10 +38,10 @@ class IslandsManagerTest {
             students4.addStudents(10, color);
         }
 
-        islandsManager.getIslands().add(new Island(students1));
-        islandsManager.getIslands().add(new Island(students2));
-        islandsManager.getIslands().add(new Island(students3));
-        islandsManager.getIslands().add(new Island(students4));
+        islandsManager.getIslands().add(new Island(students1, 0));
+        islandsManager.getIslands().add(new Island(students2, 1));
+        islandsManager.getIslands().add(new Island(students3, 2));
+        islandsManager.getIslands().add(new Island(students4, 3));
 
         islandsManager.getIslands().get(0).setTower(TowerColor.BLACK);
         islandsManager.getIslands().get(1).setTower(TowerColor.GRAY);
@@ -62,10 +67,10 @@ class IslandsManagerTest {
     }
 
     /**
-     * Tests uniteIfPossible with the third of four islands all compatible.
+     * Tests uniteIfPossible with the third of four islands all compatible
      */
     @Test
-    @DisplayName("Tests uniteIfPossible with the third of four islands all compatible")
+    @DisplayName("Tests uniteIfPossible with the third of four islands all compatible ")
     void uniteIfPossible2() {
 
         IslandsManager islandsManager = new IslandsManager();
@@ -81,10 +86,10 @@ class IslandsManagerTest {
             students4.addStudents(10, color);
         }
 
-        islandsManager.getIslands().add(new Island(students1));
-        islandsManager.getIslands().add(new Island(students2));
-        islandsManager.getIslands().add(new Island(students3));
-        islandsManager.getIslands().add(new Island(students4));
+        islandsManager.getIslands().add(new Island(students1, 0));
+        islandsManager.getIslands().add(new Island(students2, 1));
+        islandsManager.getIslands().add(new Island(students3, 2));
+        islandsManager.getIslands().add(new Island(students4, 3));
 
         for (int i = 0; i < 4; i++)
             islandsManager.getIslands().get(i).setTower(TowerColor.BLACK);
@@ -103,10 +108,10 @@ class IslandsManagerTest {
     }
 
     /**
-     * Tests uniteIfPossible with the first of three islands all compatible.
+     * Tests uniteIfPossible with the first of three islands all compatible
      */
     @Test
-    @DisplayName("Tests uniteIfPossible with the first of three islands all compatible")
+    @DisplayName("Tests uniteIfPossible with the first of three islands all compatible ")
     void uniteIfPossible3() {
 
         IslandsManager islandsManager = new IslandsManager();
@@ -120,9 +125,9 @@ class IslandsManagerTest {
             students3.addStudents(10, color);
         }
 
-        islandsManager.getIslands().add(new Island(students1));
-        islandsManager.getIslands().add(new Island(students2));
-        islandsManager.getIslands().add(new Island(students3));
+        islandsManager.getIslands().add(new Island(students1, 0));
+        islandsManager.getIslands().add(new Island(students2, 1));
+        islandsManager.getIslands().add(new Island(students3, 2));
 
         for (int i = 0; i < 3; i++)
             islandsManager.getIslands().get(i).setTower(TowerColor.BLACK);
@@ -141,7 +146,7 @@ class IslandsManagerTest {
      * Tests uniteIfPossible with the second of four islands all compatible, then with the first two times
      */
     @Test
-    @DisplayName("Tests uniteIfPossible with the second of four islands all compatible, then with the first two times")
+    @DisplayName("Tests uniteIfPossible with the second of four islands all compatible, then with the first two times ")
     void uniteIfPossible4() {
 
         IslandsManager islandsManager = new IslandsManager();
@@ -157,10 +162,10 @@ class IslandsManagerTest {
             students4.addStudents(10, color);
         }
 
-        islandsManager.getIslands().add(new Island(students1));
-        islandsManager.getIslands().add(new Island(students2));
-        islandsManager.getIslands().add(new Island(students3));
-        islandsManager.getIslands().add(new Island(students4));
+        islandsManager.getIslands().add(new Island(students1, 0));
+        islandsManager.getIslands().add(new Island(students2, 1));
+        islandsManager.getIslands().add(new Island(students3, 2));
+        islandsManager.getIslands().add(new Island(students4, 3));
 
         for (int i = 0; i < 4; i++)
             islandsManager.getIslands().get(i).setTower(TowerColor.BLACK);
@@ -195,7 +200,7 @@ class IslandsManagerTest {
     }
 
     /**
-     * Tests the conqueror of the island after changes or after no changes.
+     * Tests the conqueror of the island after changes or after no changes
      */
     @Test
     @DisplayName("Tests the conqueror of the island after changes or after no changes")
@@ -219,7 +224,7 @@ class IslandsManagerTest {
         for (FactionColor color : FactionColor.values())
             students.addStudents(1, color);
 
-        Island island = new Island(students);
+        Island island = new Island(students, 0);
         IslandsManager islandsManager = new IslandsManager();
         islandsManager.getIslands().add(0, island);
 
@@ -260,7 +265,7 @@ class IslandsManagerTest {
     }
 
     /**
-     * Tests the conqueror of the island after changes or after no changes or when there isn't a winner.
+     * Tests the conqueror of the island after changes or after no changes or when there isn't a winner
      */
     @Test
     @DisplayName("Tests the conqueror of the island after changes or after no changes or when there isn't a winner")
@@ -286,7 +291,7 @@ class IslandsManagerTest {
         for (FactionColor color : FactionColor.values())
             students.addStudents(1, color);
 
-        Island island = new Island(students);
+        Island island = new Island(students, 0);
         islandsManager.getIslands().add(0, island);
 
         assertThrows(NoIslandConquerorException.class, () -> islandsManager.checkConqueror(islandsManager.getIslands().get(0), players));
@@ -347,11 +352,10 @@ class IslandsManagerTest {
     }
 
     /**
-     * Tests uniteIfPossible and checkConqueror united, this is a full match emulation with difficult situations
-     * only used add and remove prof instead of addStudents and removeStudents.
+     * Tests uniteIfPossible and checkConqueror united, this is a full match emulation with difficult situations, only used add and remove prof instead of addStudents and removeStudents
      */
     @Test
-    @DisplayName("Tests uniteIfPossible and checkConqueror united, this is a full match emulation with difficult situations, only used add and remove prof instead of addStudents and removeStudents")
+    @DisplayName("Tests uniteIfPossible and checkConqueror united, this is a full match emulation with difficult situations, only used add and remove prof instead of addStudents and removeStudents ")
     void mixedTest() {
 
         FixedUnlimitedStudentsContainer students1 = new FixedUnlimitedStudentsContainer();
@@ -379,10 +383,10 @@ class IslandsManagerTest {
         students3.addStudents(6, FactionColor.YELLOW);
         students3.addStudents(2, FactionColor.BLUE);
 
-        islandsManager.getIslands().add(new Island(students1));
-        islandsManager.getIslands().add(new Island(students2));
-        islandsManager.getIslands().add(new Island(students3));
-        islandsManager.getIslands().add(new Island(students4));
+        islandsManager.getIslands().add(new Island(students1, 0));
+        islandsManager.getIslands().add(new Island(students2, 1));
+        islandsManager.getIslands().add(new Island(students3, 2));
+        islandsManager.getIslands().add(new Island(students4, 3));
 
         islandsManager.uniteIfPossible(islandsManager.getIslands().get(3));
 
@@ -533,8 +537,6 @@ class IslandsManagerTest {
 
     /**
      * Tests the possible movement of Mother Nature starting from random position
-     *
-     * @throws InstanceAlreadyExistsException If the instance already exists.
      */
     @Test
     //THIS TEST CAN FAIL BECAUSE AN EXCEPTION CAN BE LAUNCHED, BUT IT'S BASED ON MOTHER NATURE INITIAL POSITION WHICH IS RANDOM
@@ -586,7 +588,7 @@ class IslandsManagerTest {
     }
 
     /**
-     * Tests the use of characters in checkConqueror.
+     * Use characters in checkConqueror
      */
     @Test
     @DisplayName("Use characters in checkConqueror")
@@ -601,7 +603,7 @@ class IslandsManagerTest {
         students.addStudents(7, FactionColor.RED);
 
         IslandsManager islandsManager = new IslandsManager();
-        Island island = new Island(students);
+        Island island = new Island(students, 0);
         islandsManager.getIslands().add(island);
 
         ArrayList<Player> players = new ArrayList<>();
@@ -623,7 +625,7 @@ class IslandsManagerTest {
         winner = islandsManager.checkConqueror(island, players);
         assertEquals(players.get(1), winner);
 
-        islandsManager.resetFlag();
+        islandsManager.resetFlags();
         winner = islandsManager.checkConqueror(island, players);
         assertEquals(players.get(1), winner);
         assertEquals(TowerColor.WHITE, island.getCurrentTower());
@@ -633,7 +635,7 @@ class IslandsManagerTest {
         assertEquals(players.get(1), winner);
         assertEquals(TowerColor.WHITE, island.getCurrentTower());
 
-        islandsManager.resetFlag();
+        islandsManager.resetFlags();
         islandsManager.setPowerBonusFlag(2);
         winner = islandsManager.checkConqueror(island, players);
         assertEquals(players.get(0), winner);
