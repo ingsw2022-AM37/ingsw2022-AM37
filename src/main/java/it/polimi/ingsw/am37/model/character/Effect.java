@@ -4,17 +4,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public enum Effect {
-    MONK(new int[]{0, 4, 2, 1}, 1),
+    MONK(new int[]{18, 0, 4, 2, 1}, 1),
     FARMER(new int[]{5}, 2),
     HERALD(new int[]{6}, 3),
     MAGIC_POSTMAN(new int[]{7}, 1),
     GRANDMA(new int[]{8, 9}, 2),
     CENTAUR(new int[]{10}, 3),
-    JESTER(new int[]{0, 1, 12, 11}, 1),
+    JESTER(new int[]{18, 11, 19, 12, 1}, 1),
     KNIGHT(new int[]{15}, 2),
     MUSHROOM_MAN(new int[]{16}, 3),
-    MINSTREL(new int[]{12, 11, 14, 13}, 1),
-    PRINCESS(new int[]{0, 11, 2, 1}, 2),
+    MINSTREL(new int[]{18, 12, 13, 19, 14, 11}, 1),
+    PRINCESS(new int[]{18, 0, 11, 2, 1}, 2),
     THIEF(new int[]{14, 3}, 3);
 
     /**

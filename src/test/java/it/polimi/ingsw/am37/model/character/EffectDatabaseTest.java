@@ -119,7 +119,7 @@ class EffectDatabaseTest {
         Option option = optionBuilder.build();
 
         try {
-            Field field = manager.getTurnManager().getClass().getDeclaredField("profWithDraw");
+            Field field = manager.getTurnManager().getClass().getDeclaredField("getProfWithDraw");
             field.setAccessible(true);
             assertFalse((boolean) field.get(manager.getTurnManager()));
             singleEffect.accept(option, null);
