@@ -10,6 +10,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import javax.management.InstanceAlreadyExistsException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -506,48 +507,58 @@ class IslandsManagerTest {
      */
     @Test
     @DisplayName("This test checks the initialization of islands")
-    //THIS METHOD IS RANDOM, SO I USE PRINT AND NOT ASSERT
+
     void setUp() {
+
+        int[] cont = new int[FactionColor.values().length];
+        for (FactionColor color : FactionColor.values())
+            cont[color.getIndex()] = 0;
+
         IslandsManager islandsManager = new IslandsManager();
         islandsManager.setUp();
-        int i = 0;
-        System.out.println("Islands' size: " + islandsManager.getIslands().size());
-        System.out.println("I have Mother Nature " + islandsManager.getIslands().indexOf(islandsManager.getMotherNaturePosition()));
-        System.out.println("-----------------------------------------------");
-        for (Island island : islandsManager.getIslands()) {
-            System.out.println("I am the island number " + i);
-            System.out.println("I have " + island.getNumIslands() + " islands");
-            System.out.println("I have a tower of color: " + island.getCurrentTower());
-            System.out.println("I have " + island.getStudentsOnIsland().size() + " students");
-            i++;
-            System.out.println("-----------------------------------------------");
-        }
 
-        int cont = 0;
+        assertEquals(12, islandsManager.getIslands().size());
+
         for (Island island : islandsManager.getIslands()) {
-            i = 0;
+            assertEquals(TowerColor.NONE, island.getCurrentTower());
+            assertEquals(1, island.getNumIslands());
             for (FactionColor color : FactionColor.values()) {
-                System.out.println("I am " + i + " and I have " + island.getByColor(color) + " students of " + color);
-                cont = cont + island.getByColor(color);
-                i++;
+                cont[color.getIndex()] = island.getStudentsOnIsland().getByColor(color) + cont[color.getIndex()];
             }
         }
-        System.out.println("Total students on islands: " + cont);
+
+        for (FactionColor color : FactionColor.values())
+            assertEquals(2, cont[color.getIndex()]);
+
+        Island islandTemp = islandsManager.getMotherNaturePosition();
+
+        for (FactionColor color : FactionColor.values())
+            assertEquals(0, islandTemp.getByColor(color));
+
+        int index = islandsManager.getIslands().indexOf(islandTemp);
+        for (int i = 0; i < 6; i++) {
+            index = index + 1;
+            if (index == 12)
+                index = 0;
+        }
+
+        for (FactionColor color : FactionColor.values())
+            assertEquals(0, islandsManager.getIslands().get(index).getByColor(color));
     }
 
     /**
      * Tests the possible movement of Mother Nature starting from random position
      */
     @Test
-    //THIS TEST CAN FAIL BECAUSE AN EXCEPTION CAN BE LAUNCHED, BUT IT'S BASED ON MOTHER NATURE INITIAL POSITION WHICH IS RANDOM
-    //SO THIS ISN'T WRONG. FOR THIS REASON I USE PRINT AND NOT ASSERT.
-    //EXAMPLE: MOTHER NATURE IS ON ISLAND 1 (BUT I CAN'T KNOW), IF I WANT TO MOVE ON ISLAND 1 IS A EXCEPTION
-    @DisplayName("THIS CAN FAIL, IT'S NORMAL. Tests the possible movement of Mother Nature starting from random position")
+
+    @DisplayName("Tests the possible movement of Mother Nature starting from random position")
     void moveMotherNature() throws InstanceAlreadyExistsException {
+        int movement = 5;
 
         IslandsManager islandsManager = new IslandsManager();
-        islandsManager.setAdditionalMNFlag(15);
+        islandsManager.setAdditionalMNFlag(0);
         islandsManager.setUp();
+
         Player player = new Player();
 
         player.setBoard(new Board(3, TowerColor.BLACK, false, player));
@@ -556,34 +567,29 @@ class IslandsManagerTest {
         player.createDeck(WizardTeam.TEAM1);
         player.useAssistant(player.getAssistantsDeck().get(7)); //4 max movement without flag
 
-        int i = 0;
-        System.out.println("Islands' size: " + islandsManager.getIslands().size());
-        System.out.println("I have Mother Nature " + islandsManager.getIslands().indexOf(islandsManager.getMotherNaturePosition()));
-        System.out.println("-----------------------------------------------");
-        for (Island island : islandsManager.getIslands()) {
-            System.out.println("I am the island number " + i);
-            System.out.println("I have " + island.getNumIslands() + " islands");
-            System.out.println("I have a tower of color: " + island.getCurrentTower());
-            System.out.println("I have " + island.getStudentsOnIsland().size() + " students");
-            i++;
-            System.out.println("-----------------------------------------------");
+        Island islandTemp = islandsManager.getMotherNaturePosition();
+
+        int index = islandsManager.getIslands().indexOf(islandTemp);
+        for (int i = 0; i < movement; i++) {
+            index = index + 1;
+            if (index == 12)
+                index = 0;
         }
 
-        islandsManager.moveMotherNature(islandsManager.getIslands().get(5));
+        int finalIndex = index;
+        assertThrows(MNmovementWrongException.class, () -> islandsManager.moveMotherNature(islandsManager.getIslands().get(finalIndex)));
 
-        i = 0;
-        System.out.println("Islands' size: " + islandsManager.getIslands().size());
-        System.out.println("I have Mother Nature " + islandsManager.getIslands().indexOf(islandsManager.getMotherNaturePosition()));
-        System.out.println("-----------------------------------------------");
-        for (Island island : islandsManager.getIslands()) {
-            System.out.println("I am the island number " + i);
-            System.out.println("I have " + island.getNumIslands() + " islands");
-            System.out.println("I have a tower of color: " + island.getCurrentTower());
-            System.out.println("I have " + island.getStudentsOnIsland().size() + " students");
-            i++;
-            System.out.println("-----------------------------------------------");
+        islandsManager.setAdditionalMNFlag(3);
+
+        index = islandsManager.getIslands().indexOf(islandTemp);
+        for (int i = 0; i < movement; i++) {
+            index = index + 1;
+            if (index == 12)
+                index = 0;
         }
+        islandsManager.moveMotherNature(islandsManager.getIslands().get(index));
 
+        assertEquals(islandsManager.getIslands().get(index).getIslandId(), islandsManager.getMotherNaturePosition().getIslandId());
 
     }
 
