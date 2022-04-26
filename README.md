@@ -10,6 +10,8 @@ Group components:
 - ##### 10675392    Brambilla Matteo ([@bramba2000](https://github.com/bramba2000)) [✉ Contact Me](mailto:matteo15.brambilla@mail.polimi.it)
 - ##### 10723902    Cerutti Paolo ([@PolCeru](https://github.com/PolCeru)) [✉ Contact Me](mailto:paolo2.cerutti@mail.polimi.it)
 
+### Functionalities
+
 | Functionality       | State |
 |:--------------------|:-----:|
 | Basic rules         |  🟢   |
@@ -20,8 +22,6 @@ Group components:
 | Advanced Characters |  🟢   |
 | Persistence         |  🔴   |
 | Multiple Games      |  🔴   |
-
-<br>
 
 ### Libraries and Plugins
 
