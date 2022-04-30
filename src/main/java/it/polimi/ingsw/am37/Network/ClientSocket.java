@@ -51,9 +51,13 @@ public class ClientSocket extends Thread {
         } catch (IOException e) {
             try {
                 this.disconnect();
+
+                return;
                 //Here connection with server is failed, call a method from client's view which tell to close the game
             } catch (IOException r) {
                 this.connectedToServer = false;
+
+                return;
                 //Here connection with server is failed, call a method from client's view which tell to close the game
             }
         }
@@ -69,9 +73,13 @@ public class ClientSocket extends Thread {
             } catch (IOException e) {
                 try {
                     this.disconnect();
+
+                    return;
                     //Here connection with server is failed, call a method from client's view which tell to close the game
                 } catch (IOException r) {
                     this.connectedToServer = false;
+
+                    return;
                     //Here connection with server is failed, call a method from client's view which tell to close the game
                 }
             }

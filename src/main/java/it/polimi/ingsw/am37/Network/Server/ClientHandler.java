@@ -21,7 +21,7 @@ public class ClientHandler {
     boolean connectedToClient;
 
     /**
-     * @param clientSocket
+     *
      */
     public ClientHandler(Socket clientSocket) {
         this.clientSocket = clientSocket;
@@ -60,9 +60,11 @@ public class ClientHandler {
         } catch (IOException e) {
             try {
                 this.disconnect();
+                return;
                 //Here connection with client is failed, client no long plays in the game
             } catch (IOException r) {
                 this.connectedToClient = false;
+                return;
                 //Here connection with client is failed, client no long plays in the game
             }
         }
@@ -78,9 +80,11 @@ public class ClientHandler {
             } catch (IOException e) {
                 try {
                     this.disconnect();
+                    return;
                     //Here connection with client is failed, client no long plays in the game
                 } catch (IOException r) {
                     this.connectedToClient = false;
+                    return;
                     //Here connection with client is failed, client no long plays in the game
                 }
             }
