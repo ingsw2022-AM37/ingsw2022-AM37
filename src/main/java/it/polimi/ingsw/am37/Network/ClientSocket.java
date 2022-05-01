@@ -26,7 +26,7 @@ public class ClientSocket extends Thread {
     /**
      *
      */
-    public ClientSocket(Client client, String address, int port) {
+    public ClientSocket(Client client) {
         this.client = client;
     }
 
