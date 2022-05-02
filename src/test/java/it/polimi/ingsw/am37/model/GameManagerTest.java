@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 class GameManagerTest {
 
@@ -118,6 +119,10 @@ class GameManagerTest {
             characterArray.setAccessible(true);
             Character[] character = (Character[]) characterArray.get(manager);
             int oldPrice = character[0].getCurrentPrice();
+            character[0] = spy(character[0]);
+            doNothing().when(character[0]).useEffect(any(Option.class));
+            doReturn(character[0].getCurrentPrice() + 1).when(character[0]).getCurrentPrice();
+
             manager.playCharacter(character[0], OptionBuilder.newBuilder(manager,
                     manager.getTurnManager().getCurrentPlayer()).build());
             assertNotEquals(character[0].getCurrentPrice(), oldPrice);

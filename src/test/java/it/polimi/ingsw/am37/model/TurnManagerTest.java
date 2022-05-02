@@ -240,10 +240,13 @@ class TurnManagerTest {
         for (Player player : turnManager.getPlayers()) {
             assertEquals(9, player.getBoard().getEntrance().size());
             assertEquals(6, player.getBoard().getTowers().getCurrentSize());
-            System.out.println(player.getBoard().getTowers().getCurrentTower());
-            System.out.println("---------------------------------");
+
             i++;
         }
+
+        assertEquals(TowerColor.WHITE, turnManager.getPlayers().get(0).getBoard().getTowers().getCurrentTower());
+        assertEquals(TowerColor.BLACK, turnManager.getPlayers().get(1).getBoard().getTowers().getCurrentTower());
+        assertEquals(TowerColor.GRAY, turnManager.getPlayers().get(2).getBoard().getTowers().getCurrentTower());
 
         turnManager = new TurnManager(true, 2);
         turnManager.setUp(new Bag());
@@ -252,9 +255,13 @@ class TurnManagerTest {
         for (Player player : turnManager.getPlayers()) {
             assertEquals(7, player.getBoard().getEntrance().size());
             assertEquals(8, player.getBoard().getTowers().getCurrentSize());
-            System.out.println(player.getBoard().getTowers().getCurrentTower());
+
             i++;
         }
+
+        assertEquals(TowerColor.WHITE, turnManager.getPlayers().get(0).getBoard().getTowers().getCurrentTower());
+        assertEquals(TowerColor.BLACK, turnManager.getPlayers().get(1).getBoard().getTowers().getCurrentTower());
+
     }
 
     /**
