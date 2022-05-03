@@ -6,7 +6,7 @@ import com.google.gson.JsonParser;
 import java.io.*;
 import java.net.Socket;
 
-public class ClientHandler {
+public class ClientHandler implements Runnable {
 
     /**
      *
@@ -55,7 +55,8 @@ public class ClientHandler {
     /**
      * @throws IOException
      */
-    public void run() throws IOException {
+    @Override
+    public void run() {
 
         InputStream inputStream = null;
         try {
