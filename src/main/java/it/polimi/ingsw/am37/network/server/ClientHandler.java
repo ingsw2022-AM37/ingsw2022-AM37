@@ -1,4 +1,7 @@
-package it.polimi.ingsw.am37.Network.Server;
+package it.polimi.ingsw.am37.network.server;
+
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import java.io.*;
 import java.net.Socket;
@@ -56,7 +59,7 @@ public class ClientHandler {
 
         InputStream inputStream = null;
         try {
-            inputStream = clientSocketsocket.getInputStream();
+            inputStream = clientSocket.getInputStream();
         } catch (IOException e) {
             try {
                 this.disconnect();
@@ -68,6 +71,7 @@ public class ClientHandler {
                 //Here connection with client is failed, client no long plays in the game
             }
         }
+
         DataInputStream dataInputStream = new DataInputStream(inputStream);
 
         JsonObject jsonObject = null;
@@ -89,15 +93,12 @@ public class ClientHandler {
                 }
             }
 
-            jsonObject = new JsonParser().parse(json).getAsJsonObject();
+            jsonObject = JsonParser.parseString(json).getAsJsonObject();
 
             //controllo che tipo è e trasformo nel messaggio opportuno
 
             messageReceiver.onMessageReceived(message);
-
         }
-
-
     }
 
     /**
