@@ -2,6 +2,7 @@ package it.polimi.ingsw.am37.network.server;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import it.polimi.ingsw.am37.network.MessageReceiver;
 
 import java.io.*;
 import java.net.Socket;
@@ -9,93 +10,82 @@ import java.net.Socket;
 public class ClientHandler implements Runnable {
 
     /**
-     *
+     * It's the recipient of client's messages: it can be the "central" server or a lobby
      */
-    MessageReceiver messageReceiver;
+    private MessageReceiver messageReceiver;
 
     /**
-     *
+     * It's the socket connected to the handler
      */
-    Socket clientSocket;
+    private Socket clientSocket;
 
     /**
-     *
+     * A boolean value which represents the state of connection
      */
-    boolean connectedToClient;
+    private boolean connectedToClient = true;
 
     /**
-     *
+     * Default Constructor
      */
     public ClientHandler(Socket clientSocket) {
         this.clientSocket = clientSocket;
     }
 
     /**
-     * @return
+     * @return If the clientHandler is connected to its client
      */
-    public boolean isConnected() {
+    public boolean isConnectedToClient() {
         return this.connectedToClient;
     }
 
     /**
-     * @param messageReceiver
+     * @param messageReceiver Actual messageReceiver
      */
     public void setMessageReceiver(MessageReceiver messageReceiver) {
         this.messageReceiver = messageReceiver;
     }
 
     /**
-     * @param message
-     * @throws IOException
+     * @param message To be sent to its client
      */
     public void sendMessageToClient(Message message) throws IOException {
         messageReceiver.sendMessage(message);
     }
 
     /**
-     * @throws IOException
+     * Additional thread used to listen messages from the client
      */
     @Override
     public void run() {
 
-        InputStream inputStream = null;
+        if (!connectedToClient)
+            return;
+
+        InputStream inputStream;
+        JsonObject jsonObject;
+        String json;
+
         try {
             inputStream = clientSocket.getInputStream();
         } catch (IOException e) {
-            try {
-                this.disconnect();
-                return;
-                //Here connection with client is failed, client no long plays in the game
-            } catch (IOException r) {
-                this.connectedToClient = false;
-                return;
-                //Here connection with client is failed, client no long plays in the game
-            }
+            disconnect();
+            return;
         }
 
         DataInputStream dataInputStream = new DataInputStream(inputStream);
 
-        JsonObject jsonObject = null;
+        while (connectedToClient) {
 
-        while (true) {
-
-            String json = null;
             try {
                 json = dataInputStream.readUTF();
             } catch (IOException e) {
-                try {
-                    this.disconnect();
-                    return;
-                    //Here connection with client is failed, client no long plays in the game
-                } catch (IOException r) {
-                    this.connectedToClient = false;
-                    return;
-                    //Here connection with client is failed, client no long plays in the game
-                }
+                disconnect();
+                return;
             }
 
             jsonObject = JsonParser.parseString(json).getAsJsonObject();
 
+            /TODO
             //controllo che tipo è e trasformo nel messaggio opportuno
 
             messageReceiver.onMessageReceived(message);
@@ -103,11 +93,18 @@ public class ClientHandler implements Runnable {
     }
 
     /**
-     * @throws IOException
+     * Set there isn't connection with client and tries to close the socket
      */
-    public void disconnect() throws IOException {
+    public void disconnect() {
+
         this.connectedToClient = false;
-        clientSocket.close();
+
+        try {
+            clientSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
+
 
 }

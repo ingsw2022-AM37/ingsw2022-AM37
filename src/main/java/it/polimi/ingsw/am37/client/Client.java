@@ -1,18 +1,31 @@
 package it.polimi.ingsw.am37.client;
 
 import it.polimi.ingsw.am37.network.ClientSocket;
-
 import java.io.IOException;
 import java.util.Scanner;
 
 public class Client {
 
-    private static boolean end = false;
-
+    /**
+     * Client's nickname
+     */
     private static String nickname = null;
 
-    private static ClientSocket socket;
+    /**
+     * Net-feature class associated to the client
+     */
+    private static ClientSocket clientSocket;
 
+    /**
+     * It represents if it's this client's turn
+     */
+    private static boolean isPlaying = false;
+
+    /**
+     * Main method
+     *
+     * @param args
+     */
     public static void main(String[] args) {
 
         Scanner scanner = new Scanner(System.in);
@@ -33,7 +46,7 @@ public class Client {
         }
         //if start connection fails this happens
         catch (IOException e) {
-            while (true) {
+            while (!ClientSocket.isConnectedToServer()) {
 
                 System.out.println("Write 'close game' or 'serverAddress-serverPort' (example: 127.0.0.0-7000)");
                 input = scanner.nextLine();
@@ -58,8 +71,11 @@ public class Client {
             }
         }
 
-        //Thread is running, the client is reading possible messages
-        socket.start();
+        //prepare input and output
+        ClientSocket.setOutput();
+        ClientSocket.setInput();
+        if (!ClientSocket.isConnectedToServer())
+            return;
 
         //choose nickname
         while (nickname == null) {
@@ -73,21 +89,13 @@ public class Client {
             try {
                 ClientSocket.sendMessage(message);
             } catch (IOException e) {
-                System.out.println("A connection error occurred, game is now closing");
-                try {
-                    Thread.sleep(3000);
-                } catch (InterruptedException d) {
-                    System.out.println("A connection error occurred, game is now closing");
-                }
-                end = true;
+                ClientSocket.disconnect();
                 return;
             }
 
-            try {
-                nickname.wait();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            /TODO
+            // clientsocket si aspetta il messaggio o OK o error, se ok imposta il nickname, altrimenti non
+            //fa nulla
         }
 
         //choose number of players
@@ -97,31 +105,30 @@ public class Client {
         } while (Integer.parseInt(input) != 3 && Integer.parseInt(input) != 2);
 
         //costruiso la classe per mandare il messaggio
+        /TODO
+
         try {
             ClientSocket.sendMessage(message);
         } catch (IOException e) {
-            System.out.println("A connection error occurred, game is now closing");
-            try {
-                Thread.sleep(3000);
-            } catch (InterruptedException d) {
-                System.out.println("A connection error occurred, game is now closing");
-            }
-            end = true;
+            ClientSocket.disconnect();
             return;
         }
 
 
     }
 
+    /**
+     * @param string Nickname to be setted for the player
+     */
     static public void setNickname(String string) {
         nickname = string;
     }
 
+    /**
+     * @return Nickname of player
+     */
     static public String getNickName() {
         return nickname;
     }
 
-    static public boolean getEnd() {
-        return end;
-    }
 }

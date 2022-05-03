@@ -4,40 +4,60 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import it.polimi.ingsw.am37.client.Client;
-
 import java.io.*;
 import java.net.Socket;
 
 
-public class ClientSocket extends Thread {
+public class ClientSocket {
 
     /**
-     *
+     * Client associated to its net-features class
      */
     private static Client client;
 
     /**
-     *
+     * Socket used to connect
      */
     private static Socket socket;
 
     /**
-     *
+     * Boolean which represents the current state of client's connection
      */
     private static boolean connectedToServer = false;
 
     /**
-     * @param address
-     * @param port
-     * @throws IOException
+     * Input stream
+     */
+    private static InputStream inputStream;
+
+    /**
+     * Output stream
+     */
+    private static OutputStream outputStream;
+
+    /**
+     * DataOutput stream used for sending messages
+     */
+    private static DataOutputStream dataOutputStream;
+
+    /**
+     * DataInput stream used for reading messages
+     */
+    private static DataInputStream dataInputStream;
+
+    /**
+     * @param address Server's IP
+     * @param port    Server's port
+     * @throws IOException When connection is failed
      */
     static public void connectToServer(String address, int port) throws IOException {
+
         socket = new Socket(address, port);
         connectedToServer = true;
     }
 
     /**
-     * @return
+     * @return Current state of client's connection
      */
     static public boolean isConnectedToServer() {
 
@@ -45,87 +65,68 @@ public class ClientSocket extends Thread {
     }
 
     /**
-     * @param message
-     * @throws IOException
+     * Tries to close socket and input/output stream and set connectedToServer to false
+     */
+    static public void disconnect() {
+
+        connectedToServer = false;
+
+        /TODO metodo per chiamare la view e dire che mi sto disconnettendo
+
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            dataInputStream.close();
+            dataOutputStream.close();
+            inputStream.close();
+            outputStream.close();
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * @param message Client's message needed to be sent to server, if error occurs client will be disconnected
      */
     static public void sendMessage(Message message) throws IOException {
 
-        OutputStream outputStream = socket.getOutputStream();
-        DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
-
-        Gson gson = new Gson();
-        String json = gson.toJson(message);
+        /TODO conversione messaggio a stringa json
 
         dataOutputStream.writeUTF(json);
         dataOutputStream.flush();
-        dataOutputStream.close();
     }
 
     /**
-     * @throws IOException
+     * Create socket's OutputStream
      */
-    static public void disconnect() throws IOException {
-        connectedToServer = false;
-        socket.close();
+    static public void setOutput() {
+
+        try {
+            outputStream = socket.getOutputStream();
+            dataOutputStream = new DataOutputStream(outputStream);
+        } catch (IOException e) {
+            disconnect();
+        }
     }
 
     /**
-     *
+     * Create socket's InputStream
      */
-    public void run() {
+    static public void setInput() {
 
-        InputStream inputStream = null;
         try {
             inputStream = socket.getInputStream();
+            dataInputStream = new DataInputStream(inputStream);
         } catch (IOException e) {
-            try {
-                disconnect();
-
-                return;
-                //Here connection with server is failed, call a method from client's view which tell to close the game
-            } catch (IOException r) {
-                connectedToServer = false;
-
-                return;
-                //Here connection with server is failed, call a method from client's view which tell to close the game
-            }
-        }
-
-        DataInputStream dataInputStream = new DataInputStream(inputStream);
-        JsonObject jsonObject = null;
-
-        while (true) {
-
-            if (Client.getEnd())
-                return;
-
-            String json = null;
-
-            try {
-                json = dataInputStream.readUTF();
-            } catch (IOException e) {
-                try {
-                    disconnect();
-
-                    return;
-                    //Here connection with server is failed, call a method from client's view which tell to close the game
-                } catch (IOException r) {
-                    connectedToServer = false;
-
-                    return;
-                    //Here connection with server is failed, call a method from client's view which tell to close the game
-                }
-            }
-
-            jsonObject = JsonParser.parseString(json).getAsJsonObject();
-            // Here starts view update based on the message
-
-
-            //se jsonobject.get(type).getasstring è login distinguo due casi, se il messaggio è okay allora
-            //chiamo client.setnickname col nome esatto e risveglio il thread con notifyall, altrimenti non faccio nulla
-
-
+            disconnect();
         }
     }
+
+
 
 }
