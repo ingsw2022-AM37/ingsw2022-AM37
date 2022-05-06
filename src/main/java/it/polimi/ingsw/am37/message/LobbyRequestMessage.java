@@ -19,7 +19,7 @@ public class LobbyRequestMessage extends Message {
      *
      * @param UUID the default constructor
      */
-    protected LobbyRequestMessage(String UUID, int desiredSize, boolean desiredAdvanceMode) {
+    public LobbyRequestMessage(String UUID, int desiredSize, boolean desiredAdvanceMode) {
         super(UUID, MessageType.LOBBY_REQUEST);
         this.desiredSize = desiredSize;
         this.desiredAdvanceMode = desiredAdvanceMode;
@@ -32,7 +32,7 @@ public class LobbyRequestMessage extends Message {
      * @param desiredSize        the desired size
      * @param desiredAdvanceMode flag for the desired advance mode
      */
-    protected LobbyRequestMessage(int desiredSize, boolean desiredAdvanceMode) {
+    public LobbyRequestMessage(int desiredSize, boolean desiredAdvanceMode) {
         super(MessageType.LOBBY_REQUEST);
         this.desiredSize = desiredSize;
         this.desiredAdvanceMode = desiredAdvanceMode;

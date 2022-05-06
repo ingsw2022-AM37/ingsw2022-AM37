@@ -23,7 +23,7 @@ public class ErrorMessage extends Message {
      *
      * @param UUID the default constructor
      */
-    protected ErrorMessage(String UUID, String message, Throwable cause) {
+    public ErrorMessage(String UUID, String message, Throwable cause) {
         super(UUID, MessageType.ERROR);
         this.message = message;
         this.cause = cause;
@@ -36,7 +36,7 @@ public class ErrorMessage extends Message {
      * @param message the message that explain the error
      * @param cause   the exception thrown when performing requested action (maybe null if any have been thrown)
      */
-    protected ErrorMessage(String message, Throwable cause) {
+    public ErrorMessage(String message, Throwable cause) {
         super(MessageType.ERROR);
         this.message = message;
         this.cause = cause;

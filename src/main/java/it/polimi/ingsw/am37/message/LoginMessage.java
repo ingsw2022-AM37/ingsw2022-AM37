@@ -31,7 +31,7 @@ public class LoginMessage extends Message {
      *
      * @param messageType the message enum type
      */
-    protected LoginMessage(MessageType messageType, String nickname) {
+    public LoginMessage(MessageType messageType, String nickname) {
         super(messageType);
         this.nickname = nickname;
     }
