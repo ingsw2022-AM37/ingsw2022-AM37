@@ -17,7 +17,8 @@ public enum MessageType {
     NEXT_TURN("NextTurnMessage"),
     STUDENTS_TO_ISLAND("StudentsToIslandMessage"),
     CHOOSE_CLOUD("ChooseCloudMessage"),
-    CONFIRM("ConfirmMessage");
+    CONFIRM("ConfirmMessage"),
+    PING("PingMessage");
 
     private final String className;
 

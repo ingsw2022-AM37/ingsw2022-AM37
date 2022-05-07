@@ -13,12 +13,17 @@ public class MessageGson {
 
     private final static String messageField = "messageType";
 
-    public static Gson create() throws ClassNotFoundException {
+    public static Gson create() {
         RuntimeTypeAdapterFactory<Message> messageRuntimeTypeAdapterFactory =
                 RuntimeTypeAdapterFactory.of(Message.class, messageField);
 
         for (MessageType type : MessageType.values()) {
-            messageRuntimeTypeAdapterFactory.registerSubtype((Class<? extends Message>) Class.forName(packageReferece + type.getClassName()), type.name());
+            try {
+                messageRuntimeTypeAdapterFactory.registerSubtype((Class<? extends Message>) Class.forName(packageReferece + type.getClassName()), type.name());
+            } catch (ClassNotFoundException e) {
+                System.err.println("MesssageGson#create(): class not found for type " + type);
+                throw new RuntimeException(e);
+            }
         }
         return new GsonBuilder().registerTypeAdapterFactory(messageRuntimeTypeAdapterFactory).create();
     }
