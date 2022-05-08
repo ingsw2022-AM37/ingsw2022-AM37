@@ -30,4 +30,11 @@ public class NextTurnMessage extends Message {
     protected NextTurnMessage(MessageType messageType) {
         super(messageType);
     }
+
+    /**
+     * @return the UUID of the next player
+     */
+    public String getNextPlayerUUID() {
+        return nextPlayerUUID;
+    }
 }

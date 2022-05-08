@@ -34,4 +34,11 @@ public class MoveMotherNatureMessage extends Message {
         super(MessageType.MOVE_MOTHER_NATURE);
         this.islandId = islandId;
     }
+
+    /**
+     * @return the id of destination island
+     */
+    public int getIslandId() {
+        return islandId;
+    }
 }
