@@ -150,7 +150,7 @@ public class Server implements MessageReceiver {
                     response = new ConfirmMessage(message.getUUID());
                     sendMessage(response);
                 } else {
-                    response = new ErrorMessage(message.getUUID(), "Nickname already used", null);
+                    response = new ErrorMessage(message.getUUID(), "Nickname already used");
                     sendMessage(response);
                 }
                 break;
@@ -164,13 +164,15 @@ public class Server implements MessageReceiver {
                     }
                 }
                 if (!lobbyFound) {
-                    Lobby lobby = createLobby(((LobbyRequestMessage) message).getDesiredSize(), ((LobbyRequestMessage) message).isDesiredAdvanceMode());
+                    Lobby lobby = createLobby(((LobbyRequestMessage) message).getDesiredSize(),
+                            ((LobbyRequestMessage) message).isDesiredAdvanceMode());
                     new Thread(lobby).start();
                     activeLobbies.add(lobby);
                 }
                 break;
             default:
-                response = new ErrorMessage(message.getUUID(), "You've sent a message that the server can't understand", null);
+                response = new ErrorMessage(message.getUUID(), "You've sent a message that the server can't " +
+                        "understand");
                 sendMessage(response);
                 break;
         }
