@@ -5,7 +5,10 @@ import it.polimi.ingsw.am37.model.character.Option;
 
 /**
  * This message is used to comunicate the intent to play a character. The desired character is passed by object
- * reference, also an option instance is created with user's selection to play the characters.
+ * reference, also an option instance is created with user's selection to play the characters. A character isn't always
+ * playable by a user, so after this message should expect a {@link UpdateMessage} when the character is playable or
+ * {@link ErrorMessage} when it's not; check the {@link ErrorMessage#getMessage()} to better understand the cause of the
+ * error.
  *
  * @see Character
  * @see Option
