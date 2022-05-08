@@ -1,4 +1,7 @@
 package it.polimi.ingsw.am37.client;
 
-public class AbstractView {
+public abstract class AbstractView {
+
+    public abstract void notifyInternetCrash();
+
 }

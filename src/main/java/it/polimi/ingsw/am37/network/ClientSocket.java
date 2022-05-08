@@ -1,14 +1,27 @@
 package it.polimi.ingsw.am37.network;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import it.polimi.ingsw.am37.client.Client;
+import it.polimi.ingsw.am37.message.Message;
+import it.polimi.ingsw.am37.message.MessageGson;
+import it.polimi.ingsw.am37.message.MessageType;
+import it.polimi.ingsw.am37.message.PingMessage;
+
 import java.io.*;
 import java.net.Socket;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
-public class ClientSocket {
+public class ClientSocket implements Runnable {
+
+    /**
+     * Object used by main thread for waiting on after it sent a message
+     */
+    private static final Object waitObject = new Object();
+    /**
+     * Buffer used to store a message (different from ping) when the secondary thread reads it
+     */
+    private static Message messageBuffer = null;
 
     /**
      * Client associated to its net-features class
@@ -65,19 +78,21 @@ public class ClientSocket {
     }
 
     /**
-     * Tries to close socket and input/output stream and set connectedToServer to false
+     * Tries to close socket and input/output stream and set connectedToServer to false, then close the game
      */
-    static public void disconnect() {
+    static private void disconnect() {
 
         connectedToServer = false;
 
-        /TODO metodo per chiamare la view e dire che mi sto disconnettendo
+        Client.getView().notifyInternetCrash();
 
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                killGame();
+            }
+        }, 5000);
 
         try {
             dataInputStream.close();
@@ -85,6 +100,7 @@ public class ClientSocket {
             inputStream.close();
             outputStream.close();
             socket.close();
+            timer.cancel();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -93,22 +109,46 @@ public class ClientSocket {
     /**
      * @param message Client's message needed to be sent to server, if error occurs client will be disconnected
      */
-    static public void sendMessage(Message message) throws IOException {
+    static public void sendMessage(Message message) {
 
-        /TODO conversione messaggio a stringa json
+        String json = MessageGson.create().toJson(message);
 
-        dataOutputStream.writeUTF(json);
-        dataOutputStream.flush();
+        Timer timer = new Timer();
+
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                disconnect();
+            }
+        }, 5000);
+
+        try {
+            dataOutputStream.writeUTF(json);
+            dataOutputStream.flush();
+            timer.cancel();
+        } catch (IOException e) {
+            disconnect();
+        }
     }
 
     /**
      * Create socket's OutputStream
      */
-    static public void setOutput() {
+    static private void setOutput() {
+
+        Timer timer = new Timer();
+
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                disconnect();
+            }
+        }, 5000);
 
         try {
             outputStream = socket.getOutputStream();
             dataOutputStream = new DataOutputStream(outputStream);
+            timer.cancel();
         } catch (IOException e) {
             disconnect();
         }
@@ -117,16 +157,109 @@ public class ClientSocket {
     /**
      * Create socket's InputStream
      */
-    static public void setInput() {
+    static private void setInput() {
+
+        Timer timer = new Timer();
+
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                disconnect();
+            }
+        }, 5000);
 
         try {
             inputStream = socket.getInputStream();
             dataInputStream = new DataInputStream(inputStream);
+            timer.cancel();
         } catch (IOException e) {
             disconnect();
         }
     }
 
+    /**
+     * Create streams for socket
+     */
+    static public void setInputandOutput() {
+        setInput();
+        setOutput();
+    }
 
+    /**
+     * @return Message received from server
+     */
+    static private void readMessage() {
+
+        String json;
+        Timer timer = new Timer();
+        Message message = null;
+
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                disconnect();
+            }
+        }, 5000);
+
+        try {
+            json = dataInputStream.readUTF();
+            message = MessageGson.create().fromJson(json, Message.class);
+
+        } catch (IOException e) {
+            disconnect();
+        }
+
+        timer.cancel();
+
+        if (message.getMessageType() != MessageType.PING) {
+            messageBuffer = message;
+            waitObject.notifyAll();
+        }
+    }
+
+    /**
+     * close the game
+     */
+    static private void killGame() {
+        Timer timer = new Timer();
+
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                Runtime.getRuntime().halt(0);
+            }
+        }, 5000);
+
+        System.exit(0);
+        timer.cancel();
+    }
+
+    /**
+     * This thread is dedicated to ping with server and receive messages
+     */
+    @Override
+    public void run() {
+
+        Message message;
+
+        while (connectedToServer) {
+
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            message = new PingMessage(Client.getUUID());
+
+            sendMessage(message);
+            readMessage();
+
+        }
+    }
 
 }
+
+
+
+

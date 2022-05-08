@@ -6,6 +6,18 @@ import java.util.Scanner;
 
 public class Client {
 
+
+    /**
+     * client identifier
+     */
+    private static String UUID;
+
+
+    /**
+     *
+     */
+    private static AbstractView view;
+
     /**
      * Client's nickname
      */
@@ -20,6 +32,21 @@ public class Client {
      * It represents if it's this client's turn
      */
     private static boolean isPlaying = false;
+
+    /**
+     *
+     */
+    public static AbstractView getView() {
+        return view;
+    }
+
+    /**
+     * @return UUID of client
+     */
+    public static String getUUID() {
+        return UUID;
+    }
+
 
     /**
      * Main method
@@ -71,9 +98,10 @@ public class Client {
             }
         }
 
+        /Todo start //run del clientSocket
+
         //prepare input and output
-        ClientSocket.setOutput();
-        ClientSocket.setInput();
+        ClientSocket.setInputandOutput();
         if (!ClientSocket.isConnectedToServer())
             return;
 
