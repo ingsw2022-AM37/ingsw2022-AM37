@@ -1,13 +1,17 @@
 package it.polimi.ingsw.am37.model;
 
+import it.polimi.ingsw.am37.message.UpdatableObject;
 import it.polimi.ingsw.am37.model.student_container.LimitedStudentsContainer;
 import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
 
 import java.util.UUID;
 
+import static it.polimi.ingsw.am37.message.UpdatableObject.UpdatableType.CLOUD;
+
 /**
  * This class represent the Clouds in the game.
  */
+@UpdatableObject(type = CLOUD)
 public class Cloud {
 
     /**

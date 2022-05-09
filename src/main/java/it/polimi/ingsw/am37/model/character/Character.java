@@ -1,8 +1,11 @@
 package it.polimi.ingsw.am37.model.character;
 
+import it.polimi.ingsw.am37.message.UpdatableObject;
 import it.polimi.ingsw.am37.model.Bag;
 
 import java.util.Objects;
+
+import static it.polimi.ingsw.am37.message.UpdatableObject.UpdatableType.CHARACTER;
 
 /**
  * This class represents the Character in the game. They have special effects to modify and improve the game. They are
@@ -10,6 +13,7 @@ import java.util.Objects;
  * character has a starting price and a current price. When used each player needs to get the price. Use their effect
  * with the {@link this#useEffect(Option)} and the first usage cause the starting price to increase.
  */
+@UpdatableObject(type = CHARACTER)
 public class Character {
 
     /**

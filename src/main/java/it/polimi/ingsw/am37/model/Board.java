@@ -1,15 +1,19 @@
 package it.polimi.ingsw.am37.model;
 
+import it.polimi.ingsw.am37.message.UpdatableObject;
 import it.polimi.ingsw.am37.model.student_container.LimitedStudentsContainer;
 import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
 
 import java.util.Arrays;
+
+import static it.polimi.ingsw.am37.message.UpdatableObject.UpdatableType.BOARD;
 
 
 /**
  * The class represent the player board in the game. This hold the tower and students container,
  * provide access for adding and removing elements.
  */
+@UpdatableObject(type = BOARD)
 public class Board {
 
     /**
