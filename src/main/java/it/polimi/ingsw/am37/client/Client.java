@@ -1,8 +1,12 @@
 package it.polimi.ingsw.am37.client;
 
+import it.polimi.ingsw.am37.message.LoginMessage;
+import it.polimi.ingsw.am37.message.Message;
+import it.polimi.ingsw.am37.message.MessageType;
 import it.polimi.ingsw.am37.network.ClientSocket;
+
 import java.io.IOException;
-import java.util.Scanner;
+import java.util.*;
 
 public class Client {
 
@@ -12,9 +16,8 @@ public class Client {
      */
     private static String UUID;
 
-
     /**
-     *
+     * View which can be at real time GUI or CLI, based on the information given by player at the start
      */
     private static AbstractView view;
 
@@ -29,121 +32,140 @@ public class Client {
     private static ClientSocket clientSocket;
 
     /**
-     * It represents if it's this client's turn
+     * It represents the state of client during a game
      */
-    private static boolean isPlaying = false;
+    private static ClientStatus status;
 
     /**
-     *
+     * @return view of the client, used to display some informations
      */
     public static AbstractView getView() {
         return view;
     }
 
     /**
-     * @return UUID of client
+     * @return Player's identifier
      */
     public static String getUUID() {
         return UUID;
     }
 
-
     /**
      * Main method
-     *
-     * @param args
      */
     public static void main(String[] args) {
 
-        Scanner scanner = new Scanner(System.in);
-
-        String input;
+        boolean notReady = true;
+        String graphics = null;
+        int port;
         String address;
-        String port;
-        int temp;
+        final int expectedArguments = 6;
+        view = new CliView();
+        //first block only used in first while(notReady), when you are connecting to the server
 
-        //connection to server written in cli at the start
-        try {
-            if (args.length == 2) {
-                address = args[0];
-                port = args[1];
+        int i = 0;
 
-                ClientSocket.connectToServer(address, Integer.parseInt(port));
+
+        //begin of first part of the code, you are trying to connect to the server
+        List<String> list = Arrays.stream(args).map(String::toLowerCase).toList();
+
+        initialInfo:
+        while (notReady) {
+
+            final Map<String, String> params = new HashMap<>();
+            args = list.toArray(new String[0]);
+
+            if (args.length == 1 && args[0].equals("close"))
+                return;
+
+            if (args.length != expectedArguments) {
+                list = new ArrayList<>(Arrays.asList(view.wrongInsert().split(" ")));
+                continue initialInfo;
             }
-        }
-        //if start connection fails this happens
-        catch (IOException e) {
-            while (!ClientSocket.isConnectedToServer()) {
 
-                System.out.println("Write 'close game' or 'serverAddress-serverPort' (example: 127.0.0.0-7000)");
-                input = scanner.nextLine();
+            while (i < args.length) {
 
-                if (input.equals("close game")) {
-                    return;
-                } else {
-                    for (temp = 0; temp < input.length(); temp++)
-                        if (input.charAt(temp) == '-')
-                            break;
+                if (!(args[i].equals("-port") || args[i].equals("-address") || args[i].equals("-graphics"))) {
+                    list = new ArrayList<>(Arrays.asList(view.wrongInsert().split(" ")));
+                    continue initialInfo;
+                } else if (args[i + 1].charAt(0) != '-')
+                    params.put(args[i].substring(1), args[i + 1]);
 
-                    address = input.substring(0, temp);
-                    port = input.substring(temp + 1);
-
-                    try {
-                        ClientSocket.connectToServer(address, Integer.parseInt(port));
-                        break;
-                    } catch (IOException r) {
-                        System.out.println("A error occurred");
-                    }
+                else {
+                    list = new ArrayList<>(Arrays.asList(view.wrongInsert().split(" ")));
+                    continue initialInfo;
                 }
+
+                i = i + 2;
             }
+
+            if (!(params.containsKey("address") && params.containsKey("graphics") && params.containsKey("port"))) {
+                list = new ArrayList<>(Arrays.asList(view.wrongInsert().split(" ")));
+                continue initialInfo;
+            }
+
+            try {
+                port = Integer.parseInt(params.get("port"));
+            } catch (NumberFormatException e) {
+                list = new ArrayList<>(Arrays.asList(view.wrongInsert().split(" ")));
+                continue initialInfo;
+            }
+
+            address = params.get("address");
+            graphics = params.get("graphics");
+
+            if (!graphics.equals("cli") && !graphics.equals("gui")) {
+                list = new ArrayList<>(Arrays.asList(view.wrongInsert().split(" ")));
+                continue initialInfo;
+            }
+
+
+            try {
+                ClientSocket.connectToServer(address, port);
+                notReady = false;
+            } catch (IOException e) {
+                list = new ArrayList<>(Arrays.asList(view.wrongServer().split(" ")));
+            }
+
         }
 
-        /Todo start //run del clientSocket
+        if (graphics.equals("gui"))
+            view = new GuiView();
 
-        //prepare input and output
-        ClientSocket.setInputandOutput();
-        if (!ClientSocket.isConnectedToServer())
-            return;
+        //start listening thread
+        new Thread(new ClientSocket()).start();
 
         //choose nickname
         while (nickname == null) {
 
-            System.out.println("Insert a nickname");
-            input = scanner.nextLine();
+            String tempNick;
 
-            /TODO
-            //costruisco la classe messaggio login con nickname l'input usando Gson
+            tempNick = view.chooseNickname();
+
+            if (tempNick.equals("close"))
+                //TODO in clientSocket un closeGame che e uguale a disconnect ma non dice che la connessione e stata persa
+
+                Message message = new LoginMessage(UUID, tempNick);
 
             try {
-                ClientSocket.sendMessage(message);
-            } catch (IOException e) {
-                ClientSocket.disconnect();
-                return;
+                ClientSocket.getWaitObject().wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();  //TODO che gli faccio fare qua? chiudo il gioco?
             }
 
-            /TODO
-            // clientsocket si aspetta il messaggio o OK o error, se ok imposta il nickname, altrimenti non
-            //fa nulla
+            if (ClientSocket.getMessageBuffer().getMessageType() == MessageType.ERROR)
+                ;
+            else
+                setNickname(tempNick);
         }
 
-        //choose number of players
-        do {
-            System.out.println("Now choose number of players for the game: '3' or '2' ");
-            input = scanner.nextLine();
-        } while (Integer.parseInt(input) != 3 && Integer.parseInt(input) != 2);
+        //choose lobby
 
-        //costruiso la classe per mandare il messaggio
-        /TODO
-
-        try {
-            ClientSocket.sendMessage(message);
-        } catch (IOException e) {
-            ClientSocket.disconnect();
-            return;
-        }
+        //TODO chiedo al giocatore il numero di giocatori con cui vuole giocare e se vuole usare le regole avanzate. In questo caso dopo aver inviato il messaggio non mi aspetto una conferma
 
 
     }
+
 
     /**
      * @param string Nickname to be setted for the player
@@ -152,11 +174,5 @@ public class Client {
         nickname = string;
     }
 
-    /**
-     * @return Nickname of player
-     */
-    static public String getNickName() {
-        return nickname;
-    }
 
 }

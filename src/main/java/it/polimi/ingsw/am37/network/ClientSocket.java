@@ -18,6 +18,7 @@ public class ClientSocket implements Runnable {
      * Object used by main thread for waiting on after it sent a message
      */
     private static final Object waitObject = new Object();
+
     /**
      * Buffer used to store a message (different from ping) when the secondary thread reads it
      */
@@ -70,6 +71,20 @@ public class ClientSocket implements Runnable {
     }
 
     /**
+     * @return waitObject used for synchronzize
+     */
+    static public Object getWaitObject() {
+        return waitObject;
+    }
+
+    /**
+     * @return buffer used to trade messages
+     */
+    static public Message getMessageBuffer() {
+        return messageBuffer;
+    }
+
+    /**
      * @return Current state of client's connection
      */
     static public boolean isConnectedToServer() {
@@ -92,7 +107,7 @@ public class ClientSocket implements Runnable {
             public void run() {
                 killGame();
             }
-        }, 5000);
+        }, 2000);
 
         try {
             dataInputStream.close();
@@ -100,7 +115,6 @@ public class ClientSocket implements Runnable {
             inputStream.close();
             outputStream.close();
             socket.close();
-            timer.cancel();
         } catch (IOException e) {
             e.printStackTrace();
         }
