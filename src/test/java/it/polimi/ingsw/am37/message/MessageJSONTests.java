@@ -1,7 +1,9 @@
 package it.polimi.ingsw.am37.message;
 
 import com.google.gson.Gson;
+import it.polimi.ingsw.am37.model.Cloud;
 import it.polimi.ingsw.am37.model.FactionColor;
+import it.polimi.ingsw.am37.model.Island;
 import it.polimi.ingsw.am37.model.WizardTeam;
 import it.polimi.ingsw.am37.model.character.Effect;
 import it.polimi.ingsw.am37.model.character.Option;
@@ -10,7 +12,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
@@ -179,7 +181,6 @@ public class MessageJSONTests {
         container.addStudents(3, FactionColor.BLUE);
         StudentsToIslandMessage studentsToIslandMessage = new StudentsToIslandMessage("110011", container, 4);
         String json = gson.toJson(studentsToIslandMessage);
-        System.out.println(json);
         assertNotNull(json);
         Message newMessage = gson.fromJson(json, Message.class);
         StudentsToIslandMessage newStudentsToIslandMessage = (StudentsToIslandMessage) newMessage;
@@ -191,12 +192,24 @@ public class MessageJSONTests {
     @Test
     @DisplayName("Serialization and deserialization of UpdateMessage")
     void updateMessageJSONTest() {
-        UpdateMessage updateMessage = new UpdateMessage("110011", new ArrayList<>(), MessageType.PING,
-                "Last action " + "description");
+        UpdateMessage updateMessage = new UpdateMessage("110011", List.of(new Cloud(true), new Island(null, 3)),
+                MessageType.PING, "Last action " + "description");
         String json = gson.toJson(updateMessage);
         assertNotNull(json);
         Message newMessage = gson.fromJson(json, Message.class);
         UpdateMessage newUpdateMessage = (UpdateMessage) newMessage;
         assertEquals(updateMessage.UUID, newUpdateMessage.UUID);
+        assertInstanceOf(Cloud.class, updateMessage.getUpdatedObjects()
+                .get(UpdatableObject.UpdatableType.CLOUD.getLabel())
+                .get(0));
+        assertTrue(((Cloud) updateMessage.getUpdatedObjects()
+                .get(UpdatableObject.UpdatableType.CLOUD.getLabel())
+                .get(0)).getIsFor2());
+        assertInstanceOf(Island.class, updateMessage.getUpdatedObjects()
+                .get(UpdatableObject.UpdatableType.ISLAND.getLabel())
+                .get(0));
+        assertEquals(3, ((Island) updateMessage.getUpdatedObjects()
+                .get(UpdatableObject.UpdatableType.ISLAND.getLabel())
+                .get(0)).getIslandId());
     }
 }

@@ -10,11 +10,11 @@ import java.util.List;
 public class UpdateMessage extends Message {
 
 
-    final HashMap<String, List<it.polimi.ingsw.am37.message.UpdatableObject>> updatedObjects;
+    private final HashMap<String, List<it.polimi.ingsw.am37.message.UpdatableObject>> updatedObjects;
 
-    final MessageType lastAction;
+    private final MessageType lastAction;
 
-    final String lastActionDescription;
+    private final String lastActionDescription;
 
     /**
      * The fromJSON receiver side constructor where all data are accessible
