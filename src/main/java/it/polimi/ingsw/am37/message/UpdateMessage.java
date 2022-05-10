@@ -5,16 +5,28 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- *
+ * This message is used to share relevant information about the updated objects after each action. Should be used as a
+ * confirmation that previous action have been successful. Only the updated objects are provided by this message. This
+ * message provides also useful information about the last action performed like is type
+ * {@link UpdateMessage#lastAction} and a shor descriptive message {@link UpdateMessage#lastActionDescription}
  */
 public class UpdateMessage extends Message {
 
 
+    /**
+     * The type of the action that caused an update
+     */
+    public final MessageType lastAction;
+    /**
+     * A descriptive string about the last action
+     */
+    public final String lastActionDescription;
+    /**
+     * A bucketed map of all the updated objects sorted by the
+     * {@link it.polimi.ingsw.am37.message.UpdatableObject.UpdatableType}. Buckets are simple list, so use lists method
+     * to retrieve object
+     */
     private final HashMap<String, List<it.polimi.ingsw.am37.message.UpdatableObject>> updatedObjects;
-
-    private final MessageType lastAction;
-
-    private final String lastActionDescription;
 
     /**
      * The fromJSON receiver side constructor where all data are accessible
@@ -67,7 +79,19 @@ public class UpdateMessage extends Message {
         return updatedObjects;
     }
 
+    /**
+     * @return the hashmap of updated object
+     */
     public HashMap<String, List<UpdatableObject>> getUpdatedObjects() {
         return updatedObjects;
+    }
+
+    /**
+     * Retrieve the list of updated objects for a specific type
+     *
+     * @param type the type of updatable object to retrieve a list
+     */
+    public List<? extends UpdatableObject> getUpdatedObjects(UpdatableObject.UpdatableType type) {
+        return updatedObjects.get(type.getLabel());
     }
 }
