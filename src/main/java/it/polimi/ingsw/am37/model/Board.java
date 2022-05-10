@@ -10,11 +10,10 @@ import static it.polimi.ingsw.am37.message.UpdatableObject.UpdatableType.BOARD;
 
 
 /**
- * The class represent the player board in the game. This hold the tower and students container,
- * provide access for adding and removing elements.
+ * The class represent the player board in the game. This hold the tower and students container, provide access for
+ * adding and removing elements.
  */
-@UpdatableObject(type = BOARD)
-public class Board {
+public class Board extends UpdatableObject {
 
     /**
      * Container for the towers
@@ -61,6 +60,7 @@ public class Board {
      * @param player       It's the owner of the board
      */
     public Board(int numOfPlayer, TowerColor color, boolean coinsEnabled, Player player) {
+        super(BOARD);
         //default variables for settings
         final int
                 maxTowerSizeFor2 = 8,
@@ -91,7 +91,6 @@ public class Board {
                 Arrays.fill(coinsArray[col.getIndex()], true);
             }
         }
-
     }
 
     /**

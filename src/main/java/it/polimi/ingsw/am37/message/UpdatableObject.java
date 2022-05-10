@@ -1,13 +1,13 @@
 package it.polimi.ingsw.am37.message;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
+public class UpdatableObject {
+    UpdatableType type;
 
-@Retention(RetentionPolicy.RUNTIME)
-public @interface UpdatableObject {
-    UpdatableType type();
+    public UpdatableObject(UpdatableType type) {
+        this.type = type;
+    }
 
-    enum UpdatableType {
+    public enum UpdatableType {
         ISLAND("islands"),
         CLOUD("clouds"),
         BOARD("boards"),

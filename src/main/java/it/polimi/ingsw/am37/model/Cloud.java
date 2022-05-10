@@ -11,8 +11,7 @@ import static it.polimi.ingsw.am37.message.UpdatableObject.UpdatableType.CLOUD;
 /**
  * This class represent the Clouds in the game.
  */
-@UpdatableObject(type = CLOUD)
-public class Cloud {
+public class Cloud extends UpdatableObject {
 
     /**
      * They represent the number of students that can be placed on a Cloud based on the number of Players.
@@ -36,6 +35,7 @@ public class Cloud {
      * Default constructor
      */
     public Cloud(boolean isFor2) {
+        super(CLOUD);
         this.isFor2 = isFor2;
         if (this.isFor2) studentsOnCloud = new LimitedStudentsContainer(studentsPerCloud2Players);
         else studentsOnCloud = new LimitedStudentsContainer(studentsPerCloud3Players);

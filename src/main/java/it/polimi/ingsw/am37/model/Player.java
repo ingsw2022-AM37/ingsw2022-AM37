@@ -15,8 +15,7 @@ import static it.polimi.ingsw.am37.message.UpdatableObject.UpdatableType.PLAYER;
  * This class represents the in-game player, it does not represent the person playing the game, therefore it will not
  * have all the attributes that can be associated with a physical player.
  */
-@UpdatableObject(type = PLAYER)
-public class Player {
+public class Player extends UpdatableObject {
 
     /**
      * ID of the player for unique references
@@ -27,6 +26,7 @@ public class Player {
      * Default constructor
      */
     public Player() {
+        super(PLAYER);
         this.numberOfCoins = 0;
         this.lastAssistantPlayed = null;
         this.team = null;

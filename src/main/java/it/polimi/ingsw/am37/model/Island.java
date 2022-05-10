@@ -7,11 +7,10 @@ import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
 import static it.polimi.ingsw.am37.message.UpdatableObject.UpdatableType.ISLAND;
 
 /**
- * At the beginning of the game there are twelve islands, they can have students on them and tower which represents
- * that a player is controlling them. Islands can be united and once this happens can't be reversed
+ * At the beginning of the game there are twelve islands, they can have students on them and tower which represents that
+ * a player is controlling them. Islands can be united and once this happens can't be reversed
  */
-@UpdatableObject(type = ISLAND)
-public class Island {
+public class Island extends UpdatableObject {
 
     /**
      * It's a number to identify island
@@ -45,6 +44,7 @@ public class Island {
      * Default constructor
      */
     public Island(FixedUnlimitedStudentsContainer studentsOnIsland, int islandId) {
+        super(ISLAND);
         this.NoEntryTile = 0;
         this.numIslandsUnited = 1;
         this.tower = TowerColor.NONE;

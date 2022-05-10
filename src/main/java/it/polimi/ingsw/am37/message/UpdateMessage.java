@@ -61,9 +61,13 @@ public class UpdateMessage extends Message {
         updatedObjects = new HashMap<>();
         for (var object :
                 updatableObjects) {
-            updatedObjects.computeIfAbsent(object.type().getLabel(), k -> new ArrayList<>());
-            updatedObjects.get(object.type().getLabel()).add(object);
+            updatedObjects.computeIfAbsent(object.type.getLabel(), k -> new ArrayList<>());
+            updatedObjects.get(object.type.getLabel()).add(object);
         }
+        return updatedObjects;
+    }
+
+    public HashMap<String, List<UpdatableObject>> getUpdatedObjects() {
         return updatedObjects;
     }
 }

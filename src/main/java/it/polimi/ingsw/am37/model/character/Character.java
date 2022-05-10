@@ -13,8 +13,7 @@ import static it.polimi.ingsw.am37.message.UpdatableObject.UpdatableType.CHARACT
  * character has a starting price and a current price. When used each player needs to get the price. Use their effect
  * with the {@link this#useEffect(Option)} and the first usage cause the starting price to increase.
  */
-@UpdatableObject(type = CHARACTER)
-public class Character {
+public class Character extends UpdatableObject {
 
     /**
      * The effect that distinguishes the character.
@@ -37,6 +36,7 @@ public class Character {
      * Default constructor
      */
     public Character(int startPrice, Effect effectType, Bag bag) {
+        super(CHARACTER);
         this.startPrice = startPrice;
         this.currentPrice = startPrice;
         this.effectType = effectType;
