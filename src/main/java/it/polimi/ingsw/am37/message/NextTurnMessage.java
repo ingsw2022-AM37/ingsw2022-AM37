@@ -9,26 +9,28 @@ public class NextTurnMessage extends Message {
     /**
      * The UUID of the next player that has to play
      */
-    private String nextPlayerUUID;
+    private final String nextPlayerUUID;
 
     /**
      * The fromJSON receiver side constructor where all data are accessible
      *
-     * @param UUID        the default constructor
-     * @param messageType the type of message
+     * @param UUID           the default constructor
+     * @param nextPlayerUUID the next player's UUID
      */
-    protected NextTurnMessage(String UUID, MessageType messageType) {
+    protected NextTurnMessage(String UUID, String nextPlayerUUID) {
         super(UUID, MessageType.NEXT_TURN);
+        this.nextPlayerUUID = nextPlayerUUID;
     }
 
     /**
      * The default sender side constructor for message preparing. UUID must be set using {@link Message#setUUID(String)}
      * before sending it
      *
-     * @param messageType the message enum type
+     * @param nextPlayerUUID the next player's UUID
      */
-    protected NextTurnMessage(MessageType messageType) {
-        super(messageType);
+    protected NextTurnMessage(String nextPlayerUUID) {
+        super(MessageType.NEXT_TURN);
+        this.nextPlayerUUID = nextPlayerUUID;
     }
 
     /**

@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am37.message;
 
 import it.polimi.ingsw.am37.model.character.Character;
+import it.polimi.ingsw.am37.model.character.Effect;
 import it.polimi.ingsw.am37.model.character.Option;
 
 /**
@@ -18,7 +19,7 @@ public class PlayCharacterMessage extends Message {
     /**
      * the character to play
      */
-    private final Character chosenCharacter;
+    private final Effect chosenCharacter;
 
     /**
      * the user's selected option to play this character
@@ -32,7 +33,7 @@ public class PlayCharacterMessage extends Message {
      * @param chosenCharacter the character to play
      * @param option          the option to play the character with
      */
-    public PlayCharacterMessage(String UUID, Character chosenCharacter, Option option) {
+    public PlayCharacterMessage(String UUID, Effect chosenCharacter, Option option) {
         super(UUID, MessageType.PLAY_CHARACTER);
         this.chosenCharacter = chosenCharacter;
         this.option = option;
@@ -45,7 +46,7 @@ public class PlayCharacterMessage extends Message {
      * @param chosenCharacter the character to play
      * @param option          the option to play the character with
      */
-    public PlayCharacterMessage(Character chosenCharacter, Option option) {
+    public PlayCharacterMessage(Effect chosenCharacter, Option option) {
         super(MessageType.PLAY_CHARACTER);
         this.chosenCharacter = chosenCharacter;
         this.option = option;
@@ -54,7 +55,7 @@ public class PlayCharacterMessage extends Message {
     /**
      * @return the character chosen to play
      */
-    public Character getChosenCharacter() {
+    public Effect getChosenCharacter() {
         return chosenCharacter;
     }
 
