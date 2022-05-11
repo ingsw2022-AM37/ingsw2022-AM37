@@ -2,7 +2,7 @@ package it.polimi.ingsw.am37.network;
 
 import it.polimi.ingsw.am37.client.Client;
 import it.polimi.ingsw.am37.message.Message;
-import it.polimi.ingsw.am37.message.MessageGson;
+import it.polimi.ingsw.am37.message.MessageGsonBuilder;
 import it.polimi.ingsw.am37.message.MessageType;
 import it.polimi.ingsw.am37.message.PingMessage;
 
@@ -13,6 +13,11 @@ import java.util.TimerTask;
 
 
 public class ClientSocket implements Runnable {
+
+    /**
+     * Used for creating a loop for client's waiting after a message is received
+     */
+    private static boolean messageReceived = false;
 
     /**
      * Object used by main thread for waiting on after it sent a message
@@ -78,6 +83,20 @@ public class ClientSocket implements Runnable {
     }
 
     /**
+     * @return if a message is received from server
+     */
+    static public boolean getMessageReceived() {
+        return messageReceived;
+    }
+
+    /**
+     * Set messageReceived to false
+     */
+    static public void resetMessageReceived() {
+        messageReceived = false;
+    }
+
+    /**
      * @return buffer used to trade messages
      */
     static public Message getMessageBuffer() {
@@ -90,6 +109,33 @@ public class ClientSocket implements Runnable {
     static public boolean isConnectedToServer() {
 
         return connectedToServer;
+    }
+
+    /**
+     * Tries to close socket and input/output stream and set connectedToServer to false, then close the game
+     */
+    static public void closeGame() {
+
+        connectedToServer = false;
+
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                killGame();
+            }
+        }, 2000);
+
+        try {
+            dataInputStream.close();
+            dataOutputStream.close();
+            inputStream.close();
+            outputStream.close();
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     /**
@@ -125,7 +171,7 @@ public class ClientSocket implements Runnable {
      */
     static public void sendMessage(Message message) {
 
-        String json = MessageGson.create().toJson(message);
+        String json = new MessageGsonBuilder().getGsonBuilder().create().toJson(message);
 
         Timer timer = new Timer();
 
@@ -217,18 +263,18 @@ public class ClientSocket implements Runnable {
 
         try {
             json = dataInputStream.readUTF();
-            message = MessageGson.create().fromJson(json, Message.class);
+            message = new MessageGsonBuilder().getGsonBuilder().create().fromJson(json, Message.class);
+            timer.cancel();
+            if (message.getMessageType() != MessageType.PING) {
+                messageBuffer = new MessageGsonBuilder().getGsonBuilder().create().fromJson(json, Message.class);
+                messageReceived = true;
+                waitObject.notifyAll();
+            }
 
         } catch (IOException e) {
             disconnect();
         }
 
-        timer.cancel();
-
-        if (message.getMessageType() != MessageType.PING) {
-            messageBuffer = message;
-            waitObject.notifyAll();
-        }
     }
 
     /**

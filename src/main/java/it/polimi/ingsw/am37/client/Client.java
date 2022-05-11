@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am37.client;
 
+import it.polimi.ingsw.am37.message.LobbyRequestMessage;
 import it.polimi.ingsw.am37.message.LoginMessage;
 import it.polimi.ingsw.am37.message.Message;
 import it.polimi.ingsw.am37.message.MessageType;
@@ -55,102 +56,169 @@ public class Client {
      */
     public static void main(String[] args) {
 
-        boolean notReady = true;
-        String graphics = null;
-        int port;
-        String address;
-        final int expectedArguments = 6;
+        boolean wrongInitialInput;
+        final String address = "address";
+        final String port = "port";
+        final String graphics = "graphics";
+
+
         view = new CliView();
-        //first block only used in first while(notReady), when you are connecting to the server
+        HashMap<String, String> params = new HashMap<>();
 
-        int i = 0;
+        wrongInitialInput = tryConnectionWithArgs(args, address, port, graphics, params);
 
+        tryConnectionAgain(wrongInitialInput, address, port, graphics, params);
 
-        //begin of first part of the code, you are trying to connect to the server
-        List<String> list = Arrays.stream(args).map(String::toLowerCase).toList();
-
-        initialInfo:
-        while (notReady) {
-
-            final Map<String, String> params = new HashMap<>();
-            args = list.toArray(new String[0]);
-
-            if (args.length == 1 && args[0].equals("close"))
-                return;
-
-            if (args.length != expectedArguments) {
-                list = new ArrayList<>(Arrays.asList(view.wrongInsert().split(" ")));
-                continue initialInfo;
-            }
-
-            while (i < args.length) {
-
-                if (!(args[i].equals("-port") || args[i].equals("-address") || args[i].equals("-graphics"))) {
-                    list = new ArrayList<>(Arrays.asList(view.wrongInsert().split(" ")));
-                    continue initialInfo;
-                } else if (args[i + 1].charAt(0) != '-')
-                    params.put(args[i].substring(1), args[i + 1]);
-
-                else {
-                    list = new ArrayList<>(Arrays.asList(view.wrongInsert().split(" ")));
-                    continue initialInfo;
-                }
-
-                i = i + 2;
-            }
-
-            if (!(params.containsKey("address") && params.containsKey("graphics") && params.containsKey("port"))) {
-                list = new ArrayList<>(Arrays.asList(view.wrongInsert().split(" ")));
-                continue initialInfo;
-            }
-
-            try {
-                port = Integer.parseInt(params.get("port"));
-            } catch (NumberFormatException e) {
-                list = new ArrayList<>(Arrays.asList(view.wrongInsert().split(" ")));
-                continue initialInfo;
-            }
-
-            address = params.get("address");
-            graphics = params.get("graphics");
-
-            if (!graphics.equals("cli") && !graphics.equals("gui")) {
-                list = new ArrayList<>(Arrays.asList(view.wrongInsert().split(" ")));
-                continue initialInfo;
-            }
-
-
-            try {
-                ClientSocket.connectToServer(address, port);
-                notReady = false;
-            } catch (IOException e) {
-                list = new ArrayList<>(Arrays.asList(view.wrongServer().split(" ")));
-            }
-
-        }
-
-        if (graphics.equals("gui"))
+        //preparing gui
+        if (params.get(graphics).equals("gui"))
             view = new GuiView();
 
         //start listening thread
         new Thread(new ClientSocket()).start();
 
-        //choose nickname
-        while (nickname == null) {
+        chooseNickname();
 
-            String tempNick;
+        chooseLobby();
+
+
+    }
+
+
+    /**
+     * @param args     It's the array of string created by main class
+     * @param address  It's how we call address in first input in terminal
+     * @param port     It's how we call port in first input in terminal
+     * @param graphics It's how we call graphics in first input in terminal
+     * @param params   It's the HashMap with the three parameters and their value
+     * @return if initial input was wrong
+     */
+    static private boolean tryConnectionWithArgs(String[] args, String address, String port, String graphics, HashMap<String, String> params) {
+
+        final int expectedArguments = 6;
+        int i = 0;
+        boolean wrongInitialInput = false;
+
+
+        List<String> list = Arrays.stream(args).map(String::toLowerCase).toList();
+        args = list.toArray(new String[0]);
+
+        if (args.length != expectedArguments) {
+            view.wrongInsertFewArguments();
+            wrongInitialInput = true;
+        } else {
+            while (i < args.length) {
+
+                if (!(args[i].equals("--" + port) || args[i].equals("--" + address) || args[i].equals("--" + graphics))) {
+                    view.wrongInsert();
+                    wrongInitialInput = true;
+                    break;
+                }
+
+                params.put(args[i].substring(2), args[i + 1]);
+                i = i + 2;
+            }
+
+            if (params.containsKey(port)) {
+                try {
+                    i = Integer.parseInt(params.get(port));
+                } catch (NumberFormatException e) {
+                    view.wrongInsertPort();
+                    wrongInitialInput = true;
+                }
+            }
+
+            if (params.containsKey(address) && params.containsKey(graphics)) {
+
+                if (!params.get(graphics).equals("cli") && !params.get(graphics).equals("gui")) {
+                    view.wrongInsertGraphics();
+                    wrongInitialInput = true;
+                }
+
+                if (!wrongInitialInput) {
+                    try {
+                        ClientSocket.connectToServer(params.get(address), Integer.parseInt(params.get(port)));
+                    } catch (IOException e) {
+                        view.wrongServer();
+                        wrongInitialInput = true;
+                    }
+                }
+            }
+        }
+
+        return wrongInitialInput;
+    }
+
+    /**
+     * @param wrongInitialInput If initial input was wrong
+     * @param address           It's how we call address in first input in terminal
+     * @param port              It's how we call port in first input in terminal
+     * @param graphics          It's how we call graphics in first input in terminal
+     * @param params            It's the HashMap with the three parameters and their value
+     */
+    static private void tryConnectionAgain(boolean wrongInitialInput, String address, String port, String graphics, HashMap<String, String> params) {
+
+        final String defaultGraphics = "cli";
+        final int defaultPort = 60000;
+        final String defaultAddress = "localhost";
+        String response;
+
+
+        while (wrongInitialInput) {
+
+            response = view.askDefault();
+
+            if ((response.equals("close game")))
+                return;
+
+            else {
+                if (response.equals("yes")) {
+                    params = new HashMap<>();
+                    params.put(address, defaultAddress);
+                    params.put(port, Integer.toString(defaultPort));
+                    params.put(graphics, defaultGraphics);
+                } else {
+                    params = new HashMap<>();
+                    response = view.insertYourParameters(address, port, graphics, params);
+                    if (response.equals("close game"))
+                        return;
+                }
+
+                try {
+                    ClientSocket.connectToServer(params.get(address), Integer.parseInt(params.get(port)));
+                    wrongInitialInput = false;
+                } catch (IOException e) {
+                    view.wrongServer();
+                }
+            }
+        }
+    }
+
+    /**
+     * Method used to set nickname, if chosen name is available then set it
+     */
+    static private void chooseNickname() {
+
+        String tempNick;
+        Message message;
+
+
+        while (nickname == null) {
 
             tempNick = view.chooseNickname();
 
-            if (tempNick.equals("close"))
-                //TODO in clientSocket un closeGame che e uguale a disconnect ma non dice che la connessione e stata persa
+            if (tempNick.equals("close game"))
+                ClientSocket.closeGame();
 
-                Message message = new LoginMessage(UUID, tempNick);
+            message = new LoginMessage(UUID, tempNick);
+            ClientSocket.sendMessage(message);
 
-            try {
-                ClientSocket.getWaitObject().wait();
-            } catch (InterruptedException e) {
-                e.printStackTrace();  //TODO che gli faccio fare qua? chiudo il gioco?
+            while (ClientSocket.getMessageReceived()) {
+                try {
+                    ClientSocket.getWaitObject().wait();
+                    ClientSocket.resetMessageReceived();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
 
             if (ClientSocket.getMessageBuffer().getMessageType() == MessageType.ERROR)
@@ -158,19 +226,47 @@ public class Client {
             else
                 setNickname(tempNick);
         }
+    }
 
-        //choose lobby
+    /**
+     * Method used to choose lobby, you have to insert number of players and if you want advanced rules
+     */
+    static private void chooseLobby() {
 
-        //TODO chiedo al giocatore il numero di giocatori con cui vuole giocare e se vuole usare le regole avanzate. In questo caso dopo aver inviato il messaggio non mi aspetto una conferma
+        String response;
+        String response2;
+        int i;
+        boolean j;
+        Message message;
 
+
+        response = view.requestAdvancedRules();
+        if (response.equals("close game"))
+            return;
+
+        if (response.equals("yes"))
+            j = true;
+        else
+            j = false;
+
+        response2 = view.requestNumPlayers();
+
+        if (response2.equals("close game"))
+            return;
+        else
+            i = Integer.parseInt(response2);
+
+        message = new LobbyRequestMessage(UUID, i, j);
+
+        ClientSocket.sendMessage(message);
 
     }
 
 
     /**
-     * @param string Nickname to be setted for the player
+     * @param string Nickname to be set for the player
      */
-    static public void setNickname(String string) {
+    static private void setNickname(String string) {
         nickname = string;
     }
 

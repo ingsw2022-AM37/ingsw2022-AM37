@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import it.polimi.ingsw.am37.message.Message;
-import it.polimi.ingsw.am37.message.MessageGson;
+import it.polimi.ingsw.am37.message.MessageGsonBuilder;
 import it.polimi.ingsw.am37.message.MessageType;
 import it.polimi.ingsw.am37.network.MessageReceiver;
 import it.polimi.ingsw.am37.network.exceptions.InternetException;
@@ -82,12 +82,12 @@ public class ClientHandler implements Runnable {
     public void sendMessageToClient(Message message) throws InternetException {
 
 
-        String json = MessageGson.create().toJson(message);
+        String json = new MessageGsonBuilder().getGsonBuilder().create().toJson(message);
 
         ExecutorService service = Executors.newSingleThreadExecutor();
 
         try {
-            Callable r = new Callable() {
+            Callable<Object> r = new Callable() {
                 @Override
                 public Object call() throws IOException {
                     dataOutputStream.writeUTF(json);
@@ -226,11 +226,11 @@ public class ClientHandler implements Runnable {
         ExecutorService service = Executors.newSingleThreadExecutor();
 
         try {
-            Callable r = new Callable() {
+            Callable<Message> r = new Callable() {
                 @Override
                 public Message call() throws IOException {
                     String json = dataInputStream.readUTF();
-                    Message message = MessageGson.create().fromJson(json, Message.class);
+                    Message message = new MessageGsonBuilder().getGsonBuilder().create().fromJson(json, Message.class);
                     return message;
                 }
             };
