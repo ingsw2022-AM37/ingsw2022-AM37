@@ -73,6 +73,7 @@ public class ClientSocket implements Runnable {
 
         socket = new Socket(address, port);
         connectedToServer = true;
+        setInputandOutput();
     }
 
     /**
@@ -116,24 +117,28 @@ public class ClientSocket implements Runnable {
      */
     static public void closeGame() {
 
-        connectedToServer = false;
+        if (connectedToServer) {
+            connectedToServer = false;
 
-        Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                killGame();
+            Timer timer = new Timer();
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    killGame();
+                }
+            }, 2000);
+
+            try {
+                dataInputStream.close();
+                dataOutputStream.close();
+                inputStream.close();
+                outputStream.close();
+                socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        }, 2000);
-
-        try {
-            dataInputStream.close();
-            dataOutputStream.close();
-            inputStream.close();
-            outputStream.close();
-            socket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } else {
+            killGame();
         }
 
     }
@@ -240,7 +245,7 @@ public class ClientSocket implements Runnable {
     /**
      * Create streams for socket
      */
-    static public void setInputandOutput() {
+    static private void setInputandOutput() {
         setInput();
         setOutput();
     }
@@ -288,7 +293,7 @@ public class ClientSocket implements Runnable {
             public void run() {
                 Runtime.getRuntime().halt(0);
             }
-        }, 5000);
+        }, 3000);
 
         System.exit(0);
         timer.cancel();

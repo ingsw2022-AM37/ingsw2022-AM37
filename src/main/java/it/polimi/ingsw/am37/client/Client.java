@@ -38,7 +38,7 @@ public class Client {
     private static ClientStatus status;
 
     /**
-     * @return view of the client, used to display some informations
+     * @return view of the client, used to display some information
      */
     public static AbstractView getView() {
         return view;
@@ -118,6 +118,9 @@ public class Client {
                 i = i + 2;
             }
 
+            if (!wrongInitialInput)
+                view.ifNonLocalhostAddress(params.get(address));
+
             if (params.containsKey(port)) {
                 try {
                     i = Integer.parseInt(params.get(port));
@@ -168,7 +171,7 @@ public class Client {
             response = view.askDefault();
 
             if ((response.equals("close game")))
-                return;
+                ClientSocket.closeGame();
 
             else {
                 if (response.equals("yes")) {
@@ -180,7 +183,7 @@ public class Client {
                     params = new HashMap<>();
                     response = view.insertYourParameters(address, port, graphics, params);
                     if (response.equals("close game"))
-                        return;
+                        ClientSocket.closeGame();
                 }
 
                 try {
@@ -235,14 +238,14 @@ public class Client {
 
         String response;
         String response2;
-        int i;
+        int i = 0;
         boolean j;
         Message message;
 
 
         response = view.requestAdvancedRules();
         if (response.equals("close game"))
-            return;
+            ClientSocket.closeGame();
 
         if (response.equals("yes"))
             j = true;
@@ -252,7 +255,7 @@ public class Client {
         response2 = view.requestNumPlayers();
 
         if (response2.equals("close game"))
-            return;
+            ClientSocket.closeGame();
         else
             i = Integer.parseInt(response2);
 
