@@ -30,11 +30,6 @@ public class ClientSocket implements Runnable {
     private static Message messageBuffer = null;
 
     /**
-     * Client associated to its net-features class
-     */
-    private static Client client;
-
-    /**
      * Socket used to connect
      */
     private static Socket socket;
@@ -73,11 +68,11 @@ public class ClientSocket implements Runnable {
 
         socket = new Socket(address, port);
         connectedToServer = true;
-        setInputandOutput();
+        setInputAndOutput();
     }
 
     /**
-     * @return waitObject used for synchronzize
+     * @return waitObject used for synchronize
      */
     static public Object getWaitObject() {
         return waitObject;
@@ -245,13 +240,13 @@ public class ClientSocket implements Runnable {
     /**
      * Create streams for socket
      */
-    static private void setInputandOutput() {
+    static private void setInputAndOutput() {
         setInput();
         setOutput();
     }
 
     /**
-     * @return Message received from server
+     * Message received from server
      */
     static private void readMessage() {
 

@@ -1,6 +1,5 @@
 package it.polimi.ingsw.am37.client;
 
-import java.util.HashMap;
 
 public abstract class AbstractView {
 
@@ -54,10 +53,9 @@ public abstract class AbstractView {
      * @param address  It's how address parameter is called
      * @param port     It's how port parameter is called
      * @param graphics It's how graphics parameter is called
-     * @param params   It's the HashMap containing for each parameter(key) it's value, so the current address, the current port and the current graphics type
-     * @return
+     * @return Client's decision
      */
-    public abstract String insertYourParameters(String address, String port, String graphics, HashMap<String, String> params);
+    public abstract String insertYourParameters(String address, String port, String graphics);
 
     /**
      * Method used to ask a nickname

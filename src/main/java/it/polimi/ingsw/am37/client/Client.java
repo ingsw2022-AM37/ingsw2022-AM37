@@ -28,11 +28,6 @@ public class Client {
     private static String nickname = null;
 
     /**
-     * Net-feature class associated to the client
-     */
-    private static ClientSocket clientSocket;
-
-    /**
      * It represents the state of client during a game
      */
     private static ClientStatus status;
@@ -52,6 +47,11 @@ public class Client {
     }
 
     /**
+     * HashMap with address, port and graphics chosen for the match
+     */
+    private static HashMap<String, String> params;
+
+    /**
      * Main method
      */
     public static void main(String[] args) {
@@ -63,11 +63,13 @@ public class Client {
 
 
         view = new CliView();
-        HashMap<String, String> params = new HashMap<>();
+        params = new HashMap<>();
 
-        wrongInitialInput = tryConnectionWithArgs(args, address, port, graphics, params);
+        UUID = java.util.UUID.randomUUID().toString();
 
-        tryConnectionAgain(wrongInitialInput, address, port, graphics, params);
+        wrongInitialInput = tryConnectionWithArgs(args, address, port, graphics);
+
+        tryConnectionAgain(wrongInitialInput, address, port, graphics);
 
         //preparing gui
         if (params.get(graphics).equals("gui"))
@@ -89,10 +91,9 @@ public class Client {
      * @param address  It's how we call address in first input in terminal
      * @param port     It's how we call port in first input in terminal
      * @param graphics It's how we call graphics in first input in terminal
-     * @param params   It's the HashMap with the three parameters and their value
      * @return if initial input was wrong
      */
-    static private boolean tryConnectionWithArgs(String[] args, String address, String port, String graphics, HashMap<String, String> params) {
+    static private boolean tryConnectionWithArgs(String[] args, String address, String port, String graphics) {
 
         final int expectedArguments = 6;
         int i = 0;
@@ -156,9 +157,8 @@ public class Client {
      * @param address           It's how we call address in first input in terminal
      * @param port              It's how we call port in first input in terminal
      * @param graphics          It's how we call graphics in first input in terminal
-     * @param params            It's the HashMap with the three parameters and their value
      */
-    static private void tryConnectionAgain(boolean wrongInitialInput, String address, String port, String graphics, HashMap<String, String> params) {
+    static private void tryConnectionAgain(boolean wrongInitialInput, String address, String port, String graphics) {
 
         final String defaultGraphics = "cli";
         final int defaultPort = 60000;
@@ -181,7 +181,7 @@ public class Client {
                     params.put(graphics, defaultGraphics);
                 } else {
                     params = new HashMap<>();
-                    response = view.insertYourParameters(address, port, graphics, params);
+                    response = view.insertYourParameters(address, port, graphics);
                     if (response.equals("close game"))
                         ClientSocket.closeGame();
                 }
@@ -273,5 +273,11 @@ public class Client {
         nickname = string;
     }
 
+    /**
+     * @return HashMap with values
+     */
+    static public HashMap<String, String> getParams() {
+        return params;
+    }
 
 }
