@@ -1,6 +1,5 @@
 package it.polimi.ingsw.am37.model.character;
 
-import it.polimi.ingsw.am37.model.Bag;
 import it.polimi.ingsw.am37.model.student_container.LimitedStudentsContainer;
 
 import java.util.ArrayList;
@@ -25,9 +24,8 @@ public class EffectHandler {
      * students and place inside their {@link State} on the container.
      *
      * @param effect the effect type to handle
-     * @param bag    the bag from where some effects need to extract students
      */
-    public EffectHandler(Effect effect, Bag bag) {
+    public EffectHandler(Effect effect) {
         baseEffects = new ArrayList<>(EffectDatabase.getEffects(effect));
         switch (effect) {
             case MONK, PRINCESS -> new State(new LimitedStudentsContainer(4), 0);
