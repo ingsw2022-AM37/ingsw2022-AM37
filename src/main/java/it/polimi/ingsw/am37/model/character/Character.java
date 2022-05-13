@@ -65,6 +65,13 @@ public class Character extends UpdatableObject {
         if (startPrice == currentPrice) increasePrice();
     }
 
+    /**
+     * @return the effect type associated to this character
+     */
+    public Effect getEffectType() {
+        return effectType;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
