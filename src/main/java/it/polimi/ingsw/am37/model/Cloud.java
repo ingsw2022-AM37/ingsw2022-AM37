@@ -7,6 +7,7 @@ import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
 import java.util.UUID;
 
 import static it.polimi.ingsw.am37.message.UpdatableObject.UpdatableType.CLOUD;
+import static it.polimi.ingsw.am37.message.UpdateController.Properties.P_CLOUD;
 
 /**
  * This class represent the Clouds in the game.
@@ -46,7 +47,9 @@ public class Cloud extends UpdatableObject {
      * @param students Students used to fill the Cloud.
      */
     public void addStudents(StudentsContainer students) {
+        StudentsContainer oldContainer = studentsOnCloud.copy();
         studentsOnCloud.uniteContainers(students);
+        support.firePropertyChange(P_CLOUD.toString(), oldContainer, studentsOnCloud);
     }
 
     /**
@@ -55,6 +58,7 @@ public class Cloud extends UpdatableObject {
     public LimitedStudentsContainer removeStudents() {
         LimitedStudentsContainer temp = studentsOnCloud;
         studentsOnCloud = new LimitedStudentsContainer(isFor2 ? studentsPerCloud2Players : studentsPerCloud3Players);
+        support.firePropertyChange(P_CLOUD.toString(), temp, studentsOnCloud);
         return temp;
     }
 
@@ -86,4 +90,13 @@ public class Cloud extends UpdatableObject {
     public String getCloudId() {
         return cloudId;
     }
+
+    /**
+     * Wrap of {@link StudentsContainer#getStudentsAsString()} to be accessible without exposing the container object
+     * @return a string representation of students on this cloud
+     */
+    public String getStudentsAsString() {
+        return studentsOnCloud.getStudentsAsString();
+    }
+
 }

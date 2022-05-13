@@ -1,5 +1,7 @@
 package it.polimi.ingsw.am37.message;
 
+import java.beans.PropertyChangeSupport;
+
 /**
  * This class represents an object of the model that could be modified by an action. Is used to limitate the visibility
  * of the model, because only object that extends this class could be exported in {@link UpdateMessage} thus visible to
@@ -12,6 +14,8 @@ public class UpdatableObject {
      */
     final UpdatableType type;
 
+    protected final PropertyChangeSupport support;
+
     /**
      * Default constructor for UpdatableObject
      *
@@ -19,6 +23,7 @@ public class UpdatableObject {
      */
     public UpdatableObject(UpdatableType type) {
         this.type = type;
+        this.support = new PropertyChangeSupport(this);
     }
 
     /**
@@ -42,5 +47,9 @@ public class UpdatableObject {
         public String getLabel() {
             return label;
         }
+    }
+
+    public PropertyChangeSupport getSupport() {
+        return support;
     }
 }

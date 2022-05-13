@@ -5,6 +5,7 @@ import it.polimi.ingsw.am37.model.student_container.FixedUnlimitedStudentsContai
 import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
 
 import static it.polimi.ingsw.am37.message.UpdatableObject.UpdatableType.ISLAND;
+import static it.polimi.ingsw.am37.message.UpdateController.Properties.*;
 
 /**
  * At the beginning of the game there are twelve islands, they can have students on them and tower which represents that
@@ -58,14 +59,18 @@ public class Island extends UpdatableObject {
      * @param num Number of entry Tile to add
      */
     public void addNoEntryTile(int num) {
+        int oldValue = this.NoEntryTile;
         this.NoEntryTile = this.NoEntryTile + num;
+        support.firePropertyChange(P_ISLAND_NOENTRYTILE.toString(), oldValue, this.NoEntryTile);
     }
 
     /**
      * It's used to remove a noEntryTile
      */
     public void removeNoEntryTile() {
+        int oldValue = this.NoEntryTile;
         this.NoEntryTile = this.NoEntryTile - 1;
+        support.firePropertyChange(P_ISLAND_NOENTRYTILE.toString(), oldValue, this.NoEntryTile);
     }
 
     /**
@@ -79,7 +84,9 @@ public class Island extends UpdatableObject {
      * @param color It's the color of tower needed to be imposed to the island
      */
     public void setTower(TowerColor color) {
+        TowerColor oldColor = tower;
         this.tower = color;
+        support.firePropertyChange(P_ISLAND_TOWER.toString(), oldColor, this.tower);
     }
 
     /**
@@ -93,7 +100,9 @@ public class Island extends UpdatableObject {
      * @param cont It's the array of students which will be added to the island's one
      */
     public void addStudents(StudentsContainer cont) {
+        FixedUnlimitedStudentsContainer oldContainer = (FixedUnlimitedStudentsContainer) this.studentsOnIsland.copy();
         this.studentsOnIsland.uniteContainers(cont);
+        this.support.firePropertyChange(P_ISLAND_STUDENTS.toString(), oldContainer, this.studentsOnIsland);
     }
 
     /**
@@ -114,7 +123,9 @@ public class Island extends UpdatableObject {
      * @param num The number of islands which form the bigger one
      */
     public void setNumIslands(int num) {
+        int oldValue = this.numIslandsUnited;
         this.numIslandsUnited = num;
+        support.firePropertyChange(P_ISLAND_DIMENSION.toString(), oldValue, this.numIslandsUnited);
     }
 
     /**
