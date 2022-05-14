@@ -115,7 +115,7 @@ public class ClientHandler implements Runnable {
 
         Message message;
 
-        setInputandOutput();
+        setInputAndOutput();
 
         while (connectedToClient) {
 
@@ -211,7 +211,7 @@ public class ClientHandler implements Runnable {
     /**
      * Create streams for clientHandler
      */
-    private void setInputandOutput() {
+    private void setInputAndOutput() {
         setInput();
         setOutput();
     }

@@ -80,10 +80,9 @@ public class GuiView extends AbstractView {
      * @param address  It's how address parameter is called
      * @param port     It's how port parameter is called
      * @param graphics It's how graphics parameter is called
-     * @param params   It's the HashMap containing for each parameter(key) it's value, so the current address, the current port and the current graphics type
-     * @return
+     * @return Client's decision
      */
-    public String insertYourParameters(String address, String port, String graphics, HashMap<String, String> params) {
+    public String insertYourParameters(String address, String port, String graphics) {
         Scanner scanner = new Scanner(System.in);
 
         while (true) {
@@ -92,14 +91,14 @@ public class GuiView extends AbstractView {
             if (s.equals("close game"))
                 return s;
             ifNonLocalhostAddress(s);
-            params.put(address, s);
+            Client.getParams().put(address, s);
             System.out.println(" Write server's port or \"close game\": \n");
             s = scanner.nextLine().toLowerCase().trim().replaceAll(" +", " ");
             if (s.equals("close game"))
                 return s;
             try {
                 int num = Integer.parseInt(s);
-                params.put(port, Integer.toString(num));
+                Client.getParams().put(port, Integer.toString(num));
             } catch (NumberFormatException e) {
                 wrongInsertPort();
                 continue;
@@ -107,9 +106,9 @@ public class GuiView extends AbstractView {
             System.out.println(" Write \"cli\" or \"gui\" or \"close game\": \n");
             s = scanner.nextLine().toLowerCase().trim().replaceAll(" +", " ");
             if (s.equals("cli"))
-                params.put(graphics, "cli");
+                Client.getParams().put(graphics, "cli");
             else if (s.equals("gui"))
-                params.put(graphics, "gui");
+                Client.getParams().put(graphics, "gui");
             else if (s.equals("close game"))
                 return s;
             else {
