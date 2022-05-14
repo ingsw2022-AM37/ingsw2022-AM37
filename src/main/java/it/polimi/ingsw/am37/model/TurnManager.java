@@ -7,7 +7,12 @@ import it.polimi.ingsw.am37.model.student_container.LimitedStudentsContainer;
 import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
 
 import javax.management.InstanceAlreadyExistsException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Random;
+
+import static it.polimi.ingsw.am37.message.UpdateController.Properties.P_BOARD_DINING;
 
 public class TurnManager {
 
@@ -73,7 +78,7 @@ public class TurnManager {
      * @param container The students added to current player's dining room
      */
     public void addStudentsToDining(StudentsContainer container) {
-
+        StudentsContainer oldValue = currentPlayer.getBoard().getDiningRoom().copy();
         currentPlayer.getBoard().getDiningRoom().uniteContainers(container);
 
         if (coinsEnabled) {
@@ -86,6 +91,9 @@ public class TurnManager {
                 checkProfessors(color);
             }
         }
+        currentPlayer.getBoard()
+                .getSupport()
+                .firePropertyChange(P_BOARD_DINING.toString(), oldValue, currentPlayer.getBoard().getDiningRoom());
     }
 
     /**
@@ -95,7 +103,7 @@ public class TurnManager {
      * @throws NoProfChangeException When there is a draw situation
      */
     public void removeStudentsFromDining(StudentsContainer container) throws NoProfChangeException {
-
+        StudentsContainer oldValue = currentPlayer.getBoard().getDiningRoom().copy();
         HashMap<Player, Integer> playerPower = new HashMap<>();
         boolean[] controlledProf;
         Player exProfOwner;
@@ -142,14 +150,20 @@ public class TurnManager {
                         playerMax2 = player;
                     }
                 }
-                if (max1 == max2 && max1 > playerPower.get(currentProfOwner) && playerMax1.getBoard().getTowers().getCurrentTower() != currentProfOwner.getBoard().getTowers().getCurrentTower() && playerMax2.getBoard().getTowers().getCurrentTower() != currentProfOwner.getBoard().getTowers().getCurrentTower())
+                if (max1 == max2 && max1 > playerPower.get(currentProfOwner) &&
+                        playerMax1.getBoard().getTowers().getCurrentTower() !=
+                                currentProfOwner.getBoard().getTowers().getCurrentTower() &&
+                        playerMax2.getBoard().getTowers().getCurrentTower() !=
+                                currentProfOwner.getBoard().getTowers().getCurrentTower())
                     throw new NoProfChangeException();
 
                 numStudentsControlling = playerPower.get(currentProfOwner);
                 exProfOwner = currentProfOwner;
 
                 for (Player player : players)
-                    if (playerPower.get(player) > numStudentsControlling && player.getBoard().getTowers().getCurrentTower() != currentProfOwner.getBoard().getTowers().getCurrentTower()) {
+                    if (playerPower.get(player) > numStudentsControlling &&
+                            player.getBoard().getTowers().getCurrentTower() !=
+                                    currentProfOwner.getBoard().getTowers().getCurrentTower()) {
                         currentProfOwner = player;
                         numStudentsControlling = playerPower.get(player);
                         switchProf = true;
@@ -161,6 +175,9 @@ public class TurnManager {
                 }
             }
         }
+        currentPlayer.getBoard()
+                .getSupport()
+                .firePropertyChange(P_BOARD_DINING.toString(), oldValue, currentPlayer.getBoard().getDiningRoom());
     }
 
     /**
@@ -201,10 +218,10 @@ public class TurnManager {
         this.currentPlayer = getPlayers().get(random.nextInt(getPlayers().size()));
         int counter = 0;
         i = players.indexOf(currentPlayer);
-        while (counter <= numOfPlayers){
+        while (counter <= numOfPlayers) {
             this.orderPlayed.add(players.get(i));
             counter++;
-            i = (i+1)%numOfPlayers;
+            i = (i + 1) % numOfPlayers;
         }
         this.orderPlayed.addAll(players);
     }
@@ -272,7 +289,8 @@ public class TurnManager {
     }
 
     /**
-     * This method is used to check after adding students to dining room if it's possible to take control of a professor
+     * This method is used to check after adding students to dining room if it's possible to take control of a
+     * professor
      *
      * @param color Faction of students you want to check professors
      */
@@ -291,13 +309,21 @@ public class TurnManager {
             if (!currentPlayer.getBoard().getProfTable()[color.getIndex()]) {
                 for (Player player : players) {
                     if (getProfWithDraw) {
-                        if (currentPlayer.getBoard().getDiningRoom().getByColor(color) >= player.getBoard().getDiningRoom().getByColor(color) && player.getBoard().getProfTable()[color.getIndex()] && currentPlayer.getBoard().getTowers().getCurrentTower() != player.getBoard().getTowers().getCurrentTower()) {
+                        if (currentPlayer.getBoard().getDiningRoom().getByColor(color) >=
+                                player.getBoard().getDiningRoom().getByColor(color) &&
+                                player.getBoard().getProfTable()[color.getIndex()] &&
+                                currentPlayer.getBoard().getTowers().getCurrentTower() !=
+                                        player.getBoard().getTowers().getCurrentTower()) {
                             exControllingStudents = player;
                             stolenProf.put(color, player);
                             switchProf = true;
                         }
                     } else {
-                        if (currentPlayer.getBoard().getDiningRoom().getByColor(color) > player.getBoard().getDiningRoom().getByColor(color) && player.getBoard().getProfTable()[color.getIndex()] && currentPlayer.getBoard().getTowers().getCurrentTower() != player.getBoard().getTowers().getCurrentTower()) {
+                        if (currentPlayer.getBoard().getDiningRoom().getByColor(color) >
+                                player.getBoard().getDiningRoom().getByColor(color) &&
+                                player.getBoard().getProfTable()[color.getIndex()] &&
+                                currentPlayer.getBoard().getTowers().getCurrentTower() !=
+                                        player.getBoard().getTowers().getCurrentTower()) {
                             exControllingStudents = player;
                             switchProf = true;
                         }
@@ -315,15 +341,20 @@ public class TurnManager {
      * Checks whether the given Assistant can be played and if so it plays it
      *
      * @param assistant the Assistant that the current Player wants to play
-     * @throws AssistantImpossibleToPlay
+     * @throws AssistantImpossibleToPlay    when an assistant couldn't be played
      */
     public void playAssistant(Assistant assistant) throws AssistantImpossibleToPlay {
         for (Player p : players) {
             if (!p.equals(currentPlayer)) {
                 if (p.getLastAssistantPlayed() == assistant)
-                    //if in the current player's deck there is another playable card different from another player's card
-                    if (currentPlayer.getAssistantsDeck().keySet().stream().anyMatch(cardValue -> (assistant.getCardValue() != cardValue)))
-                        throw new AssistantImpossibleToPlay("Can't play an Assistant already played by another Player in the same turn, play an another one");
+                    //if in the current player's deck there is another playable card different from another player's
+                    // card
+                    if (currentPlayer.getAssistantsDeck()
+                            .keySet()
+                            .stream()
+                            .anyMatch(cardValue -> (assistant.getCardValue() != cardValue)))
+                        throw new AssistantImpossibleToPlay("Can't play an Assistant already played by another Player" +
+                                " in the same turn, play an another one");
 
             }
         }

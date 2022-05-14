@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.UUID;
 
 import static it.polimi.ingsw.am37.message.UpdatableObject.UpdatableType.PLAYER;
+import static it.polimi.ingsw.am37.message.UpdateController.Properties.*;
 
 /**
  * This class represents the in-game player, it does not represent the person playing the game, therefore it will not
@@ -65,6 +66,7 @@ public class Player extends UpdatableObject {
      */
     public void receiveCoin() {
         this.numberOfCoins++;
+        support.firePropertyChange(P_PLAYER_COINS.toString(), null, null );
     }
 
     /**
@@ -78,6 +80,7 @@ public class Player extends UpdatableObject {
             throw new InvalidParameterException("This Assistant can't be played because it is not part of your deck.");
         this.assistantsDeck.remove(assistantToBePlayed.getCardValue());
         this.lastAssistantPlayed = assistantToBePlayed;
+        this.support.firePropertyChange(P_PLAYER_LASTASSISTANT.toString(), null, this.lastAssistantPlayed);
     }
 
     /**
@@ -92,6 +95,7 @@ public class Player extends UpdatableObject {
             throw new IllegalArgumentException("Can't play the character, you don't have enough coins");
         this.numberOfCoins -= character.getCurrentPrice();
         character.useEffect(option);
+        this.support.firePropertyChange(P_PLAYER_CHARACTERUSED.toString(), null, character);
     }
 
     /**
