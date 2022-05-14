@@ -28,7 +28,8 @@ public class UpdateController implements PropertyChangeListener {
         P_BOARD_ENTRANCE("board-entrance"),
         P_BOARD_DINING("board-dining"),
         P_BOARD_TOWER("board-tower"),
-        P_BOARD_PROF("board-professor");
+        P_BOARD_PROF("board-professor"),
+        P_CHARACTER_PLAYED("character-played");
 
         Properties(String label) {
             this.label = label;
@@ -85,11 +86,11 @@ public class UpdateController implements PropertyChangeListener {
             }
             case P_PLAYER_LASTASSISTANT -> {
                 Player player = (Player) updatedObject;
-                updateList.add("Player " + player.getPlayerId() + ": play assistant " + evt.getNewValue());
+                updateList.add("Player " + player.getPlayerId() + ": played assistant " + evt.getNewValue());
             }
             case P_PLAYER_CHARACTERUSED -> {
                 Player player = (Player) updatedObject;
-                updateList.add("Player " + player.getPlayerId() + ": play character " +
+                updateList.add("Player " + player.getPlayerId() + ": played character " +
                         ((Character) evt.getNewValue()).getEffectType());
             }
             case P_BOARD_ENTRANCE -> {
@@ -112,7 +113,7 @@ public class UpdateController implements PropertyChangeListener {
                 else string.append(" lost prof of color ").append(((FactionColor) evt.getOldValue()).name());
                 updateList.add(string.toString());
             }
-            case P_PLAYER_COINS, P_BOARD_TOWER -> {
+            case P_PLAYER_COINS, P_BOARD_TOWER, P_CHARACTER_PLAYED -> {
             }
             default -> System.err.println("Property change unexpected: " + evt.getPropertyName());
         }

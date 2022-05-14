@@ -6,6 +6,7 @@ import it.polimi.ingsw.am37.model.Bag;
 import java.util.Objects;
 
 import static it.polimi.ingsw.am37.message.UpdatableObject.UpdatableType.CHARACTER;
+import static it.polimi.ingsw.am37.message.UpdateController.Properties.P_CHARACTER_PLAYED;
 
 /**
  * This class represents the Character in the game. They have special effects to modify and improve the game. They are
@@ -63,6 +64,7 @@ public class Character extends UpdatableObject {
     public void useEffect(Option option) {
         effectHandler.useEffect(option);
         if (startPrice == currentPrice) increasePrice();
+        support.firePropertyChange(P_CHARACTER_PLAYED.toString(), null, null);
     }
 
     /**

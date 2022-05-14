@@ -3,6 +3,7 @@ package it.polimi.ingsw.am37.message;
 import it.polimi.ingsw.am37.model.*;
 import it.polimi.ingsw.am37.model.character.Character;
 import it.polimi.ingsw.am37.model.character.Effect;
+import it.polimi.ingsw.am37.model.character.EffectHandler;
 import it.polimi.ingsw.am37.model.character.Option;
 import it.polimi.ingsw.am37.model.student_container.FixedUnlimitedStudentsContainer;
 import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
@@ -11,6 +12,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import javax.management.InstanceAlreadyExistsException;
+
+import java.lang.reflect.Field;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
@@ -72,7 +75,7 @@ public class UpdatableChangeTest {
         Board board = new Board(2, TowerColor.BLACK, false, player);
         player.setBoard(board);
         UpdateController controller = new UpdateController();
-        board.support.addPropertyChangeListener(controller);
+        board.getSupport().addPropertyChangeListener(controller);
         board.addProf(FactionColor.BLUE);
         board.removeProf(FactionColor.BLUE);
         board.removeTowers(1);
@@ -83,5 +86,25 @@ public class UpdatableChangeTest {
         board.removeStudentsFromEntrance(container);
         assertEquals(4, controller.getUpdateList().size());
         assertEquals(1, controller.getUpdatedObjects().size());
+    }
+
+    @Test
+    @DisplayName("Test character firing property")
+    void testCharacterFireProperty () throws NoSuchFieldException, IllegalAccessException {
+        UpdateController controller = new UpdateController();
+        Character character = new Character(Effect.MONK.getInitialPrice(), Effect.MONK, new Bag());
+        character.getSupport().addPropertyChangeListener(controller);
+        Field field = character.getClass().getDeclaredField("effectHandler");
+        field.setAccessible(true);
+        field.set(character, mock(EffectHandler.class));
+        character.useEffect(mock(Option.class));
+        assertEquals(0, controller.getUpdateList().size());
+        Player player = new Player();
+        player.getSupport().addPropertyChangeListener(controller);
+        player.receiveCoin();
+        player.receiveCoin();
+        player.useCharacter(character, mock(Option.class));
+        assertEquals(1, controller.getUpdateList().size());
+        assertEquals(2, controller.getUpdatedObjects().size());
     }
 }
