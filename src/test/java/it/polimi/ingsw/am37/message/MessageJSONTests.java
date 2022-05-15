@@ -115,13 +115,14 @@ public class MessageJSONTests {
     @Test
     @DisplayName("Serialization and deserialization of NextTurnMessage")
     void nextTurnMessageJSONTest() {
-        NextTurnMessage nextTurnMessage = new NextTurnMessage("110011", "110012");
+        NextTurnMessage nextTurnMessage = new NextTurnMessage("110011", "110012", "alexis011");
         String json = gson.toJson(nextTurnMessage);
         assertNotNull(json);
         Message newMessage = gson.fromJson(json, Message.class);
         NextTurnMessage newNextTurnMessage = (NextTurnMessage) newMessage;
         assertEquals(nextTurnMessage.UUID, newNextTurnMessage.UUID);
         assertEquals("110012", newNextTurnMessage.getNextPlayerUUID());
+        assertEquals("alexis011", newNextTurnMessage.getNextPlayerNickname());
     }
 
     @Test
@@ -211,5 +212,29 @@ public class MessageJSONTests {
         assertEquals(3, ((Island) updateMessage.getUpdatedObjects()
                 .get(UpdatableObject.UpdatableType.ISLAND.getLabel())
                 .get(0)).getIslandId());
+    }
+
+    @Test
+    @DisplayName("Serialization and deserialization of StartGameMessage")
+    void startGameMessageJSONTest() {
+        StartGameMessage startGameMessage = new StartGameMessage("110011");
+        String json = gson.toJson(startGameMessage);
+        assertNotNull(json);
+        Message newMessage = gson.fromJson(json, Message.class);
+        StartGameMessage newStartGameMessage = (StartGameMessage) newMessage;
+        assertEquals(startGameMessage.UUID, newStartGameMessage.UUID);
+    }
+
+    @Test
+    @DisplayName("Serialization and deserialization of EndGameMessage")
+    void endGameMessageJSONTest() {
+        EndGameMessage endGameMessage = new EndGameMessage("110011", "11012", "axios011");
+        String json = gson.toJson(endGameMessage);
+        assertNotNull(json);
+        Message newMessage = gson.fromJson(json, Message.class);
+        EndGameMessage newEndGameMessage = (EndGameMessage) newMessage;
+        assertEquals(endGameMessage.UUID, newEndGameMessage.UUID);
+        assertEquals("11012", endGameMessage.getWinnerUID());
+        assertEquals("axios011", endGameMessage.getWinnerNickname());
     }
 }

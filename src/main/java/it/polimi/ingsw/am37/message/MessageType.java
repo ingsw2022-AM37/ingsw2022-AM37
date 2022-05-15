@@ -18,7 +18,9 @@ public enum MessageType {
     STUDENTS_TO_ISLAND("StudentsToIslandMessage"),
     CHOOSE_CLOUD("ChooseCloudMessage"),
     CONFIRM("ConfirmMessage"),
-    PING("PingMessage");
+    PING("PingMessage"),
+    START_GAME("StartGameMessage"),
+    END_GAME("EndGameMessage");
 
     private final String className;
 

@@ -4,7 +4,7 @@ public class PingMessage extends Message {
     /**
      * The fromJSON receiver side constructor where all data are accessible
      *
-     * @param UUID the default constructor
+     * @param UUID the client identifier
      */
     public PingMessage(String UUID) {
         super(UUID, MessageType.PING);

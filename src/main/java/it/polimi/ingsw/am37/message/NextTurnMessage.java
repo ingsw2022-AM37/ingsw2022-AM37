@@ -12,25 +12,34 @@ public class NextTurnMessage extends Message {
     private final String nextPlayerUUID;
 
     /**
+     * The nickname of the next player that has to play
+     */
+    private final String nextPlayerNickname;
+
+    /**
      * The fromJSON receiver side constructor where all data are accessible
      *
-     * @param UUID           the default constructor
-     * @param nextPlayerUUID the next player's UUID
+     * @param UUID               the client uuid
+     * @param nextPlayerUUID     the next player's UUID
+     * @param nextPlayerNickname the next player's nickname
      */
-    protected NextTurnMessage(String UUID, String nextPlayerUUID) {
+    protected NextTurnMessage(String UUID, String nextPlayerUUID, String nextPlayerNickname) {
         super(UUID, MessageType.NEXT_TURN);
         this.nextPlayerUUID = nextPlayerUUID;
+        this.nextPlayerNickname = nextPlayerNickname;
     }
 
     /**
      * The default sender side constructor for message preparing. UUID must be set using {@link Message#setUUID(String)}
      * before sending it
      *
-     * @param nextPlayerUUID the next player's UUID
+     * @param nextPlayerUUID     the next player's UUID
+     * @param nextPlayerNickname the next player's nickname
      */
-    protected NextTurnMessage(String nextPlayerUUID) {
+    protected NextTurnMessage(String nextPlayerUUID, String nextPlayerNickname) {
         super(MessageType.NEXT_TURN);
         this.nextPlayerUUID = nextPlayerUUID;
+        this.nextPlayerNickname = nextPlayerNickname;
     }
 
     /**
@@ -38,5 +47,12 @@ public class NextTurnMessage extends Message {
      */
     public String getNextPlayerUUID() {
         return nextPlayerUUID;
+    }
+
+    /**
+     * @return the nickname of the next player
+     */
+    public String getNextPlayerNickname() {
+        return nextPlayerNickname;
     }
 }

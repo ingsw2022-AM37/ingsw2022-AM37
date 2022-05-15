@@ -15,7 +15,7 @@ public class ErrorMessage extends Message {
     /**
      * The fromJSON receiver side constructor where all data are accessible
      *
-     * @param UUID the default constructor
+     * @param UUID the client identifier
      */
     public ErrorMessage(String UUID, String message) {
         super(UUID, MessageType.ERROR);

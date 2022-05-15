@@ -18,7 +18,7 @@ public class ChooseTeamMessage extends Message {
     /**
      * The fromJSON receiver side constructor where all data are accessible
      *
-     * @param UUID the default constructor
+     * @param UUID the client identifier
      * @param team the desired team
      */
     public ChooseTeamMessage(String UUID, WizardTeam team) {

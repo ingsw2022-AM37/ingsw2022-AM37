@@ -17,7 +17,7 @@ public class LobbyRequestMessage extends Message {
     /**
      * The fromJSON receiver side constructor where all data are accessible
      *
-     * @param UUID the default constructor
+     * @param UUID the client identifier
      */
     public LobbyRequestMessage(String UUID, int desiredSize, boolean desiredAdvanceMode) {
         super(UUID, MessageType.LOBBY_REQUEST);

@@ -18,7 +18,7 @@ public class LoginMessage extends Message {
     /**
      * The fromJSON receiver side constructor where all data are accessible
      *
-     * @param UUID the default constructor
+     * @param UUID the client identifier
      */
     public LoginMessage(String UUID, String nickname) {
         super(UUID, MessageType.LOGIN);

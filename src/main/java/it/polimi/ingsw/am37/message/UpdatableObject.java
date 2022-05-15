@@ -14,7 +14,7 @@ public class UpdatableObject {
      */
     final UpdatableType type;
 
-    protected final PropertyChangeSupport support;
+    protected final transient PropertyChangeSupport support;
 
     /**
      * Default constructor for UpdatableObject
