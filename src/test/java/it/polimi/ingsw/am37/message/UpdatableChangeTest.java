@@ -92,7 +92,7 @@ public class UpdatableChangeTest {
     @DisplayName("Test character firing property")
     void testCharacterFireProperty () throws NoSuchFieldException, IllegalAccessException {
         UpdateController controller = new UpdateController();
-        Character character = new Character(Effect.MONK.getInitialPrice(), Effect.MONK, new Bag());
+        Character character = new Character(Effect.MONK.getInitialPrice(), Effect.MONK);
         character.getSupport().addPropertyChangeListener(controller);
         Field field = character.getClass().getDeclaredField("effectHandler");
         field.setAccessible(true);

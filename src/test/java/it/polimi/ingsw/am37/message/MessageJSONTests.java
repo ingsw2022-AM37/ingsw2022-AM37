@@ -234,7 +234,7 @@ public class MessageJSONTests {
         Message newMessage = gson.fromJson(json, Message.class);
         EndGameMessage newEndGameMessage = (EndGameMessage) newMessage;
         assertEquals(endGameMessage.UUID, newEndGameMessage.UUID);
-        assertEquals("11012", endGameMessage.getWinnerUID());
+        assertEquals("11012", endGameMessage.getWinnerUUID());
         assertEquals("axios011", endGameMessage.getWinnerNickname());
     }
 }
