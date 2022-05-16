@@ -4,8 +4,8 @@ import it.polimi.ingsw.am37.controller.Lobby;
 import it.polimi.ingsw.am37.message.*;
 import it.polimi.ingsw.am37.network.MessageReceiver;
 import it.polimi.ingsw.am37.network.exceptions.InternetException;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -48,9 +48,9 @@ public class Server implements MessageReceiver {
     private static ArrayList<Lobby> activeLobbies;
 
     /**
-     * List to keep track of the players' nicknames.
+     * Map to keep track of the players' nicknames via UUID.
      */
-    private static ArrayList<String> nicknames;
+    private static HashMap<String, String> nicknames;
 
     /**
      * Default Constructor
@@ -266,9 +266,9 @@ public class Server implements MessageReceiver {
         Message response;
         switch (message.getMessageType()) {
             case LOGIN:
-                if (nicknames.contains(((LoginMessage) message).getNickname())) {
+                if (nicknames.containsValue(((LoginMessage) message).getNickname())) {
                     clientHandlerMap.put(message.getUUID(), ch);
-                    nicknames.add(((LoginMessage) message).getNickname());
+                    nicknames.put(message.getUUID(), ((LoginMessage) message).getNickname());
                     response = new ConfirmMessage(message.getUUID());
                     sendMessage(response);
                 } else {
@@ -282,7 +282,7 @@ public class Server implements MessageReceiver {
                 boolean lobbyFound = false;
                 for (Lobby lobby : activeLobbies) {
                     if (!lobby.isGameReady() && lobby.isAdvancedMode() == ((LobbyRequestMessage) message).isDesiredAdvanceMode() && lobby.getLobbySize() == ((LobbyRequestMessage) message).getDesiredSize()) {
-                        lobby.addPlayerInLobby(message.getUUID(), ch);
+                        lobby.addPlayerInLobby(message.getUUID(), ch, nicknames.get(message.getUUID()));
                         ch.setMessageReceiver(lobby);
                         lobbyFound = true;
                         break;
@@ -293,7 +293,7 @@ public class Server implements MessageReceiver {
                             ((LobbyRequestMessage) message).isDesiredAdvanceMode());
                     new Thread(lobby).start();
                     activeLobbies.add(lobby);
-                    lobby.addPlayerInLobby(message.getUUID(), ch);
+                    lobby.addPlayerInLobby(message.getUUID(), ch, nicknames.get(message.getUUID()));
                     ch.setMessageReceiver(lobby);
                 }
                 break;
