@@ -23,7 +23,7 @@ public class NextTurnMessage extends Message {
      * @param nextPlayerUUID     the next player's UUID
      * @param nextPlayerNickname the next player's nickname
      */
-    protected NextTurnMessage(String UUID, String nextPlayerUUID, String nextPlayerNickname) {
+    public NextTurnMessage(String UUID, String nextPlayerUUID, String nextPlayerNickname) {
         super(UUID, MessageType.NEXT_TURN);
         this.nextPlayerUUID = nextPlayerUUID;
         this.nextPlayerNickname = nextPlayerNickname;
@@ -36,7 +36,7 @@ public class NextTurnMessage extends Message {
      * @param nextPlayerUUID     the next player's UUID
      * @param nextPlayerNickname the next player's nickname
      */
-    protected NextTurnMessage(String nextPlayerUUID, String nextPlayerNickname) {
+    public NextTurnMessage(String nextPlayerUUID, String nextPlayerNickname) {
         super(MessageType.NEXT_TURN);
         this.nextPlayerUUID = nextPlayerUUID;
         this.nextPlayerNickname = nextPlayerNickname;

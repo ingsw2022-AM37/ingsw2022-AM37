@@ -1,7 +1,6 @@
 package it.polimi.ingsw.am37.model.character;
 
 import it.polimi.ingsw.am37.message.UpdatableObject;
-import it.polimi.ingsw.am37.model.Bag;
 
 import java.util.Objects;
 
@@ -36,12 +35,12 @@ public class Character extends UpdatableObject {
     /**
      * Default constructor
      */
-    public Character(int startPrice, Effect effectType, Bag bag) {
+    public Character(int startPrice, Effect effectType) {
         super(CHARACTER);
         this.startPrice = startPrice;
         this.currentPrice = startPrice;
         this.effectType = effectType;
-        this.effectHandler = new EffectHandler(effectType, bag);
+        this.effectHandler = new EffectHandler(effectType);
     }
 
     /**

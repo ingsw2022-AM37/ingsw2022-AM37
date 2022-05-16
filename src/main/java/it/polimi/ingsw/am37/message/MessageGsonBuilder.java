@@ -1,10 +1,9 @@
 package it.polimi.ingsw.am37.message;
 
-import com.google.gson.*;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializer;
 import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
 import it.polimi.ingsw.am37.model.student_container.UnlimitedStudentsContainer;
-
-import java.lang.reflect.Type;
 
 /**
  * Personalized builder of google Gson object to enable the polymorphic serialization and deserialization of messages.

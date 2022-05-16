@@ -1,6 +1,5 @@
 package it.polimi.ingsw.am37.model.character;
 
-import it.polimi.ingsw.am37.model.FactionColor;
 import it.polimi.ingsw.am37.model.student_container.LimitedStudentsContainer;
 import it.polimi.ingsw.am37.model.student_container.UnlimitedStudentsContainer;
 

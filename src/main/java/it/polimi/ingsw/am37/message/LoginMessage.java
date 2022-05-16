@@ -1,7 +1,5 @@
 package it.polimi.ingsw.am37.message;
 
-import java.util.HashMap;
-
 /**
  * This is a message sent by the client when try to log in to the server. This message carry the user desired nickname.
  * The server must reply with a {@link ErrorMessage} when the nickname is already taken or with {@link ConfirmMessage}

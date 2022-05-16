@@ -19,6 +19,8 @@ public enum MessageType {
     CHOOSE_CLOUD("ChooseCloudMessage"),
     CONFIRM("ConfirmMessage"),
     PING("PingMessage"),
+
+    PLANNING_PHASE("PlanningPhaseMessage"),
     START_GAME("StartGameMessage"),
     END_GAME("EndGameMessage"),
     PLANNING_PHASE("PlanningPhaseMessage");

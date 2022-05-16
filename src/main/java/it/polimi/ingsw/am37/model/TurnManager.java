@@ -104,7 +104,7 @@ public class TurnManager {
      */
     public void removeStudentsFromDining(StudentsContainer container) throws NoProfChangeException {
         StudentsContainer oldValue = currentPlayer.getBoard().getDiningRoom().copy();
-        HashMap<Player, Integer> playerPower = new HashMap<>();
+        HashMap<Player, Integer> playerPower;
         boolean[] controlledProf;
         Player exProfOwner;
         int boolToInt;
@@ -116,10 +116,9 @@ public class TurnManager {
         Player playerMax2;
         Player currentProfOwner;
 
-
         currentPlayer.getBoard().getDiningRoom().removeContainer(container);
-        if (coinsEnabled) currentPlayer.getBoard().checkCoins(currentPlayer.getBoard().getDiningRoom());
-
+        if (coinsEnabled)
+            currentPlayer.getBoard().checkCoins(currentPlayer.getBoard().getDiningRoom());
 
         for (FactionColor color : FactionColor.values()) {
             if (container.getByColor(color) > 0) {
@@ -130,7 +129,6 @@ public class TurnManager {
                 playerMax1 = null;
                 playerMax2 = null;
                 currentProfOwner = null;
-
                 for (Player player : players) {
                     controlledProf = player.getBoard().getProfTable();
                     boolToInt = player.getBoard().getDiningRoom().getByColor(color);
@@ -255,6 +253,13 @@ public class TurnManager {
     }
 
     /**
+     * @return the order that the players will have in this round.
+     */
+    public ArrayList<Player> getOrderPlayed() {
+        return orderPlayed;
+    }
+
+    /**
      * Sets the flag to conquer professors even if you have same the number of students of your opponent
      */
     public void setProfWithDraw() {
@@ -360,6 +365,7 @@ public class TurnManager {
         }
         useAssistant(assistant);
         this.nextTurnPlayer.put(currentPlayer, assistant);
+        //FIXME: questo setta un nuovo current player, corretto farlo qua?
         if (orderPlayed.indexOf(currentPlayer) != orderPlayed.size())
             setCurrentPlayer(orderPlayed.get(orderPlayed.indexOf(currentPlayer) + 1));
 
@@ -377,11 +383,11 @@ public class TurnManager {
     }
 
     /**
-     * last method called before the turn ends
+     * last method called before the turn ends, resets the list of Player that have to play and sets the new current Player
      */
     public void nextTurn() {
         resetFlags();
-        //orderPlayed.clear();
+        orderPlayed.clear();
         this.orderPlayed.addAll(this.nextTurnPlayer.keySet().stream().sorted(
                 new Comparator<>() {
                     /**
@@ -394,9 +400,8 @@ public class TurnManager {
                      */
                     @Override
                     public int compare(Player p1, Player p2) {
-                        if ((nextTurnPlayer.get(p1).getCardValue() - nextTurnPlayer.get(p2).getCardValue()) == 0) {
+                        if ((nextTurnPlayer.get(p1).getCardValue() - nextTurnPlayer.get(p2).getCardValue()) == 0)
                             return (orderPlayed.indexOf(p1) < orderPlayed.indexOf(p2)) ? -1 : 1;
-                        }
                         return nextTurnPlayer.get(p1).getCardValue() - nextTurnPlayer.get(p2).getCardValue();
                     }
                 }).toList());

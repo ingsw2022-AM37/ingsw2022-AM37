@@ -162,6 +162,13 @@ public class Player extends UpdatableObject {
     }
 
     /**
+     * @return the coins that the Player has.
+     */
+    public int getNumberOfCoins() {
+        return numberOfCoins;
+    }
+
+    /**
      * @return the team associated to this player deck
      */
     public WizardTeam getTeam() {

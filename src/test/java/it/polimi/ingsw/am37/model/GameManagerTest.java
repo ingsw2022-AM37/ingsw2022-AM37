@@ -3,9 +3,8 @@ package it.polimi.ingsw.am37.model;
 import it.polimi.ingsw.am37.model.character.Character;
 import it.polimi.ingsw.am37.model.character.Option;
 import it.polimi.ingsw.am37.model.character.OptionBuilder;
-import it.polimi.ingsw.am37.model.student_container.FixedUnlimitedStudentsContainer;
+import it.polimi.ingsw.am37.model.exceptions.CharacterImpossibleToPlay;
 import it.polimi.ingsw.am37.model.student_container.LimitedStudentsContainer;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -122,10 +121,32 @@ class GameManagerTest {
             character[0] = spy(character[0]);
             doNothing().when(character[0]).useEffect(any(Option.class));
             doReturn(character[0].getCurrentPrice() + 1).when(character[0]).getCurrentPrice();
-
+            for (int i = 0; i < 4; i++) {
+                manager.getTurnManager().getCurrentPlayer().receiveCoin();
+            }
             manager.playCharacter(character[0], OptionBuilder.newBuilder(manager,
                     manager.getTurnManager().getCurrentPlayer()).build());
             assertNotEquals(character[0].getCurrentPrice(), oldPrice);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    @DisplayName("Test a bad played character logic")
+    public void testBadPlayedCharacter() {
+        GameManager manager = new GameManager(2, true);
+        manager.prepareGame();
+        try {
+            Field characterArray = GameManager.class.getDeclaredField("characters");
+            characterArray.setAccessible(true);
+            Character[] character = (Character[]) characterArray.get(manager);
+            character[0] = spy(character[0]);
+            doNothing().when(character[0]).useEffect(any(Option.class));
+            doReturn(character[0].getCurrentPrice() + 1).when(character[0]).getCurrentPrice();
+            assertThrows(CharacterImpossibleToPlay.class, () ->
+                    manager.playCharacter(character[0],
+                            OptionBuilder.newBuilder(manager, manager.getTurnManager().getCurrentPlayer()).build()));
         } catch (NoSuchFieldException | IllegalAccessException e) {
             e.printStackTrace();
         }
