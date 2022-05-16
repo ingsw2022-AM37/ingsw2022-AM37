@@ -90,9 +90,7 @@ public class Server implements MessageReceiver {
 
         wrongInitialInput = tryConnectionWithArgs(args);
         tryConnectionAgain(wrongInitialInput);
-
         new Server(port);
-        //Si dovrà chiudere la socket? se si quando?
     }
 
     /**
@@ -233,7 +231,7 @@ public class Server implements MessageReceiver {
      * @param client the Client to disconnect.
      */
     private static void onDisconnect(ClientHandler client) {
-        //TODO: Va rimosso il player e il suo nickname? No se vogliamo fare la Resilienza, semplicemente lo si disattiva somehow
+        //Va rimosso il player e il suo nickname? No se vogliamo fare la Resilienza, semplicemente lo si disattiva somehow
         client.disconnect();
     }
 
@@ -279,6 +277,8 @@ public class Server implements MessageReceiver {
                 }
                 break;
             case LOBBY_REQUEST:
+                if (((LobbyRequestMessage) message).getDesiredSize() > 3)
+                    ch.disconnect();
                 boolean lobbyFound = false;
                 for (Lobby lobby : activeLobbies) {
                     if (!lobby.isGameReady() && lobby.isAdvancedMode() == ((LobbyRequestMessage) message).isDesiredAdvanceMode() && lobby.getLobbySize() == ((LobbyRequestMessage) message).getDesiredSize()) {
