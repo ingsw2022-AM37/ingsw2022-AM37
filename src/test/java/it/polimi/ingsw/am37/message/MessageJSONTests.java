@@ -237,4 +237,15 @@ public class MessageJSONTests {
         assertEquals("11012", endGameMessage.getWinnerUID());
         assertEquals("axios011", endGameMessage.getWinnerNickname());
     }
+
+    @Test
+    @DisplayName("Serialization and deserialization of PlanningPhaseMessage")
+    void planningPhaseMessageJSONTest() {
+        PlanningPhaseMessage planningPhaseMessage = new PlanningPhaseMessage("110011");
+        String json = gson.toJson(planningPhaseMessage);
+        assertNotNull(json);
+        Message newMessage = gson.fromJson(json, Message.class);
+        PlanningPhaseMessage newPlanningPhaseMessage = (PlanningPhaseMessage) newMessage;
+        assertEquals(planningPhaseMessage.UUID, newPlanningPhaseMessage.UUID);
+    }
 }

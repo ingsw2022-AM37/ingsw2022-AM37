@@ -20,7 +20,8 @@ public enum MessageType {
     CONFIRM("ConfirmMessage"),
     PING("PingMessage"),
     START_GAME("StartGameMessage"),
-    END_GAME("EndGameMessage");
+    END_GAME("EndGameMessage"),
+    PLANNING_PHASE("PlanningPhaseMessage");
 
     private final String className;
 
