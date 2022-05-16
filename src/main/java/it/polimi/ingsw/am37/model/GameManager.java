@@ -4,6 +4,7 @@ import it.polimi.ingsw.am37.model.character.Character;
 import it.polimi.ingsw.am37.model.character.Effect;
 import it.polimi.ingsw.am37.model.character.Option;
 import it.polimi.ingsw.am37.model.exceptions.AssistantImpossibleToPlay;
+import it.polimi.ingsw.am37.model.exceptions.CharacterImpossibleToPlay;
 import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
 
 import java.util.*;
@@ -54,7 +55,7 @@ public class GameManager {
     private final TurnManager turnManager;
 
     /**
-     * Default constructor of game manager class. It's the main access point of the game model
+     * Default constructor of Game Manager class. It's the main access point of the game model.
      *
      * @param playersNumber Number of player of this instance of game
      * @param advancedMode  Enable advanced mode or disable it
@@ -71,7 +72,7 @@ public class GameManager {
     }
 
     /**
-     * @return Array of unused teachers
+     * @return Array of unused Teachers
      */
     public boolean[] getNotUsedTeachers() {
         return notUsedTeachers;
@@ -85,24 +86,31 @@ public class GameManager {
     }
 
     /**
-     * @return List of clouds of this game
+     * @return List of Clouds of this game.
      */
     public ArrayList<Cloud> getClouds() {
         return clouds;
     }
 
     /**
-     * @return The island manager
+     * @return The Island Manager
      */
     public IslandsManager getIslandsManager() {
         return islandsManager;
     }
 
     /**
-     * @return The turn manager
+     * @return The Turn Manager
      */
     public TurnManager getTurnManager() {
         return turnManager;
+    }
+
+    /**
+     * @return the Characters that can be played.
+     */
+    public Character[] getCharacters() {
+        return characters;
     }
 
     /**
@@ -120,7 +128,7 @@ public class GameManager {
         }
         Arrays.fill(notUsedTeachers, true);
         turnManager.setUp(bag);
-        //TODO handle assistants logic
+       
 
         // advanced logic only
         if (this.advancedMode) {
@@ -128,7 +136,7 @@ public class GameManager {
             Collections.shuffle(temp);
             for (int i = 0; i < NUMBEROFCHARACTERS; i++) {
                 Effect effect = temp.get(i);
-                characters[i] = new Character(effect.getInitialPrice(), effect, bag);
+                characters[i] = new Character(effect.getInitialPrice(), effect);
             }
         }
     }
@@ -194,10 +202,10 @@ public class GameManager {
      * Move mother nature island by {@param stepForward} islands and activate the associated logic: checking conqueror
      * of the island and if it is possible to unite islands
      *
-     * @param stepsForward The num of forward island movement of mother nature
+     * @param islandId The num of forward island movement of mother nature
      */
-    public void moveMotherNature(int stepsForward) {
-        islandsManager.motherNatureActionMovement(stepsForward, turnManager.getPlayers());
+    public void moveMotherNature(int islandId) {
+        islandsManager.motherNatureActionMovement(islandId, turnManager.getPlayers());
     }
 
     /**
@@ -205,13 +213,16 @@ public class GameManager {
      *
      * @param character Character played
      */
-    public void playCharacter(Character character, Option option) {
-        Character used = Arrays.stream(characters).filter(character::equals).findFirst().orElseThrow();
-        used.useEffect(option);
+    public void playCharacter(Character character, Option option) throws CharacterImpossibleToPlay {
+        if (turnManager.getCurrentPlayer().getNumberOfCoins() >= character.getCurrentPrice()) {
+            Character used = Arrays.stream(characters).filter(character::equals).findFirst().orElseThrow();
+            used.useEffect(option);
+        } else
+            throw new CharacterImpossibleToPlay("Can't play Character");
     }
 
     /**
-     * Choose a cloud
+     * Choose a cloud.
      */
     public void chooseCloud(String cloudId) {
         Cloud currentCloud = clouds.stream()
@@ -223,9 +234,9 @@ public class GameManager {
     }
 
     /**
-     *
+     * Next turn method.
      */
-    private void nextTurn(){
+    public void nextTurn() {
         turnManager.nextTurn();
     }
 }

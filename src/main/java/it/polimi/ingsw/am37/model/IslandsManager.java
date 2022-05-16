@@ -20,7 +20,7 @@ public class IslandsManager {
     /**
      * Total islands
      */
-    private ArrayList<Island> islands;
+    private final ArrayList<Island> islands;
 
     /**
      * Position of Mother Nature
@@ -303,11 +303,13 @@ public class IslandsManager {
     /**
      * This method is used for moving Mother Nature and use checkConqueror and uniteIfPossible
      *
-     * @param stepsForward It's the island where you want to move Mother Nature
-     * @param players      The list of all players
+     * @param destinationIslandId It's the island where you want to move Mother Nature
+     * @param players             The list of all players
      * @throws MNmovementWrongException If the movement can't be performed.
      */
-    public void motherNatureActionMovement(int stepsForward, ArrayList<Player> players) throws MNmovementWrongException {
+    public void motherNatureActionMovement(int destinationIslandId, ArrayList<Player> players) throws MNmovementWrongException {
+        int stepsForward = islands.indexOf(getIslands().get(destinationIslandId)) - islands.indexOf(getMotherNaturePosition());
+
         int temp = islands.indexOf(getMotherNaturePosition()) + stepsForward;
         Island island = islands.get(temp > islands.size() ? temp - islands.size() : temp);
         moveMotherNature(island);
