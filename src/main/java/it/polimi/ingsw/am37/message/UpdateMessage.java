@@ -16,11 +16,11 @@ public class UpdateMessage extends Message {
     /**
      * The type of the action that caused an update
      */
-    public final MessageType lastAction;
+    private final MessageType lastAction;
     /**
      * A descriptive string about the last action
      */
-    public final String lastActionDescription;
+    private final String lastActionDescription;
     /**
      * A bucketed map of all the updated objects sorted by the
      * {@link it.polimi.ingsw.am37.message.UpdatableObject.UpdatableType}. Buckets are simple list, so use lists method
@@ -93,5 +93,19 @@ public class UpdateMessage extends Message {
      */
     public List<? extends UpdatableObject> getUpdatedObjects(UpdatableObject.UpdatableType type) {
         return updatedObjects.get(type.getLabel());
+    }
+
+    /**
+     * @return The type of the triggering event.
+     */
+    public MessageType getLastAction() {
+        return lastAction;
+    }
+
+    /**
+     * @return the description of the triggering event.
+     */
+    public String getLastActionDescription() {
+        return lastActionDescription;
     }
 }
