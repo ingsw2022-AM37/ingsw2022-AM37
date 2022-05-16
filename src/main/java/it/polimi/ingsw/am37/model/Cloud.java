@@ -17,7 +17,7 @@ public class Cloud extends UpdatableObject {
     /**
      * They represent the number of students that can be placed on a Cloud based on the number of Players.
      */
-    private final static int studentsPerCloud2Players = 3, studentsPerCloud3Players = 4;
+    private final int studentsPerCloud2Players = 3, studentsPerCloud3Players = 4;
 
     /**
      * the unique ID of a cloud
@@ -78,6 +78,20 @@ public class Cloud extends UpdatableObject {
     }
 
     /**
+     * @return the students allowed on a Cloud in a 2 Player match.
+     */
+    public int getStudentsPerCloud2Players() {
+        return studentsPerCloud2Players;
+    }
+
+    /**
+     * @return the students allowed on a Cloud in a 3 Player match.
+     */
+    public int getStudentsPerCloud3Players() {
+        return studentsPerCloud3Players;
+    }
+
+    /**
      * @return The number of students on the Cloud.
      */
     public int size() {
@@ -98,5 +112,6 @@ public class Cloud extends UpdatableObject {
     public String getStudentsAsString() {
         return studentsOnCloud.getStudentsAsString();
     }
+
 
 }

@@ -261,7 +261,7 @@ public class GameManager {
                     .findFirst()
                     .orElseThrow();
             turnManager.getCurrentPlayer().getBoard().getEntrance().uniteContainers(currentCloud.removeStudents());
-            currentCloud.addStudents(bag.extractStudents(currentCloud.getIsFor2() ? 2 : 3));
+            currentCloud.addStudents(bag.extractStudents(currentCloud.getIsFor2() ? currentCloud.getStudentsPerCloud2Players() : currentCloud.getStudentsPerCloud3Players()));
         }
     }
 
