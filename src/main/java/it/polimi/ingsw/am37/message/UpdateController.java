@@ -13,8 +13,8 @@ import java.util.Objects;
 
 public class UpdateController implements PropertyChangeListener {
 
-    private final List<String> updateList = new ArrayList<>();
-    private final HashSet<UpdatableObject> updatedObjects = new HashSet<>();
+    private List<String> updateList = new ArrayList<>();
+    private HashSet<UpdatableObject> updatedObjects = new HashSet<>();
 
     public enum Properties {
         P_CLOUD("cloud"),
@@ -125,5 +125,15 @@ public class UpdateController implements PropertyChangeListener {
 
     public List<UpdatableObject> getUpdatedObjects() {
         return updatedObjects.stream().toList();
+    }
+
+    /**
+     * This function clears the updated objects and modification list before the start of a new turn. The objects aren't
+     * cleared but instead a new instance of the container is created so any reference to the old objects will be
+     * preserved
+     */
+    public void clear() {
+        updateList = new ArrayList<>();
+        updatedObjects = new HashSet<>();
     }
 }
