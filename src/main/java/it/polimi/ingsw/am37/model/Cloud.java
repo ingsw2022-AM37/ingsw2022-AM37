@@ -4,6 +4,7 @@ import it.polimi.ingsw.am37.message.UpdatableObject;
 import it.polimi.ingsw.am37.model.student_container.LimitedStudentsContainer;
 import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
 
+import java.util.Objects;
 import java.util.UUID;
 
 import static it.polimi.ingsw.am37.message.UpdatableObject.UpdatableType.CLOUD;
@@ -113,5 +114,15 @@ public class Cloud extends UpdatableObject {
         return studentsOnCloud.getStudentsAsString();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Cloud cloud)) return false;
+        return getCloudId().equals(cloud.getCloudId());
+    }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(getCloudId());
+    }
 }

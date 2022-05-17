@@ -174,4 +174,17 @@ public class Player extends UpdatableObject {
     public WizardTeam getTeam() {
         return team;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Player player)) return false;
+
+        return getPlayerId().equals(player.getPlayerId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getPlayerId().hashCode();
+    }
 }

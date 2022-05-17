@@ -48,4 +48,22 @@ public class Assistant {
     public void increaseMNMovement(int i) {
         this.moveMNMovement += i;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Assistant assistant)) return false;
+
+        if (getCardValue() != assistant.getCardValue()) return false;
+        if (moveMNMovement != assistant.moveMNMovement) return false;
+        return team == assistant.team;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = team.hashCode();
+        result = 31 * result + getCardValue();
+        result = 31 * result + moveMNMovement;
+        return result;
+    }
 }

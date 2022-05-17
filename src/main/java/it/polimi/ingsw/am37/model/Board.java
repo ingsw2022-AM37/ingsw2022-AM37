@@ -238,4 +238,16 @@ public class Board extends UpdatableObject {
         return player;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Board board)) return false;
+
+        return getPlayer().getPlayerId().equals(board.getPlayer().getPlayerId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getPlayer().hashCode();
+    }
 }

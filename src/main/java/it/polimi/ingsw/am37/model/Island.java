@@ -4,6 +4,8 @@ import it.polimi.ingsw.am37.message.UpdatableObject;
 import it.polimi.ingsw.am37.model.student_container.FixedUnlimitedStudentsContainer;
 import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
 
+import java.util.Objects;
+
 import static it.polimi.ingsw.am37.message.UpdatableObject.UpdatableType.ISLAND;
 import static it.polimi.ingsw.am37.message.UpdateController.Properties.*;
 
@@ -164,4 +166,15 @@ public class Island extends UpdatableObject {
         this.islandId = islandId;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Island island)) return false;
+        return getIslandId() == island.getIslandId();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getIslandId());
+    }
 }
