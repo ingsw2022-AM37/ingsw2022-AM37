@@ -85,17 +85,12 @@ public class Client {
         if (params.get(graphics).equals("gui"))
             view = new GuiView();
 
-        try {
-            Thread.sleep(10000);
-        } catch (InterruptedException e) {
-            ;
-        }
-
-        //start listening thread
-        new Thread(new ClientSocket()).start();
 
         status = ClientStatus.CHOOSINGNAME;
         chooseNickname();
+
+        //start listening thread
+        new Thread(new ClientSocket()).start(); //TODO forse sopra
 
         status = ClientStatus.CHOOSINGLOBBY;
         chooseLobby();
@@ -111,7 +106,6 @@ public class Client {
             }
         }
 
-        //TODO manca messaggio start game e endgame
 
         //TODO manca metodo per giocare personaggio
 
@@ -280,10 +274,12 @@ public class Client {
     static private void waitResponse() {
 
         while (ClientSocket.getWaitingMessage()) {
-            try {
-                ClientSocket.getWaitObject().wait();
-            } catch (InterruptedException e) {
-                ;
+            synchronized (ClientSocket.getWaitObject()) {
+                try {
+                    ClientSocket.getWaitObject().wait();
+                } catch (InterruptedException e) {
+                    ;
+                }
             }
         }
         ClientSocket.setWaitingMessage(true);

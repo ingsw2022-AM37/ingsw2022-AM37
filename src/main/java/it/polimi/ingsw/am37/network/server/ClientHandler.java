@@ -239,7 +239,7 @@ public class ClientHandler implements Runnable {
 
             Future<Message> messageFuture = service.submit(r);
 
-            messageFuture.get(1000, TimeUnit.MILLISECONDS);
+            messageFuture.get(2000, TimeUnit.MILLISECONDS);
 
             return messageFuture.get();
         } catch (final InterruptedException | ExecutionException | TimeoutException e) {

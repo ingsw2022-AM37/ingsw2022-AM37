@@ -254,24 +254,17 @@ public class ClientSocket implements Runnable {
     static private void readMessage() {
 
         String json;
-        Timer timer = new Timer();
         Message message = null;
-
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                disconnect();
-            }
-        }, 5000);
 
         try {
             json = dataInputStream.readUTF();
             message = new MessageGsonBuilder().getGsonBuilder().create().fromJson(json, Message.class);
-            timer.cancel();
             if (message.getMessageType() != MessageType.PING && message.getMessageType() != MessageType.NEXT_TURN && message.getMessageType() != MessageType.PLANNING_PHASE) {
                 messageBuffer = new MessageGsonBuilder().getGsonBuilder().create().fromJson(json, Message.class);
                 waitingMessage = false;
-                waitObject.notifyAll();
+                synchronized (waitObject) {
+                    waitObject.notifyAll();
+                }
             }
 
             if (message.getMessageType() == MessageType.START_GAME) {
