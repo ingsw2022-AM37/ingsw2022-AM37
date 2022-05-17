@@ -12,7 +12,7 @@ public class UpdatableObject {
     /**
      * The type of the updatable object
      */
-    final UpdatableType type;
+    public final UpdatableType type;
 
     protected final transient PropertyChangeSupport support;
 

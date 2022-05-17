@@ -18,7 +18,7 @@ public class GameManager {
     /**
      * Number of characters available
      */
-    private static final int NUMBEROFCHARACTERS = 3;
+    public static final int NUMBER_OF_CHARACTERS = 3;
     /**
      * Number of player in the game handled by this manager
      */
@@ -71,7 +71,7 @@ public class GameManager {
         this.clouds = new ArrayList<>();
         this.turnManager = new TurnManager(advancedMode, playersNumber);
         this.islandsManager = new IslandsManager();
-        this.characters = new Character[NUMBEROFCHARACTERS];
+        this.characters = new Character[NUMBER_OF_CHARACTERS];
         this.notUsedTeachers = new boolean[FactionColor.values().length];
         this.bag = new Bag();
         this.lock = new Object();
@@ -153,7 +153,7 @@ public class GameManager {
             if (this.advancedMode) {
                 List<Effect> temp = new ArrayList<>(Arrays.stream(Effect.values()).toList());
                 Collections.shuffle(temp);
-                for (int i = 0; i < NUMBEROFCHARACTERS; i++) {
+                for (int i = 0; i < NUMBER_OF_CHARACTERS; i++) {
                     Effect effect = temp.get(i);
                     characters[i] = new Character(effect.getInitialPrice(), effect);
                 }

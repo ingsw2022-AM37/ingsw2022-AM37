@@ -22,8 +22,7 @@ public enum MessageType {
 
     PLANNING_PHASE("PlanningPhaseMessage"),
     START_GAME("StartGameMessage"),
-    END_GAME("EndGameMessage"),
-    PLANNING_PHASE("PlanningPhaseMessage");
+    END_GAME("EndGameMessage");
 
     private final String className;
 
