@@ -1,13 +1,12 @@
 package it.polimi.ingsw.am37.network;
 
 import it.polimi.ingsw.am37.client.Client;
-import it.polimi.ingsw.am37.message.Message;
-import it.polimi.ingsw.am37.message.MessageGsonBuilder;
-import it.polimi.ingsw.am37.message.MessageType;
-import it.polimi.ingsw.am37.message.PingMessage;
+import it.polimi.ingsw.am37.client.ClientStatus;
+import it.polimi.ingsw.am37.message.*;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -17,7 +16,7 @@ public class ClientSocket implements Runnable {
     /**
      * Used for creating a loop for client's waiting after a message is received
      */
-    private static boolean messageReceived = false;
+    private static boolean waitingMessage = true;
 
     /**
      * Object used by main thread for waiting on after it sent a message
@@ -81,16 +80,17 @@ public class ClientSocket implements Runnable {
     /**
      * @return if a message is received from server
      */
-    static public boolean getMessageReceived() {
-        return messageReceived;
+    static public boolean getWaitingMessage() {
+        return waitingMessage;
     }
 
     /**
      * Set messageReceived to false
      */
-    static public void resetMessageReceived() {
-        messageReceived = false;
+    static public void setWaitingMessage(boolean bool) {
+        waitingMessage = bool;
     }
+
 
     /**
      * @return buffer used to trade messages
@@ -153,7 +153,7 @@ public class ClientSocket implements Runnable {
             public void run() {
                 killGame();
             }
-        }, 2000);
+        }, 3000);
 
         try {
             dataInputStream.close();
@@ -170,6 +170,9 @@ public class ClientSocket implements Runnable {
      * @param message Client's message needed to be sent to server, if error occurs client will be disconnected
      */
     static public void sendMessage(Message message) {
+
+        //TODO ogni 0,3 secondi manda un ping, metto un contatore statico che incremento ad ogni messaggio, arrivato a 700 avviso che se non viene mandato un messaggio valido a breve verrà disconnesso
+        // gestisco anche quando non è il mio turno ovviamente questo non deve accadere
 
         String json = new MessageGsonBuilder().getGsonBuilder().create().toJson(message);
 
@@ -246,7 +249,7 @@ public class ClientSocket implements Runnable {
     }
 
     /**
-     * Message received from server
+     * Message received from server and executed
      */
     static private void readMessage() {
 
@@ -265,11 +268,47 @@ public class ClientSocket implements Runnable {
             json = dataInputStream.readUTF();
             message = new MessageGsonBuilder().getGsonBuilder().create().fromJson(json, Message.class);
             timer.cancel();
-            if (message.getMessageType() != MessageType.PING) {
+            if (message.getMessageType() != MessageType.PING && message.getMessageType() != MessageType.NEXT_TURN && message.getMessageType() != MessageType.PLANNING_PHASE) {
                 messageBuffer = new MessageGsonBuilder().getGsonBuilder().create().fromJson(json, Message.class);
-                messageReceived = true;
+                waitingMessage = false;
                 waitObject.notifyAll();
             }
+
+            if (message.getMessageType() == MessageType.START_GAME) {
+                waitObject.notifyAll();
+                Client.beginGame();
+            }
+
+            if (message.getMessageType() == MessageType.END_GAME) {
+                EndGameMessage endGameMessage;
+                endGameMessage = (EndGameMessage) message;
+
+                Client.setStatus(ClientStatus.ENDGAME);
+
+                Client.getView().printWinner(endGameMessage.getWinnerNickname());
+
+            }
+
+            if (message.getMessageType() == MessageType.UPDATE) {
+                Client.getView().getReducedModel().update(((UpdateMessage) message).getUpdatedObjects().values().stream().flatMap(List::stream).toList());
+            }
+
+
+            if (message.getMessageType() == MessageType.NEXT_TURN) {
+                NextTurnMessage nextTurnMessage;
+
+                nextTurnMessage = (NextTurnMessage) message;
+
+                if (nextTurnMessage.getNextPlayerNickname().equals(Client.getNickname())) {
+                    Client.setStatus(ClientStatus.MOVINGSTUDENTS);
+                    Client.getView().yourTurn();
+                } else
+                    Client.getView().hisTurn(nextTurnMessage.getNextPlayerNickname());
+            } else if (message.getMessageType() == MessageType.PLANNING_PHASE) {
+                Client.getView().mustPlayAssistant();
+                Client.setStatus(ClientStatus.PLAYINGASSISTANT);
+            }
+
 
         } catch (IOException e) {
             disconnect();
@@ -295,27 +334,36 @@ public class ClientSocket implements Runnable {
     }
 
     /**
+     * Method used for sending ping
+     */
+    static private void messagePing() {
+
+        Timer timer = new Timer();
+
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                Message message;
+                message = new PingMessage(Client.getUUID());
+
+                sendMessage(message);
+            }
+        }, 300, 300);
+
+
+    }
+
+    /**
      * This thread is dedicated to ping with server and receive messages
      */
     @Override
     public void run() {
 
-        Message message;
+        messagePing();
 
-        while (connectedToServer) {
-
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            message = new PingMessage(Client.getUUID());
-
-            sendMessage(message);
+        while (connectedToServer)
             readMessage();
 
-        }
     }
 
 }

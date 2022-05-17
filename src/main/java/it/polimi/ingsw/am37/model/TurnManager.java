@@ -203,6 +203,11 @@ public class TurnManager {
         int i = 0;
         for (Player player : players) {
             player.setBoard(new Board(numOfPlayers, TowerColor.values()[i], coinsEnabled, player));
+            try {
+                player.createDeck(WizardTeam.values()[i]);
+            } catch (InstanceAlreadyExistsException e) {
+                e.printStackTrace();
+            }
             i++;
         }
         if (numOfPlayers == 2 || numOfPlayers == 4)

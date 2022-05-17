@@ -148,6 +148,7 @@ public class ClientHandler implements Runnable {
     public void disconnect() {
 
         this.connectedToClient = false;
+        //TODO aggiungo metodo onMesageReceiver per avvisare la disconnesione
 
         try {
             dataInputStream.close();
@@ -222,6 +223,7 @@ public class ClientHandler implements Runnable {
      */
     private Message readMessage() throws InternetException {
 
+        //TODO qui bisogna fare che se io non riesco a trasformare da json a messaggio allora chiamo disconnect()
 
         ExecutorService service = Executors.newSingleThreadExecutor();
 
@@ -237,7 +239,7 @@ public class ClientHandler implements Runnable {
 
             Future<Message> messageFuture = service.submit(r);
 
-            messageFuture.get(1500, TimeUnit.MILLISECONDS);
+            messageFuture.get(1000, TimeUnit.MILLISECONDS);
 
             return messageFuture.get();
         } catch (final InterruptedException | ExecutionException | TimeoutException e) {

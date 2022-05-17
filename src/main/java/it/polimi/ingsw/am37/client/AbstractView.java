@@ -1,7 +1,30 @@
 package it.polimi.ingsw.am37.client;
 
 
+import org.apache.logging.log4j.core.pattern.AbstractStyleNameConverter;
+
+import java.util.HashMap;
+
 public abstract class AbstractView {
+
+    /**
+     * Model in client
+     */
+    private final ReducedModel reducedModel;
+
+    /**
+     * Default constructor
+     */
+    public AbstractView() {
+        this.reducedModel = new ReducedModel();
+    }
+
+    /**
+     * @return reduced model for the client
+     */
+    public ReducedModel getReducedModel() {
+        return reducedModel;
+    }
 
     /**
      * This method notifies if address is unknown
@@ -77,5 +100,74 @@ public abstract class AbstractView {
      * @return Player's choice
      */
     public abstract String requestNumPlayers();
+
+    /**
+     * Method used to ask which assistant player want to use
+     *
+     * @return The chosen assistant
+     */
+    public abstract int askAssistant();
+
+    /**
+     * Method used to tell player possible commands
+     */
+    public abstract void possibleChoices();
+
+    /**
+     * @return Player's command at any time
+     */
+    public abstract String takeInput();
+
+    /**
+     * Tell player this input isn't ok for now
+     */
+    public abstract void impossibleInputForNow();
+
+    /**
+     * Ask player which students want to move and where
+     *
+     * @return HashMap with responses of the player
+     */
+    public abstract HashMap<String, String> askStudents();
+
+    /**
+     * @return Where mother nature has to go
+     */
+    public abstract int askMotherNature();
+
+    /**
+     * @return which cloud player has chosen to take
+     */
+    public abstract String askCloud();
+
+    /**
+     * Tell the player it's his turn
+     */
+    public abstract void yourTurn();
+
+    /**
+     * @param nick nickname of player who has to play the current turn
+     */
+    public abstract void hisTurn(String nick);
+
+    /**
+     * Method used to tell a player he has to play the assistant card
+     */
+    public abstract void mustPlayAssistant();
+
+    /**
+     * Method used to tell the player he is waiting for the match
+     */
+    public abstract void waitingMatch();
+
+    /**
+     * Method to tell the player the game has begun
+     */
+    public abstract void gameStarted();
+
+    /**
+     * @param nick the winner player
+     */
+    public abstract void printWinner(String nick);
 
 }

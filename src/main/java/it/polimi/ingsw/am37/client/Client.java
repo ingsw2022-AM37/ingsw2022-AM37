@@ -1,9 +1,8 @@
 package it.polimi.ingsw.am37.client;
 
-import it.polimi.ingsw.am37.message.LobbyRequestMessage;
-import it.polimi.ingsw.am37.message.LoginMessage;
-import it.polimi.ingsw.am37.message.Message;
-import it.polimi.ingsw.am37.message.MessageType;
+import it.polimi.ingsw.am37.message.*;
+import it.polimi.ingsw.am37.model.FactionColor;
+import it.polimi.ingsw.am37.model.student_container.UnlimitedStudentsContainer;
 import it.polimi.ingsw.am37.network.ClientSocket;
 
 import java.io.IOException;
@@ -11,6 +10,11 @@ import java.util.*;
 
 public class Client {
 
+
+    /**
+     * Method used to start the game after joining lobby
+     */
+    private static boolean inGame = false;
 
     /**
      * client identifier
@@ -56,10 +60,15 @@ public class Client {
      */
     public static void main(String[] args) {
 
+        status = ClientStatus.LOGGING;
+
+        String response;
         boolean wrongInitialInput;
+        boolean actionOkay = false;
         final String address = "address";
         final String port = "port";
         final String graphics = "graphics";
+        inGame = false;
 
 
         view = new CliView();
@@ -71,18 +80,87 @@ public class Client {
 
         tryConnectionAgain(wrongInitialInput, address, port, graphics);
 
+
         //preparing gui
         if (params.get(graphics).equals("gui"))
             view = new GuiView();
 
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            ;
+        }
+
         //start listening thread
         new Thread(new ClientSocket()).start();
 
+        status = ClientStatus.CHOOSINGNAME;
         chooseNickname();
 
+        status = ClientStatus.CHOOSINGLOBBY;
         chooseLobby();
 
+        view.waitingMatch();
 
+        while (!inGame) {
+            try {
+                view.waitingMatch();
+                ClientSocket.getWaitObject().wait();
+            } catch (InterruptedException e) {
+                ;
+            }
+        }
+
+        //TODO manca messaggio start game e endgame
+
+        //TODO manca metodo per giocare personaggio
+
+        //TODO manca metodo per mostrare le update possibili
+
+        view.possibleChoices();
+        status = ClientStatus.WAITINGFORTURN;
+        while (ClientSocket.isConnectedToServer()) {
+
+            response = view.takeInput();
+
+            if (response.equals("0"))
+                view.possibleChoices();
+
+            else if (response.equals("1"))
+                ClientSocket.closeGame();
+
+            else if (response.equals("2") && status == ClientStatus.PLAYINGASSISTANT) {
+                actionOkay = playAssistant();
+                if (actionOkay)
+                    status = ClientStatus.WAITINGFORTURN;
+            } else if (response.equals("3") && status == ClientStatus.MOVINGSTUDENTS) {
+
+                actionOkay = moveStudents();
+                if (actionOkay)
+                    status = ClientStatus.MOVINGMOTHERNATURE;
+            } else if (response.equals("4") && status == ClientStatus.MOVINGMOTHERNATURE) {
+
+                actionOkay = moveMotherNature();
+                if (actionOkay)
+                    status = ClientStatus.CHOOSINGCLOUD;
+            } else if (response.equals("5") && status == ClientStatus.CHOOSINGCLOUD) {
+
+                actionOkay = chooseCloud();
+                if (actionOkay)
+                    status = ClientStatus.WAITINGFORTURN;
+            } else
+                view.wrongInsert();
+
+        }
+
+
+    }
+
+    /**
+     * @param action New status for the client
+     */
+    static public void setStatus(ClientStatus action) {
+        status = action;
     }
 
 
@@ -197,6 +275,37 @@ public class Client {
     }
 
     /**
+     * Method used after sending a message to wait the response
+     */
+    static private void waitResponse() {
+
+        while (ClientSocket.getWaitingMessage()) {
+            try {
+                ClientSocket.getWaitObject().wait();
+            } catch (InterruptedException e) {
+                ;
+            }
+        }
+        ClientSocket.setWaitingMessage(true);
+
+    }
+
+    /**
+     * Method used to check the message in the buffer
+     */
+    static private boolean onMessage() {
+
+        if (ClientSocket.getMessageBuffer().getMessageType() == MessageType.ERROR) {
+            view.impossibleInputForNow();
+            return false;
+        } else if (ClientSocket.getMessageBuffer().getMessageType() == MessageType.UPDATE)
+            return true;
+
+        return false;
+
+    }
+
+    /**
      * Method used to set nickname, if chosen name is available then set it
      */
     static private void chooseNickname() {
@@ -215,18 +324,12 @@ public class Client {
             message = new LoginMessage(UUID, tempNick);
             ClientSocket.sendMessage(message);
 
-            while (ClientSocket.getMessageReceived()) {
-                try {
-                    ClientSocket.getWaitObject().wait();
-                    ClientSocket.resetMessageReceived();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
+            waitResponse();
 
             if (ClientSocket.getMessageBuffer().getMessageType() == MessageType.ERROR)
-                ;
-            else
+                view.impossibleInputForNow();
+
+            else if (ClientSocket.getMessageBuffer().getMessageType() == MessageType.CONFIRM)
                 setNickname(tempNick);
         }
     }
@@ -274,10 +377,111 @@ public class Client {
     }
 
     /**
+     * @return My nickname
+     */
+    static public String getNickname() {
+        return nickname;
+    }
+
+
+    /**
      * @return HashMap with values
      */
     static public HashMap<String, String> getParams() {
         return params;
     }
+
+    /**
+     * @return if server has sent an exception for our assistant
+     */
+    static private boolean playAssistant() {
+        int val;
+
+        val = view.askAssistant();
+        Message message = new PlayAssistantMessage(UUID, val);
+
+        ClientSocket.sendMessage(message);
+
+        waitResponse();
+
+        return onMessage();
+    }
+
+    /**
+     * @return if server has sent an exception for our movement
+     */
+    static private boolean moveStudents() {
+
+        HashMap<String, String> response;
+        Message message;
+        UnlimitedStudentsContainer container = new UnlimitedStudentsContainer();
+        FactionColor color = null;
+
+        response = view.askStudents();
+        for (FactionColor temp : FactionColor.values())
+            if (response.get("color").equals(temp.toString()))
+                color = temp;
+
+        container.addStudents(Integer.parseInt(response.get("number")), color);
+
+        if (response.get("destination").equals("d")) {
+            message = new StudentsToDiningMessage(UUID, container);
+
+            ClientSocket.sendMessage(message);
+            waitResponse();
+            return onMessage();
+        } else {
+
+            message = new StudentsToIslandMessage(UUID, container, Integer.parseInt(response.get("islandDest")));
+
+            ClientSocket.sendMessage(message);
+            waitResponse();
+            return onMessage();
+        }
+    }
+
+    /**
+     * @return if server has an exception for the movement
+     */
+    static private boolean moveMotherNature() {
+
+        int islandId;
+
+        islandId = view.askMotherNature();
+
+        Message message = new MoveMotherNatureMessage(UUID, islandId);
+
+        ClientSocket.sendMessage(message);
+
+        waitResponse();
+
+        return onMessage();
+    }
+
+    /**
+     * @return if server has an exception for our choice
+     */
+    static private boolean chooseCloud() {
+
+        String cloudId;
+
+        cloudId = view.askCloud();
+
+        Message message = new ChooseCloudMessage(UUID, cloudId);
+
+        ClientSocket.sendMessage(message);
+
+        waitResponse();
+
+        return onMessage();
+    }
+
+    /**
+     *
+     */
+    static public void beginGame() {
+        inGame = true;
+    }
+
 
 }
