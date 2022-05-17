@@ -156,6 +156,8 @@ public class GameManager {
                 for (int i = 0; i < NUMBER_OF_CHARACTERS; i++) {
                     Effect effect = temp.get(i);
                     characters[i] = new Character(effect.getInitialPrice(), effect);
+                    if (effect == Effect.GRANDMA)
+                        islandsManager.setStateCharacterNoEntryTile(characters[i].getState());
                 }
             }
         }

@@ -46,4 +46,10 @@ public class EffectHandler {
         }
     }
 
+    /**
+     * @return the state associated to this character
+     */
+    public State getState() {
+        return state;
+    }
 }

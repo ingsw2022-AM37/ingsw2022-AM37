@@ -73,6 +73,13 @@ public class Character extends UpdatableObject {
         return effectType;
     }
 
+    /**
+     * @return the state of this characters
+     */
+    public State getState(){
+        return effectHandler.getState();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
