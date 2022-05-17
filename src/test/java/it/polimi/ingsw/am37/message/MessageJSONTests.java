@@ -123,6 +123,7 @@ public class MessageJSONTests {
         assertEquals(nextTurnMessage.UUID, newNextTurnMessage.UUID);
         assertEquals("110012", newNextTurnMessage.getNextPlayerUUID());
         assertEquals("alexis011", newNextTurnMessage.getNextPlayerNickname());
+        assertNotNull(newNextTurnMessage.getMessageType());
     }
 
     @Test
@@ -134,6 +135,7 @@ public class MessageJSONTests {
         Message newMessage = gson.fromJson(json, Message.class);
         PingMessage newPingMessage = (PingMessage) newMessage;
         assertEquals(pingMessage.UUID, newPingMessage.UUID);
+        assertEquals(MessageType.PING, newPingMessage.getMessageType());
     }
 
     @Test

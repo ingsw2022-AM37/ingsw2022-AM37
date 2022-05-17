@@ -18,7 +18,7 @@ public class MoveMotherNatureMessage extends Message {
      * @param UUID     the default constructor
      * @param islandId the id of the destination island
      */
-    protected MoveMotherNatureMessage(String UUID, int islandId) {
+    public MoveMotherNatureMessage(String UUID, int islandId) {
         super(UUID, MessageType.MOVE_MOTHER_NATURE);
         this.islandId = islandId;
     }
@@ -29,7 +29,7 @@ public class MoveMotherNatureMessage extends Message {
      *
      * @param islandId the id of the destination island
      */
-    protected MoveMotherNatureMessage(int islandId) {
+    public MoveMotherNatureMessage(int islandId) {
         super(MessageType.MOVE_MOTHER_NATURE);
         this.islandId = islandId;
     }

@@ -19,7 +19,7 @@ public class PlayAssistantMessage extends Message {
      * @param UUID           the default constructor
      * @param assistantValue the card value of the desired assistant
      */
-    protected PlayAssistantMessage(String UUID, int assistantValue) {
+    public PlayAssistantMessage(String UUID, int assistantValue) {
         super(UUID, MessageType.PLAY_ASSISTANT);
         this.cardValue = assistantValue;
     }
@@ -30,7 +30,7 @@ public class PlayAssistantMessage extends Message {
      *
      * @param assistantValue the card value of the desired assistant
      */
-    protected PlayAssistantMessage(int assistantValue) {
+    public PlayAssistantMessage(int assistantValue) {
         super(MessageType.PLAY_ASSISTANT);
         this.cardValue = assistantValue;
     }

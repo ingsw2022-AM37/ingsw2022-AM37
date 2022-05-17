@@ -33,7 +33,7 @@ public abstract class Message {
      * @param messageType the message enum type
      */
     protected Message(MessageType messageType) {
-
+        this.messageType = messageType;
     }
 
     /**

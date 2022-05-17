@@ -25,7 +25,7 @@ public class MessageGsonBuilder {
 
     public MessageGsonBuilder registerMessageAdapter() {
         RuntimeTypeAdapterFactory<Message> messageRuntimeTypeAdapterFactory =
-                RuntimeTypeAdapterFactory.of(Message.class, messageField);
+                RuntimeTypeAdapterFactory.of(Message.class, messageField, true);
 
         for (MessageType type : MessageType.values()) {
             try {

@@ -20,7 +20,7 @@ public class ChooseCloudMessage extends Message {
      * @param UUID    the default constructor
      * @param cloudId the cloud id
      */
-    protected ChooseCloudMessage(String UUID, String cloudId) {
+    public ChooseCloudMessage(String UUID, String cloudId) {
         super(UUID, MessageType.CHOOSE_CLOUD);
         this.cloudId = cloudId;
     }
@@ -29,7 +29,7 @@ public class ChooseCloudMessage extends Message {
      * The default sender side constructor for message preparing. UUID must be set using {@link Message#setUUID(String)}
      * before sending it
      */
-    protected ChooseCloudMessage(String cloudId) {
+    public ChooseCloudMessage(String cloudId) {
         super(MessageType.CHOOSE_CLOUD);
         this.cloudId = cloudId;
     }
