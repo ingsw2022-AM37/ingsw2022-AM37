@@ -62,9 +62,15 @@ public class Server implements MessageReceiver {
         new Thread(() -> {
             //TODO: LOGGER
             Socket socket;
+            try {
+                serverSocket = new ServerSocket(serverPort);
+            } catch (IOException e) {
+                System.err.println("Error server side, probably the port is already in use.");
+                System.err.println(e.getMessage());
+                return;
+            }
             do {
                 try {
-                    serverSocket = new ServerSocket(serverPort);
                     System.out.println("ServerSocket awaiting connections...");
                     socket = serverSocket.accept();
                     System.out.println("Connection from " + socket + "!");
@@ -78,19 +84,6 @@ public class Server implements MessageReceiver {
                 new Thread(ch).start();
             } while (!serverSocket.isClosed());
         }).start();
-    }
-
-    /**
-     * Starts the Server and checks that the arguments are valid.
-     *
-     * @param args arguments received via command prompt
-     */
-    public static void main(String[] args) {
-        boolean wrongInitialInput;
-
-        wrongInitialInput = tryConnectionWithArgs(args);
-        tryConnectionAgain(wrongInitialInput);
-        new Server(port);
     }
 
     /**
