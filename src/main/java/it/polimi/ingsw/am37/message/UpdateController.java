@@ -80,7 +80,9 @@ public class UpdateController implements PropertyChangeListener {
             }
             case P_ISLAND_DIMENSION -> {
                 Island island = (Island) updatedObject;
-                updateList.add(
+                if ((int) evt.getNewValue() == 0)
+                    updateList.add("Island " + island.getIslandId() + ": deleted");
+                else updateList.add(
                         "Island " + island.getIslandId() + ": update dimension from" + evt.getOldValue() + " to " +
                                 evt.getNewValue());
             }
