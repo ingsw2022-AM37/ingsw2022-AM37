@@ -55,34 +55,30 @@ public class Server implements MessageReceiver {
     /**
      * Default Constructor
      */
-    public Server(int serverPort) {
+    public void loadServer(int serverPort) {
         port = serverPort;
         LOGGER = LogManager.getLogger(Server.class);
 
         new Thread(() -> {
             //TODO: LOGGER
-            Socket socket;
-            try {
-                serverSocket = new ServerSocket(serverPort);
+            Socket socket = null;
+            try (ServerSocket serverSocket = new ServerSocket(port)) {
+                do {
+                    try {
+                        System.out.println("ServerSocket awaiting connections...");
+                        socket = serverSocket.accept();
+                        System.out.println("Connection from " + socket + "!");
+                    } catch (IOException e) {
+                        System.err.println("Error encountered while trying to connect");
+                        System.err.println(e.getMessage());
+                    }
+                    ClientHandler ch = new ClientHandler(socket);
+                    ch.setMessageReceiver(this);
+                    new Thread(ch).start();
+                } while (!serverSocket.isClosed());
             } catch (IOException e) {
-                System.err.println("Error server side, probably the port is already in use.");
-                System.err.println(e.getMessage());
-                return;
+                e.printStackTrace();
             }
-            do {
-                try {
-                    System.out.println("ServerSocket awaiting connections...");
-                    socket = serverSocket.accept();
-                    System.out.println("Connection from " + socket + "!");
-                } catch (IOException e) {
-                    System.err.println("Error encountered while trying to connect");
-                    System.err.println(e.getMessage());
-                    return;
-                }
-                ClientHandler ch = new ClientHandler(socket);
-                ch.setMessageReceiver(this);
-                new Thread(ch).start();
-            } while (!serverSocket.isClosed());
         }).start();
     }
 
@@ -90,7 +86,7 @@ public class Server implements MessageReceiver {
      * @param args It's the array of string created by main class
      * @return if initial input was wrong
      */
-    private static boolean tryConnectionWithArgs(String[] args) {
+    public static boolean tryConnectionWithArgs(String[] args) {
         final int expectedArguments = 2;
         int i = 0;
         boolean wrongInitialInput = false;
@@ -124,7 +120,7 @@ public class Server implements MessageReceiver {
     /**
      * @param wrongInitialInput If initial input was wrong
      */
-    private static void tryConnectionAgain(boolean wrongInitialInput) {
+    public static void tryConnectionAgain(boolean wrongInitialInput) {
         final int defaultPort = 60000;
         String response;
 
