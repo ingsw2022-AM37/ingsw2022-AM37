@@ -93,10 +93,10 @@ public class ReducedModel {
     }
 
     /**
-     * @return the islands
+     * @return the islands of this model as list
      */
-    public TreeMap<Integer, Island> getIslands() {
-        return islands;
+    public List<Island> getIslands() {
+        return islands.values().stream().toList();
     }
 
     /**
@@ -109,21 +109,21 @@ public class ReducedModel {
     /**
      * @return the players of this match
      */
-    public HashMap<String, Player> getPlayers() {
-        return players;
+    public List<Player> getPlayers() {
+        return players.values().stream().toList();
     }
 
     /**
      * @return the boards to show
      */
-    public HashMap<String, Board> getBoards() {
-        return boards;
+    public List<Board> getBoards() {
+        return boards.values().stream().toList();
     }
 
     /**
      * @return the clouds of this match
      */
-    public HashMap<String, Cloud> getClouds() {
-        return clouds;
+    public List<Cloud> getClouds() {
+        return clouds.values().stream().toList();
     }
 }
