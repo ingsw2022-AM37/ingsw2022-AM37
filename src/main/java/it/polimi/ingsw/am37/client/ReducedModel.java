@@ -109,21 +109,21 @@ public class ReducedModel {
     /**
      * @return the players of this match
      */
-    public List<Player> getPlayers() {
-        return players.values().stream().toList();
+    public HashMap<String, Player> getPlayers() {
+        return players;
     }
 
     /**
      * @return the boards to show
      */
-    public List<Board> getBoards() {
-        return boards.values().stream().toList();
+    public HashMap<String, Board> getBoards() {
+        return boards;
     }
 
     /**
      * @return the clouds of this match
      */
-    public List<Cloud> getClouds() {
-        return clouds.values().stream().toList();
+    public HashMap<String, Cloud> getClouds() {
+        return clouds;
     }
 }

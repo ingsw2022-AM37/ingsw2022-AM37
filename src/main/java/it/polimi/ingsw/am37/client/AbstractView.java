@@ -170,4 +170,35 @@ public abstract class AbstractView {
      */
     public abstract void printWinner(String nick);
 
+    /**
+     * Method used to ask a player which character he wants to play
+     */
+    public abstract void askCharacter();
+
+    /**
+     * Method used when an error message come from server
+     */
+    public abstract void impossibleAssistant();
+
+    /**
+     * Method used when an error message come from server
+     */
+    public abstract void impossibleStudents();
+
+    /**
+     * Method used when an error message come from server
+     */
+    public abstract void impossibleMotherNature();
+
+    /**
+     * Method used when an error message come from server
+     */
+    public abstract void impossibleCloud();
+
+    /**
+     * Method used when an error message come from server
+     */
+    public abstract void impossibleCharacter();
+
+
 }

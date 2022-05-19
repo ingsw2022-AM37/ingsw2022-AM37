@@ -10,6 +10,10 @@ import java.util.*;
 
 public class Client {
 
+    /**
+     * Nicknames of other players
+     */
+    private static ArrayList<String> otherNicknames;
 
     /**
      * Method used to start the game after joining lobby
@@ -54,6 +58,17 @@ public class Client {
      * HashMap with address, port and graphics chosen for the match
      */
     private static HashMap<String, String> params;
+    /**
+     * It's the sum of moved students in action phase
+     */
+    private static int totalStudentsInTurn = 0;
+
+    /**
+     * @return other nicknames
+     */
+    public static ArrayList<String> getOtherNicknames() {
+        return otherNicknames;
+    }
 
     /**
      * Main method
@@ -87,10 +102,12 @@ public class Client {
 
 
         status = ClientStatus.CHOOSINGNAME;
-        chooseNickname();
 
         //start listening thread
-        new Thread(new ClientSocket()).start(); //TODO forse sopra
+        new Thread(new ClientSocket()).start();
+
+        chooseNickname();
+
 
         status = ClientStatus.CHOOSINGLOBBY;
         chooseLobby();
@@ -98,14 +115,16 @@ public class Client {
         view.waitingMatch();
 
         while (!inGame) {
-            try {
-                view.waitingMatch();
-                ClientSocket.getWaitObject().wait();
-            } catch (InterruptedException e) {
-                ;
+            synchronized (ClientSocket.getWaitObject()) {
+                try {
+                    view.waitingMatch();
+                    ClientSocket.getWaitObject().wait();
+
+                } catch (InterruptedException e) {
+                    ;
+                }
             }
         }
-
 
         //TODO manca metodo per giocare personaggio
 
@@ -127,22 +146,39 @@ public class Client {
                 actionOkay = playAssistant();
                 if (actionOkay)
                     status = ClientStatus.WAITINGFORTURN;
+                else
+                    view.impossibleAssistant();
             } else if (response.equals("3") && status == ClientStatus.MOVINGSTUDENTS) {
-
                 actionOkay = moveStudents();
-                if (actionOkay)
+                if (actionOkay && totalStudentsInTurn == 3) {
                     status = ClientStatus.MOVINGMOTHERNATURE;
+                    totalStudentsInTurn = 0;
+                } else
+                    view.impossibleStudents();
             } else if (response.equals("4") && status == ClientStatus.MOVINGMOTHERNATURE) {
-
                 actionOkay = moveMotherNature();
                 if (actionOkay)
                     status = ClientStatus.CHOOSINGCLOUD;
+                else
+                    view.impossibleMotherNature();
             } else if (response.equals("5") && status == ClientStatus.CHOOSINGCLOUD) {
-
                 actionOkay = chooseCloud();
                 if (actionOkay)
                     status = ClientStatus.WAITINGFORTURN;
-            } else
+                else
+                    view.impossibleCloud();
+            } else if (response.equals("6")) {
+                actionOkay = playCharacter();
+                if (!actionOkay)
+                    view.impossibleCharacter();
+            }
+
+            //TODO mancaNO DA INSERIRE QUI I COMANDI PER MOSTRARE LA VIEW: esempio FUNZIONANTE quando ce il metodo della view
+            //else if(response.equals("7"))
+            //view.updateBoards
+
+
+            else
                 view.wrongInsert();
 
         }
@@ -473,10 +509,25 @@ public class Client {
     }
 
     /**
-     *
+     * Method used to set beginGame
      */
     static public void beginGame() {
         inGame = true;
+    }
+
+    static private boolean playCharacter() {
+
+        //TODO
+
+        return false;
+    }
+
+
+    /**
+     * @return total students moved in action phase in a turn
+     */
+    public static int getTotalStudentsInTurn() {
+        return totalStudentsInTurn;
     }
 
 

@@ -15,6 +15,12 @@ import static it.polimi.ingsw.am37.message.UpdateController.Properties.*;
  */
 public class Island extends UpdatableObject {
 
+
+    /**
+     * If there is Mother Nature
+     */
+    private boolean motherNatureHere;
+
     /**
      * It's a number to identify island
      */
@@ -53,6 +59,7 @@ public class Island extends UpdatableObject {
         this.tower = TowerColor.NONE;
         this.studentsOnIsland = studentsOnIsland;
         this.islandId = islandId;
+        this.motherNatureHere = false;
     }
 
     /**
@@ -157,6 +164,20 @@ public class Island extends UpdatableObject {
      */
     public int getIslandId() {
         return this.islandId;
+    }
+
+    /**
+     * @return if there is Mother Nature
+     */
+    public boolean getMotherNatureHere() {
+        return motherNatureHere;
+    }
+
+    /**
+     * @param bool used to set Mother Nature
+     */
+    public void setMotherNatureHere(boolean bool) {
+        motherNatureHere = bool;
     }
 
     /**

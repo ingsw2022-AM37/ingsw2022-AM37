@@ -1,5 +1,9 @@
 package it.polimi.ingsw.am37.client;
 
+import it.polimi.ingsw.am37.model.Assistant;
+import it.polimi.ingsw.am37.model.FactionColor;
+import it.polimi.ingsw.am37.model.Island;
+
 import java.util.HashMap;
 import java.util.Scanner;
 
@@ -10,7 +14,7 @@ public class CliView extends AbstractView {
      *
      * @param address Address written by the player during connection to server
      */
-    public void ifNonLocalhostAddress(String address) { //TODO se voglio metto isReachable senza qusta print e richiedo se non è raggiungibile
+    public void ifNonLocalhostAddress(String address) {
         if (!address.equals("localhost"))
             System.out.println(" You have put an address different from \"localhost\", if this doesn't exists it will be considered \"localhost\" \n");
     }
@@ -177,25 +181,34 @@ public class CliView extends AbstractView {
      *
      * @return The chosen assistant
      */
-    public int askAssistant() { //TODO posso controllare che il numero scelto sia anche compreso in quelli che ho
+    public int askAssistant() {
 
         Scanner scanner = new Scanner(System.in);
         String s;
+        boolean present = false;
+        int num;
 
-        System.out.println(" Please insert the value of your chosen assistant: \n");
 
         while (true) {
+
+            System.out.println(" Please insert the value of your chosen assistant: \n");
 
             s = scanner.nextLine().trim().replaceAll(" +", " ");
 
             try {
-                if (Integer.parseInt(s) > 0 && Integer.parseInt(s) < 11)
-                    return Integer.parseInt(s);
-
-                wrongInsert();
+                num = Integer.parseInt(s);
             } catch (NumberFormatException e) {
                 wrongInsert();
+                continue;
             }
+
+            if (getReducedModel().getPlayers().get(Client.getNickname()).getAssistantsDeck().containsKey(num))
+                return num;
+            else if (getReducedModel().getPlayers().get(Client.getNickname()).getAssistantsDeck().containsKey(num) && num > 0 && num < 11)
+                System.out.println(" You have already played this assistant \n");
+            else
+                wrongInsert();
+
         }
     }
 
@@ -211,8 +224,9 @@ public class CliView extends AbstractView {
         System.out.println(" \"3\" : moving students ");
         System.out.println(" \"4\" : moving Mother Nature ");
         System.out.println(" \"5\" : picking students from cloud ");
+        System.out.println(" \"6\" : playing a character");
 
-        //TODO
+        //TODO in questo stile mancano i metodi che si riferiscono ai vari update per stampare le situazioni correnti (le varie view)
 
 
     }
@@ -238,44 +252,91 @@ public class CliView extends AbstractView {
      *
      * @return HashMap with responses of the player
      */
-    public HashMap<String, String> askStudents() { //TODO metodo da finire, controllo che muovo in tutto tre studenti e in più devo averli nella entrance quelli scelti
+    public HashMap<String, String> askStudents() {
 
+        HashMap<String, String> response;
         Scanner scanner = new Scanner(System.in);
         String s1, s2, s3, s4;
+        FactionColor color = null;
+        boolean ok;
 
-        System.out.println(" Select the color of students you want to move, write \"R\" (red) or \"B\" (blue) or \"Y\" (yellow) or \"G\" (green) or \"P\" (pink) \n");
+        while (true) {
 
-        s1 = scanner.nextLine().trim().replaceAll(" +", " ");
+            response = new HashMap<>();
+            System.out.println(" Select the color of students you want to move, write \"R\" (red) or \"B\" (blue) or \"Y\" (yellow) or \"G\" (green) or \"P\" (pink) \n");
 
-        if (!(s1.equals("r") || s1.equals("b") || s1.equals("y") || s1.equals("p") || s1.equals("g")))
-            wrongInsert();
+            s1 = scanner.nextLine().trim().replaceAll(" +", " ");
 
-        System.out.println(" Write the number of student/s you want to move ");
+            if (!(s1.equals("r") || s1.equals("b") || s1.equals("y") || s1.equals("p") || s1.equals("g"))) {
+                wrongInsert();
+                continue;
+            }
 
-        s2 = scanner.nextLine().trim().replaceAll(" +", " ");
+            response.put("color", s1);
 
-        try {
-            Integer.parseInt(s2);
-        } catch (NumberFormatException e) {
-            wrongInsert();
+
+            switch (s1) {
+                case "r" -> color = FactionColor.RED;
+                case "b" -> color = FactionColor.BLUE;
+                case "g" -> color = FactionColor.GREEN;
+                case "y" -> color = FactionColor.YELLOW;
+                case "p" -> color = FactionColor.PINK;
+            }
+
+            System.out.println(" Write the number of student/s you want to move ");
+
+            s2 = scanner.nextLine().trim().replaceAll(" +", " ");
+
+            try {
+                Integer.parseInt(s2);
+                if (Integer.parseInt(s2) + Client.getTotalStudentsInTurn() > 3 || getReducedModel().getBoards().get(Client.getNickname()).getEntrance().getByColor(color) < Integer.parseInt(s2)) {
+                    wrongInsert();
+                    continue;
+                }
+            } catch (NumberFormatException e) {
+                wrongInsert();
+                continue;
+            }
+
+            response.put("number", s2);
+
+            System.out.println(" Write now \"D\" if you want to move students from entrance to dining or \"I\" for moving to one island \n");
+
+            s3 = scanner.nextLine().trim().replaceAll(" +", " ");
+
+            if (!(s3.equals("d") || s2.equals("i"))) {
+                wrongInsert();
+                continue;
+            }
+
+            if (s3.equals("d"))
+                return response;
+
+            System.out.println(" Write now \"n\" where n is the number of island, available islands are: ");
+            for (Island island : getReducedModel().getIslands())
+                System.out.println(" Island " + island.getIslandId());
+
+            s4 = scanner.nextLine().trim().replaceAll(" +", " ");
+
+            try {
+                Integer.parseInt(s4);
+            } catch (NumberFormatException e) {
+                wrongInsert();
+                continue;
+            }
+
+            ok = false;
+            for (Island island : getReducedModel().getIslands())
+                if (island.getIslandId() == Integer.parseInt(s4)) {
+                    response.put("islandDest", s4);
+                    ok = true;
+                }
+
+            if (ok)
+                return response;
+            else
+                wrongInsert();
         }
-
-        System.out.println(" Write now \"D\" if you want to move students from entrance to dining or \"I\" for moving to one island \n");
-
-        s3 = scanner.nextLine().trim().replaceAll(" +", " ");
-
-        if (!(s2.equals("d") || s2.equals("i")))
-            wrongInsert();
-
-        System.out.println(" Write now \"n\" where n is the number of island, available islands are: "); //TODO faccio una sorta di traduttore, non dico gli id direttamente ma le posizioni(quindi islands.size - 1) e poi traduco andando a vedere l'id dell'isola prima di mandare
-
-        s4 = scanner.nextLine().trim().replaceAll(" +", " ");
-
-        //TODO qui devo controllare che il numero in stringa s3 sia compreso nella dimensione dell'array delle isole, senno rihiedo
-
-
-        //TODO alla fine faccio che il metodo mi torna una hashmap di stringhe, posizione 0 il colore, posizione 1 il numero, posizione 3 la destinazione, posizione 4 l'isola se ho scelto l'isola
-        return null;
     }
 
 
@@ -284,9 +345,32 @@ public class CliView extends AbstractView {
      */
     public int askMotherNature() {
 
-        System.out.println("Now choose your destination, available islands are"); //TODO aggiungo il numero di isole available e faccio sempre la traduzione che avevo detto,quindi il return da island id, mentre il mio controllo lo faccio sugli indici della size -1
+        Scanner scanner = new Scanner(System.in);
+        String response;
+        int numResponse;
 
-        return 0;
+        System.out.println(" Now choose your destination, available islands are : \n");
+        for (Island island : getReducedModel().getIslands())
+            System.out.println(" Island " + island.getIslandId());
+
+        while (true) {
+
+            response = scanner.nextLine().trim().replaceAll(" +", " ");
+
+            try {
+                numResponse = Integer.parseInt(response);
+            } catch (NumberFormatException e) {
+                wrongInsert();
+                continue;
+            }
+
+            for (Island island : getReducedModel().getIslands())
+                if (island.getIslandId() == numResponse)
+                    return numResponse;
+
+            System.out.println(" You have written an invalid Island, please try again: \n");
+
+        }
 
     }
 
@@ -295,9 +379,16 @@ public class CliView extends AbstractView {
      */
     public String askCloud() {
 
-        System.out.println(" Now choose a cloud to pick "); //TODO faccio il metodo dando la scelta tra le due disponibili sempre col traduttore
+        String response;
+        Scanner scanner = new Scanner(System.in);
+        System.out.println(" Now choose a cloud to pick, number \"1\" or \"2\" or \"3\" :  \n");
 
-        return null;
+
+        while (true) {
+            response = scanner.nextLine().trim().replaceAll(" +", " ");
+            if (response.equals("1") || response.equals("2") || response.equals("3"))
+                return response;
+        }
 
     }
 
@@ -342,6 +433,50 @@ public class CliView extends AbstractView {
     public void printWinner(String nick) {
         System.out.println(nick.toUpperCase() + " has won the game!!! Now it's closing \n");
 
+    }
+
+    /**
+     * Method used to ask a player which character he wants to play
+     */
+    public void askCharacter() {
+        //TODO
+    }
+
+
+    /**
+     * Method used when an error message come from server
+     */
+    public void impossibleAssistant() {
+        System.out.println("You can't play this assistant now, try another one \n");
+    }
+
+    /**
+     * Method used when an error message come from server
+     */
+    public void impossibleStudents() {
+        System.out.println(" You can't move these students \n");
+    }
+
+    /**
+     * Method used when an error message come from server
+     */
+    public void impossibleMotherNature() {
+        System.out.println(" You can't move mother nature to that position \n");
+    }
+
+
+    /**
+     * Method used when an error message come from server
+     */
+    public void impossibleCloud() {
+        System.out.println(" You can't choose this cloud \n");
+    }
+
+    /**
+     * Method used when an error message come from server
+     */
+    public void impossibleCharacter() {
+        System.out.println(" You can't play a character now \n");
     }
 
 

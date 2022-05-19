@@ -82,7 +82,7 @@ public class ClientHandler implements Runnable {
     public void sendMessageToClient(Message message) throws InternetException {
 
 
-        String json = new MessageGsonBuilder().getGsonBuilder().create().toJson(message);
+        String json = new MessageGsonBuilder().registerMessageAdapter().registerStudentContainerAdapter().getGsonBuilder().create().toJson(message);
 
         ExecutorService service = Executors.newSingleThreadExecutor();
 
@@ -148,7 +148,7 @@ public class ClientHandler implements Runnable {
     public void disconnect() {
 
         this.connectedToClient = false;
-        //TODO aggiungo metodo onMesageReceiver per avvisare la disconnesione
+        messageReceiver.disconnect();
 
         try {
             dataInputStream.close();
@@ -232,7 +232,7 @@ public class ClientHandler implements Runnable {
                 @Override
                 public Message call() throws IOException {
                     String json = dataInputStream.readUTF();
-                    Message message = new MessageGsonBuilder().getGsonBuilder().create().fromJson(json, Message.class);
+                    Message message = new MessageGsonBuilder().registerMessageAdapter().registerStudentContainerAdapter().getGsonBuilder().create().fromJson(json, Message.class);
                     return message;
                 }
             };

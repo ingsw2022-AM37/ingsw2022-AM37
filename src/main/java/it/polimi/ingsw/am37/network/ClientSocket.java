@@ -171,10 +171,11 @@ public class ClientSocket implements Runnable {
      */
     static public void sendMessage(Message message) {
 
-        //TODO ogni 0,3 secondi manda un ping, metto un contatore statico che incremento ad ogni messaggio, arrivato a 700 avviso che se non viene mandato un messaggio valido a breve verrà disconnesso
+        //TODO PER ORA LO LASCIAMO IN SOSPESO, POI DECIDIAMO SE METTERE QUESTA FUNZIONE
+        // ogni 0,3 secondi manda un ping, metto un contatore statico che incremento ad ogni messaggio, arrivato a 700 avviso che se non viene mandato un messaggio valido a breve verrà disconnesso
         // gestisco anche quando non è il mio turno ovviamente questo non deve accadere
 
-        String json = new MessageGsonBuilder().getGsonBuilder().create().toJson(message);
+        String json = new MessageGsonBuilder().registerMessageAdapter().registerStudentContainerAdapter().getGsonBuilder().create().toJson(message);
 
         Timer timer = new Timer();
 
@@ -251,16 +252,25 @@ public class ClientSocket implements Runnable {
     /**
      * Message received from server and executed
      */
-    static private void readMessage() {
+    static private void readMessage() { //TODO manca un messaggio con cui mi si dicono i nickname della partita
 
         String json;
         Message message = null;
+        Timer timer = new Timer();
+
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                disconnect();
+            }
+        }, 5000);
 
         try {
             json = dataInputStream.readUTF();
             message = new MessageGsonBuilder().getGsonBuilder().create().fromJson(json, Message.class);
+            timer.cancel();
             if (message.getMessageType() != MessageType.PING && message.getMessageType() != MessageType.NEXT_TURN && message.getMessageType() != MessageType.PLANNING_PHASE) {
-                messageBuffer = new MessageGsonBuilder().getGsonBuilder().create().fromJson(json, Message.class);
+                messageBuffer = new MessageGsonBuilder().registerMessageAdapter().registerStudentContainerAdapter().getGsonBuilder().create().fromJson(json, Message.class);
                 waitingMessage = false;
                 synchronized (waitObject) {
                     waitObject.notifyAll();
@@ -268,11 +278,11 @@ public class ClientSocket implements Runnable {
             }
 
             if (message.getMessageType() == MessageType.START_GAME) {
-                waitObject.notifyAll();
+                synchronized (waitObject) {
+                    waitObject.notifyAll();
+                }
                 Client.beginGame();
-            }
-
-            if (message.getMessageType() == MessageType.END_GAME) {
+            } else if (message.getMessageType() == MessageType.END_GAME) {
                 EndGameMessage endGameMessage;
                 endGameMessage = (EndGameMessage) message;
 
@@ -280,14 +290,9 @@ public class ClientSocket implements Runnable {
 
                 Client.getView().printWinner(endGameMessage.getWinnerNickname());
 
-            }
-
-            if (message.getMessageType() == MessageType.UPDATE) {
+            } else if (message.getMessageType() == MessageType.UPDATE) {
                 Client.getView().getReducedModel().update(((UpdateMessage) message).getUpdatedObjects().values().stream().flatMap(List::stream).toList());
-            }
-
-
-            if (message.getMessageType() == MessageType.NEXT_TURN) {
+            } else if (message.getMessageType() == MessageType.NEXT_TURN) {
                 NextTurnMessage nextTurnMessage;
 
                 nextTurnMessage = (NextTurnMessage) message;

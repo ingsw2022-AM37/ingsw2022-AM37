@@ -34,6 +34,12 @@ public class Cloud extends UpdatableObject {
     private LimitedStudentsContainer studentsOnCloud;
 
     /**
+     * Counter for increase cloud id
+     */
+    private static int idCounter = 0;
+
+
+    /**
      * Default constructor
      */
     public Cloud(boolean isFor2) {
@@ -41,7 +47,8 @@ public class Cloud extends UpdatableObject {
         this.isFor2 = isFor2;
         if (this.isFor2) studentsOnCloud = new LimitedStudentsContainer(studentsPerCloud2Players);
         else studentsOnCloud = new LimitedStudentsContainer(studentsPerCloud3Players);
-        cloudId = UUID.randomUUID().toString();
+        cloudId = Integer.toString(idCounter);
+        idCounter = idCounter + 1;
     }
 
     /**

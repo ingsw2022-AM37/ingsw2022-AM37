@@ -90,6 +90,7 @@ public class IslandsManager {
             islands.add(i, new Island(new FixedUnlimitedStudentsContainer(), i));
             if (i == motherNatureHere) {
                 this.motherNaturePosition = islands.get(i);
+                islands.get(i).setMotherNatureHere(true);
             }
         }
 
@@ -348,7 +349,9 @@ public class IslandsManager {
                 destinationMotherNature = 0;
         }
 
+        islands.get(islands.indexOf(motherNaturePosition)).setMotherNatureHere(false);
         this.motherNaturePosition = this.islands.get(destinationMotherNature);
+        islands.get(destinationMotherNature).setMotherNatureHere(true);
     }
 
     /**
