@@ -298,6 +298,8 @@ public class CliView extends AbstractView {
                 continue;
             }
 
+            Client.addTotalStudentsInTurn(Integer.parseInt(s2));
+
             response.put("number", s2);
 
             System.out.println(" Write now \"D\" if you want to move students from entrance to dining or \"I\" for moving to one island \n");

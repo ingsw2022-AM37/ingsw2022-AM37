@@ -530,5 +530,12 @@ public class Client {
         return totalStudentsInTurn;
     }
 
+    /**
+     * @param num students moved
+     */
+    public static void addTotalStudentsInTurn(int num) {
+        totalStudentsInTurn = totalStudentsInTurn + num;
+    }
+
 
 }
