@@ -5,6 +5,8 @@ import it.polimi.ingsw.am37.model.character.Effect;
 import it.polimi.ingsw.am37.model.character.Option;
 import it.polimi.ingsw.am37.model.exceptions.AssistantImpossibleToPlay;
 import it.polimi.ingsw.am37.model.exceptions.CharacterImpossibleToPlay;
+import it.polimi.ingsw.am37.model.exceptions.MNmovementWrongException;
+import it.polimi.ingsw.am37.model.exceptions.StudentSpaceException;
 import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
 
 import java.util.*;
@@ -18,7 +20,7 @@ public class GameManager {
     /**
      * Number of characters available
      */
-    public static final int NUMBER_OF_CHARACTERS = 3;
+    private static final int NUMBER_OF_CHARACTERS = 3;
     /**
      * Number of player in the game handled by this manager
      */
@@ -232,7 +234,7 @@ public class GameManager {
      *
      * @param islandId The num of forward island movement of mother nature
      */
-    public void moveMotherNature(int islandId) {
+    public void moveMotherNature(int islandId) throws MNmovementWrongException {
         synchronized (lock) {
             islandsManager.motherNatureActionMovement(islandId, turnManager.getPlayers());
         }
@@ -256,7 +258,7 @@ public class GameManager {
     /**
      * Choose a cloud.
      */
-    public void chooseCloud(String cloudId) {
+    public void chooseCloud(String cloudId) throws IllegalArgumentException, StudentSpaceException {
         synchronized (lock) {
             Cloud currentCloud = clouds.stream()
                     .filter(cloud -> cloud.getCloudId().equals(cloudId))
