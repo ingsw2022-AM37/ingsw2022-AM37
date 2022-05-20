@@ -1,10 +1,13 @@
 package it.polimi.ingsw.am37.client;
 
-import it.polimi.ingsw.am37.model.Assistant;
-import it.polimi.ingsw.am37.model.FactionColor;
-import it.polimi.ingsw.am37.model.Island;
+import it.polimi.ingsw.am37.model.*;
+import org.fusesource.jansi.Ansi;
+import org.fusesource.jansi.AnsiConsole;
 
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Scanner;
 
 public class CliView extends AbstractView {
@@ -16,7 +19,8 @@ public class CliView extends AbstractView {
      */
     public void ifNonLocalhostAddress(String address) {
         if (!address.equals("localhost"))
-            System.out.println(" You have put an address different from \"localhost\", if this doesn't exists it will be considered \"localhost\" \n");
+            System.out.println(" You have put an address different from \"localhost\", if this doesn't exists it will" +
+                    " be considered \"localhost\" \n");
     }
 
     /**
@@ -63,7 +67,8 @@ public class CliView extends AbstractView {
         String s;
         Scanner scanner = new Scanner(System.in);
         while (true) {
-            System.out.println(" Do you want to use default options? Please write \"yes\" or \"no\" or \"close game\": \n");
+            System.out.println(" Do you want to use default options? Please write \"yes\" or \"no\" or \"close " +
+                    "game\": \n");
             s = scanner.nextLine().toLowerCase().trim().replaceAll(" +", " ");
             if (s.equals("yes") || s.equals("no") || s.equals("close game"))
                 return s;
@@ -72,7 +77,8 @@ public class CliView extends AbstractView {
     }
 
     /**
-     * Method used if player decided to don't use default setting for connection, so he will be asked to insert his parameters
+     * Method used if player decided to don't use default setting for connection, so he will be asked to insert his
+     * parameters
      *
      * @param address  It's how address parameter is called
      * @param port     It's how port parameter is called
@@ -132,7 +138,8 @@ public class CliView extends AbstractView {
      * Method to notify if client or server has lost the connection
      */
     public void notifyInternetCrash() {
-        System.out.println(" Game has lost the connection, it tried to reconnect but it failed. Game is now closing \n");
+        System.out.println(" Game has lost the connection, it tried to reconnect but it failed. Game is now closing " +
+                "\n");
     }
 
     /**
@@ -144,7 +151,8 @@ public class CliView extends AbstractView {
         String s;
         Scanner scanner = new Scanner(System.in);
         while (true) {
-            System.out.println(" Please insert number of players you want in your match (yourself included), they can be \"two\" or \"three\" \n. You can also write \"close game\": ");
+            System.out.println(" Please insert number of players you want in your match (yourself included), they can" +
+                    " be \"two\" or \"three\" \n. You can also write \"close game\": ");
             s = scanner.nextLine().trim().replaceAll(" +", " ");
             if (s.equals("two"))
                 s = "2";
@@ -167,7 +175,8 @@ public class CliView extends AbstractView {
         Scanner scanner = new Scanner(System.in);
 
         while (true) {
-            System.out.println(" Please insert \"yes\" or \"no\" according if you want to play with advanced rules or write \"close game\": \n");
+            System.out.println(" Please insert \"yes\" or \"no\" according if you want to play with advanced rules or" +
+                    " write \"close game\": \n");
             s = scanner.nextLine().trim().replaceAll(" +", " ");
             if (s.equals("yes") || s.equals("no") || s.equals("close game"))
                 return s;
@@ -204,7 +213,8 @@ public class CliView extends AbstractView {
 
             if (getReducedModel().getPlayers().get(Client.getNickname()).getAssistantsDeck().containsKey(num))
                 return num;
-            else if (getReducedModel().getPlayers().get(Client.getNickname()).getAssistantsDeck().containsKey(num) && num > 0 && num < 11)
+            else if (getReducedModel().getPlayers().get(Client.getNickname()).getAssistantsDeck().containsKey(num) &&
+                    num > 0 && num < 11)
                 System.out.println(" You have already played this assistant \n");
             else
                 wrongInsert();
@@ -226,7 +236,8 @@ public class CliView extends AbstractView {
         System.out.println(" \"5\" : picking students from cloud ");
         System.out.println(" \"6\" : playing a character");
 
-        //TODO in questo stile mancano i metodi che si riferiscono ai vari update per stampare le situazioni correnti (le varie view)
+        //TODO in questo stile mancano i metodi che si riferiscono ai vari update per stampare le situazioni correnti
+        // (le varie view)
 
 
     }
@@ -263,7 +274,8 @@ public class CliView extends AbstractView {
         while (true) {
 
             response = new HashMap<>();
-            System.out.println(" Select the color of students you want to move, write \"R\" (red) or \"B\" (blue) or \"Y\" (yellow) or \"G\" (green) or \"P\" (pink) \n");
+            System.out.println(" Select the color of students you want to move, write \"R\" (red) or \"B\" (blue) or " +
+                    "\"Y\" (yellow) or \"G\" (green) or \"P\" (pink) \n");
 
             s1 = scanner.nextLine().trim().replaceAll(" +", " ");
 
@@ -289,7 +301,9 @@ public class CliView extends AbstractView {
 
             try {
                 Integer.parseInt(s2);
-                if (Integer.parseInt(s2) + Client.getTotalStudentsInTurn() > 3 || getReducedModel().getBoards().get(Client.getNickname()).getEntrance().getByColor(color) < Integer.parseInt(s2)) {
+                if (Integer.parseInt(s2) + Client.getTotalStudentsInTurn() > 3 ||
+                        getReducedModel().getBoards().get(Client.getNickname()).getEntrance().getByColor(color) <
+                                Integer.parseInt(s2)) {
                     wrongInsert();
                     continue;
                 }
@@ -302,7 +316,8 @@ public class CliView extends AbstractView {
 
             response.put("number", s2);
 
-            System.out.println(" Write now \"D\" if you want to move students from entrance to dining or \"I\" for moving to one island \n");
+            System.out.println(" Write now \"D\" if you want to move students from entrance to dining or \"I\" for " +
+                    "moving to one island \n");
 
             s3 = scanner.nextLine().trim().replaceAll(" +", " ");
 
@@ -481,5 +496,80 @@ public class CliView extends AbstractView {
         System.out.println(" You can't play a character now \n");
     }
 
+    /**
+     * This function draw the current status of the table from the current player's point of view: draw all islands,
+     * boards and players status
+     */
+    @Override
+    public void showTable() {
+        System.setOut(new PrintStream(System.out, true, StandardCharsets.UTF_8));
+        AnsiConsole.systemInstall();
+        AnsiConsole.out().print(Ansi.ansi().eraseScreen());
+        for (Island island :
+                reducedModel.getIslands()) {
+            drawIsland(island);
+        }
+        for (Cloud cloud :
+                reducedModel.getClouds().values()) {
+            drawCloud(cloud);
+        }
+        AnsiConsole.systemUninstall();
+    }
 
+    protected void drawIsland(Island island) {
+        System.out.print(Ansi.ansi()
+                .a("🏝️  Isola ")
+                .a(island.getIslandId())
+                .a(" (dim ")
+                .a(island.getNumIslands())
+                .a("): "));
+        System.out.print(Ansi.ansi().render(island.getStudentsOnIsland().getStudentsAsString()));
+        if (island.getMotherNatureHere()) System.out.println(Ansi.ansi().a(" ⬅ mother nature"));
+        System.out.println();
+    }
+
+    protected void drawCloud(Cloud cloud) {
+        System.out.println(Ansi.ansi().a("☁️Cloud ").a(cloud.getCloudId()).a(": ").render(cloud.getStudentsAsString()));
+    }
+
+    protected void drawAssistant(Assistant assistant) {
+        System.out.print(Ansi.ansi().fgCyan().a(assistant).reset());
+    }
+
+    protected void drawBoard(Board board) {
+        System.out.println("\tEntrace: " + Ansi.ansi().render(board.getEntrance().getStudentsAsString()));
+        System.out.println("\tDining: " + Ansi.ansi().render(board.getDiningRoom().getStudentsAsString()));
+        System.out.println("\tTowers: " + Ansi.ansi().render(board.getTowers().getTowersAsString()));
+    }
+
+    /**
+     * This method print on console a colorful representation of the last assistant played and his entire board
+     *
+     * @param player the players to show status of
+     */
+    @Override
+    public void showPlayerStatus(Player player) {
+        System.out.println(player.getPlayerId() + " status:");
+        if (player.getLastAssistantPlayed() != null) {
+            drawAssistant(player.getLastAssistantPlayed());
+            System.out.println();
+        }
+        if (player.getBoard() != null) drawBoard(player.getBoard());
+    }
+
+    @Override
+    public void showDeck(Player player) {
+        System.out.println("Your deck is: [");
+        List<Assistant> assistants = player.getAssistantsDeck().values().stream().toList();
+        for (int i = 0; i < assistants.size(); i++) {
+            if (i % 2 == 0)
+                System.out.print("\t");
+            drawAssistant(assistants.get(i));
+            if (i != assistants.size() - 1)
+                System.out.print(", ");
+            if (i % 2 == 1 || i == assistants.size() - 1)
+                System.out.println();
+        }
+        System.out.println("]");
+    }
 }
