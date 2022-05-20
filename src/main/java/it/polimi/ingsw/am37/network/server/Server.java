@@ -23,11 +23,6 @@ public class Server implements MessageReceiver {
     private static Logger LOGGER;
 
     /**
-     * It represents the server socket used to accept connections with Clients,
-     */
-    private static ServerSocket serverSocket;
-
-    /**
      * It represents the server port.
      */
     private static int port;
@@ -55,9 +50,20 @@ public class Server implements MessageReceiver {
     /**
      * Default Constructor
      */
+    public Server() {
+        nicknames = new HashMap<>();
+        activeLobbies = new ArrayList<>();
+        clientHandlerMap = new HashMap<>();
+        LOGGER = LogManager.getLogger(Server.class);
+    }
+
+    /**
+     * Loads the server with the given port.
+     *
+     * @param serverPort the given port.
+     */
     public void loadServer(int serverPort) {
         port = serverPort;
-        LOGGER = LogManager.getLogger(Server.class);
 
         new Thread(() -> {
             //TODO: LOGGER
@@ -255,14 +261,14 @@ public class Server implements MessageReceiver {
         Message response;
         switch (message.getMessageType()) {
             case LOGIN:
-                if (nicknames.containsValue(((LoginMessage) message).getNickname())) {
+                if (!nicknames.containsValue(((LoginMessage) message).getNickname())) {
                     clientHandlerMap.put(message.getUUID(), ch);
                     nicknames.put(message.getUUID(), ((LoginMessage) message).getNickname());
                     response = new ConfirmMessage(message.getUUID());
                     sendMessage(response);
                 } else {
                     response = new ErrorMessage(message.getUUID(), "Nickname already used");
-                    sendMessage(response);
+                    ch.sendMessageToClient(response);
                 }
                 break;
             case LOBBY_REQUEST:
@@ -289,7 +295,7 @@ public class Server implements MessageReceiver {
             default:
                 response = new ErrorMessage(message.getUUID(), "You've sent a message that the server can't " +
                         "understand");
-                sendMessage(response);
+                ch.sendMessageToClient(response);
                 break;
         }
     }
@@ -301,5 +307,13 @@ public class Server implements MessageReceiver {
     public void sendMessage(Message message) throws InternetException {
         ClientHandler client = clientHandlerMap.get(message.getUUID());
         client.sendMessageToClient(message);
+    }
+
+    /**
+     * Perform actions when client wants to disconnect
+     */
+    @Override
+    public void onDisconnect() {
+
     }
 }
