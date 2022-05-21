@@ -53,13 +53,9 @@ public class TurnManager {
 
     /**
      * It represents the Assistant played per Player in the current turn.
-     */
-    private HashMap<Player, Assistant> assistantPlayed;
-
-    /**
      * It is needed to establish the players' next turn order
      */
-    private HashMap<Player, Assistant> nextTurnPlayer;
+    private HashMap<Player, Assistant> assistantPlayed;
 
     /**
      * Default constructor
@@ -69,7 +65,6 @@ public class TurnManager {
         this.coinsEnabled = coinsEnabled;
         this.numOfPlayers = numOfPlayers;
         this.getProfWithDraw = false;
-        this.assistantPlayed = new HashMap<>();
     }
 
     /**
@@ -196,7 +191,7 @@ public class TurnManager {
         final int studentEntranceTwoPlayers = 7;
         this.orderPlayed = new ArrayList<>();
         this.stolenProf = new HashMap<>();
-        this.nextTurnPlayer = new HashMap<>();
+        this.assistantPlayed = new HashMap<>();
 
         for (int cont = 0; cont < numOfPlayers; cont++)
             this.players.add(new Player());
@@ -262,6 +257,14 @@ public class TurnManager {
      */
     public ArrayList<Player> getOrderPlayed() {
         return orderPlayed;
+    }
+
+    /**
+     *
+     * @return the Assistant played in this turn.
+     */
+    public HashMap<Player, Assistant> getAssistantPlayed() {
+        return assistantPlayed;
     }
 
     /**
@@ -369,7 +372,7 @@ public class TurnManager {
             }
         }
         useAssistant(assistant);
-        this.nextTurnPlayer.put(currentPlayer, assistant);
+        this.assistantPlayed.put(currentPlayer, assistant);
         //FIXME: questo setta un nuovo current player, corretto farlo qua?
         if (orderPlayed.indexOf(currentPlayer) != orderPlayed.size())
             setCurrentPlayer(orderPlayed.get(orderPlayed.indexOf(currentPlayer) + 1));
@@ -393,7 +396,7 @@ public class TurnManager {
     public void nextTurn() {
         resetFlags();
         orderPlayed.clear();
-        this.orderPlayed.addAll(this.nextTurnPlayer.keySet().stream().sorted(
+        this.orderPlayed.addAll(this.assistantPlayed.keySet().stream().sorted(
                 new Comparator<>() {
                     /**
                      * Compares the card value played by two Players.
@@ -405,9 +408,9 @@ public class TurnManager {
                      */
                     @Override
                     public int compare(Player p1, Player p2) {
-                        if ((nextTurnPlayer.get(p1).getCardValue() - nextTurnPlayer.get(p2).getCardValue()) == 0)
+                        if ((assistantPlayed.get(p1).getCardValue() - assistantPlayed.get(p2).getCardValue()) == 0)
                             return (orderPlayed.indexOf(p1) < orderPlayed.indexOf(p2)) ? -1 : 1;
-                        return nextTurnPlayer.get(p1).getCardValue() - nextTurnPlayer.get(p2).getCardValue();
+                        return assistantPlayed.get(p1).getCardValue() - assistantPlayed.get(p2).getCardValue();
                     }
                 }).toList());
         setCurrentPlayer(orderPlayed.get(0));

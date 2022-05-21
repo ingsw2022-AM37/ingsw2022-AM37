@@ -1,8 +1,5 @@
 package it.polimi.ingsw.am37.network.server;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import it.polimi.ingsw.am37.message.Message;
 import it.polimi.ingsw.am37.message.MessageGsonBuilder;
 import it.polimi.ingsw.am37.message.MessageType;
@@ -146,9 +143,8 @@ public class ClientHandler implements Runnable {
      * Set there isn't connection with client and tries to close the socket
      */
     public void disconnect() {
-
         this.connectedToClient = false;
-        messageReceiver.disconnect();
+        //messageReceiver.onDisconnect(this);
 
         try {
             dataInputStream.close();

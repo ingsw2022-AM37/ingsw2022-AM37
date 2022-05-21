@@ -267,7 +267,7 @@ public class ClientSocket implements Runnable {
 
         try {
             json = dataInputStream.readUTF();
-            message = new MessageGsonBuilder().getGsonBuilder().create().fromJson(json, Message.class);
+            message = new MessageGsonBuilder().registerMessageAdapter().registerStudentContainerAdapter().getGsonBuilder().create().fromJson(json, Message.class);
             timer.cancel();
             if (message.getMessageType() != MessageType.PING && message.getMessageType() != MessageType.NEXT_TURN && message.getMessageType() != MessageType.PLANNING_PHASE) {
                 messageBuffer = new MessageGsonBuilder().registerMessageAdapter().registerStudentContainerAdapter().getGsonBuilder().create().fromJson(json, Message.class);
