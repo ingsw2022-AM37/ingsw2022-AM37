@@ -1,14 +1,13 @@
 package it.polimi.ingsw.am37.controller;
 
 import it.polimi.ingsw.am37.message.*;
-import it.polimi.ingsw.am37.model.Assistant;
-import it.polimi.ingsw.am37.model.Cloud;
-import it.polimi.ingsw.am37.model.GameManager;
-import it.polimi.ingsw.am37.model.Island;
+import it.polimi.ingsw.am37.model.*;
 import it.polimi.ingsw.am37.model.character.Character;
 import it.polimi.ingsw.am37.model.character.Option;
 import it.polimi.ingsw.am37.model.exceptions.AssistantImpossibleToPlay;
 import it.polimi.ingsw.am37.model.exceptions.CharacterImpossibleToPlay;
+import it.polimi.ingsw.am37.model.exceptions.MNmovementWrongException;
+import it.polimi.ingsw.am37.model.exceptions.StudentSpaceException;
 import it.polimi.ingsw.am37.network.MessageReceiver;
 import it.polimi.ingsw.am37.network.exceptions.InternetException;
 import it.polimi.ingsw.am37.network.server.ClientHandler;
@@ -53,18 +52,27 @@ public class Lobby implements Runnable, MessageReceiver {
      * It represents the client connected in the lobby and therefore the Players.
      */
     private final HashMap<String, ClientHandler> players;
+
+    /**
+     * Keeps track of the disconnected clients
+     */
+    private static HashMap<String, ClientHandler> disconnectedPlayers;
+
     /**
      * exposed model
      */
     private final GameManager gameManager;
+
     /**
      * A controller that observe what is changed in the model and stores it.
      */
     private final UpdateController updateController;
+
     /**
      * It represents the clientHandlers and theirs nickname
      */
     private final HashMap<String, String> playerNicknames;
+
     /**
      * Flags that checks if a Player already played a Character in his turn.
      */
@@ -95,9 +103,11 @@ public class Lobby implements Runnable, MessageReceiver {
      * Runs the thread.
      */
     @Override
-    public void run() {
-        if (isGameReady())
+    public synchronized void run() {
+        if (isGameReady()){
             startGame();
+            System.out.println("GAME STARTED WOWO");
+        }
         else {
             try {
                 wait();
@@ -134,10 +144,11 @@ public class Lobby implements Runnable, MessageReceiver {
      *
      * @param ch the Client to be added.
      */
-    public void addPlayerInLobby(String UUID, ClientHandler ch, String nickname) {
+    public synchronized void addPlayerInLobby(String UUID, ClientHandler ch, String nickname) {
         players.put(UUID, ch);
         isGameReady = isFull();
         playerNicknames.put(UUID, nickname);
+        LOGGER.info("+1");
         notifyAll();
     }
 
@@ -206,6 +217,7 @@ public class Lobby implements Runnable, MessageReceiver {
     @Override
     public void onMessageReceived(Message message, ClientHandler ch) throws InternetException {
         //FIXME: CREARE DEI METODI PRIVATI
+        //FIXME: DEVO USARE SetUUID? Se si, da dove prendo quello giusto?
         Message response;
         int students;
         int movableStudents = 3;
@@ -268,9 +280,14 @@ public class Lobby implements Runnable, MessageReceiver {
                     }
                 }
                 if (exists) {
-                    gameManager.moveMotherNature(((MoveMotherNatureMessage) message).getIslandId());
-                    response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(), message.getMessageType().getClassName());
-                    sendMessage(response);
+                    try {
+                        gameManager.moveMotherNature(((MoveMotherNatureMessage) message).getIslandId());
+                        response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(), message.getMessageType().getClassName());
+                        sendMessage(response);
+                    } catch (MNmovementWrongException e) {
+                        response = new ErrorMessage(message.getUUID(), e.getMessage());
+                        sendMessage(response);
+                    }
                 } else
                     ch.disconnect();
             }
@@ -291,25 +308,42 @@ public class Lobby implements Runnable, MessageReceiver {
                     ch.disconnect();
             }
             case CHOOSE_CLOUD -> {
-                gameManager.chooseCloud(((ChooseCloudMessage) message).getCloudId());
-                response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(), message.getMessageType().getClassName());
-                sendMessage(response);
-                gameManager.nextTurn();
-
-                //TODO: Da sistemare
+                try {
+                    gameManager.chooseCloud(((ChooseCloudMessage) message).getCloudId());
+                    response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(), message.getMessageType().getClassName());
+                    sendMessage(response);
+                    gameManager.nextTurn();
+                } catch (IllegalArgumentException | StudentSpaceException e) {
+                    response = new ErrorMessage(message.getUUID(), e.getMessage());
+                    sendMessage(response);
+                }
+                //TODO: Da testare attentamente
                 // If connected allora chiama nextTurn e spara il messaggio, altrimenti chiami ancora un nextTurn e messaggio e così via
                 if (ch.isConnectedToClient()) {
                     if (Objects.equals(gameManager.getTurnManager().getOrderPlayed().get(lobbySize - 1).getPlayerId(), message.getUUID()))
                         response = new NextTurnMessage(message.getUUID(), gameManager.getTurnManager().getCurrentPlayer().getPlayerId(), playerNicknames.get(gameManager.getTurnManager().getCurrentPlayer().getPlayerId()));
-                    else
+                    else{
                         response = new PlanningPhaseMessage(message.getUUID());
+                        gameManager.getTurnManager().getAssistantPlayed().clear();
+                    }
                     sendMessage(response);
                 } else {
-                    ClientHandler newCh = players.get(gameManager.getTurnManager().getCurrentPlayer().getPlayerId());
-                    while (newCh.isConnectedToClient()) {
-                        response = new NextTurnMessage(message.getUUID(), gameManager.getTurnManager().getCurrentPlayer().getPlayerId(), playerNicknames.get(gameManager.getTurnManager().getCurrentPlayer().getPlayerId()));
-                        sendMessage(response);
+                    ClientHandler newCh;
+                    do {
+                        onDisconnect(message.getUUID());
+                        gameManager.nextTurn();
+                        newCh = players.get(gameManager.getTurnManager().getCurrentPlayer().getPlayerId());
+                    } while (newCh.isConnectedToClient());
+
+                    if (ch.isConnectedToClient()) {
+                        if (Objects.equals(gameManager.getTurnManager().getOrderPlayed().get(lobbySize - 1).getPlayerId(), message.getUUID()))
+                            response = new NextTurnMessage(message.getUUID(), gameManager.getTurnManager().getCurrentPlayer().getPlayerId(), playerNicknames.get(gameManager.getTurnManager().getCurrentPlayer().getPlayerId()));
+                        else{
+                            response = new PlanningPhaseMessage(message.getUUID());
+                            gameManager.getTurnManager().getAssistantPlayed().clear();
+                        }
                     }
+                    sendMessage(response);
                 }
             }
             default -> throw new IllegalStateException("Unexpected value: " + message.getMessageType());
@@ -332,11 +366,33 @@ public class Lobby implements Runnable, MessageReceiver {
                         ch.sendMessageToClient(message);
                 }
             }
-            case ERROR, NEXT_TURN -> {
+            case NEXT_TURN, END_GAME, START_GAME -> {
+                for (ClientHandler ch : players.values()) {
+                    ch.sendMessageToClient(message);
+                }
+            }
+            case ERROR, PLANNING_PHASE-> {
                 ClientHandler ch = players.get(message.getUUID());
                 ch.sendMessageToClient(message);
             }
-            default -> System.err.println();
+            default ->
+                    System.err.println("The server doesn't know where to send this message: " + message.getMessageType().getClassName());
         }
+    }
+
+    /**
+     * Perform actions when client wants to disconnect
+     *
+     * @param clientUUID the UUID of the client to disconnect.
+     */
+    @Override
+    public void onDisconnect(String clientUUID) {
+        //TODO: Va rimosso il player e il suo nickname? No se vogliamo fare la Resilienza, semplicemente lo si disattiva somehow
+        // gestire poi anche cosa fare con le sue informazioni nel server.
+        // Se si vuole gestire la resilienza le sue informazioni non andranno eliminate lato server.
+        // ma sarà necessario toglierlo dal model
+
+
+        //TODO: Set Player to disconnected, gestire il turn manager per far saltare i player disconnessi.
     }
 }

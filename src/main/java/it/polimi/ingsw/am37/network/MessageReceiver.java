@@ -21,4 +21,11 @@ public interface MessageReceiver {
      * @param message the message that must be sent
      */
     void sendMessage(Message message) throws InternetException;
+
+    /**
+     * Perform actions when client wants to disconnect
+     *
+     * @param client the ClientHandler to disconnect.
+     */
+    void onDisconnect(String UUID);
 }
