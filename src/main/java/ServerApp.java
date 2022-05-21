@@ -12,21 +12,17 @@ public class ServerApp {
     static private String portValue;
 
     /**
-     * It represents the server port.
-     */
-    private static int port;
-
-    /**
-     * @param args
+     * @param args the arguments received in input.
      */
     public static void main(String[] args) {
         Server server = new Server();
         parseArgument(args);
-        server.loadServer(port);
+        System.out.println(Integer.parseInt(portValue));
+        server.loadServer(Integer.parseInt(portValue));
     }
 
     /**
-     * @param args
+     * @param args the arguments received in input.
      */
     private static void parseArgument(String[] args) {
         boolean wrongInitialInput = tryConnectionWithArgs(args);
@@ -59,7 +55,7 @@ public class ServerApp {
                 i = i + 2;
             }
             try {
-                port = Integer.parseInt(portValue);
+                Integer.parseInt(portValue);
             } catch (NumberFormatException e) {
                 wrongInsertPort();
                 wrongInitialInput = true;
@@ -69,6 +65,8 @@ public class ServerApp {
     }
 
     /**
+     * tries to get the parameters again.
+     *
      * @param wrongInitialInput If initial input was wrong
      */
     public static void tryConnectionAgain(boolean wrongInitialInput) {
