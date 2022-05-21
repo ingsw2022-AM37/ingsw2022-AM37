@@ -51,6 +51,20 @@ public class ClientHandler implements Runnable {
     private boolean connectedToClient;
 
     /**
+     * UUID of the client
+     */
+    private String UUID = null;
+
+
+    /**
+     * @return client UUID
+     */
+    public String getUUID() {
+
+        return UUID;
+    }
+
+    /**
      * Default Constructor
      */
     public ClientHandler(Socket clientSocket) {
@@ -79,6 +93,7 @@ public class ClientHandler implements Runnable {
      */
     public void sendMessageToClient(Message message) throws InternetException {
 
+        message.setUUID(UUID);
 
         String json = new MessageGsonBuilder().registerMessageAdapter().registerStudentContainerAdapter().getGsonBuilder().create().toJson(message);
 
@@ -145,7 +160,7 @@ public class ClientHandler implements Runnable {
      */
     public void disconnect() {
         this.connectedToClient = false;
-        //messageReceiver.onDisconnect(this);
+        messageReceiver.onDisconnect(UUID);
 
         try {
             dataInputStream.close();
@@ -238,6 +253,8 @@ public class ClientHandler implements Runnable {
                         disconnect();
                     }
 
+                    if (UUID == null)
+                        UUID = message.getUUID();
                     return message;
                 }
             };
