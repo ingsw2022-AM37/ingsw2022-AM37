@@ -1,7 +1,7 @@
 package it.polimi.ingsw.am37.client;
 
 
-import org.apache.logging.log4j.core.pattern.AbstractStyleNameConverter;
+import it.polimi.ingsw.am37.model.Player;
 
 import java.util.HashMap;
 
@@ -10,7 +10,7 @@ public abstract class AbstractView {
     /**
      * Model in client
      */
-    private final ReducedModel reducedModel;
+    protected final ReducedModel reducedModel;
 
     /**
      * Default constructor
@@ -71,7 +71,8 @@ public abstract class AbstractView {
     public abstract String askDefault();
 
     /**
-     * Method used if player decided to don't use default setting for connection, so he will be asked to insert his parameters
+     * Method used if player decided to don't use default setting for connection, so he will be asked to insert his
+     * parameters
      *
      * @param address  It's how address parameter is called
      * @param port     It's how port parameter is called
@@ -201,4 +202,16 @@ public abstract class AbstractView {
     public abstract void impossibleCharacter();
 
 
+    /**
+     * This function draw the current status of the table: islands and boards
+     */
+    public abstract void showTable();
+
+    /**
+     * This function print the view of a player's status: his last assistant and board
+     * @param player the players to show status of
+     */
+    public abstract void showPlayerStatus(Player player);
+
+    public abstract void showDeck(Player player);
 }

@@ -85,7 +85,7 @@ public abstract class StudentsContainer {
         String[] studentsString = new String[FactionColor.values().length];
         for (FactionColor color :
                 FactionColor.values()) {
-            studentsString[color.getIndex()] = String.valueOf(student[color.getIndex()]) + color.name().charAt(0);
+            studentsString[color.getIndex()] = "@|" + color.color + " "+ student[color.getIndex()] + color.name().charAt(0) + "|@";
         }
         stringBuilder.append(String.join(", ", studentsString));
         stringBuilder.append("]");

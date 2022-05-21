@@ -1,5 +1,7 @@
 package it.polimi.ingsw.am37.client;
 
+import it.polimi.ingsw.am37.model.Player;
+
 import java.util.HashMap;
 import java.util.Scanner;
 
@@ -147,5 +149,182 @@ public class GuiView extends AbstractView {
         return null;
     }
 
+    /**
+     * Method used to ask which assistant player want to use
+     *
+     * @return The chosen assistant
+     */
+    @Override
+    public int askAssistant() {
+        return 0;
+    }
 
+    /**
+     * Method used to tell player possible commands
+     */
+    @Override
+    public void possibleChoices() {
+
+    }
+
+    /**
+     * @return Player's command at any time
+     */
+    @Override
+    public String takeInput() {
+        return null;
+    }
+
+    /**
+     * Tell player this input isn't ok for now
+     */
+    @Override
+    public void impossibleInputForNow() {
+
+    }
+
+    /**
+     * Ask player which students want to move and where
+     *
+     * @return HashMap with responses of the player
+     */
+    @Override
+    public HashMap<String, String> askStudents() {
+        return null;
+    }
+
+    /**
+     * @return Where mother nature has to go
+     */
+    @Override
+    public int askMotherNature() {
+        return 0;
+    }
+
+    /**
+     * @return which cloud player has chosen to take
+     */
+    @Override
+    public String askCloud() {
+        return null;
+    }
+
+    /**
+     * Tell the player it's his turn
+     */
+    @Override
+    public void yourTurn() {
+
+    }
+
+    /**
+     * @param nick nickname of player who has to play the current turn
+     */
+    @Override
+    public void hisTurn(String nick) {
+
+    }
+
+    /**
+     * Method used to tell a player he has to play the assistant card
+     */
+    @Override
+    public void mustPlayAssistant() {
+
+    }
+
+    /**
+     * Method used to tell the player he is waiting for the match
+     */
+    @Override
+    public void waitingMatch() {
+
+    }
+
+    /**
+     * Method to tell the player the game has begun
+     */
+    @Override
+    public void gameStarted() {
+
+    }
+
+    /**
+     * @param nick the winner player
+     */
+    @Override
+    public void printWinner(String nick) {
+
+    }
+
+    /**
+     * Method used to ask a player which character he wants to play
+     */
+    @Override
+    public void askCharacter() {
+
+    }
+
+    /**
+     * Method used when an error message come from server
+     */
+    @Override
+    public void impossibleAssistant() {
+
+    }
+
+    /**
+     * Method used when an error message come from server
+     */
+    @Override
+    public void impossibleStudents() {
+
+    }
+
+    /**
+     * Method used when an error message come from server
+     */
+    @Override
+    public void impossibleMotherNature() {
+
+    }
+
+    /**
+     * Method used when an error message come from server
+     */
+    @Override
+    public void impossibleCloud() {
+
+    }
+
+    /**
+     * Method used when an error message come from server
+     */
+    @Override
+    public void impossibleCharacter() {
+
+    }
+
+    /**
+     * This function draw the current status of the table: islands and boards
+     */
+    @Override
+    public void showTable() {
+
+    }
+
+    /**
+     * This function print the view of a player's status: his last assistant and board
+     *
+     * @param player the players to show status of
+     */
+    @Override
+    public void showPlayerStatus(Player player) {
+
+    }
+
+    @Override
+    public void showDeck(Player player) {
+
+    }
 }

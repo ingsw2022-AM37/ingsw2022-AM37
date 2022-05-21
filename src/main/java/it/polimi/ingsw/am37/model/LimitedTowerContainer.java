@@ -1,8 +1,8 @@
 package it.polimi.ingsw.am37.model;
 
 /**
- * This class is used to store some information about towers and their use, this class is used
- * in the Board one to manage towers
+ * This class is used to store some information about towers and their use, this class is used in the Board one to
+ * manage towers
  */
 public class LimitedTowerContainer {
 
@@ -32,7 +32,8 @@ public class LimitedTowerContainer {
      * This method add a certain number of towers of the same color after checking it's possible
      *
      * @param num It's the number of towers to add in the object
-     * @throws IllegalArgumentException The parameter is wrong if negative, zero or the sum exceed the maximum number of towers
+     * @throws IllegalArgumentException The parameter is wrong if negative, zero or the sum exceed the maximum number of
+     *                                  towers
      */
     public void addTowers(int num) throws IllegalArgumentException {
         if (num <= 0)
@@ -76,4 +77,7 @@ public class LimitedTowerContainer {
         this.currentSize = this.currentSize - num;
     }
 
+    public String getTowersAsString() {
+        return "@|" + this.currentTower.color + " " + this.currentSize + " " + this.currentTower.name() + "|@";
+    }
 }

@@ -21,7 +21,7 @@ public class Player extends UpdatableObject {
     /**
      * ID of the player for unique references
      */
-    private final String playerId;
+    private String playerId;
 
     /**
      * Default constructor
@@ -31,7 +31,6 @@ public class Player extends UpdatableObject {
         this.numberOfCoins = 0;
         this.lastAssistantPlayed = null;
         this.team = null;
-        this.playerId = UUID.randomUUID().toString();
     }
 
     /**
@@ -186,5 +185,9 @@ public class Player extends UpdatableObject {
     @Override
     public int hashCode() {
         return getPlayerId().hashCode();
+    }
+
+    public void setPlayerId(String playerId) {
+        this.playerId = playerId;
     }
 }
