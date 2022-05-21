@@ -128,6 +128,7 @@ public class Lobby implements Runnable, MessageReceiver {
     private void startGame() {
         Timer timer = new Timer();
         gameManager.prepareGame();
+        gameManager.registerListener(updateController);
         int i = 0;
         for (String nickname :
                 playerNicknames.values()) {
