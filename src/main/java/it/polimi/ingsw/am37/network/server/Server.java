@@ -23,16 +23,6 @@ public class Server implements MessageReceiver {
     private static Logger LOGGER;
 
     /**
-     * It represents the server port.
-     */
-    private static int port;
-
-    /**
-     * Port's value
-     */
-    static private String portValue;
-
-    /**
      * Associates the UUID of the Client with the ClientHandler.
      */
     private static HashMap<String, ClientHandler> clientHandlerMap;
@@ -46,6 +36,11 @@ public class Server implements MessageReceiver {
      * Map to keep track of the players' nicknames via UUID.
      */
     private static HashMap<String, String> nicknames;
+
+    /**
+     * Keeps track of the disconnected clients
+     */
+    private static HashMap<String, ClientHandler> disconnectedClients;
 
     /**
      * Default Constructor
@@ -63,17 +58,15 @@ public class Server implements MessageReceiver {
      * @param serverPort the given port.
      */
     public void loadServer(int serverPort) {
-        port = serverPort;
-
         new Thread(() -> {
             //TODO: LOGGER
             Socket socket = null;
-            try (ServerSocket serverSocket = new ServerSocket(port)) {
+            try (ServerSocket serverSocket = new ServerSocket(serverPort)) {
                 do {
                     try {
-                        System.out.println("ServerSocket awaiting connections...");
+                        LOGGER.info("awaiting connections...");
                         socket = serverSocket.accept();
-                        System.out.println("Connection from " + socket + "!");
+                        LOGGER.info("Connection from " + socket + "!");
                     } catch (IOException e) {
                         System.err.println("Error encountered while trying to connect");
                         System.err.println(e.getMessage());
@@ -89,154 +82,12 @@ public class Server implements MessageReceiver {
     }
 
     /**
-     * @param args It's the array of string created by main class
-     * @return if initial input was wrong
-     */
-    public static boolean tryConnectionWithArgs(String[] args) {
-        final int expectedArguments = 2;
-        int i = 0;
-        boolean wrongInitialInput = false;
-        String portString = "port";
-
-        List<String> list = Arrays.stream(args).map(String::toLowerCase).toList();
-        args = list.toArray(new String[0]);
-        if (args.length != expectedArguments) {
-            wrongInsertFewArguments();
-            wrongInitialInput = true;
-        } else {
-            while (i < args.length) {
-                if (!(args[i].equals("--" + portString))) {
-                    wrongInsert();
-                    wrongInitialInput = true;
-                    break;
-                }
-                portValue = args[i + 1];
-                i = i + 2;
-            }
-            try {
-                port = Integer.parseInt(portValue);
-            } catch (NumberFormatException e) {
-                wrongInsertPort();
-                wrongInitialInput = true;
-            }
-        }
-        return wrongInitialInput;
-    }
-
-    /**
-     * @param wrongInitialInput If initial input was wrong
-     */
-    public static void tryConnectionAgain(boolean wrongInitialInput) {
-        final int defaultPort = 60000;
-        String response;
-
-        while (wrongInitialInput) {
-            response = askDefault();
-            if ((response.equals("close game")))
-                closeGame();
-            else {
-                if (response.equals("yes")) {
-                    portValue = "";
-                    portValue = Integer.toString(defaultPort);
-                } else {
-                    portValue = "";
-                    response = insertYourParameters();
-                    if (response.equals("close game"))
-                        closeGame();
-                }
-            }
-            wrongInitialInput = false;
-        }
-    }
-
-    /**
-     * Method used if server manager decided to don't use default setting for connection, so he will be asked to insert his parameters
-     *
-     * @return Server's decision
-     */
-    private static String insertYourParameters() {
-        Scanner scanner = new Scanner(System.in);
-        while (true) {
-            System.out.println("Write server's port or \"close game\":");
-            String s = scanner.nextLine().toLowerCase().trim().replaceAll(" +", " ");
-            if (s.equals("close game"))
-                return s;
-            try {
-                int num = Integer.parseInt(s);
-                portValue = Integer.toString(num);
-            } catch (NumberFormatException e) {
-                wrongInsertPort();
-                continue;
-            }
-            return "true";
-        }
-    }
-
-    /**
-     * Notify when a number port is expected but another input was given
-     */
-    private static void wrongInsertPort() {
-        System.out.println("You haven't written a number as server's port");
-    }
-
-    /**
-     * Notify if a player has inserted fewer parameters than expected during opening of the terminal
-     */
-    private static void wrongInsertFewArguments() {
-        System.out.println("You have written too few arguments");
-    }
-
-    /**
-     * Generic notification of an input error
-     */
-    private static void wrongInsert() {
-        System.out.println("You have written wrong parameters");
-    }
-
-    /**
-     * Method used to ask if server manager wants to use default parameters for connection
-     *
-     * @return Response
-     */
-    private static String askDefault() {
-        String s;
-        Scanner scanner = new Scanner(System.in);
-        while (true) {
-            System.out.println("Do you want to use default options? Please write \"yes\" or \"no\" or \"close game\":");
-            s = scanner.nextLine().toLowerCase().trim().replaceAll(" +", " ");
-            if (s.equals("yes") || s.equals("no") || s.equals("close game"))
-                return s;
-            wrongInsert();
-        }
-    }
-
-    private static void closeGame() {
-        Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                Runtime.getRuntime().halt(0);
-            }
-        }, 3000);
-        System.exit(0);
-        timer.cancel();
-    }
-
-    /**
-     * @param client the Client to disconnect.
-     */
-    private static void onDisconnect(ClientHandler client) {
-        //Va rimosso il player e il suo nickname? No se vogliamo fare la Resilienza, semplicemente lo si disattiva somehow
-        client.disconnect();
-    }
-
-    /**
      * Creates the Lobby.
      *
      * @param lobbySize    the size of the lobby
      * @param advancedMode flag to turn on advanced mode
      */
-    private static Lobby createLobby(int lobbySize, boolean advancedMode) {
+    private Lobby createLobby(int lobbySize, boolean advancedMode) {
         boolean generated = false;
         int matchID = new Random().nextInt() & Integer.MAX_VALUE;
         do {
@@ -291,6 +142,12 @@ public class Server implements MessageReceiver {
                     lobby.addPlayerInLobby(message.getUUID(), ch, nicknames.get(message.getUUID()));
                     ch.setMessageReceiver(lobby);
                 }
+                for (Lobby lobby:activeLobbies) {
+                    System.out.println("LobbyId: " + lobby.getMatchID() + " LobbySize: " + lobby.getLobbySize() + "is game ready: " + lobby.isGameReady());
+                    for (String s : lobby.getPlayers().keySet()) {
+                        System.out.println("nickname: " + nicknames.get(s));
+                    }
+                }
                 break;
             default:
                 response = new ErrorMessage(message.getUUID(), "You've sent a message that the server can't " +
@@ -311,9 +168,30 @@ public class Server implements MessageReceiver {
 
     /**
      * Perform actions when client wants to disconnect
+     *
+     * @param clientUUID the UUID of the client to disconnect.
      */
     @Override
-    public void onDisconnect() {
-
+    public void onDisconnect(String clientUUID) {
+        //TODO: Va rimosso il player e il suo nickname? No se vogliamo fare la Resilienza, semplicemente lo si disattiva somehow
+        // gestire poi anche cosa fare con le sue informazioni nel server.
+        // Se si vuole gestire la resilienza le sue informazioni non andranno eliminate lato server.
+        // ma sarà necessario toglierlo dal model
+        ClientHandler clientToDisconnect = clientHandlerMap.get(clientUUID);
+        disconnectedClients.put(clientUUID, clientToDisconnect);
+        clientHandlerMap.remove(clientUUID);
+        //TODO: Timer per gestire che se il client non si riconnette allora il nickname può essere liberato
+        nicknames.remove(clientUUID);
+        Lobby lobbyContainingClient;
+        for (Lobby lobby : activeLobbies) {
+            if(lobby.isPlayerInLobby(clientUUID)){
+                lobbyContainingClient = lobby;
+                lobbyContainingClient.onDisconnect(clientUUID);
+                break;
+            }
+            else
+                System.err.println("Unable to find the Client in any Lobby");
+        }
+        clientToDisconnect.disconnect();
     }
 }
