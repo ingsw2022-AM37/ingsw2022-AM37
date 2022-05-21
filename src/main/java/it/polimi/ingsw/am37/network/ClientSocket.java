@@ -14,6 +14,11 @@ import java.util.TimerTask;
 public class ClientSocket implements Runnable {
 
     /**
+     * Flag to disable disconnection for debug purpose
+     */
+    final static boolean debugMode = true;
+
+    /**
      * Used for creating a loop for client's waiting after a message is received
      */
     private static boolean waitingMessage = true;
@@ -265,12 +270,14 @@ public class ClientSocket implements Runnable {
         Message message = null;
         Timer timer = new Timer();
 
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                disconnect();
-            }
-        }, 5000);
+        if(!debugMode){
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    disconnect();
+                }
+            }, 5000);
+        }
 
         try {
             json = dataInputStream.readUTF();

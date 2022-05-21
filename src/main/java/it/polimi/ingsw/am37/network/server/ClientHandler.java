@@ -14,6 +14,10 @@ import java.util.TimerTask;
 import java.util.concurrent.*;
 
 public class ClientHandler implements Runnable {
+    /**
+     * Flag for disable disconnection when ping timeout fails on debug
+     */
+    final static boolean debugMode = true;
 
     /**
      * Input stream
@@ -265,7 +269,7 @@ public class ClientHandler implements Runnable {
 
             return messageFuture.get();
         } catch (final InterruptedException | ExecutionException | TimeoutException e) {
-            disconnect();
+            if(!debugMode) disconnect();
             throw new InternetException();
         } finally {
             service.shutdown();
