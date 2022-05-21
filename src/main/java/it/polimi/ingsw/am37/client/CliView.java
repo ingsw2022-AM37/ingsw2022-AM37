@@ -217,7 +217,7 @@ public class CliView extends AbstractView {
                     num > 0 && num < 11)
                 System.out.println(" You have already played this assistant \n");
             else
-                wrongInsert();
+                System.out.println(" You don't have this assistant \n");
 
         }
     }
@@ -230,16 +230,16 @@ public class CliView extends AbstractView {
         System.out.println(" These are your possible inputs, write one of sequent numbers: \n");
         System.out.println(" \"0\" : print this screen again ");
         System.out.println(" \"1\" : close the game ");
-        System.out.println(" \"2\" : playing assistant ");
-        System.out.println(" \"3\" : moving students ");
-        System.out.println(" \"4\" : moving Mother Nature ");
-        System.out.println(" \"5\" : picking students from cloud ");
-        System.out.println(" \"6\" : playing a character");
-
-        //TODO in questo stile mancano i metodi che si riferiscono ai vari update per stampare le situazioni correnti
-        // (le varie view)
-
-
+        System.out.println(" \"2\" : play assistant ");
+        System.out.println(" \"3\" : move students ");
+        System.out.println(" \"4\" : move Mother Nature ");
+        System.out.println(" \"5\" : pick students from cloud ");
+        System.out.println(" \"6\" : play a character ");
+        System.out.println(" \"7\" : show a player's status ");
+        System.out.println(" \"8\" : show a player's deck ");
+        System.out.println(" \"9\" : show game's table ");
+        System.out.println(" \"10\" : show players in the game ");
+        System.out.println(" \"11\" : show connection's info ");
     }
 
     /**
@@ -448,7 +448,7 @@ public class CliView extends AbstractView {
      * @param nick the winner player
      */
     public void printWinner(String nick) {
-        System.out.println(nick.toUpperCase() + " has won the game!!! Now it's closing \n");
+        System.out.println(nick.toUpperCase() + " has won the game!!! \n");
 
     }
 
@@ -456,7 +456,8 @@ public class CliView extends AbstractView {
      * Method used to ask a player which character he wants to play
      */
     public void askCharacter() {
-        //TODO
+        //TODO BISOGNA CHIEDERE CHE PERSONAGGIO VUOLE USARE E FARLO TORNARE INDIETRO, FORSE CON LA ENUM??
+        //BIOSGNA SICURAMENTE TOGLIERE IL VOID
     }
 
 
@@ -495,6 +496,60 @@ public class CliView extends AbstractView {
     public void impossibleCharacter() {
         System.out.println(" You can't play a character now \n");
     }
+
+    /**
+     * Method used to ask which player you want to look at
+     *
+     * @return chosen player
+     */
+    public Player askPlayer() {
+
+        Scanner scanner = new Scanner(System.in);
+        String response;
+
+        showPlayersNicknames();
+
+        System.out.println(" choose now one nickname from above: ");
+
+        while (true) {
+            response = scanner.nextLine().trim().replaceAll(" +", " ");
+            for (String nickname : getReducedModel().getPlayers().keySet())
+                if (nickname.equals(response))
+                    return getReducedModel().getPlayers().get(nickname);
+
+            System.out.println(" You have to choose one nickname from available! Please try again \n");
+        }
+    }
+
+    /**
+     * Method used to show players in game
+     */
+    public void showPlayersNicknames() {
+
+        System.out.println(" Players in this game are : ");
+        for (String nickname : getReducedModel().getPlayers().keySet())
+            System.out.println(nickname);
+
+        System.out.println("\n");
+
+
+    }
+
+
+    /**
+     * Method used to display connection info
+     *
+     * @param address How we named address in connection phase (args)
+     * @param port    How we named port in connection phase (args)
+     */
+    public void showConnection(HashMap<String, String> params, String address, String port) {
+
+        System.out.println(" Here there are connection parameters you have insert at the beginning: ");
+
+        System.out.println("Address: " + params.get(address) + " - Port: " + params.get(port));
+
+    }
+
 
     /**
      * This function draw the current status of the table from the current player's point of view: draw all islands,

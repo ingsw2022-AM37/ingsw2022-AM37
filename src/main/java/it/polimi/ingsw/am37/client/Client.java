@@ -2,6 +2,7 @@ package it.polimi.ingsw.am37.client;
 
 import it.polimi.ingsw.am37.message.*;
 import it.polimi.ingsw.am37.model.FactionColor;
+import it.polimi.ingsw.am37.model.Player;
 import it.polimi.ingsw.am37.model.student_container.UnlimitedStudentsContainer;
 import it.polimi.ingsw.am37.network.ClientSocket;
 
@@ -10,10 +11,6 @@ import java.util.*;
 
 public class Client {
 
-    /**
-     * Nicknames of other players
-     */
-    private static ArrayList<String> otherNicknames;
 
     /**
      * Method used to start the game after joining lobby
@@ -63,12 +60,6 @@ public class Client {
      */
     private static int totalStudentsInTurn = 0;
 
-    /**
-     * @return other nicknames
-     */
-    public static ArrayList<String> getOtherNicknames() {
-        return otherNicknames;
-    }
 
     /**
      * Main method
@@ -125,9 +116,8 @@ public class Client {
             }
         }
 
-        //TODO manca metodo per giocare personaggio
+        view.gameStarted();
 
-        //TODO manca metodo per mostrare le update possibili
 
         view.possibleChoices();
         status = ClientStatus.WAITINGFORTURN;
@@ -170,19 +160,22 @@ public class Client {
                 actionOkay = playCharacter();
                 if (!actionOkay)
                     view.impossibleCharacter();
-            }
-
-            //TODO mancaNO DA INSERIRE QUI I COMANDI PER MOSTRARE LA VIEW: esempio FUNZIONANTE quando ce il metodo della view
-            //else if(response.equals("7"))
-            //view.updateBoards
-
-
-            else
+            } else if (response.equals("7")) {
+                Player player = view.askPlayer();
+                view.showPlayerStatus(player);
+            } else if (response.equals("8")) {
+                Player player = view.askPlayer();
+                view.showDeck(player);
+            } else if (response.equals("9")) {
+                view.showTable();
+            } else if (response.equals("10")) {
+                view.showPlayersNicknames();
+            } else if (response.equals("11")) {
+                view.showConnection(params, address, port);
+            } else
                 view.wrongInsert();
 
         }
-
-
     }
 
     /**
@@ -516,7 +509,7 @@ public class Client {
 
     static private boolean playCharacter() {
 
-        //TODO
+        //TODO DA FARE IL METODO CHE CHIEDE VIEW.ASKCHARACTER E POI CREA UN MESSAGGIO E LO MANDA CON IL PERSONAGGIO SCELTO
 
         return false;
     }
