@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am37.network.server;
 
+import com.google.gson.JsonParseException;
 import it.polimi.ingsw.am37.message.Message;
 import it.polimi.ingsw.am37.message.MessageGsonBuilder;
 import it.polimi.ingsw.am37.message.MessageType;
@@ -227,8 +228,17 @@ public class ClientHandler implements Runnable {
             Callable<Message> r = new Callable() {
                 @Override
                 public Message call() throws IOException {
+
+                    Message message = null;
+
                     String json = dataInputStream.readUTF();
-                    Message message = new MessageGsonBuilder().registerMessageAdapter().registerStudentContainerAdapter().getGsonBuilder().create().fromJson(json, Message.class);
+
+                    try {
+                        message = new MessageGsonBuilder().registerMessageAdapter().registerStudentContainerAdapter().getGsonBuilder().create().fromJson(json, Message.class);
+                    } catch (JsonParseException e) {
+                        disconnect();
+                    }
+
                     return message;
                 }
             };
