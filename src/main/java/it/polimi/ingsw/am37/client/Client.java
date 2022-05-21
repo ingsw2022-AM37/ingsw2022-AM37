@@ -117,7 +117,6 @@ public class Client {
         while (!inGame) {
             synchronized (ClientSocket.getWaitObject()) {
                 try {
-                    view.waitingMatch();
                     ClientSocket.getWaitObject().wait();
 
                 } catch (InterruptedException e) {
