@@ -1,4 +1,4 @@
-package it.polimi.ingsw.am37.message;
+package it.polimi.ingsw.am37.controller;
 
 import it.polimi.ingsw.am37.model.*;
 import it.polimi.ingsw.am37.model.character.Character;
@@ -17,6 +17,7 @@ public class UpdateController implements PropertyChangeListener {
     private HashSet<UpdatableObject> updatedObjects = new HashSet<>();
 
     public enum Properties {
+        P_CREATION("creation"),
         P_CLOUD("cloud"),
         P_ISLAND_STUDENTS("island-students"),
         P_ISLAND_TOWER("island-tower"),
@@ -115,7 +116,7 @@ public class UpdateController implements PropertyChangeListener {
                 else string.append(" lost prof of color ").append(((FactionColor) evt.getOldValue()).name());
                 updateList.add(string.toString());
             }
-            case P_PLAYER_COINS, P_BOARD_TOWER, P_CHARACTER_PLAYED -> {
+            case P_PLAYER_COINS, P_BOARD_TOWER, P_CHARACTER_PLAYED, P_CREATION -> {
             }
             default -> System.err.println("Property change unexpected: " + evt.getPropertyName());
         }

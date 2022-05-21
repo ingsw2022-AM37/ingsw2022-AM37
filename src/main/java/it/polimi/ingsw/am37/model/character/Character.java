@@ -1,11 +1,11 @@
 package it.polimi.ingsw.am37.model.character;
 
-import it.polimi.ingsw.am37.message.UpdatableObject;
+import it.polimi.ingsw.am37.model.UpdatableObject;
 
 import java.util.Objects;
 
-import static it.polimi.ingsw.am37.message.UpdatableObject.UpdatableType.CHARACTER;
-import static it.polimi.ingsw.am37.message.UpdateController.Properties.P_CHARACTER_PLAYED;
+import static it.polimi.ingsw.am37.model.UpdatableObject.UpdatableType.CHARACTER;
+import static it.polimi.ingsw.am37.controller.UpdateController.Properties.P_CHARACTER_PLAYED;
 
 /**
  * This class represents the Character in the game. They have special effects to modify and improve the game. They are

@@ -1,13 +1,12 @@
 package it.polimi.ingsw.am37.model;
 
-import it.polimi.ingsw.am37.message.UpdatableObject;
 import it.polimi.ingsw.am37.model.student_container.FixedUnlimitedStudentsContainer;
 import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
 
 import java.util.Objects;
 
-import static it.polimi.ingsw.am37.message.UpdatableObject.UpdatableType.ISLAND;
-import static it.polimi.ingsw.am37.message.UpdateController.Properties.*;
+import static it.polimi.ingsw.am37.model.UpdatableObject.UpdatableType.ISLAND;
+import static it.polimi.ingsw.am37.controller.UpdateController.Properties.*;
 
 /**
  * At the beginning of the game there are twelve islands, they can have students on them and tower which represents that

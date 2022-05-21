@@ -12,7 +12,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Random;
 
-import static it.polimi.ingsw.am37.message.UpdateController.Properties.P_BOARD_DINING;
+import static it.polimi.ingsw.am37.controller.UpdateController.Properties.P_BOARD_DINING;
 
 public class TurnManager {
 
@@ -87,7 +87,7 @@ public class TurnManager {
             }
         }
         currentPlayer.getBoard()
-                .getSupport()
+                .support
                 .firePropertyChange(P_BOARD_DINING.toString(), oldValue, currentPlayer.getBoard().getDiningRoom());
     }
 
@@ -169,7 +169,7 @@ public class TurnManager {
             }
         }
         currentPlayer.getBoard()
-                .getSupport()
+                .support
                 .firePropertyChange(P_BOARD_DINING.toString(), oldValue, currentPlayer.getBoard().getDiningRoom());
     }
 

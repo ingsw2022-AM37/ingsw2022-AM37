@@ -1,13 +1,12 @@
 package it.polimi.ingsw.am37.model;
 
-import it.polimi.ingsw.am37.message.UpdatableObject;
 import it.polimi.ingsw.am37.model.student_container.LimitedStudentsContainer;
 import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
 
 import java.util.Arrays;
 
-import static it.polimi.ingsw.am37.message.UpdatableObject.UpdatableType.BOARD;
-import static it.polimi.ingsw.am37.message.UpdateController.Properties.*;
+import static it.polimi.ingsw.am37.model.UpdatableObject.UpdatableType.BOARD;
+import static it.polimi.ingsw.am37.controller.UpdateController.Properties.*;
 
 
 /**

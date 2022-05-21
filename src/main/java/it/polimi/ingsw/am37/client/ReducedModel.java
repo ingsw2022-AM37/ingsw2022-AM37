@@ -1,6 +1,6 @@
 package it.polimi.ingsw.am37.client;
 
-import it.polimi.ingsw.am37.message.UpdatableObject;
+import it.polimi.ingsw.am37.model.UpdatableObject;
 import it.polimi.ingsw.am37.model.Board;
 import it.polimi.ingsw.am37.model.Cloud;
 import it.polimi.ingsw.am37.model.Island;
@@ -61,7 +61,7 @@ public class ReducedModel {
      *
      * @param updatedObjects the list of updatedObjects
      */
-    public void update(List<UpdatableObject> updatedObjects) {
+    public void update(List<? extends UpdatableObject> updatedObjects) {
         for (UpdatableObject obj : updatedObjects) {
             switch (obj.type) {
                 case ISLAND -> {

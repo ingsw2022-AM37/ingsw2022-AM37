@@ -1,5 +1,7 @@
 package it.polimi.ingsw.am37.message;
 
+import it.polimi.ingsw.am37.model.UpdatableObject;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,10 +25,10 @@ public class UpdateMessage extends Message {
     private final String lastActionDescription;
     /**
      * A bucketed map of all the updated objects sorted by the
-     * {@link it.polimi.ingsw.am37.message.UpdatableObject.UpdatableType}. Buckets are simple list, so use lists method
+     * {@link UpdatableObject.UpdatableType}. Buckets are simple list, so use lists method
      * to retrieve object
      */
-    private final HashMap<String, List<it.polimi.ingsw.am37.message.UpdatableObject>> updatedObjects;
+    private final HashMap<String, List<UpdatableObject>> updatedObjects;
 
     /**
      * The fromJSON receiver side constructor where all data are accessible
