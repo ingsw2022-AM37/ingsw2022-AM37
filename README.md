@@ -12,16 +12,16 @@ Group components:
 
 ### Functionalities
 
-| Functionality       | State |
-|:--------------------|:-----:|
-| Basic rules         |  🟢   |
-| Complete rules      |  🟢   |
-| Socket              |  🟡   |
-| GUI                 |  🔴   |
-| CLI                 |  🔴   |
-| Advanced Characters |  🟢   |
-| Persistence         |  🔴   |
-| Multiple Games      |  🔴   |
+| Functionality                         | State |
+|:--------------------------------------|:-----:|
+| Basic rules                           |  🟢   |
+| Complete rules                        |  🟢   |
+| Socket                                |  🟢   |
+| GUI                                   |  🔴   |
+| CLI                                   |  🟡   |
+| Advanced characters                   |  🟢   |
+| Resilience to disconnnections         |  🟡   |
+| Multiple games                        |  🟡   |
 
 ### Libraries and Plugins
 
@@ -31,3 +31,5 @@ Group components:
 | __JavaFx__       | Graphic library for making user interfaces.                   |
 | __JUnit__        | Unit Testing Framework.                                       |
 | __Mockito__      | Mocking framework for unit tests                              |
+| __Log4j2__       | Loggin framework                                              |
+| __Jansi__        | Ansi cli utility library for console output                   |
