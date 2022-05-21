@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am37.network.server;
 
+import com.google.gson.JsonParseException;
 import it.polimi.ingsw.am37.message.Message;
 import it.polimi.ingsw.am37.message.MessageGsonBuilder;
 import it.polimi.ingsw.am37.message.MessageType;
@@ -50,6 +51,20 @@ public class ClientHandler implements Runnable {
     private boolean connectedToClient;
 
     /**
+     * UUID of the client
+     */
+    private String UUID = null;
+
+
+    /**
+     * @return client UUID
+     */
+    public String getUUID() {
+
+        return UUID;
+    }
+
+    /**
      * Default Constructor
      */
     public ClientHandler(Socket clientSocket) {
@@ -78,6 +93,7 @@ public class ClientHandler implements Runnable {
      */
     public void sendMessageToClient(Message message) throws InternetException {
 
+        message.setUUID(UUID);
 
         String json = new MessageGsonBuilder().registerMessageAdapter().registerStudentContainerAdapter().getGsonBuilder().create().toJson(message);
 
@@ -144,7 +160,7 @@ public class ClientHandler implements Runnable {
      */
     public void disconnect() {
         this.connectedToClient = false;
-        //messageReceiver.onDisconnect(this);
+        messageReceiver.onDisconnect(UUID);
 
         try {
             dataInputStream.close();
@@ -219,7 +235,6 @@ public class ClientHandler implements Runnable {
      */
     private Message readMessage() throws InternetException {
 
-        //TODO qui bisogna fare che se io non riesco a trasformare da json a messaggio allora chiamo disconnect()
 
         ExecutorService service = Executors.newSingleThreadExecutor();
 
@@ -227,8 +242,19 @@ public class ClientHandler implements Runnable {
             Callable<Message> r = new Callable() {
                 @Override
                 public Message call() throws IOException {
+
+                    Message message = null;
+
                     String json = dataInputStream.readUTF();
-                    Message message = new MessageGsonBuilder().registerMessageAdapter().registerStudentContainerAdapter().getGsonBuilder().create().fromJson(json, Message.class);
+
+                    try {
+                        message = new MessageGsonBuilder().registerMessageAdapter().registerStudentContainerAdapter().getGsonBuilder().create().fromJson(json, Message.class);
+                    } catch (JsonParseException e) {
+                        disconnect();
+                    }
+
+                    if (UUID == null)
+                        UUID = message.getUUID();
                     return message;
                 }
             };

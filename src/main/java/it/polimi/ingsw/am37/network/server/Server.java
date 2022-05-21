@@ -10,7 +10,9 @@ import org.apache.logging.log4j.Logger;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Random;
 
 /**
  * It represents the Server that manage Players login and game Lobbies.
@@ -64,12 +66,12 @@ public class Server implements MessageReceiver {
             try (ServerSocket serverSocket = new ServerSocket(serverPort)) {
                 do {
                     try {
-                        LOGGER.info("awaiting connections...");
+                        LOGGER.info("Awaiting connections...");
                         socket = serverSocket.accept();
                         LOGGER.info("Connection from " + socket + "!");
                     } catch (IOException e) {
-                        System.err.println("Error encountered while trying to connect");
-                        System.err.println(e.getMessage());
+                        LOGGER.error("Error encountered while trying to connect");
+                        LOGGER.error(e.getMessage());
                     }
                     ClientHandler ch = new ClientHandler(socket);
                     ch.setMessageReceiver(this);
@@ -181,6 +183,7 @@ public class Server implements MessageReceiver {
         disconnectedClients.put(clientUUID, clientToDisconnect);
         clientHandlerMap.remove(clientUUID);
         //TODO: Timer per gestire che se il client non si riconnette allora il nickname può essere liberato
+        // Nickname da togliere anche dalla lobby
         nicknames.remove(clientUUID);
         Lobby lobbyContainingClient;
         for (Lobby lobby : activeLobbies) {
