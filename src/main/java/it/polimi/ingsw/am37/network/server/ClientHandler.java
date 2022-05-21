@@ -220,7 +220,6 @@ public class ClientHandler implements Runnable {
      */
     private Message readMessage() throws InternetException {
 
-        //TODO qui bisogna fare che se io non riesco a trasformare da json a messaggio allora chiamo disconnect()
 
         ExecutorService service = Executors.newSingleThreadExecutor();
 
