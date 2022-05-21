@@ -52,8 +52,8 @@ public class TurnManager {
     private ArrayList<Player> orderPlayed;
 
     /**
-     * It represents the Assistant played per Player in the current turn.
-     * It is needed to establish the players' next turn order
+     * It represents the Assistant played per Player in the current turn. It is needed to establish the players' next
+     * turn order
      */
     private HashMap<Player, Assistant> assistantPlayed;
 
@@ -86,9 +86,8 @@ public class TurnManager {
                 checkProfessors(color);
             }
         }
-        currentPlayer.getBoard()
-                .support
-                .firePropertyChange(P_BOARD_DINING.toString(), oldValue, currentPlayer.getBoard().getDiningRoom());
+        currentPlayer.support.firePropertyChange(P_BOARD_DINING.toString(), oldValue, currentPlayer.getBoard()
+                .getDiningRoom());
     }
 
     /**
@@ -112,8 +111,7 @@ public class TurnManager {
         Player currentProfOwner;
 
         currentPlayer.getBoard().getDiningRoom().removeContainer(container);
-        if (coinsEnabled)
-            currentPlayer.getBoard().checkCoins(currentPlayer.getBoard().getDiningRoom());
+        if (coinsEnabled) currentPlayer.getBoard().checkCoins(currentPlayer.getBoard().getDiningRoom());
 
         for (FactionColor color : FactionColor.values()) {
             if (container.getByColor(color) > 0) {
@@ -127,8 +125,7 @@ public class TurnManager {
                 for (Player player : players) {
                     controlledProf = player.getBoard().getProfTable();
                     boolToInt = player.getBoard().getDiningRoom().getByColor(color);
-                    if (controlledProf[color.getIndex()])
-                        currentProfOwner = player;
+                    if (controlledProf[color.getIndex()]) currentProfOwner = player;
                     playerPower.put(player, boolToInt);
                 }
 
@@ -168,9 +165,8 @@ public class TurnManager {
                 }
             }
         }
-        currentPlayer.getBoard()
-                .support
-                .firePropertyChange(P_BOARD_DINING.toString(), oldValue, currentPlayer.getBoard().getDiningRoom());
+        currentPlayer.support.firePropertyChange(P_BOARD_DINING.toString(), oldValue, currentPlayer.getBoard()
+                .getDiningRoom());
     }
 
     /**
@@ -207,14 +203,12 @@ public class TurnManager {
             }
             i++;
         }
-        if (numOfPlayers == 2 || numOfPlayers == 4)
-            for (Player player : players) {
-                player.getBoard().addStudentsToEntrance(bag.extractStudents(studentEntranceTwoPlayers));
-            }
-        else
-            for (Player player : players) {
-                player.getBoard().addStudentsToEntrance(bag.extractStudents(studentEntranceThreePlayers));
-            }
+        if (numOfPlayers == 2 || numOfPlayers == 4) for (Player player : players) {
+            player.getBoard().addStudentsToEntrance(bag.extractStudents(studentEntranceTwoPlayers));
+        }
+        else for (Player player : players) {
+            player.getBoard().addStudentsToEntrance(bag.extractStudents(studentEntranceThreePlayers));
+        }
         this.currentPlayer = getPlayers().get(random.nextInt(getPlayers().size()));
         int counter = 0;
         i = players.indexOf(currentPlayer);
@@ -262,7 +256,6 @@ public class TurnManager {
     }
 
     /**
-     *
      * @return the Assistant played in this turn.
      */
     public HashMap<Player, Assistant> getAssistantPlayed() {
@@ -315,8 +308,7 @@ public class TurnManager {
         Player exControllingStudents = null;
 
         for (Player player : players)
-            if (player.getBoard().getProfTable()[color.getIndex()])
-                profNotAssigned = false;
+            if (player.getBoard().getProfTable()[color.getIndex()]) profNotAssigned = false;
 
         if (profNotAssigned) {
             currentPlayer.getBoard().addProf(color);
@@ -356,7 +348,7 @@ public class TurnManager {
      * Checks whether the given Assistant can be played and if so it plays it
      *
      * @param assistant the Assistant that the current Player wants to play
-     * @throws AssistantImpossibleToPlay    when an assistant couldn't be played
+     * @throws AssistantImpossibleToPlay when an assistant couldn't be played
      */
     public void playAssistant(Assistant assistant) throws AssistantImpossibleToPlay {
         for (Player p : players) {
@@ -393,28 +385,28 @@ public class TurnManager {
     }
 
     /**
-     * last method called before the turn ends, resets the list of Player that have to play and sets the new current Player
+     * last method called before the turn ends, resets the list of Player that have to play and sets the new current
+     * Player
      */
     public void nextTurn() {
         resetFlags();
         orderPlayed.clear();
-        this.orderPlayed.addAll(this.assistantPlayed.keySet().stream().sorted(
-                new Comparator<>() {
-                    /**
-                     * Compares the card value played by two Players.
-                     *
-                     * @param p1 the Player to compare
-                     * @param p2 the Player to compare
-                     * @return <0: if p1 < p2, then p1 should play before p2
-                     * >0: if p1 > p2, then p1 should play after p2
-                     */
-                    @Override
-                    public int compare(Player p1, Player p2) {
-                        if ((assistantPlayed.get(p1).getCardValue() - assistantPlayed.get(p2).getCardValue()) == 0)
-                            return (orderPlayed.indexOf(p1) < orderPlayed.indexOf(p2)) ? -1 : 1;
-                        return assistantPlayed.get(p1).getCardValue() - assistantPlayed.get(p2).getCardValue();
-                    }
-                }).toList());
+        this.orderPlayed.addAll(this.assistantPlayed.keySet().stream().sorted(new Comparator<>() {
+            /**
+             * Compares the card value played by two Players.
+             *
+             * @param p1 the Player to compare
+             * @param p2 the Player to compare
+             * @return <0: if p1 < p2, then p1 should play before p2
+             * >0: if p1 > p2, then p1 should play after p2
+             */
+            @Override
+            public int compare(Player p1, Player p2) {
+                if ((assistantPlayed.get(p1).getCardValue() - assistantPlayed.get(p2).getCardValue()) == 0)
+                    return (orderPlayed.indexOf(p1) < orderPlayed.indexOf(p2)) ? -1 : 1;
+                return assistantPlayed.get(p1).getCardValue() - assistantPlayed.get(p2).getCardValue();
+            }
+        }).toList());
         setCurrentPlayer(orderPlayed.get(0));
     }
 }

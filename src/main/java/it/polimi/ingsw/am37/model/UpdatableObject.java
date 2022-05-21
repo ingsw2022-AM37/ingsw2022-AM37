@@ -39,7 +39,6 @@ public class UpdatableObject {
     public enum UpdatableType {
         ISLAND("islands", "Island"),
         CLOUD("clouds", "Cloud"),
-        BOARD("boards", "Board"),
         PLAYER("players", "Player"),
         CHARACTER("characters", "character.Character");
 

@@ -294,7 +294,6 @@ public class GameManager {
         for (Player player :
                 turnManager.getPlayers()) {
             player.addPropertyChangeListener(listener);
-            player.getBoard().addPropertyChangeListener(listener);
         }
         if (advancedMode) {
             for (Character character :

@@ -97,19 +97,19 @@ public class UpdateController implements PropertyChangeListener {
                         ((Character) evt.getNewValue()).getEffectType());
             }
             case P_BOARD_ENTRANCE -> {
-                Board board = (Board) updatedObject;
+                Board board = ((Player) updatedObject).getBoard();
                 updateList.add("Player " + board.getPlayer().getPlayerId() + ": update in entrance room from " +
                         (((StudentsContainer) evt.getOldValue()).getStudentsAsString() + " to " +
                                 ((StudentsContainer) evt.getNewValue()).getStudentsAsString()));
             }
             case P_BOARD_DINING -> {
-                Board board = (Board) updatedObject;
+                Board board = ((Player) updatedObject).getBoard();
                 updateList.add("Player " + board.getPlayer().getPlayerId() + ": update in dining room from " +
                         (((StudentsContainer) evt.getOldValue()).getStudentsAsString() + " to " +
                                 ((StudentsContainer) evt.getNewValue()).getStudentsAsString()));
             }
             case P_BOARD_PROF -> {
-                Board board = (Board) updatedObject;
+                Board board = ((Player) updatedObject).getBoard();
                 StringBuilder string = new StringBuilder("Player " + board.getPlayer().getPlayerId());
                 if (evt.getOldValue() == null)
                     string.append(" acquired prof of color ").append(((FactionColor) evt.getNewValue()).name());

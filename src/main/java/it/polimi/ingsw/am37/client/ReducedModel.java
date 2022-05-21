@@ -73,10 +73,6 @@ public class ReducedModel {
                     Cloud cloud = (Cloud) obj;
                     clouds.put(cloud.getCloudId(), cloud);
                 }
-                case BOARD -> {
-                    Board board = (Board) obj;
-                    boards.put(board.getPlayer().getPlayerId(), board);
-                }
                 case PLAYER -> {
                     Player player = (Player) obj;
                     players.put(player.getPlayerId(), player);
