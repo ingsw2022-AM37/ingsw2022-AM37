@@ -18,7 +18,7 @@ public class Character extends UpdatableObject {
     /**
      * The effect that distinguishes the character.
      */
-    private final EffectHandler effectHandler;
+    private final transient EffectHandler effectHandler;
     /**
      * The id of the Effect.
      */

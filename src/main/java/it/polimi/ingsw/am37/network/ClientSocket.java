@@ -283,6 +283,7 @@ public class ClientSocket implements Runnable {
             json = dataInputStream.readUTF();
             message = new MessageGsonBuilder().registerMessageAdapter()
                     .registerStudentContainerAdapter()
+                    .registerUpdatableObjectAdapter()
                     .getGsonBuilder()
                     .create()
                     .fromJson(json, Message.class);

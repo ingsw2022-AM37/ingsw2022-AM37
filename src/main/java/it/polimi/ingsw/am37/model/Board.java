@@ -34,7 +34,7 @@ public class Board extends UpdatableObject {
     /**
      * Reference to the player who this board belongs to
      */
-    private final Player player;
+    private final transient Player player;
     /**
      * Flag for show if the coin logic should be enabled
      */

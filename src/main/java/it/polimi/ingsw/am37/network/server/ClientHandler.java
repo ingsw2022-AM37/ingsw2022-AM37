@@ -99,7 +99,7 @@ public class ClientHandler implements Runnable {
 
         message.setUUID(UUID);
 
-        String json = new MessageGsonBuilder().registerMessageAdapter().registerStudentContainerAdapter().getGsonBuilder().create().toJson(message);
+        String json = new MessageGsonBuilder().registerMessageAdapter().registerStudentContainerAdapter().registerUpdatableObjectAdapter().getGsonBuilder().create().toJson(message);
 
         ExecutorService service = Executors.newSingleThreadExecutor();
 
