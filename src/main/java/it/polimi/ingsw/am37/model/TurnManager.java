@@ -7,7 +7,12 @@ import it.polimi.ingsw.am37.model.student_container.LimitedStudentsContainer;
 import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
 
 import javax.management.InstanceAlreadyExistsException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Random;
+
+import static it.polimi.ingsw.am37.message.UpdateController.Properties.P_BOARD_DINING;
 
 public class TurnManager {
 
@@ -48,13 +53,9 @@ public class TurnManager {
 
     /**
      * It represents the Assistant played per Player in the current turn.
-     */
-    private HashMap<Player, Assistant> assistantPlayed;
-
-    /**
      * It is needed to establish the players' next turn order
      */
-    private HashMap<Player, Assistant> nextTurnPlayer;
+    private HashMap<Player, Assistant> assistantPlayed;
 
     /**
      * Default constructor
@@ -64,7 +65,6 @@ public class TurnManager {
         this.coinsEnabled = coinsEnabled;
         this.numOfPlayers = numOfPlayers;
         this.getProfWithDraw = false;
-        this.assistantPlayed = new HashMap<>();
     }
 
     /**
@@ -73,7 +73,7 @@ public class TurnManager {
      * @param container The students added to current player's dining room
      */
     public void addStudentsToDining(StudentsContainer container) {
-
+        StudentsContainer oldValue = currentPlayer.getBoard().getDiningRoom().copy();
         currentPlayer.getBoard().getDiningRoom().uniteContainers(container);
 
         if (coinsEnabled) {
@@ -86,6 +86,9 @@ public class TurnManager {
                 checkProfessors(color);
             }
         }
+        currentPlayer.getBoard()
+                .getSupport()
+                .firePropertyChange(P_BOARD_DINING.toString(), oldValue, currentPlayer.getBoard().getDiningRoom());
     }
 
     /**
@@ -95,8 +98,8 @@ public class TurnManager {
      * @throws NoProfChangeException When there is a draw situation
      */
     public void removeStudentsFromDining(StudentsContainer container) throws NoProfChangeException {
-
-        HashMap<Player, Integer> playerPower = new HashMap<>();
+        StudentsContainer oldValue = currentPlayer.getBoard().getDiningRoom().copy();
+        HashMap<Player, Integer> playerPower;
         boolean[] controlledProf;
         Player exProfOwner;
         int boolToInt;
@@ -108,10 +111,9 @@ public class TurnManager {
         Player playerMax2;
         Player currentProfOwner;
 
-
         currentPlayer.getBoard().getDiningRoom().removeContainer(container);
-        if (coinsEnabled) currentPlayer.getBoard().checkCoins(currentPlayer.getBoard().getDiningRoom());
-
+        if (coinsEnabled)
+            currentPlayer.getBoard().checkCoins(currentPlayer.getBoard().getDiningRoom());
 
         for (FactionColor color : FactionColor.values()) {
             if (container.getByColor(color) > 0) {
@@ -122,7 +124,6 @@ public class TurnManager {
                 playerMax1 = null;
                 playerMax2 = null;
                 currentProfOwner = null;
-
                 for (Player player : players) {
                     controlledProf = player.getBoard().getProfTable();
                     boolToInt = player.getBoard().getDiningRoom().getByColor(color);
@@ -142,14 +143,20 @@ public class TurnManager {
                         playerMax2 = player;
                     }
                 }
-                if (max1 == max2 && max1 > playerPower.get(currentProfOwner) && playerMax1.getBoard().getTowers().getCurrentTower() != currentProfOwner.getBoard().getTowers().getCurrentTower() && playerMax2.getBoard().getTowers().getCurrentTower() != currentProfOwner.getBoard().getTowers().getCurrentTower())
+                if (max1 == max2 && max1 > playerPower.get(currentProfOwner) &&
+                        playerMax1.getBoard().getTowers().getCurrentTower() !=
+                                currentProfOwner.getBoard().getTowers().getCurrentTower() &&
+                        playerMax2.getBoard().getTowers().getCurrentTower() !=
+                                currentProfOwner.getBoard().getTowers().getCurrentTower())
                     throw new NoProfChangeException();
 
                 numStudentsControlling = playerPower.get(currentProfOwner);
                 exProfOwner = currentProfOwner;
 
                 for (Player player : players)
-                    if (playerPower.get(player) > numStudentsControlling && player.getBoard().getTowers().getCurrentTower() != currentProfOwner.getBoard().getTowers().getCurrentTower()) {
+                    if (playerPower.get(player) > numStudentsControlling &&
+                            player.getBoard().getTowers().getCurrentTower() !=
+                                    currentProfOwner.getBoard().getTowers().getCurrentTower()) {
                         currentProfOwner = player;
                         numStudentsControlling = playerPower.get(player);
                         switchProf = true;
@@ -161,6 +168,9 @@ public class TurnManager {
                 }
             }
         }
+        currentPlayer.getBoard()
+                .getSupport()
+                .firePropertyChange(P_BOARD_DINING.toString(), oldValue, currentPlayer.getBoard().getDiningRoom());
     }
 
     /**
@@ -181,13 +191,20 @@ public class TurnManager {
         final int studentEntranceTwoPlayers = 7;
         this.orderPlayed = new ArrayList<>();
         this.stolenProf = new HashMap<>();
-        this.nextTurnPlayer = new HashMap<>();
+        this.assistantPlayed = new HashMap<>();
 
-        for (int cont = 0; cont < numOfPlayers; cont++)
+        for (int cont = 0; cont < numOfPlayers; cont++) {
             this.players.add(new Player());
+            this.players.get(cont).setPlayerId(String.valueOf(cont));
+        }
         int i = 0;
         for (Player player : players) {
             player.setBoard(new Board(numOfPlayers, TowerColor.values()[i], coinsEnabled, player));
+            try {
+                player.createDeck(WizardTeam.values()[i]);
+            } catch (InstanceAlreadyExistsException e) {
+                e.printStackTrace();
+            }
             i++;
         }
         if (numOfPlayers == 2 || numOfPlayers == 4)
@@ -201,10 +218,10 @@ public class TurnManager {
         this.currentPlayer = getPlayers().get(random.nextInt(getPlayers().size()));
         int counter = 0;
         i = players.indexOf(currentPlayer);
-        while (counter <= numOfPlayers){
+        while (counter <= numOfPlayers) {
             this.orderPlayed.add(players.get(i));
             counter++;
-            i = (i+1)%numOfPlayers;
+            i = (i + 1) % numOfPlayers;
         }
         this.orderPlayed.addAll(players);
     }
@@ -235,6 +252,21 @@ public class TurnManager {
      */
     public ArrayList<Player> getPlayers() {
         return players;
+    }
+
+    /**
+     * @return the order that the players will have in this round.
+     */
+    public ArrayList<Player> getOrderPlayed() {
+        return orderPlayed;
+    }
+
+    /**
+     *
+     * @return the Assistant played in this turn.
+     */
+    public HashMap<Player, Assistant> getAssistantPlayed() {
+        return assistantPlayed;
     }
 
     /**
@@ -272,7 +304,8 @@ public class TurnManager {
     }
 
     /**
-     * This method is used to check after adding students to dining room if it's possible to take control of a professor
+     * This method is used to check after adding students to dining room if it's possible to take control of a
+     * professor
      *
      * @param color Faction of students you want to check professors
      */
@@ -291,13 +324,21 @@ public class TurnManager {
             if (!currentPlayer.getBoard().getProfTable()[color.getIndex()]) {
                 for (Player player : players) {
                     if (getProfWithDraw) {
-                        if (currentPlayer.getBoard().getDiningRoom().getByColor(color) >= player.getBoard().getDiningRoom().getByColor(color) && player.getBoard().getProfTable()[color.getIndex()] && currentPlayer.getBoard().getTowers().getCurrentTower() != player.getBoard().getTowers().getCurrentTower()) {
+                        if (currentPlayer.getBoard().getDiningRoom().getByColor(color) >=
+                                player.getBoard().getDiningRoom().getByColor(color) &&
+                                player.getBoard().getProfTable()[color.getIndex()] &&
+                                currentPlayer.getBoard().getTowers().getCurrentTower() !=
+                                        player.getBoard().getTowers().getCurrentTower()) {
                             exControllingStudents = player;
                             stolenProf.put(color, player);
                             switchProf = true;
                         }
                     } else {
-                        if (currentPlayer.getBoard().getDiningRoom().getByColor(color) > player.getBoard().getDiningRoom().getByColor(color) && player.getBoard().getProfTable()[color.getIndex()] && currentPlayer.getBoard().getTowers().getCurrentTower() != player.getBoard().getTowers().getCurrentTower()) {
+                        if (currentPlayer.getBoard().getDiningRoom().getByColor(color) >
+                                player.getBoard().getDiningRoom().getByColor(color) &&
+                                player.getBoard().getProfTable()[color.getIndex()] &&
+                                currentPlayer.getBoard().getTowers().getCurrentTower() !=
+                                        player.getBoard().getTowers().getCurrentTower()) {
                             exControllingStudents = player;
                             switchProf = true;
                         }
@@ -315,20 +356,26 @@ public class TurnManager {
      * Checks whether the given Assistant can be played and if so it plays it
      *
      * @param assistant the Assistant that the current Player wants to play
-     * @throws AssistantImpossibleToPlay
+     * @throws AssistantImpossibleToPlay    when an assistant couldn't be played
      */
     public void playAssistant(Assistant assistant) throws AssistantImpossibleToPlay {
         for (Player p : players) {
             if (!p.equals(currentPlayer)) {
                 if (p.getLastAssistantPlayed() == assistant)
-                    //if in the current player's deck there is another playable card different from another player's card
-                    if (currentPlayer.getAssistantsDeck().keySet().stream().anyMatch(cardValue -> (assistant.getCardValue() != cardValue)))
-                        throw new AssistantImpossibleToPlay("Can't play an Assistant already played by another Player in the same turn, play an another one");
+                    //if in the current player's deck there is another playable card different from another player's
+                    // card
+                    if (currentPlayer.getAssistantsDeck()
+                            .keySet()
+                            .stream()
+                            .anyMatch(cardValue -> (assistant.getCardValue() != cardValue)))
+                        throw new AssistantImpossibleToPlay("Can't play an Assistant already played by another Player" +
+                                " in the same turn, play an another one");
 
             }
         }
         useAssistant(assistant);
-        this.nextTurnPlayer.put(currentPlayer, assistant);
+        this.assistantPlayed.put(currentPlayer, assistant);
+        //FIXME: questo setta un nuovo current player, corretto farlo qua?
         if (orderPlayed.indexOf(currentPlayer) != orderPlayed.size())
             setCurrentPlayer(orderPlayed.get(orderPlayed.indexOf(currentPlayer) + 1));
 
@@ -346,12 +393,12 @@ public class TurnManager {
     }
 
     /**
-     * last method called before the turn ends
+     * last method called before the turn ends, resets the list of Player that have to play and sets the new current Player
      */
     public void nextTurn() {
         resetFlags();
-        //orderPlayed.clear();
-        this.orderPlayed.addAll(this.nextTurnPlayer.keySet().stream().sorted(
+        orderPlayed.clear();
+        this.orderPlayed.addAll(this.assistantPlayed.keySet().stream().sorted(
                 new Comparator<>() {
                     /**
                      * Compares the card value played by two Players.
@@ -363,10 +410,9 @@ public class TurnManager {
                      */
                     @Override
                     public int compare(Player p1, Player p2) {
-                        if ((nextTurnPlayer.get(p1).getCardValue() - nextTurnPlayer.get(p2).getCardValue()) == 0) {
+                        if ((assistantPlayed.get(p1).getCardValue() - assistantPlayed.get(p2).getCardValue()) == 0)
                             return (orderPlayed.indexOf(p1) < orderPlayed.indexOf(p2)) ? -1 : 1;
-                        }
-                        return nextTurnPlayer.get(p1).getCardValue() - nextTurnPlayer.get(p2).getCardValue();
+                        return assistantPlayed.get(p1).getCardValue() - assistantPlayed.get(p2).getCardValue();
                     }
                 }).toList());
         setCurrentPlayer(orderPlayed.get(0));

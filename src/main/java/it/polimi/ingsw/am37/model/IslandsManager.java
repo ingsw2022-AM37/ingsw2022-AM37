@@ -20,7 +20,7 @@ public class IslandsManager {
     /**
      * Total islands
      */
-    private ArrayList<Island> islands;
+    private final ArrayList<Island> islands;
 
     /**
      * Position of Mother Nature
@@ -90,6 +90,7 @@ public class IslandsManager {
             islands.add(i, new Island(new FixedUnlimitedStudentsContainer(), i));
             if (i == motherNatureHere) {
                 this.motherNaturePosition = islands.get(i);
+                islands.get(i).setMotherNatureHere(true);
             }
         }
 
@@ -140,6 +141,7 @@ public class IslandsManager {
                     islands.get(islandId).setNumIslands(islands.get(islandId).getNumIslands() + islands.get(islands.size() - 1).getNumIslands());
                     islands.get(islandId).getStudentsOnIsland().uniteContainers(islands.get(islands.size() - 1).getStudentsOnIsland());
                     int temp = islands.get(islands.size() - 1).getNoEntryTile();
+                    islands.get(islands.size()- 1).setNumIslands(0);
                     islands.remove(islands.size() - 1);
                     island.addNoEntryTile(temp);
                 }
@@ -152,6 +154,7 @@ public class IslandsManager {
 
                     UnitedDx = true;
                     int temp = islands.get(islandId + 1).getNoEntryTile();
+                    islands.get(islandId + 1).setNumIslands(0);
                     islands.remove(islandId + 1);
                     island.addNoEntryTile(temp);
                     for (int i = islandId + 1; i < islands.size(); i++)
@@ -164,6 +167,7 @@ public class IslandsManager {
                     islands.get(islandId).setNumIslands(islands.get(islandId).getNumIslands() + islands.get(islandId - 1).getNumIslands());
                     islands.get(islandId).getStudentsOnIsland().uniteContainers(islands.get(islandId - 1).getStudentsOnIsland());
                     int temp = islands.get(islandId - 1).getNoEntryTile();
+                    islands.get(islandId - 1).setNumIslands(0);
                     islands.remove(islandId - 1);
                     island.addNoEntryTile(temp);
                     for (int i = islandId - 1; i < islands.size(); i++)
@@ -177,6 +181,7 @@ public class IslandsManager {
                     islands.get(islandId).setNumIslands(islands.get(islandId).getNumIslands() + islands.get(0).getNumIslands());
                     islands.get(islandId).getStudentsOnIsland().uniteContainers(islands.get(0).getStudentsOnIsland());
                     int temp = islands.get(0).getNoEntryTile();
+                    islands.get(0).setNumIslands(0);
                     islands.remove(0);
                     island.addNoEntryTile(temp);
                     for (Island value : islands) value.setIslandId(value.getIslandId() - 1);
@@ -303,11 +308,13 @@ public class IslandsManager {
     /**
      * This method is used for moving Mother Nature and use checkConqueror and uniteIfPossible
      *
-     * @param stepsForward It's the island where you want to move Mother Nature
-     * @param players      The list of all players
+     * @param destinationIslandId It's the island where you want to move Mother Nature
+     * @param players             The list of all players
      * @throws MNmovementWrongException If the movement can't be performed.
      */
-    public void motherNatureActionMovement(int stepsForward, ArrayList<Player> players) throws MNmovementWrongException {
+    public void motherNatureActionMovement(int destinationIslandId, ArrayList<Player> players) throws MNmovementWrongException {
+        int stepsForward = islands.indexOf(getIslands().get(destinationIslandId)) - islands.indexOf(getMotherNaturePosition());
+
         int temp = islands.indexOf(getMotherNaturePosition()) + stepsForward;
         Island island = islands.get(temp > islands.size() ? temp - islands.size() : temp);
         moveMotherNature(island);
@@ -342,7 +349,9 @@ public class IslandsManager {
                 destinationMotherNature = 0;
         }
 
+        islands.get(islands.indexOf(motherNaturePosition)).setMotherNatureHere(false);
         this.motherNaturePosition = this.islands.get(destinationMotherNature);
+        islands.get(destinationMotherNature).setMotherNatureHere(true);
     }
 
     /**

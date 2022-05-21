@@ -34,16 +34,19 @@ public class LimitedStudentsContainer extends StudentsContainer {
     /**
      * Create a student container and set its maximum amount of students by color
      *
-     * @param maxByColor array of maximum amount for each color, all elements must be positive and at least one strictly positive
+     * @param maxByColor array of maximum amount for each color, all elements must be positive and at least one strictly
+     *                   positive
      * @throws IllegalArgumentException thrown when parameter is badly formatted
      */
     public LimitedStudentsContainer(int[] maxByColor) throws IllegalArgumentException {
         maxSizeForColor = new int[5];
         maxSize = -1;
-        if (Arrays.stream(maxByColor).parallel().allMatch(c -> c >= 0) && Arrays.stream(maxByColor).anyMatch(c -> c > 0))
+        if (Arrays.stream(maxByColor).parallel().allMatch(c -> c >= 0) && Arrays.stream(maxByColor)
+                .anyMatch(c -> c > 0))
             maxSizeForColor = Arrays.copyOf(maxByColor, maxByColor.length);
         else
-            throw new IllegalArgumentException("Parameter array" + Arrays.toString(maxByColor) + " is badly formatted: all elements must be positive and at least one bigger than 0");
+            throw new IllegalArgumentException("Parameter array" + Arrays.toString(maxByColor) + " is badly " +
+                    "formatted: all elements must be positive and at least one bigger than 0");
     }
 
     /**
@@ -60,7 +63,8 @@ public class LimitedStudentsContainer extends StudentsContainer {
         if (maxSize == -1 && num + student[color.getIndex()] > maxSizeForColor[color.getIndex()]) {
             throw new StudentSpaceException("Space error for color " + color + " (curr, num, limit): (" + student[color.getIndex()] + "," + num + "," + maxSizeForColor[color.getIndex()] + ");", true);
         } else if (maxSize != -1 && Arrays.stream(student).sum() + num > maxSize) {
-            throw new StudentSpaceException("General space error (curr, num, limit): (" + Arrays.stream(student).sum() + "," + num + "," + maxSize + ");", true);
+            throw new StudentSpaceException("General space error (curr, num, limit): (" + Arrays.stream(student)
+                    .sum() + "," + num + "," + maxSize + ");", true);
         } else {
             student[color.getIndex()] += num;
         }
@@ -77,7 +81,8 @@ public class LimitedStudentsContainer extends StudentsContainer {
         if (color == null) throw new IllegalArgumentException("Colors couldn't be null");
         if (student[color.getIndex()] >= num) student[color.getIndex()] -= num;
         else {
-            throw new StudentSpaceException("General space error (curr, num, limit): (" + Arrays.stream(student).sum() + "," + num + "," + student[color.getIndex()] + ");", false);
+            throw new StudentSpaceException("General space error (curr, num, limit): (" + Arrays.stream(student)
+                    .sum() + "," + num + "," + student[color.getIndex()] + ");", false);
         }
     }
 
@@ -89,4 +94,15 @@ public class LimitedStudentsContainer extends StudentsContainer {
         }
     }
 
+    /**
+     * Return a copy of this container
+     *
+     * @return a student container that is the exact copy of this
+     */
+    @Override
+    public StudentsContainer copy() {
+        LimitedStudentsContainer container = maxSize >= 0 ? new LimitedStudentsContainer(maxSize) : new LimitedStudentsContainer(maxSizeForColor);
+        container.student = Arrays.copyOf(this.student, this.student.length);
+        return container;
+    }
 }

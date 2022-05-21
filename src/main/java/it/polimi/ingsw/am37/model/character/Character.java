@@ -1,8 +1,11 @@
 package it.polimi.ingsw.am37.model.character;
 
-import it.polimi.ingsw.am37.model.Bag;
+import it.polimi.ingsw.am37.message.UpdatableObject;
 
 import java.util.Objects;
+
+import static it.polimi.ingsw.am37.message.UpdatableObject.UpdatableType.CHARACTER;
+import static it.polimi.ingsw.am37.message.UpdateController.Properties.P_CHARACTER_PLAYED;
 
 /**
  * This class represents the Character in the game. They have special effects to modify and improve the game. They are
@@ -10,7 +13,7 @@ import java.util.Objects;
  * character has a starting price and a current price. When used each player needs to get the price. Use their effect
  * with the {@link this#useEffect(Option)} and the first usage cause the starting price to increase.
  */
-public class Character {
+public class Character extends UpdatableObject {
 
     /**
      * The effect that distinguishes the character.
@@ -32,11 +35,12 @@ public class Character {
     /**
      * Default constructor
      */
-    public Character(int startPrice, Effect effectType, Bag bag) {
+    public Character(int startPrice, Effect effectType) {
+        super(CHARACTER);
         this.startPrice = startPrice;
         this.currentPrice = startPrice;
         this.effectType = effectType;
-        this.effectHandler = new EffectHandler(effectType, bag);
+        this.effectHandler = new EffectHandler(effectType);
     }
 
     /**
@@ -59,6 +63,21 @@ public class Character {
     public void useEffect(Option option) {
         effectHandler.useEffect(option);
         if (startPrice == currentPrice) increasePrice();
+        support.firePropertyChange(P_CHARACTER_PLAYED.toString(), null, null);
+    }
+
+    /**
+     * @return the effect type associated to this character
+     */
+    public Effect getEffectType() {
+        return effectType;
+    }
+
+    /**
+     * @return the state of this characters
+     */
+    public State getState(){
+        return effectHandler.getState();
     }
 
     @Override

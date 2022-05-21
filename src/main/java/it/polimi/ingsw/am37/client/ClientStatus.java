@@ -1,0 +1,13 @@
+package it.polimi.ingsw.am37.client;
+
+public enum ClientStatus {
+    LOGGING,
+    CHOOSINGNAME,
+    CHOOSINGLOBBY,
+    PLAYINGASSISTANT,
+    MOVINGSTUDENTS,
+    MOVINGMOTHERNATURE,
+    CHOOSINGCLOUD,
+    WAITINGFORTURN,
+    ENDGAME
+}

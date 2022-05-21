@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am37.model;
 
+import it.polimi.ingsw.am37.message.UpdatableObject;
 import it.polimi.ingsw.am37.model.character.Character;
 import it.polimi.ingsw.am37.model.character.Option;
 
@@ -8,25 +9,28 @@ import java.security.InvalidParameterException;
 import java.util.HashMap;
 import java.util.UUID;
 
+import static it.polimi.ingsw.am37.message.UpdatableObject.UpdatableType.PLAYER;
+import static it.polimi.ingsw.am37.message.UpdateController.Properties.*;
+
 /**
  * This class represents the in-game player, it does not represent the person playing the game, therefore it will not
  * have all the attributes that can be associated with a physical player.
  */
-public class Player {
+public class Player extends UpdatableObject {
 
     /**
      * ID of the player for unique references
      */
-    private final String playerId;
+    private String playerId;
 
     /**
      * Default constructor
      */
     public Player() {
+        super(PLAYER);
         this.numberOfCoins = 0;
         this.lastAssistantPlayed = null;
         this.team = null;
-        this.playerId = UUID.randomUUID().toString();
     }
 
     /**
@@ -51,8 +55,8 @@ public class Player {
     private WizardTeam team;
 
     /**
-     * It represents the last Assistant Played in the turn, it is needed to calculate the movement of Mother Nature
-     * and the order of the next turn.
+     * It represents the last Assistant Played in the turn, it is needed to calculate the movement of Mother Nature and
+     * the order of the next turn.
      */
     private Assistant lastAssistantPlayed;
 
@@ -61,6 +65,7 @@ public class Player {
      */
     public void receiveCoin() {
         this.numberOfCoins++;
+        support.firePropertyChange(P_PLAYER_COINS.toString(), null, null );
     }
 
     /**
@@ -74,6 +79,7 @@ public class Player {
             throw new InvalidParameterException("This Assistant can't be played because it is not part of your deck.");
         this.assistantsDeck.remove(assistantToBePlayed.getCardValue());
         this.lastAssistantPlayed = assistantToBePlayed;
+        this.support.firePropertyChange(P_PLAYER_LASTASSISTANT.toString(), null, this.lastAssistantPlayed);
     }
 
     /**
@@ -88,11 +94,12 @@ public class Player {
             throw new IllegalArgumentException("Can't play the character, you don't have enough coins");
         this.numberOfCoins -= character.getCurrentPrice();
         character.useEffect(option);
+        this.support.firePropertyChange(P_PLAYER_CHARACTERUSED.toString(), null, character);
     }
 
     /**
-     * It creates the Assistant deck from the Wizard Team received from parameters
-     * and sets the team as the team received from parameter.
+     * It creates the Assistant deck from the Wizard Team received from parameters and sets the team as the team
+     * received from parameter.
      *
      * @param team The Wizard Team to which the deck belongs.
      * @throws InstanceAlreadyExistsException if an instance of the assistantDeck is already present.
@@ -105,9 +112,9 @@ public class Player {
         int movement = 0;
         for (int i = 1; i <= 10; i++) {
             if (i % 2 == 0)
-                this.assistantsDeck.put(i-1, new Assistant(team, i, movement));
+                this.assistantsDeck.put(i - 1, new Assistant(team, i, movement));
             else
-                this.assistantsDeck.put(i-1, new Assistant(team, i, ++movement));
+                this.assistantsDeck.put(i - 1, new Assistant(team, i, ++movement));
         }
     }
 
@@ -154,9 +161,33 @@ public class Player {
     }
 
     /**
+     * @return the coins that the Player has.
+     */
+    public int getNumberOfCoins() {
+        return numberOfCoins;
+    }
+
+    /**
      * @return the team associated to this player deck
      */
     public WizardTeam getTeam() {
         return team;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Player player)) return false;
+
+        return getPlayerId().equals(player.getPlayerId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getPlayerId().hashCode();
+    }
+
+    public void setPlayerId(String playerId) {
+        this.playerId = playerId;
     }
 }

@@ -8,7 +8,8 @@ import javax.management.InstanceAlreadyExistsException;
 import java.security.InvalidParameterException;
 import java.util.stream.IntStream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Unit test for Player class.

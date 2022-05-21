@@ -1,16 +1,20 @@
 package it.polimi.ingsw.am37.model;
 
+import it.polimi.ingsw.am37.message.UpdatableObject;
 import it.polimi.ingsw.am37.model.student_container.LimitedStudentsContainer;
 import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
 
 import java.util.Arrays;
 
+import static it.polimi.ingsw.am37.message.UpdatableObject.UpdatableType.BOARD;
+import static it.polimi.ingsw.am37.message.UpdateController.Properties.*;
+
 
 /**
- * The class represent the player board in the game. This hold the tower and students container,
- * provide access for adding and removing elements.
+ * The class represent the player board in the game. This hold the tower and students container, provide access for
+ * adding and removing elements.
  */
-public class Board {
+public class Board extends UpdatableObject {
 
     /**
      * Container for the towers
@@ -57,6 +61,7 @@ public class Board {
      * @param player       It's the owner of the board
      */
     public Board(int numOfPlayer, TowerColor color, boolean coinsEnabled, Player player) {
+        super(BOARD);
         //default variables for settings
         final int
                 maxTowerSizeFor2 = 8,
@@ -87,7 +92,6 @@ public class Board {
                 Arrays.fill(coinsArray[col.getIndex()], true);
             }
         }
-
     }
 
     /**
@@ -103,6 +107,7 @@ public class Board {
     public Board(int numOfPlayer, TowerColor color, boolean coinsEnabled, LimitedStudentsContainer entrance, Player player) {
         this(numOfPlayer, color, coinsEnabled, player);
         entranceArea.uniteContainers(entrance);
+        support.firePropertyChange(P_BOARD_ENTRANCE.toString(), null, entranceArea);
     }
 
     /**
@@ -123,14 +128,18 @@ public class Board {
      * @param num the number of towers to add
      */
     public void addTowers(int num) {
+        int oldValue = towerArea.getCurrentSize();
         towerArea.addTowers(num);
+        support.firePropertyChange(P_BOARD_TOWER.toString(), oldValue, towerArea.getCurrentSize());
     }
 
     /**
      * @param num the number of towers to remove
      */
     public void removeTowers(int num) {
+        int oldValue = towerArea.getCurrentSize();
         towerArea.removeTowers(num);
+        support.firePropertyChange(P_BOARD_TOWER.toString(), oldValue, towerArea.getCurrentSize());
     }
 
     /**
@@ -145,6 +154,7 @@ public class Board {
      */
     public void addProf(FactionColor color) {
         profTable[color.getIndex()] = true;
+        support.firePropertyChange(P_BOARD_PROF.toString(), null, color);
     }
 
     /**
@@ -152,6 +162,7 @@ public class Board {
      */
     public void removeProf(FactionColor color) {
         profTable[color.getIndex()] = false;
+        support.firePropertyChange(P_BOARD_PROF.toString(), color, null);
     }
 
     /**
@@ -172,17 +183,18 @@ public class Board {
      * @param container the input container
      */
     public void addStudentsToEntrance(StudentsContainer container) {
+        StudentsContainer oldValue = entranceArea.copy();
         entranceArea.uniteContainers(container);
+        support.firePropertyChange(P_BOARD_ENTRANCE.toString(), oldValue, entranceArea);
     }
 
     /**
      * @param container the students who want to remove
      */
     public void removeStudentsFromEntrance(StudentsContainer container) {
-        for (FactionColor color :
-                FactionColor.values()) {
-            entranceArea.removeStudents(container.getByColor(color), color);
-        }
+        StudentsContainer oldValue = entranceArea.copy();
+        entranceArea.removeContainer(container);
+        support.firePropertyChange(P_BOARD_ENTRANCE.toString(), oldValue, entranceArea);
     }
 
     /**
@@ -226,4 +238,16 @@ public class Board {
         return player;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Board board)) return false;
+
+        return getPlayer().getPlayerId().equals(board.getPlayer().getPlayerId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getPlayer().hashCode();
+    }
 }

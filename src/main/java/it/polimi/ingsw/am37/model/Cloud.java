@@ -1,19 +1,24 @@
 package it.polimi.ingsw.am37.model;
 
+import it.polimi.ingsw.am37.message.UpdatableObject;
 import it.polimi.ingsw.am37.model.student_container.LimitedStudentsContainer;
 import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
 
+import java.util.Objects;
 import java.util.UUID;
+
+import static it.polimi.ingsw.am37.message.UpdatableObject.UpdatableType.CLOUD;
+import static it.polimi.ingsw.am37.message.UpdateController.Properties.P_CLOUD;
 
 /**
  * This class represent the Clouds in the game.
  */
-public class Cloud {
+public class Cloud extends UpdatableObject {
 
     /**
      * They represent the number of students that can be placed on a Cloud based on the number of Players.
      */
-    private final static int studentsPerCloud2Players = 3, studentsPerCloud3Players = 4;
+    private final int studentsPerCloud2Players = 3, studentsPerCloud3Players = 4;
 
     /**
      * the unique ID of a cloud
@@ -29,20 +34,30 @@ public class Cloud {
     private LimitedStudentsContainer studentsOnCloud;
 
     /**
+     * Counter for increase cloud id
+     */
+    private static int idCounter = 0;
+
+
+    /**
      * Default constructor
      */
     public Cloud(boolean isFor2) {
+        super(CLOUD);
         this.isFor2 = isFor2;
         if (this.isFor2) studentsOnCloud = new LimitedStudentsContainer(studentsPerCloud2Players);
         else studentsOnCloud = new LimitedStudentsContainer(studentsPerCloud3Players);
-        cloudId = UUID.randomUUID().toString();
+        cloudId = Integer.toString(idCounter);
+        idCounter = idCounter + 1;
     }
 
     /**
      * @param students Students used to fill the Cloud.
      */
     public void addStudents(StudentsContainer students) {
+        StudentsContainer oldContainer = studentsOnCloud.copy();
         studentsOnCloud.uniteContainers(students);
+        support.firePropertyChange(P_CLOUD.toString(), oldContainer, studentsOnCloud);
     }
 
     /**
@@ -51,6 +66,7 @@ public class Cloud {
     public LimitedStudentsContainer removeStudents() {
         LimitedStudentsContainer temp = studentsOnCloud;
         studentsOnCloud = new LimitedStudentsContainer(isFor2 ? studentsPerCloud2Players : studentsPerCloud3Players);
+        support.firePropertyChange(P_CLOUD.toString(), temp, studentsOnCloud);
         return temp;
     }
 
@@ -70,6 +86,20 @@ public class Cloud {
     }
 
     /**
+     * @return the students allowed on a Cloud in a 2 Player match.
+     */
+    public int getStudentsPerCloud2Players() {
+        return studentsPerCloud2Players;
+    }
+
+    /**
+     * @return the students allowed on a Cloud in a 3 Player match.
+     */
+    public int getStudentsPerCloud3Players() {
+        return studentsPerCloud3Players;
+    }
+
+    /**
      * @return The number of students on the Cloud.
      */
     public int size() {
@@ -81,5 +111,25 @@ public class Cloud {
      */
     public String getCloudId() {
         return cloudId;
+    }
+
+    /**
+     * Wrap of {@link StudentsContainer#getStudentsAsString()} to be accessible without exposing the container object
+     * @return a string representation of students on this cloud
+     */
+    public String getStudentsAsString() {
+        return studentsOnCloud.getStudentsAsString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Cloud cloud)) return false;
+        return getCloudId().equals(cloud.getCloudId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getCloudId());
     }
 }

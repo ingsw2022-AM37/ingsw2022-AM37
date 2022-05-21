@@ -4,15 +4,23 @@ import it.polimi.ingsw.am37.model.character.Character;
 import it.polimi.ingsw.am37.model.character.Effect;
 import it.polimi.ingsw.am37.model.character.Option;
 import it.polimi.ingsw.am37.model.exceptions.AssistantImpossibleToPlay;
+import it.polimi.ingsw.am37.model.exceptions.CharacterImpossibleToPlay;
+import it.polimi.ingsw.am37.model.exceptions.MNmovementWrongException;
+import it.polimi.ingsw.am37.model.exceptions.StudentSpaceException;
 import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
 
 import java.util.*;
 
 public class GameManager {
     /**
+     * A lock to ensure synchronized methods.
+     */
+    private final Object lock;
+
+    /**
      * Number of characters available
      */
-    private static final int NUMBEROFCHARACTERS = 3;
+    private static final int NUMBER_OF_CHARACTERS = 3;
     /**
      * Number of player in the game handled by this manager
      */
@@ -54,7 +62,7 @@ public class GameManager {
     private final TurnManager turnManager;
 
     /**
-     * Default constructor of game manager class. It's the main access point of the game model
+     * Default constructor of Game Manager class. It's the main access point of the game model.
      *
      * @param playersNumber Number of player of this instance of game
      * @param advancedMode  Enable advanced mode or disable it
@@ -65,44 +73,64 @@ public class GameManager {
         this.clouds = new ArrayList<>();
         this.turnManager = new TurnManager(advancedMode, playersNumber);
         this.islandsManager = new IslandsManager();
-        this.characters = new Character[NUMBEROFCHARACTERS];
+        this.characters = new Character[NUMBER_OF_CHARACTERS];
         this.notUsedTeachers = new boolean[FactionColor.values().length];
         this.bag = new Bag();
+        this.lock = new Object();
     }
 
     /**
-     * @return Array of unused teachers
+     * @return Array of unused Teachers
      */
     public boolean[] getNotUsedTeachers() {
-        return notUsedTeachers;
+        synchronized (lock) {
+            return notUsedTeachers;
+        }
     }
 
     /**
      * @return The bag
      */
     public Bag getBag() {
-        return bag;
+        synchronized (lock) {
+            return bag;
+        }
     }
 
     /**
-     * @return List of clouds of this game
+     * @return List of Clouds of this game.
      */
     public ArrayList<Cloud> getClouds() {
-        return clouds;
+        synchronized (lock) {
+            return clouds;
+        }
     }
 
     /**
-     * @return The island manager
+     * @return The Island Manager
      */
     public IslandsManager getIslandsManager() {
-        return islandsManager;
+        synchronized (lock) {
+            return islandsManager;
+        }
     }
 
     /**
-     * @return The turn manager
+     * @return The Turn Manager
      */
     public TurnManager getTurnManager() {
-        return turnManager;
+        synchronized (lock) {
+            return turnManager;
+        }
+    }
+
+    /**
+     * @return the Characters that can be played.
+     */
+    public Character[] getCharacters() {
+        synchronized (lock) {
+            return characters;
+        }
     }
 
     /**
@@ -111,24 +139,28 @@ public class GameManager {
      * characters.
      */
     public void prepareGame() {
-        //constants for set up of the game
-        final Map<Integer, Integer> numberCloudsForPlayers = Map.of(2, 2, 3, 3, 4, 4);
-        //follow the order of the manual of the game
-        islandsManager.setUp();
-        for (int i = 0; i < numberCloudsForPlayers.get(playersNumber); i++) {
-            clouds.add(new Cloud(playersNumber == 2));
-        }
-        Arrays.fill(notUsedTeachers, true);
-        turnManager.setUp(bag);
-        //TODO handle assistants logic
+        synchronized (lock) {
+            //constants for set up of the game
+            final Map<Integer, Integer> numberCloudsForPlayers = Map.of(2, 2, 3, 3, 4, 4);
+            //follow the order of the manual of the game
+            islandsManager.setUp();
+            for (int i = 0; i < numberCloudsForPlayers.get(playersNumber); i++) {
+                clouds.add(new Cloud(playersNumber == 2));
+            }
+            Arrays.fill(notUsedTeachers, true);
+            turnManager.setUp(bag);
+            //TODO: handle assistants logic
 
-        // advanced logic only
-        if (this.advancedMode) {
-            List<Effect> temp = new ArrayList<>(Arrays.stream(Effect.values()).toList());
-            Collections.shuffle(temp);
-            for (int i = 0; i < NUMBEROFCHARACTERS; i++) {
-                Effect effect = temp.get(i);
-                characters[i] = new Character(effect.getInitialPrice(), effect, bag);
+            // advanced logic only
+            if (this.advancedMode) {
+                List<Effect> temp = new ArrayList<>(Arrays.stream(Effect.values()).toList());
+                Collections.shuffle(temp);
+                for (int i = 0; i < NUMBER_OF_CHARACTERS; i++) {
+                    Effect effect = temp.get(i);
+                    characters[i] = new Character(effect.getInitialPrice(), effect);
+                    if (effect == Effect.GRANDMA)
+                        islandsManager.setStateCharacterNoEntryTile(characters[i].getState());
+                }
             }
         }
     }
@@ -141,18 +173,20 @@ public class GameManager {
      * @throws IllegalArgumentException When the container is null
      */
     public void moveStudentsToIsland(StudentsContainer container, int islandId) throws IllegalArgumentException {
-        if (container == null) {
-            throw new IllegalArgumentException("container of moveStudentsToIsland can't be null");
+        synchronized (lock) {
+            if (container == null) {
+                throw new IllegalArgumentException("container of moveStudentsToIsland can't be null");
+            }
+            final int maxForMovement = 3;
+            if (container.size() > maxForMovement) throw new RuntimeException();
+            Island island = islandsManager.getIslands()
+                    .stream()
+                    .filter(island1 -> island1.getIslandId() == islandId)
+                    .findFirst()
+                    .orElseThrow();
+            turnManager.getCurrentPlayer().getBoard().getEntrance().removeContainer(container);
+            island.addStudents(container);
         }
-        final int maxForMovement = 3;
-        if (container.size() > maxForMovement) throw new RuntimeException();
-        Island island = islandsManager.getIslands()
-                .stream()
-                .filter(island1 -> island1.getIslandId() == islandId)
-                .findFirst()
-                .orElseThrow();
-        turnManager.getCurrentPlayer().getBoard().getEntrance().removeContainer(container);
-        island.addStudents(container);
     }
 
     /**
@@ -162,13 +196,15 @@ public class GameManager {
      * @throws IllegalArgumentException When the container is null
      */
     public void moveStudentsToDining(StudentsContainer container) throws IllegalArgumentException {
-        if (container == null) {
-            throw new IllegalArgumentException("container of moveStudentsToDining can't be null");
+        synchronized (lock) {
+            if (container == null) {
+                throw new IllegalArgumentException("container of moveStudentsToDining can't be null");
+            }
+            final int maxForMovement = 3;
+            if (container.size() > maxForMovement) throw new RuntimeException();
+            turnManager.getCurrentPlayer().getBoard().getEntrance().removeContainer(container);
+            turnManager.addStudentsToDining(container);
         }
-        final int maxForMovement = 3;
-        if (container.size() > maxForMovement) throw new RuntimeException();
-        turnManager.getCurrentPlayer().getBoard().getEntrance().removeContainer(container);
-        turnManager.addStudentsToDining(container);
     }
 
     /**
@@ -180,13 +216,15 @@ public class GameManager {
      * @throws IllegalArgumentException  When the assistant is null
      */
     public void playAssistant(Assistant assistant) throws AssistantImpossibleToPlay, IllegalArgumentException {
-        if (assistant == null) {
-            throw new IllegalArgumentException("Assistant must not be null");
-        }
-        try {
-            turnManager.playAssistant(assistant);
-        } catch (AssistantImpossibleToPlay exception) {
-            throw new AssistantImpossibleToPlay(exception);
+        synchronized (lock) {
+            if (assistant == null) {
+                throw new IllegalArgumentException("Assistant must not be null");
+            }
+            try {
+                turnManager.playAssistant(assistant);
+            } catch (AssistantImpossibleToPlay exception) {
+                throw new AssistantImpossibleToPlay(exception);
+            }
         }
     }
 
@@ -194,10 +232,12 @@ public class GameManager {
      * Move mother nature island by {@param stepForward} islands and activate the associated logic: checking conqueror
      * of the island and if it is possible to unite islands
      *
-     * @param stepsForward The num of forward island movement of mother nature
+     * @param islandId The num of forward island movement of mother nature
      */
-    public void moveMotherNature(int stepsForward) {
-        islandsManager.motherNatureActionMovement(stepsForward, turnManager.getPlayers());
+    public void moveMotherNature(int islandId) throws MNmovementWrongException {
+        synchronized (lock) {
+            islandsManager.motherNatureActionMovement(islandId, turnManager.getPlayers());
+        }
     }
 
     /**
@@ -205,27 +245,36 @@ public class GameManager {
      *
      * @param character Character played
      */
-    public void playCharacter(Character character, Option option) {
-        Character used = Arrays.stream(characters).filter(character::equals).findFirst().orElseThrow();
-        used.useEffect(option);
+    public void playCharacter(Character character, Option option) throws CharacterImpossibleToPlay {
+        synchronized (lock) {
+            if (turnManager.getCurrentPlayer().getNumberOfCoins() >= character.getCurrentPrice()) {
+                Character used = Arrays.stream(characters).filter(character::equals).findFirst().orElseThrow();
+                used.useEffect(option);
+            } else
+                throw new CharacterImpossibleToPlay("Can't play Character");
+        }
     }
 
     /**
-     * Choose a cloud
+     * Choose a cloud.
      */
-    public void chooseCloud(String cloudId) {
-        Cloud currentCloud = clouds.stream()
-                .filter(cloud -> cloud.getCloudId().equals(cloudId))
-                .findFirst()
-                .orElseThrow();
-        turnManager.getCurrentPlayer().getBoard().getEntrance().uniteContainers(currentCloud.removeStudents());
-        currentCloud.addStudents(bag.extractStudents(currentCloud.getIsFor2() ? 2 : 3));
+    public void chooseCloud(String cloudId) throws IllegalArgumentException, StudentSpaceException {
+        synchronized (lock) {
+            Cloud currentCloud = clouds.stream()
+                    .filter(cloud -> cloud.getCloudId().equals(cloudId))
+                    .findFirst()
+                    .orElseThrow();
+            turnManager.getCurrentPlayer().getBoard().getEntrance().uniteContainers(currentCloud.removeStudents());
+            currentCloud.addStudents(bag.extractStudents(currentCloud.getIsFor2() ? currentCloud.getStudentsPerCloud2Players() : currentCloud.getStudentsPerCloud3Players()));
+        }
     }
 
     /**
-     *
+     * Next turn method.
      */
-    private void nextTurn(){
-        turnManager.nextTurn();
+    public void nextTurn() {
+        synchronized (lock) {
+            turnManager.nextTurn();
+        }
     }
 }

@@ -54,4 +54,15 @@ public class UnlimitedStudentsContainer extends StudentsContainer {
         }
     }
 
+    /**
+     * Return a copy of this container
+     *
+     * @return a student container that is the exact copy of this
+     */
+    @Override
+    public StudentsContainer copy() {
+        UnlimitedStudentsContainer container = new UnlimitedStudentsContainer();
+        container.student = Arrays.copyOf(this.student, this.student.length);
+        return container;
+    }
 }
