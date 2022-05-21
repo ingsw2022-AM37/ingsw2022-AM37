@@ -172,26 +172,33 @@ public class ClientSocket implements Runnable {
     static public void sendMessage(Message message) {
 
         //TODO PER ORA LO LASCIAMO IN SOSPESO, POI DECIDIAMO SE METTERE QUESTA FUNZIONE
-        // ogni 0,3 secondi manda un ping, metto un contatore statico che incremento ad ogni messaggio, arrivato a 700 avviso che se non viene mandato un messaggio valido a breve verrà disconnesso
+        // ogni 0,3 secondi manda un ping, metto un contatore statico che incremento ad ogni messaggio, arrivato a
+        // 700 avviso che se non viene mandato un messaggio valido a breve verrà disconnesso
         // gestisco anche quando non è il mio turno ovviamente questo non deve accadere
 
-        String json = new MessageGsonBuilder().registerMessageAdapter().registerStudentContainerAdapter().getGsonBuilder().create().toJson(message);
+        if (connectedToServer) {
+            String json = new MessageGsonBuilder().registerMessageAdapter()
+                    .registerStudentContainerAdapter()
+                    .getGsonBuilder()
+                    .create()
+                    .toJson(message);
 
-        Timer timer = new Timer();
+            Timer timer = new Timer();
 
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    disconnect();
+                }
+            }, 5000);
+
+            try {
+                dataOutputStream.writeUTF(json);
+                dataOutputStream.flush();
+                timer.cancel();
+            } catch (IOException e) {
                 disconnect();
             }
-        }, 5000);
-
-        try {
-            dataOutputStream.writeUTF(json);
-            dataOutputStream.flush();
-            timer.cancel();
-        } catch (IOException e) {
-            disconnect();
         }
     }
 
@@ -267,10 +274,19 @@ public class ClientSocket implements Runnable {
 
         try {
             json = dataInputStream.readUTF();
-            message = new MessageGsonBuilder().registerMessageAdapter().registerStudentContainerAdapter().getGsonBuilder().create().fromJson(json, Message.class);
+            message = new MessageGsonBuilder().registerMessageAdapter()
+                    .registerStudentContainerAdapter()
+                    .getGsonBuilder()
+                    .create()
+                    .fromJson(json, Message.class);
             timer.cancel();
-            if (message.getMessageType() != MessageType.PING && message.getMessageType() != MessageType.NEXT_TURN && message.getMessageType() != MessageType.PLANNING_PHASE) {
-                messageBuffer = new MessageGsonBuilder().registerMessageAdapter().registerStudentContainerAdapter().getGsonBuilder().create().fromJson(json, Message.class);
+            if (message.getMessageType() != MessageType.PING && message.getMessageType() != MessageType.NEXT_TURN &&
+                    message.getMessageType() != MessageType.PLANNING_PHASE) {
+                messageBuffer = new MessageGsonBuilder().registerMessageAdapter()
+                        .registerStudentContainerAdapter()
+                        .getGsonBuilder()
+                        .create()
+                        .fromJson(json, Message.class);
                 waitingMessage = false;
                 synchronized (waitObject) {
                     waitObject.notifyAll();
@@ -291,7 +307,13 @@ public class ClientSocket implements Runnable {
                 Client.getView().printWinner(endGameMessage.getWinnerNickname());
 
             } else if (message.getMessageType() == MessageType.UPDATE) {
-                Client.getView().getReducedModel().update(((UpdateMessage) message).getUpdatedObjects().values().stream().flatMap(List::stream).toList());
+                Client.getView()
+                        .getReducedModel()
+                        .update(((UpdateMessage) message).getUpdatedObjects()
+                                .values()
+                                .stream()
+                                .flatMap(List::stream)
+                                .toList());
             } else if (message.getMessageType() == MessageType.NEXT_TURN) {
                 NextTurnMessage nextTurnMessage;
 
@@ -310,6 +332,7 @@ public class ClientSocket implements Runnable {
 
         } catch (IOException e) {
             disconnect();
+
         }
 
     }

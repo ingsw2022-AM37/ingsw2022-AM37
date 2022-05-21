@@ -193,8 +193,10 @@ public class TurnManager {
         this.stolenProf = new HashMap<>();
         this.assistantPlayed = new HashMap<>();
 
-        for (int cont = 0; cont < numOfPlayers; cont++)
+        for (int cont = 0; cont < numOfPlayers; cont++) {
             this.players.add(new Player());
+            this.players.get(cont).setPlayerId(String.valueOf(cont));
+        }
         int i = 0;
         for (Player player : players) {
             player.setBoard(new Board(numOfPlayers, TowerColor.values()[i], coinsEnabled, player));

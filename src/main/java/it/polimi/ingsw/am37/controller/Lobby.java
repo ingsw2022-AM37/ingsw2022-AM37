@@ -1,7 +1,10 @@
 package it.polimi.ingsw.am37.controller;
 
 import it.polimi.ingsw.am37.message.*;
-import it.polimi.ingsw.am37.model.*;
+import it.polimi.ingsw.am37.model.Assistant;
+import it.polimi.ingsw.am37.model.Cloud;
+import it.polimi.ingsw.am37.model.GameManager;
+import it.polimi.ingsw.am37.model.Island;
 import it.polimi.ingsw.am37.model.character.Character;
 import it.polimi.ingsw.am37.model.character.Option;
 import it.polimi.ingsw.am37.model.exceptions.AssistantImpossibleToPlay;
@@ -104,15 +107,17 @@ public class Lobby implements Runnable, MessageReceiver {
      */
     @Override
     public synchronized void run() {
-        if (isGameReady()){
-            startGame();
-            System.out.println("GAME STARTED WOWO");
-        }
-        else {
-            try {
-                wait();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+        while (true) {
+            if (isGameReady()) {
+                startGame();
+                System.out.println("GAME STARTED WOWO");
+                break;
+            } else {
+                try {
+                    wait();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
     }
@@ -123,19 +128,28 @@ public class Lobby implements Runnable, MessageReceiver {
     private void startGame() {
         Timer timer = new Timer();
         gameManager.prepareGame();
+        int i = 0;
+        for (String nickname :
+                playerNicknames.values()) {
+            gameManager.getTurnManager().getPlayers().get(i).setPlayerId(nickname);
+            i++;
+        }
         sendMessage(new StartGameMessage());
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                sendMessage(new UpdateMessage(updateController.getUpdatedObjects(), MessageType.START_GAME, "StartGame"));
+                sendMessage(new UpdateMessage(updateController.getUpdatedObjects(), MessageType.START_GAME,
+                        "StartGame"));
             }
         }, 100);
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                sendMessage(new PlanningPhaseMessage(gameManager.getTurnManager().getCurrentPlayer().getPlayerId()));
+                sendMessage(new PlanningPhaseMessage(findUUIDByUsername(gameManager.getTurnManager()
+                        .getCurrentPlayer()
+                        .getPlayerId())));
             }
-        }, 100);
+        }, 300);
 
     }
 
@@ -224,9 +238,15 @@ public class Lobby implements Runnable, MessageReceiver {
         switch (message.getMessageType()) {
             case PLAY_ASSISTANT -> {
                 //Refill clouds if is the first player of the round
-                if (Objects.equals(gameManager.getTurnManager().getOrderPlayed().get(0).getPlayerId(), message.getUUID())) {
+                if (Objects.equals(gameManager.getTurnManager()
+                        .getOrderPlayed()
+                        .get(0)
+                        .getPlayerId(), message.getUUID())) {
                     for (Cloud c : gameManager.getClouds()) {
-                        c.addStudents(gameManager.getBag().extractStudents(c.getIsFor2() ? c.getStudentsPerCloud2Players() : c.getStudentsPerCloud3Players()));
+                        c.addStudents(gameManager.getBag()
+                                .extractStudents(c.getIsFor2()
+                                        ? c.getStudentsPerCloud2Players()
+                                        : c.getStudentsPerCloud3Players()));
                     }
                 }
                 //FIXME: Possibile problema se il "getCurrentPlayer" non è correttamente aggiornato.
@@ -250,7 +270,9 @@ public class Lobby implements Runnable, MessageReceiver {
                         sendMessage(response);
                     }
                     numberOfStudentsMoved += students;
-                    response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(), message.getMessageType().getClassName());
+                    response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(),
+                            message.getMessageType()
+                                    .getClassName());
                     sendMessage(response);
                 } else
                     ch.disconnect();
@@ -266,7 +288,9 @@ public class Lobby implements Runnable, MessageReceiver {
                         sendMessage(response);
                     }
                     numberOfStudentsMoved += students;
-                    response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(), message.getMessageType().getClassName());
+                    response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(),
+                            message.getMessageType()
+                                    .getClassName());
                     sendMessage(response);
                 } else
                     ch.disconnect();
@@ -282,7 +306,9 @@ public class Lobby implements Runnable, MessageReceiver {
                 if (exists) {
                     try {
                         gameManager.moveMotherNature(((MoveMotherNatureMessage) message).getIslandId());
-                        response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(), message.getMessageType().getClassName());
+                        response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(),
+                                message.getMessageType()
+                                        .getClassName());
                         sendMessage(response);
                     } catch (MNmovementWrongException e) {
                         response = new ErrorMessage(message.getUUID(), e.getMessage());
@@ -293,7 +319,8 @@ public class Lobby implements Runnable, MessageReceiver {
             }
             case PLAY_CHARACTER -> {
                 if (characterPlayed) {
-                    Character characterToBePlayed = new Character(((PlayCharacterMessage) message).getChosenCharacter().getInitialPrice(), ((PlayCharacterMessage) message).getChosenCharacter());
+                    Character characterToBePlayed = new Character(((PlayCharacterMessage) message).getChosenCharacter()
+                            .getInitialPrice(), ((PlayCharacterMessage) message).getChosenCharacter());
                     Option optionNeeded = ((PlayCharacterMessage) message).getOption();
                     try {
                         gameManager.playCharacter(characterToBePlayed, optionNeeded);
@@ -301,7 +328,9 @@ public class Lobby implements Runnable, MessageReceiver {
                         response = new ErrorMessage(message.getUUID(), e.getMessage());
                         sendMessage(response);
                     }
-                    response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(), message.getMessageType().getClassName());
+                    response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(),
+                            message.getMessageType()
+                                    .getClassName());
                     sendMessage(response);
                     characterPlayed = true;
                 } else
@@ -310,7 +339,9 @@ public class Lobby implements Runnable, MessageReceiver {
             case CHOOSE_CLOUD -> {
                 try {
                     gameManager.chooseCloud(((ChooseCloudMessage) message).getCloudId());
-                    response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(), message.getMessageType().getClassName());
+                    response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(),
+                            message.getMessageType()
+                                    .getClassName());
                     sendMessage(response);
                     gameManager.nextTurn();
                 } catch (IllegalArgumentException | StudentSpaceException e) {
@@ -318,13 +349,22 @@ public class Lobby implements Runnable, MessageReceiver {
                     sendMessage(response);
                 }
                 //TODO: Da testare attentamente
-                // If connected allora chiama nextTurn e spara il messaggio, altrimenti chiami ancora un nextTurn e messaggio e così via
+                // If connected allora chiama nextTurn e spara il messaggio, altrimenti chiami ancora un nextTurn e
+                // messaggio e così via
                 if (ch.isConnectedToClient()) {
-                    if (Objects.equals(gameManager.getTurnManager().getOrderPlayed().get(lobbySize - 1).getPlayerId(), message.getUUID()))
-                        response = new NextTurnMessage(message.getUUID(), gameManager.getTurnManager().getCurrentPlayer().getPlayerId(), playerNicknames.get(gameManager.getTurnManager().getCurrentPlayer().getPlayerId()));
-                    else{
-                        response = new PlanningPhaseMessage(message.getUUID());
+                    if (Objects.equals(gameManager.getTurnManager()
+                            .getOrderPlayed()
+                            .get(lobbySize - 1)
+                            .getPlayerId(), message.getUUID()))
+                        response = new NextTurnMessage(message.getUUID(),
+                                findUUIDByUsername(gameManager.getTurnManager()
+                                        .getCurrentPlayer()
+                                        .getPlayerId()), gameManager.getTurnManager().getCurrentPlayer().getPlayerId());
+                    else {
                         gameManager.getTurnManager().getAssistantPlayed().clear();
+                        response = new PlanningPhaseMessage(findUUIDByUsername(gameManager.getTurnManager()
+                                .getCurrentPlayer()
+                                .getPlayerId()));
                     }
                     sendMessage(response);
                 } else {
@@ -332,13 +372,23 @@ public class Lobby implements Runnable, MessageReceiver {
                     do {
                         onDisconnect(message.getUUID());
                         gameManager.nextTurn();
-                        newCh = players.get(gameManager.getTurnManager().getCurrentPlayer().getPlayerId());
+                        newCh = players.get(findUUIDByUsername(gameManager.getTurnManager()
+                                .getCurrentPlayer()
+                                .getPlayerId()));
                     } while (newCh.isConnectedToClient());
 
                     if (ch.isConnectedToClient()) {
-                        if (Objects.equals(gameManager.getTurnManager().getOrderPlayed().get(lobbySize - 1).getPlayerId(), message.getUUID()))
-                            response = new NextTurnMessage(message.getUUID(), gameManager.getTurnManager().getCurrentPlayer().getPlayerId(), playerNicknames.get(gameManager.getTurnManager().getCurrentPlayer().getPlayerId()));
-                        else{
+                        if (Objects.equals(gameManager.getTurnManager()
+                                .getOrderPlayed()
+                                .get(lobbySize - 1)
+                                .getPlayerId(), message.getUUID()))
+                            response = new NextTurnMessage(message.getUUID(),
+                                    findUUIDByUsername(gameManager.getTurnManager()
+                                            .getCurrentPlayer()
+                                            .getPlayerId()), gameManager.getTurnManager()
+                                    .getCurrentPlayer()
+                                    .getPlayerId());
+                        else {
                             response = new PlanningPhaseMessage(message.getUUID());
                             gameManager.getTurnManager().getAssistantPlayed().clear();
                         }
@@ -371,12 +421,12 @@ public class Lobby implements Runnable, MessageReceiver {
                     ch.sendMessageToClient(message);
                 }
             }
-            case ERROR, PLANNING_PHASE-> {
+            case ERROR, PLANNING_PHASE -> {
                 ClientHandler ch = players.get(message.getUUID());
                 ch.sendMessageToClient(message);
             }
-            default ->
-                    System.err.println("The server doesn't know where to send this message: " + message.getMessageType().getClassName());
+            default -> System.err.println(
+                    "The server doesn't know where to send this message: " + message.getMessageType().getClassName());
         }
     }
 
@@ -387,12 +437,26 @@ public class Lobby implements Runnable, MessageReceiver {
      */
     @Override
     public void onDisconnect(String clientUUID) {
-        //TODO: Va rimosso il player e il suo nickname? No se vogliamo fare la Resilienza, semplicemente lo si disattiva somehow
+        //TODO: Va rimosso il player e il suo nickname? No se vogliamo fare la Resilienza, semplicemente lo si
+        // disattiva somehow
         // gestire poi anche cosa fare con le sue informazioni nel server.
         // Se si vuole gestire la resilienza le sue informazioni non andranno eliminate lato server.
         // ma sarà necessario toglierlo dal model
 
 
         //TODO: Set Player to disconnected, gestire il turn manager per far saltare i player disconnessi.
+    }
+
+    /**
+     * Find the UUID associated to the given username in the current registered uid - username map
+     *
+     * @param username the username to find the UUID
+     * @return the UUID associated
+     */
+    public String findUUIDByUsername(String username) {
+        return playerNicknames.entrySet().stream().filter(entry -> Objects.equals(entry.getValue(),
+                gameManager.getTurnManager()
+                        .getCurrentPlayer()
+                        .getPlayerId())).findFirst().get().getKey();
     }
 }
