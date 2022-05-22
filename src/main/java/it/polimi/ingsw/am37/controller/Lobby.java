@@ -110,7 +110,7 @@ public class Lobby implements Runnable, MessageReceiver {
         while (true) {
             if (isGameReady()) {
                 startGame();
-                System.out.println("GAME STARTED WOWO");
+                LOGGER.info("Everything is ready, game is about to start");
                 break;
             } else {
                 try {
@@ -128,12 +128,14 @@ public class Lobby implements Runnable, MessageReceiver {
     private void startGame() {
         Timer timer = new Timer();
         gameManager.prepareGame();
+        gameManager.registerListener(updateController);
         int i = 0;
         for (String nickname :
                 playerNicknames.values()) {
             gameManager.getTurnManager().getPlayers().get(i).setPlayerId(nickname);
             i++;
         }
+        gameManager.getTurnManager().getOrderPlayed().forEach(el -> System.out.println(el.getPlayerId()));
         sendMessage(new StartGameMessage());
         timer.schedule(new TimerTask() {
             @Override
@@ -181,10 +183,17 @@ public class Lobby implements Runnable, MessageReceiver {
     }
 
     /**
-     * @return the list of players connected in the lobby
+     * @return the players connected in the lobby
      */
     public HashMap<String, ClientHandler> getPlayers() {
         return players;
+    }
+
+    /**
+     * @return the players nickname in the lobby
+     */
+    public HashMap<String, String> getPlayerNicknames() {
+        return playerNicknames;
     }
 
     /**
@@ -216,6 +225,17 @@ public class Lobby implements Runnable, MessageReceiver {
     }
 
     /**
+     * Find the UUID associated to the given username in the current registered uid - username map
+     *
+     * @param username the username to find the UUID
+     * @return the UUID associated
+     */
+    public String findUUIDByUsername(String username) {
+        //noinspection OptionalGetWithoutIsPresent
+        return playerNicknames.entrySet().stream().filter(entry -> Objects.equals(entry.getValue(), username)).findFirst().get().getKey();
+    }
+
+    /**
      * resets the variables needed
      */
     private void reset() {
@@ -227,174 +247,212 @@ public class Lobby implements Runnable, MessageReceiver {
      * When a message is received perform a specific action based on the Message type.
      *
      * @param message the Message received.
+     * @param ch      the ClientHandler that called the method.
      */
-    @Override
-    public void onMessageReceived(Message message, ClientHandler ch) throws InternetException {
-        //FIXME: CREARE DEI METODI PRIVATI
-        //FIXME: DEVO USARE SetUUID? Se si, da dove prendo quello giusto?
+    private void playAssistantCase(Message message, ClientHandler ch) {
+        Message response;
+        //Refill clouds if is the first player of the round
+        if (Objects.equals(findUUIDByUsername(gameManager.getTurnManager().getOrderPlayed().get(0).getPlayerId()), message.getUUID())) {
+            for (Cloud c : gameManager.getClouds()) {
+                c.addStudents(gameManager.getBag()
+                        .extractStudents(c.getIsFor2()
+                                ? c.getStudentsPerCloud2Players()
+                                : c.getStudentsPerCloud3Players()));
+            }
+            LOGGER.debug("Clouds Refilled! (he's the first player of the round)");
+        }
+        HashMap<Integer, Assistant> deck = gameManager.getTurnManager().getCurrentPlayer().getAssistantsDeck();
+        try {
+            gameManager.playAssistant(deck.get(((PlayAssistantMessage) message).getCardValue()));
+        } catch (AssistantImpossibleToPlay | IllegalArgumentException e) {
+            LOGGER.error("Assistant impossible to play");
+            LOGGER.error(e.getMessage());
+            response = new ErrorMessage(message.getUUID(), e.getMessage());
+            sendMessage(response);
+        }
+        //TODO: Controllare che se tutti hanno giocato l'assistente allora si manda un nextTurn.
+        gameManager.getTurnManager().getOrderPlayed().forEach(el -> System.out.println(el.getPlayerId()));
+        if (Objects.equals(findUUIDByUsername(gameManager.getTurnManager().getOrderPlayed().get(gameManager.getTurnManager().getOrderPlayed().size() - 1).getPlayerId()), message.getUUID()))
+            response = new NextTurnMessage(findUUIDByUsername(gameManager.getTurnManager().getCurrentPlayer().getPlayerId()), gameManager.getTurnManager().getCurrentPlayer().getPlayerId());
+        else {
+            response = new PlanningPhaseMessage(findUUIDByUsername(gameManager.getTurnManager().getCurrentPlayer().getPlayerId()));
+        }
+        sendMessage(response);
+    }
+
+    /**
+     * When a message is received perform a specific action based on the Message type.
+     *
+     * @param message the Message received.
+     * @param ch      the ClientHandler that called the method.
+     */
+    private void studentsToDining(Message message, ClientHandler ch) {
         Message response;
         int students;
         int movableStudents = 3;
-        switch (message.getMessageType()) {
-            case PLAY_ASSISTANT -> {
-                //Refill clouds if is the first player of the round
-                if (Objects.equals(gameManager.getTurnManager()
-                        .getOrderPlayed()
-                        .get(0)
-                        .getPlayerId(), message.getUUID())) {
-                    for (Cloud c : gameManager.getClouds()) {
-                        c.addStudents(gameManager.getBag()
-                                .extractStudents(c.getIsFor2()
-                                        ? c.getStudentsPerCloud2Players()
-                                        : c.getStudentsPerCloud3Players()));
-                    }
-                }
-                //FIXME: Possibile problema se il "getCurrentPlayer" non è correttamente aggiornato.
-                HashMap<Integer, Assistant> deck = gameManager.getTurnManager().getCurrentPlayer().getAssistantsDeck();
-                try {
-                    gameManager.playAssistant(deck.get(((PlayAssistantMessage) message).getCardValue()));
-                } catch (AssistantImpossibleToPlay | IllegalArgumentException e) {
-                    response = new ErrorMessage(message.getUUID(), e.getMessage());
-                    sendMessage(response);
-                }
-                response = new PlanningPhaseMessage(message.getUUID());
+        students = ((StudentsToDiningMessage) message).getContainer().size();
+        if (numberOfStudentsMoved + students < movableStudents) {
+            try {
+                gameManager.moveStudentsToDining(((StudentsToDiningMessage) message).getContainer());
+            } catch (IllegalArgumentException e) {
+                response = new ErrorMessage(message.getUUID(), e.getMessage());
                 sendMessage(response);
             }
+            numberOfStudentsMoved += students;
+            response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(), message.getMessageType().getClassName());
+            sendMessage(response);
+        } else
+            ch.disconnect();
+    }
+
+    /**
+     * When a message is received perform a specific action based on the Message type.
+     *
+     * @param message the Message received.
+     * @param ch      the ClientHandler that called the method.
+     */
+    private void studentsToIslandCase(Message message, ClientHandler ch) {
+        Message response;
+        int students;
+        int movableStudents = 3;
+        students = ((StudentsToIslandMessage) message).getContainer().size();
+        if (numberOfStudentsMoved + students < movableStudents) {
+            try {
+                gameManager.moveStudentsToIsland(((StudentsToIslandMessage) message).getContainer(),
+                        ((StudentsToIslandMessage) message).getIslandId());
+            } catch (IllegalArgumentException e) {
+                response = new ErrorMessage(message.getUUID(), e.getMessage());
+                sendMessage(response);
+            }
+            numberOfStudentsMoved += students;
+            response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(), message.getMessageType().getClassName());
+            sendMessage(response);
+        } else
+            ch.disconnect();
+    }
+
+    /**
+     * When a message is received perform a specific action based on the Message type.
+     *
+     * @param message the Message received.
+     * @param ch      the ClientHandler that called the method.
+     */
+    private void moveMotherNatureCase(Message message, ClientHandler ch) {
+        Message response;
+        boolean exists = false;
+        for (Island island : gameManager.getIslandsManager().getIslands()) {
+            if (((MoveMotherNatureMessage) message).getIslandId() == island.getIslandId()) {
+                exists = true;
+                break;
+            }
+        }
+        if (exists) {
+            try {
+                gameManager.moveMotherNature(((MoveMotherNatureMessage) message).getIslandId());
+                response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(), message.getMessageType().getClassName());
+                sendMessage(response);
+            } catch (MNmovementWrongException e) {
+                response = new ErrorMessage(message.getUUID(), e.getMessage());
+                sendMessage(response);
+            }
+        } else
+            ch.disconnect();
+    }
+
+    /**
+     * When a message is received perform a specific action based on the Message type.
+     *
+     * @param message the Message received.
+     * @param ch      the ClientHandler that called the method.
+     */
+    private void playCharacterCase(Message message, ClientHandler ch) {
+        Message response;
+        if (characterPlayed) {
+            Character characterToBePlayed = new Character(((PlayCharacterMessage) message).getChosenCharacter().getInitialPrice(), ((PlayCharacterMessage) message).getChosenCharacter());
+            Option optionNeeded = ((PlayCharacterMessage) message).getOption();
+            try {
+                gameManager.playCharacter(characterToBePlayed, optionNeeded);
+            } catch (CharacterImpossibleToPlay e) {
+                response = new ErrorMessage(message.getUUID(), e.getMessage());
+                sendMessage(response);
+            }
+            response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(), message.getMessageType().getClassName());
+            sendMessage(response);
+            characterPlayed = true;
+        } else
+            ch.disconnect();
+    }
+
+    /**
+     * When a message is received perform a specific action based on the Message type.
+     *
+     * @param message the Message received.
+     * @param ch      the ClientHandler that called the method.
+     */
+    private void chooseCloudCase(Message message, ClientHandler ch) {
+        Message response;
+        try {
+            gameManager.chooseCloud(((ChooseCloudMessage) message).getCloudId());
+            response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(), message.getMessageType().getClassName());
+            sendMessage(response);
+            gameManager.nextTurn();
+        } catch (IllegalArgumentException | StudentSpaceException e) {
+            response = new ErrorMessage(message.getUUID(), e.getMessage());
+            sendMessage(response);
+        }
+
+        if (!ch.isConnectedToClient()) {
+            ClientHandler newCh;
+            do {
+                onDisconnect(message.getUUID());
+                gameManager.nextTurn();
+                newCh = players.get(findUUIDByUsername(gameManager.getTurnManager().getCurrentPlayer().getPlayerId()));
+            } while (!newCh.isConnectedToClient());
+            ch = newCh;
+        }
+        if (ch.isConnectedToClient()) {
+            if (!Objects.equals(findUUIDByUsername(gameManager.getTurnManager().getOrderPlayed().get(gameManager.getTurnManager().getOrderPlayed().size() - 1).getPlayerId()), message.getUUID()))
+                response = new NextTurnMessage(findUUIDByUsername(gameManager.getTurnManager().getCurrentPlayer().getPlayerId()), gameManager.getTurnManager().getCurrentPlayer().getPlayerId());
+            else {
+                response = new PlanningPhaseMessage(findUUIDByUsername(gameManager.getTurnManager().getCurrentPlayer().getPlayerId()));
+                gameManager.getTurnManager().getAssistantPlayed().clear();
+            }
+        }
+        sendMessage(response);
+    }
+
+    /**
+     * When a message is received perform a specific action based on the Message type.
+     *
+     * @param message the Message received.
+     * @param ch      the ClientHandler that called the method.
+     */
+    @Override
+    public void onMessageReceived(Message message, ClientHandler ch) throws InternetException {
+        switch (message.getMessageType()) {
+            case PLAY_ASSISTANT -> {
+                LOGGER.info("PlayAssistant Message received from: " + playerNicknames.get(message.getUUID()));
+                playAssistantCase(message, ch);
+            }
             case STUDENTS_TO_DINING -> {
-                students = ((StudentsToDiningMessage) message).getContainer().size();
-                if (numberOfStudentsMoved + students < movableStudents) {
-                    try {
-                        gameManager.moveStudentsToDining(((StudentsToDiningMessage) message).getContainer());
-                    } catch (IllegalArgumentException e) {
-                        response = new ErrorMessage(message.getUUID(), e.getMessage());
-                        sendMessage(response);
-                    }
-                    numberOfStudentsMoved += students;
-                    response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(),
-                            message.getMessageType()
-                                    .getClassName());
-                    sendMessage(response);
-                } else
-                    ch.disconnect();
+                LOGGER.info("StudentsToDining Message received from: " + playerNicknames.get(message.getUUID()));
+                studentsToDining(message, ch);
             }
             case STUDENTS_TO_ISLAND -> {
-                students = ((StudentsToIslandMessage) message).getContainer().size();
-                if (numberOfStudentsMoved + students < movableStudents) {
-                    try {
-                        gameManager.moveStudentsToIsland(((StudentsToIslandMessage) message).getContainer(),
-                                ((StudentsToIslandMessage) message).getIslandId());
-                    } catch (IllegalArgumentException e) {
-                        response = new ErrorMessage(message.getUUID(), e.getMessage());
-                        sendMessage(response);
-                    }
-                    numberOfStudentsMoved += students;
-                    response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(),
-                            message.getMessageType()
-                                    .getClassName());
-                    sendMessage(response);
-                } else
-                    ch.disconnect();
+                LOGGER.info("StudentsToIsland Message received from: " + playerNicknames.get(message.getUUID()));
+                studentsToIslandCase(message, ch);
             }
             case MOVE_MOTHER_NATURE -> {
-                boolean exists = false;
-                for (Island island : gameManager.getIslandsManager().getIslands()) {
-                    if (((MoveMotherNatureMessage) message).getIslandId() == island.getIslandId()) {
-                        exists = true;
-                        break;
-                    }
-                }
-                if (exists) {
-                    try {
-                        gameManager.moveMotherNature(((MoveMotherNatureMessage) message).getIslandId());
-                        response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(),
-                                message.getMessageType()
-                                        .getClassName());
-                        sendMessage(response);
-                    } catch (MNmovementWrongException e) {
-                        response = new ErrorMessage(message.getUUID(), e.getMessage());
-                        sendMessage(response);
-                    }
-                } else
-                    ch.disconnect();
+                LOGGER.info("MoveMotherNature Message received from: " + playerNicknames.get(message.getUUID()));
+                moveMotherNatureCase(message, ch);
             }
             case PLAY_CHARACTER -> {
-                if (characterPlayed) {
-                    Character characterToBePlayed = new Character(((PlayCharacterMessage) message).getChosenCharacter()
-                            .getInitialPrice(), ((PlayCharacterMessage) message).getChosenCharacter());
-                    Option optionNeeded = ((PlayCharacterMessage) message).getOption();
-                    try {
-                        gameManager.playCharacter(characterToBePlayed, optionNeeded);
-                    } catch (CharacterImpossibleToPlay e) {
-                        response = new ErrorMessage(message.getUUID(), e.getMessage());
-                        sendMessage(response);
-                    }
-                    response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(),
-                            message.getMessageType()
-                                    .getClassName());
-                    sendMessage(response);
-                    characterPlayed = true;
-                } else
-                    ch.disconnect();
+                LOGGER.info("PlayCharacter Message received from: " + playerNicknames.get(message.getUUID()));
+                playCharacterCase(message, ch);
             }
             case CHOOSE_CLOUD -> {
-                try {
-                    gameManager.chooseCloud(((ChooseCloudMessage) message).getCloudId());
-                    response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(),
-                            message.getMessageType()
-                                    .getClassName());
-                    sendMessage(response);
-                    gameManager.nextTurn();
-                } catch (IllegalArgumentException | StudentSpaceException e) {
-                    response = new ErrorMessage(message.getUUID(), e.getMessage());
-                    sendMessage(response);
-                }
-                //TODO: Da testare attentamente
-                // If connected allora chiama nextTurn e spara il messaggio, altrimenti chiami ancora un nextTurn e
-                // messaggio e così via
-                if (ch.isConnectedToClient()) {
-                    if (Objects.equals(gameManager.getTurnManager()
-                            .getOrderPlayed()
-                            .get(lobbySize - 1)
-                            .getPlayerId(), message.getUUID()))
-                        response = new NextTurnMessage(message.getUUID(),
-                                findUUIDByUsername(gameManager.getTurnManager()
-                                        .getCurrentPlayer()
-                                        .getPlayerId()), gameManager.getTurnManager().getCurrentPlayer().getPlayerId());
-                    else {
-                        gameManager.getTurnManager().getAssistantPlayed().clear();
-                        response = new PlanningPhaseMessage(findUUIDByUsername(gameManager.getTurnManager()
-                                .getCurrentPlayer()
-                                .getPlayerId()));
-                    }
-                    sendMessage(response);
-                } else {
-                    ClientHandler newCh;
-                    do {
-                        onDisconnect(message.getUUID());
-                        gameManager.nextTurn();
-                        newCh = players.get(findUUIDByUsername(gameManager.getTurnManager()
-                                .getCurrentPlayer()
-                                .getPlayerId()));
-                    } while (newCh.isConnectedToClient());
-
-                    if (ch.isConnectedToClient()) {
-                        if (Objects.equals(gameManager.getTurnManager()
-                                .getOrderPlayed()
-                                .get(lobbySize - 1)
-                                .getPlayerId(), message.getUUID()))
-                            response = new NextTurnMessage(message.getUUID(),
-                                    findUUIDByUsername(gameManager.getTurnManager()
-                                            .getCurrentPlayer()
-                                            .getPlayerId()), gameManager.getTurnManager()
-                                    .getCurrentPlayer()
-                                    .getPlayerId());
-                        else {
-                            response = new PlanningPhaseMessage(message.getUUID());
-                            gameManager.getTurnManager().getAssistantPlayed().clear();
-                        }
-                    }
-                    sendMessage(response);
-                }
+                LOGGER.info("ChooseCloud Message received from: " + playerNicknames.get(message.getUUID()));
+                chooseCloudCase(message, ch);
             }
             default -> throw new IllegalStateException("Unexpected value: " + message.getMessageType());
         }
@@ -406,17 +464,7 @@ public class Lobby implements Runnable, MessageReceiver {
     @Override
     public void sendMessage(Message message) throws InternetException {
         switch (message.getMessageType()) {
-            case UPDATE -> {
-                if (((UpdateMessage) message).getLastAction() == MessageType.PLAY_ASSISTANT) {
-                    System.out.println("da fare");
-                    //TODO: QUANDO È PLAY_ASSISTANT MANDA IL DECK SOLO AL QUEL PLAYER, AGLI ALTRI VA PULITO.
-                    // updateController.getUpdatedObjects().get()
-                } else {
-                    for (ClientHandler ch : players.values())
-                        ch.sendMessageToClient(message);
-                }
-            }
-            case NEXT_TURN, END_GAME, START_GAME -> {
+            case NEXT_TURN, END_GAME, START_GAME, UPDATE -> {
                 for (ClientHandler ch : players.values()) {
                     ch.sendMessageToClient(message);
                 }
@@ -425,8 +473,8 @@ public class Lobby implements Runnable, MessageReceiver {
                 ClientHandler ch = players.get(message.getUUID());
                 ch.sendMessageToClient(message);
             }
-            default -> System.err.println(
-                    "The server doesn't know where to send this message: " + message.getMessageType().getClassName());
+            default ->
+                    System.err.println("The server doesn't know where to send this message: " + message.getMessageType().getClassName());
         }
     }
 
@@ -445,18 +493,8 @@ public class Lobby implements Runnable, MessageReceiver {
 
 
         //TODO: Set Player to disconnected, gestire il turn manager per far saltare i player disconnessi.
-    }
-
-    /**
-     * Find the UUID associated to the given username in the current registered uid - username map
-     *
-     * @param username the username to find the UUID
-     * @return the UUID associated
-     */
-    public String findUUIDByUsername(String username) {
-        return playerNicknames.entrySet().stream().filter(entry -> Objects.equals(entry.getValue(),
-                gameManager.getTurnManager()
-                        .getCurrentPlayer()
-                        .getPlayerId())).findFirst().get().getKey();
+        ClientHandler clientToDisconnect = players.get(clientUUID);
+        disconnectedPlayers.put(clientUUID, clientToDisconnect);
+        players.remove(clientUUID);
     }
 }

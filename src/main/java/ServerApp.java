@@ -17,7 +17,6 @@ public class ServerApp {
     public static void main(String[] args) {
         Server server = new Server();
         parseArgument(args);
-        System.out.println(Integer.parseInt(portValue));
         server.loadServer(Integer.parseInt(portValue));
     }
 

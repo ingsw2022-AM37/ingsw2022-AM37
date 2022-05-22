@@ -1,10 +1,7 @@
 package it.polimi.ingsw.am37.message;
 
 import com.google.gson.Gson;
-import it.polimi.ingsw.am37.model.Cloud;
-import it.polimi.ingsw.am37.model.FactionColor;
-import it.polimi.ingsw.am37.model.Island;
-import it.polimi.ingsw.am37.model.WizardTeam;
+import it.polimi.ingsw.am37.model.*;
 import it.polimi.ingsw.am37.model.character.Effect;
 import it.polimi.ingsw.am37.model.character.Option;
 import it.polimi.ingsw.am37.model.student_container.UnlimitedStudentsContainer;

@@ -182,6 +182,26 @@ public abstract class AbstractView {
     public abstract void impossibleAssistant();
 
     /**
+     * Method used to ask which player you want to look at
+     *
+     * @return chosen player
+     */
+    public abstract Player askPlayer();
+
+    /**
+     * Method used to show players in game
+     */
+    public abstract void showPlayersNicknames();
+
+    /**
+     * Method used to display connection info
+     *
+     * @param address How we named address in connection phase (args)
+     * @param port    How we named port in connection phase (args)
+     */
+    public abstract void showConnection(HashMap<String, String> params, String address, String port);
+
+    /**
      * Method used when an error message come from server
      */
     public abstract void impossibleStudents();

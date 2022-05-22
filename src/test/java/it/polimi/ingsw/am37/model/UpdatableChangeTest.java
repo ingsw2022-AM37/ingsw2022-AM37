@@ -1,5 +1,6 @@
-package it.polimi.ingsw.am37.message;
+package it.polimi.ingsw.am37.model;
 
+import it.polimi.ingsw.am37.controller.UpdateController;
 import it.polimi.ingsw.am37.model.*;
 import it.polimi.ingsw.am37.model.character.Character;
 import it.polimi.ingsw.am37.model.character.Effect;
@@ -25,7 +26,7 @@ public class UpdatableChangeTest {
     void testCloudFireProperty() {
         Cloud cloud = new Cloud(true);
         UpdateController controller = new UpdateController();
-        cloud.getSupport().addPropertyChangeListener("cloud", controller);
+        cloud.support.addPropertyChangeListener("cloud", controller);
         UnlimitedStudentsContainer container = new UnlimitedStudentsContainer();
         container.addStudents(3, FactionColor.BLUE);
         cloud.addStudents(container);
@@ -41,7 +42,7 @@ public class UpdatableChangeTest {
         container.addStudents(3, FactionColor.BLUE);
         Island island = new Island(container, 1);
         UpdateController controller = new UpdateController();
-        island.getSupport().addPropertyChangeListener(controller);
+        island.support.addPropertyChangeListener(controller);
         island.addStudents(container);
         island.addNoEntryTile(2);
         island.removeNoEntryTile();
@@ -55,8 +56,9 @@ public class UpdatableChangeTest {
     @DisplayName("test player firing property")
     void testPlayerFireProperty() throws InstanceAlreadyExistsException {
         Player player = new Player();
+        player.setPlayerId("bramba2000");
         UpdateController controller = new UpdateController();
-        player.getSupport().addPropertyChangeListener(controller);
+        player.support.addPropertyChangeListener(controller);
         player.receiveCoin();
         assertEquals(1, controller.getUpdatedObjects().size());
         player.createDeck(WizardTeam.TEAM1);
@@ -75,7 +77,7 @@ public class UpdatableChangeTest {
         Board board = new Board(2, TowerColor.BLACK, false, player);
         player.setBoard(board);
         UpdateController controller = new UpdateController();
-        board.getSupport().addPropertyChangeListener(controller);
+        board.getPlayer().support.addPropertyChangeListener(controller);
         board.addProf(FactionColor.BLUE);
         board.removeProf(FactionColor.BLUE);
         board.removeTowers(1);
@@ -93,14 +95,15 @@ public class UpdatableChangeTest {
     void testCharacterFireProperty () throws NoSuchFieldException, IllegalAccessException {
         UpdateController controller = new UpdateController();
         Character character = new Character(Effect.MONK.getInitialPrice(), Effect.MONK);
-        character.getSupport().addPropertyChangeListener(controller);
+        character.support.addPropertyChangeListener(controller);
         Field field = character.getClass().getDeclaredField("effectHandler");
         field.setAccessible(true);
         field.set(character, mock(EffectHandler.class));
         character.useEffect(mock(Option.class));
         assertEquals(0, controller.getUpdateList().size());
         Player player = new Player();
-        player.getSupport().addPropertyChangeListener(controller);
+        player.setPlayerId("bramba2000");
+        player.support.addPropertyChangeListener(controller);
         player.receiveCoin();
         player.receiveCoin();
         player.useCharacter(character, mock(Option.class));

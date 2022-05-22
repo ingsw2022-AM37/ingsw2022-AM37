@@ -1,16 +1,14 @@
 package it.polimi.ingsw.am37.model;
 
-import it.polimi.ingsw.am37.message.UpdatableObject;
 import it.polimi.ingsw.am37.model.character.Character;
 import it.polimi.ingsw.am37.model.character.Option;
 
 import javax.management.InstanceAlreadyExistsException;
 import java.security.InvalidParameterException;
 import java.util.HashMap;
-import java.util.UUID;
 
-import static it.polimi.ingsw.am37.message.UpdatableObject.UpdatableType.PLAYER;
-import static it.polimi.ingsw.am37.message.UpdateController.Properties.*;
+import static it.polimi.ingsw.am37.model.UpdatableObject.UpdatableType.PLAYER;
+import static it.polimi.ingsw.am37.controller.UpdateController.Properties.*;
 
 /**
  * This class represents the in-game player, it does not represent the person playing the game, therefore it will not

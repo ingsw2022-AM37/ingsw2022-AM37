@@ -9,6 +9,7 @@ import it.polimi.ingsw.am37.model.exceptions.MNmovementWrongException;
 import it.polimi.ingsw.am37.model.exceptions.StudentSpaceException;
 import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
 
+import java.beans.PropertyChangeListener;
 import java.util.*;
 
 public class GameManager {
@@ -158,8 +159,7 @@ public class GameManager {
                 for (int i = 0; i < NUMBER_OF_CHARACTERS; i++) {
                     Effect effect = temp.get(i);
                     characters[i] = new Character(effect.getInitialPrice(), effect);
-                    if (effect == Effect.GRANDMA)
-                        islandsManager.setStateCharacterNoEntryTile(characters[i].getState());
+                    if (effect == Effect.GRANDMA) islandsManager.setStateCharacterNoEntryTile(characters[i].getState());
                 }
             }
         }
@@ -250,8 +250,7 @@ public class GameManager {
             if (turnManager.getCurrentPlayer().getNumberOfCoins() >= character.getCurrentPrice()) {
                 Character used = Arrays.stream(characters).filter(character::equals).findFirst().orElseThrow();
                 used.useEffect(option);
-            } else
-                throw new CharacterImpossibleToPlay("Can't play Character");
+            } else throw new CharacterImpossibleToPlay("Can't play Character");
         }
     }
 
@@ -265,7 +264,9 @@ public class GameManager {
                     .findFirst()
                     .orElseThrow();
             turnManager.getCurrentPlayer().getBoard().getEntrance().uniteContainers(currentCloud.removeStudents());
-            currentCloud.addStudents(bag.extractStudents(currentCloud.getIsFor2() ? currentCloud.getStudentsPerCloud2Players() : currentCloud.getStudentsPerCloud3Players()));
+            currentCloud.addStudents(bag.extractStudents(currentCloud.getIsFor2()
+                    ? currentCloud.getStudentsPerCloud2Players()
+                    : currentCloud.getStudentsPerCloud3Players()));
         }
     }
 
@@ -275,6 +276,30 @@ public class GameManager {
     public void nextTurn() {
         synchronized (lock) {
             turnManager.nextTurn();
+        }
+    }
+
+    /**
+     * This method register the given listeners to all the updatable objects in the model
+     *
+     * @param listener  the listener to register inside the model
+     */
+    public void registerListener(PropertyChangeListener listener) {
+        for (Island island : islandsManager.getIslands()) {
+            island.addPropertyChangeListener(listener);
+        }
+        for (Cloud cloud : clouds) {
+            cloud.addPropertyChangeListener(listener);
+        }
+        for (Player player :
+                turnManager.getPlayers()) {
+            player.addPropertyChangeListener(listener);
+        }
+        if (advancedMode) {
+            for (Character character :
+                    characters) {
+                character.addPropertyChangeListener(listener);
+            }
         }
     }
 }

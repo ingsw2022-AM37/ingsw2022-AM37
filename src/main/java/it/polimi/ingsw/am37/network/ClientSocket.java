@@ -264,13 +264,13 @@ public class ClientSocket implements Runnable {
     /**
      * Message received from server and executed
      */
-    static private void readMessage() { //TODO manca un messaggio con cui mi si dicono i nickname della partita
+    static private void readMessage() {
 
         String json;
         Message message = null;
         Timer timer = new Timer();
 
-        if(!debugMode){
+        if (!debugMode) {
             timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
@@ -283,6 +283,7 @@ public class ClientSocket implements Runnable {
             json = dataInputStream.readUTF();
             message = new MessageGsonBuilder().registerMessageAdapter()
                     .registerStudentContainerAdapter()
+                    .registerUpdatableObjectAdapter()
                     .getGsonBuilder()
                     .create()
                     .fromJson(json, Message.class);

@@ -274,6 +274,36 @@ public class GuiView extends AbstractView {
     }
 
     /**
+     * Method used to ask which player you want to look at
+     *
+     * @return chosen player
+     */
+    @Override
+    public Player askPlayer() {
+        return null;
+    }
+
+    /**
+     * Method used to show players in game
+     */
+    @Override
+    public void showPlayersNicknames() {
+
+    }
+
+    /**
+     * Method used to display connection info
+     *
+     * @param params
+     * @param address How we named address in connection phase (args)
+     * @param port    How we named port in connection phase (args)
+     */
+    @Override
+    public void showConnection(HashMap<String, String> params, String address, String port) {
+
+    }
+
+    /**
      * Method used when an error message come from server
      */
     @Override
