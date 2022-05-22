@@ -4,6 +4,7 @@ import it.polimi.ingsw.am37.controller.Lobby;
 import it.polimi.ingsw.am37.message.*;
 import it.polimi.ingsw.am37.network.MessageReceiver;
 import it.polimi.ingsw.am37.network.exceptions.InternetException;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -60,8 +61,8 @@ public class Server implements MessageReceiver {
      * @param serverPort the given port.
      */
     public void loadServer(int serverPort) {
+        LOGGER.printf(Level.OFF, "=====================================================Server Started=====================================================");
         new Thread(() -> {
-            //TODO: LOGGER
             Socket socket = null;
             try (ServerSocket serverSocket = new ServerSocket(serverPort)) {
                 do {
@@ -91,15 +92,16 @@ public class Server implements MessageReceiver {
      */
     private Lobby createLobby(int lobbySize, boolean advancedMode) {
         boolean generated = false;
-        int matchID = new Random().nextInt() & Integer.MAX_VALUE;
+        int matchID = new Random().nextInt(1024);
         do {
             for (Lobby lobby : activeLobbies) {
                 if (lobby.getMatchID() == matchID) {
-                    matchID = new Random().nextInt() & Integer.MAX_VALUE;
+                    matchID = new Random().nextInt(1024);
                     generated = true;
                 }
             }
         } while (generated);
+        LOGGER.info("Created a Lobby with matchID: " + matchID);
         return new Lobby(lobbySize, advancedMode, matchID);
     }
 
@@ -113,49 +115,52 @@ public class Server implements MessageReceiver {
     public void onMessageReceived(Message message, ClientHandler ch) throws InternetException {
         Message response;
         switch (message.getMessageType()) {
-            case LOGIN:
+            case LOGIN -> {
+                LOGGER.info("Received LoginMessage");
                 if (!nicknames.containsValue(((LoginMessage) message).getNickname())) {
                     clientHandlerMap.put(message.getUUID(), ch);
                     nicknames.put(message.getUUID(), ((LoginMessage) message).getNickname());
                     response = new ConfirmMessage(message.getUUID());
+                    LOGGER.info("LoginMessage Response: Confirm Message");
                     sendMessage(response);
                 } else {
                     response = new ErrorMessage(message.getUUID(), "Nickname already used");
+                    LOGGER.error("LoginMessage Response: Nickname already used");
                     ch.sendMessageToClient(response);
                 }
-                break;
-            case LOBBY_REQUEST:
+            }
+            case LOBBY_REQUEST -> {
+                LOGGER.info("Received LobbyRequestMessage");
                 if (((LobbyRequestMessage) message).getDesiredSize() > 3)
                     ch.disconnect();
                 boolean lobbyFound = false;
                 for (Lobby lobby : activeLobbies) {
                     if (!lobby.isGameReady() && lobby.isAdvancedMode() == ((LobbyRequestMessage) message).isDesiredAdvanceMode() && lobby.getLobbySize() == ((LobbyRequestMessage) message).getDesiredSize()) {
                         lobby.addPlayerInLobby(message.getUUID(), ch, nicknames.get(message.getUUID()));
-                        ch.setMessageReceiver(lobby);
+                        LOGGER.info("Lobby found, " + nicknames.get(message.getUUID()) + " entered lobby " + lobby.getMatchID());
                         lobbyFound = true;
+                        ch.setMessageReceiver(lobby);
                         break;
                     }
                 }
                 if (!lobbyFound) {
-                    Lobby lobby = createLobby(((LobbyRequestMessage) message).getDesiredSize(),
-                            ((LobbyRequestMessage) message).isDesiredAdvanceMode());
+                    Lobby lobby = createLobby(((LobbyRequestMessage) message).getDesiredSize(), ((LobbyRequestMessage) message).isDesiredAdvanceMode());
                     new Thread(lobby).start();
                     activeLobbies.add(lobby);
                     lobby.addPlayerInLobby(message.getUUID(), ch, nicknames.get(message.getUUID()));
+                    LOGGER.info(nicknames.get(message.getUUID()) + "entered lobby " + lobby.getMatchID());
                     ch.setMessageReceiver(lobby);
                 }
-                for (Lobby lobby:activeLobbies) {
-                    System.out.println("LobbyId: " + lobby.getMatchID() + " LobbySize: " + lobby.getLobbySize() + "is game ready: " + lobby.isGameReady());
-                    for (String s : lobby.getPlayers().keySet()) {
-                        System.out.println("nickname: " + nicknames.get(s));
-                    }
+                for (Lobby lobby : activeLobbies) {
+                    LOGGER.debug("Lobby " + lobby.getMatchID() + " status:\n- LobbySize: " + lobby.getLobbySize() + "\n- IsGameReady: " + lobby.isGameReady() + "\n- Players Connected: " + lobby.getPlayerNicknames().values());
                 }
-                break;
-            default:
+            }
+            default -> {
                 response = new ErrorMessage(message.getUUID(), "You've sent a message that the server can't " +
                         "understand");
+                LOGGER.error("A message has been sent that the server can't understand: " + message.getMessageType());
                 ch.sendMessageToClient(response);
-                break;
+            }
         }
     }
 
@@ -179,22 +184,28 @@ public class Server implements MessageReceiver {
         // gestire poi anche cosa fare con le sue informazioni nel server.
         // Se si vuole gestire la resilienza le sue informazioni non andranno eliminate lato server.
         // ma sarà necessario toglierlo dal model
+
+        // TODO: Se rimane attivo un solo giocatore, il gioco viene sospeso fino a che non si ricollega almeno un altro
+        // giocatore oppure scade un timeout
+
         ClientHandler clientToDisconnect = clientHandlerMap.get(clientUUID);
         disconnectedClients.put(clientUUID, clientToDisconnect);
         clientHandlerMap.remove(clientUUID);
-        //TODO: Timer per gestire che se il client non si riconnette allora il nickname può essere liberato
-        // Nickname da togliere anche dalla lobby
-        nicknames.remove(clientUUID);
+
+        //TODO: I nickname non vanno gestiti, li elimino solo a fine partita; solo se non sono ancora in una lobby e si disconnette allora posso eliminare il nickname
+        //nicknames.remove(clientUUID);
+
         Lobby lobbyContainingClient;
         for (Lobby lobby : activeLobbies) {
-            if(lobby.isPlayerInLobby(clientUUID)){
+            if (lobby.isPlayerInLobby(clientUUID)) {
                 lobbyContainingClient = lobby;
                 lobbyContainingClient.onDisconnect(clientUUID);
                 break;
-            }
-            else
+            } else
                 System.err.println("Unable to find the Client in any Lobby");
         }
+
+        //TODO: onReconnect forzare l'aggiunta del player che si è riconnesso in orderPlayed (o assistantPlayed) nel GM, altrimenti si rompe.
         clientToDisconnect.disconnect();
     }
 }

@@ -210,14 +210,11 @@ public class TurnManager {
             player.getBoard().addStudentsToEntrance(bag.extractStudents(studentEntranceThreePlayers));
         }
         this.currentPlayer = getPlayers().get(random.nextInt(getPlayers().size()));
-        int counter = 0;
         i = players.indexOf(currentPlayer);
-        while (counter <= numOfPlayers) {
+        for (int j = 0; j < numOfPlayers; j++) {
             this.orderPlayed.add(players.get(i));
-            counter++;
             i = (i + 1) % numOfPlayers;
         }
-        this.orderPlayed.addAll(players);
     }
 
     /**
@@ -368,9 +365,8 @@ public class TurnManager {
         useAssistant(assistant);
         this.assistantPlayed.put(currentPlayer, assistant);
         //FIXME: questo setta un nuovo current player, corretto farlo qua?
-        if (orderPlayed.indexOf(currentPlayer) != orderPlayed.size())
+        if (orderPlayed.indexOf(currentPlayer) != orderPlayed.size() - 1)
             setCurrentPlayer(orderPlayed.get(orderPlayed.indexOf(currentPlayer) + 1));
-
     }
 
     /**
