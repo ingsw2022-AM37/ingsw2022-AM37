@@ -56,6 +56,7 @@ public class UpdatableChangeTest {
     @DisplayName("test player firing property")
     void testPlayerFireProperty() throws InstanceAlreadyExistsException {
         Player player = new Player();
+        player.setPlayerId("bramba2000");
         UpdateController controller = new UpdateController();
         player.support.addPropertyChangeListener(controller);
         player.receiveCoin();
@@ -76,7 +77,7 @@ public class UpdatableChangeTest {
         Board board = new Board(2, TowerColor.BLACK, false, player);
         player.setBoard(board);
         UpdateController controller = new UpdateController();
-        board.support.addPropertyChangeListener(controller);
+        board.getPlayer().support.addPropertyChangeListener(controller);
         board.addProf(FactionColor.BLUE);
         board.removeProf(FactionColor.BLUE);
         board.removeTowers(1);
@@ -101,6 +102,7 @@ public class UpdatableChangeTest {
         character.useEffect(mock(Option.class));
         assertEquals(0, controller.getUpdateList().size());
         Player player = new Player();
+        player.setPlayerId("bramba2000");
         player.support.addPropertyChangeListener(controller);
         player.receiveCoin();
         player.receiveCoin();

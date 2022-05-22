@@ -7,6 +7,7 @@ import it.polimi.ingsw.am37.model.student_container.UnlimitedStudentsContainer;
 import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
 
+import java.beans.PropertyChangeSupport;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -223,7 +224,7 @@ class EffectDatabaseTest {
                 FactionColor.values()) {
             startContainer.addStudents(1, color);
         }
-        Player mockPlayer = mock(Player.class);
+        Player mockPlayer = spy(Player.class);
         Board spyBoard = spy(new Board(2, TowerColor.BLACK, false, startContainer, mockPlayer));
         when(mockPlayer.getBoard()).thenReturn(spyBoard);
         Option option = optionBuilder.player(mockPlayer).build();
@@ -249,7 +250,7 @@ class EffectDatabaseTest {
         UnlimitedStudentsContainer removeContainer = new UnlimitedStudentsContainer();
         removeContainer.addStudents(2,
                 Arrays.stream(FactionColor.values()).filter(color -> startContainer.getByColor(color) >= 2).findAny().orElseThrow());
-        Player mockPlayer = mock(Player.class);
+        Player mockPlayer = spy(Player.class);
         Board spyBoard = spy(new Board(2, TowerColor.BLACK, false, startContainer, mockPlayer));
         when(mockPlayer.getBoard()).thenReturn(spyBoard);
         Option option = optionBuilder.player(mockPlayer).build();
