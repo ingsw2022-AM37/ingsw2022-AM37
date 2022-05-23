@@ -6,8 +6,8 @@ package it.polimi.ingsw.am37.message;
 public enum MessageType {
     LOGIN("LoginMessage"),
     LOBBY_REQUEST("LobbyRequestMessage"),
-    //START_GAME("StartGameMessage"),
     UPDATE("UpdateMessage"),
+    ACTIVE_LOBBIES("ActiveLobbiesMessage"),
     ERROR("ErrorMessage"),
     PLAY_ASSISTANT("PlayAssistantMessage"),
     CHOOSE_TEAM("ChooseTeamMessage"),

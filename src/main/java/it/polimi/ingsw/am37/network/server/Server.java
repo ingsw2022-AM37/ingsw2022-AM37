@@ -13,12 +13,16 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Random;
 
 /**
  * It represents the Server that manage Players login and game Lobbies.
  */
 public class Server implements MessageReceiver {
+
+    /**
+     *
+     */
+    public static Server server;
 
     /**
      * A Logger.
@@ -46,13 +50,21 @@ public class Server implements MessageReceiver {
     private static HashMap<String, ClientHandler> disconnectedClients;
 
     /**
+     * Keeps track of the matchIDs.
+     */
+    private static int matchIdCounter;
+
+    /**
      * Default Constructor
      */
     public Server() {
+        server = this;
         nicknames = new HashMap<>();
         activeLobbies = new ArrayList<>();
         clientHandlerMap = new HashMap<>();
+        disconnectedClients = new HashMap<>();
         LOGGER = LogManager.getLogger(Server.class);
+        matchIdCounter = 0;
     }
 
     /**
@@ -65,9 +77,9 @@ public class Server implements MessageReceiver {
         new Thread(() -> {
             Socket socket = null;
             try (ServerSocket serverSocket = new ServerSocket(serverPort)) {
+                LOGGER.info("Awaiting connections...");
                 do {
                     try {
-                        LOGGER.info("Awaiting connections...");
                         socket = serverSocket.accept();
                         LOGGER.info("Connection from " + socket + "!");
                     } catch (IOException e) {
@@ -77,6 +89,8 @@ public class Server implements MessageReceiver {
                     ClientHandler ch = new ClientHandler(socket);
                     ch.setMessageReceiver(this);
                     new Thread(ch).start();
+                    Message response = new ActiveLobbiesMessage(activeLobbies.stream().map(Lobby::getMatchID).toList());
+                    ch.sendMessageToClient(response);
                 } while (!serverSocket.isClosed());
             } catch (IOException e) {
                 e.printStackTrace();
@@ -91,20 +105,9 @@ public class Server implements MessageReceiver {
      * @param advancedMode flag to turn on advanced mode
      */
     private Lobby createLobby(int lobbySize, boolean advancedMode) {
-        boolean generated = false;
-        int matchID = new Random().nextInt(1024);
-        do {
-            for (Lobby lobby : activeLobbies) {
-                if (lobby.getMatchID() == matchID) {
-                    matchID = new Random().nextInt(1024);
-                    generated = true;
-                }
-            }
-        } while (generated);
-        LOGGER.info("Created a Lobby with matchID: " + matchID);
-        return new Lobby(lobbySize, advancedMode, matchID);
+        LOGGER.info("Created a Lobby with matchID: " + ++matchIdCounter);
+        return new Lobby(lobbySize, advancedMode, matchIdCounter);
     }
-
 
     /**
      * When a message is received perform a specific action based on the Message type.
@@ -131,29 +134,40 @@ public class Server implements MessageReceiver {
             }
             case LOBBY_REQUEST -> {
                 LOGGER.info("Received LobbyRequestMessage");
-                if (((LobbyRequestMessage) message).getDesiredSize() > 3)
+                Lobby lobbyFound = null;
+                boolean lobbyFoundFlag = false;
+                if (((LobbyRequestMessage) message).getDesiredSize() > 3) {
                     ch.disconnect();
-                boolean lobbyFound = false;
+                }
                 for (Lobby lobby : activeLobbies) {
+                    //Da testare questo if
+                    if (lobby.isPlayerInLobby(message.getUUID())) {
+                        onReconnect(message.getUUID());
+                        lobby.onReconnect(message.getUUID());
+                    }
                     if (!lobby.isGameReady() && lobby.isAdvancedMode() == ((LobbyRequestMessage) message).isDesiredAdvanceMode() && lobby.getLobbySize() == ((LobbyRequestMessage) message).getDesiredSize()) {
                         lobby.addPlayerInLobby(message.getUUID(), ch, nicknames.get(message.getUUID()));
                         LOGGER.info("Lobby found, " + nicknames.get(message.getUUID()) + " entered lobby " + lobby.getMatchID());
-                        lobbyFound = true;
+                        lobbyFoundFlag = true;
+                        lobbyFound = lobby;
                         ch.setMessageReceiver(lobby);
                         break;
                     }
                 }
-                if (!lobbyFound) {
-                    Lobby lobby = createLobby(((LobbyRequestMessage) message).getDesiredSize(), ((LobbyRequestMessage) message).isDesiredAdvanceMode());
-                    new Thread(lobby).start();
-                    activeLobbies.add(lobby);
-                    lobby.addPlayerInLobby(message.getUUID(), ch, nicknames.get(message.getUUID()));
-                    LOGGER.info(nicknames.get(message.getUUID()) + "entered lobby " + lobby.getMatchID());
-                    ch.setMessageReceiver(lobby);
+                if (!lobbyFoundFlag) {
+                    lobbyFound = createLobby(((LobbyRequestMessage) message).getDesiredSize(), ((LobbyRequestMessage) message).isDesiredAdvanceMode());
+                    new Thread(lobbyFound).start();
+                    activeLobbies.add(lobbyFound);
+                    lobbyFound.addPlayerInLobby(message.getUUID(), ch, nicknames.get(message.getUUID()));
+                    LOGGER.info(nicknames.get(message.getUUID()) + "entered lobby " + lobbyFound.getMatchID());
+                    ch.setMessageReceiver(lobbyFound);
                 }
                 for (Lobby lobby : activeLobbies) {
                     LOGGER.debug("Lobby " + lobby.getMatchID() + " status:\n- LobbySize: " + lobby.getLobbySize() + "\n- IsGameReady: " + lobby.isGameReady() + "\n- Players Connected: " + lobby.getPlayerNicknames().values());
                 }
+                response = new ConfirmMessage(message.getUUID(), lobbyFound.getMatchID());
+                LOGGER.info("RequestLobby Response: Confirm Message");
+                sendMessage(response);
             }
             default -> {
                 response = new ErrorMessage(message.getUUID(), "You've sent a message that the server can't " +
@@ -162,6 +176,30 @@ public class Server implements MessageReceiver {
                 ch.sendMessageToClient(response);
             }
         }
+    }
+
+    /**
+     * Closes the lobby and deletes the nicknames from the server
+     *
+     * @param lobby the Lobby to be closed.
+     */
+    public void closeLobby(Lobby lobby) {
+        nicknames.keySet().removeAll(lobby.getPlayerNicknames().keySet());
+        activeLobbies.remove(lobby);
+        LOGGER.info("Lobby " + lobby.getMatchID() + " closed");
+    }
+
+    /**
+     * Reconnects the client in the Server.
+     *
+     * @param clientUUID the client that wants to reconnect.
+     */
+    private void onReconnect(String clientUUID) {
+        ClientHandler clientToReconnect = disconnectedClients.get(clientUUID);
+        clientHandlerMap.put(clientUUID, clientToReconnect);
+        disconnectedClients.remove(clientUUID);
+
+        LOGGER.info("Reconnected " + nicknames.get(clientUUID) + " on the Server");
     }
 
     /**
@@ -180,32 +218,21 @@ public class Server implements MessageReceiver {
      */
     @Override
     public void onDisconnect(String clientUUID) {
-        //TODO: Va rimosso il player e il suo nickname? No se vogliamo fare la Resilienza, semplicemente lo si disattiva somehow
-        // gestire poi anche cosa fare con le sue informazioni nel server.
-        // Se si vuole gestire la resilienza le sue informazioni non andranno eliminate lato server.
-        // ma sarà necessario toglierlo dal model
-
-        // TODO: Se rimane attivo un solo giocatore, il gioco viene sospeso fino a che non si ricollega almeno un altro
-        // giocatore oppure scade un timeout
-
         ClientHandler clientToDisconnect = clientHandlerMap.get(clientUUID);
         disconnectedClients.put(clientUUID, clientToDisconnect);
         clientHandlerMap.remove(clientUUID);
 
-        //TODO: I nickname non vanno gestiti, li elimino solo a fine partita; solo se non sono ancora in una lobby e si disconnette allora posso eliminare il nickname
-        //nicknames.remove(clientUUID);
-
-        Lobby lobbyContainingClient;
+        boolean found = false;
         for (Lobby lobby : activeLobbies) {
-            if (lobby.isPlayerInLobby(clientUUID)) {
-                lobbyContainingClient = lobby;
-                lobbyContainingClient.onDisconnect(clientUUID);
+            if (lobby.getPlayerNicknames().containsKey(clientUUID) && lobby.getPlayerNicknames().get(clientUUID).equals(nicknames.get(clientUUID))) {
+                found = true;
                 break;
-            } else
-                System.err.println("Unable to find the Client in any Lobby");
+            }
         }
+        if (!found)
+            nicknames.remove(clientUUID);
 
-        //TODO: onReconnect forzare l'aggiunta del player che si è riconnesso in orderPlayed (o assistantPlayed) nel GM, altrimenti si rompe.
         clientToDisconnect.disconnect();
+        LOGGER.info("Disconnected " + nicknames.get(clientUUID) + " from the Server");
     }
 }

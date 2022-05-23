@@ -7,12 +7,11 @@ import javax.management.InstanceAlreadyExistsException;
 import java.security.InvalidParameterException;
 import java.util.HashMap;
 
-import static it.polimi.ingsw.am37.model.UpdatableObject.UpdatableType.PLAYER;
 import static it.polimi.ingsw.am37.controller.UpdateController.Properties.*;
+import static it.polimi.ingsw.am37.model.UpdatableObject.UpdatableType.PLAYER;
 
 /**
- * This class represents the in-game player, it does not represent the person playing the game, therefore it will not
- * have all the attributes that can be associated with a physical player.
+ * This class represents the in-game player
  */
 public class Player extends UpdatableObject {
 
