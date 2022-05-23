@@ -57,7 +57,7 @@ public class Lobby implements Runnable, MessageReceiver {
     /**
      * Keeps track of the disconnected clients
      */
-    private static HashMap<String, ClientHandler> disconnectedPlayers;
+    private final HashMap<String, ClientHandler> disconnectedPlayers;
 
     /**
      * exposed model
@@ -97,6 +97,7 @@ public class Lobby implements Runnable, MessageReceiver {
         this.gameManager = new GameManager(lobbySize, advancedMode);
         this.matchID = matchID;
         this.updateController = new UpdateController();
+        this.disconnectedPlayers = new HashMap<>();
         reset();
     }
 
