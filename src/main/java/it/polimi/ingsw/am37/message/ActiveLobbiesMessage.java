@@ -11,34 +11,34 @@ public class ActiveLobbiesMessage extends Message {
     /**
      * The list of all running lobbies in the server
      */
-    private final List<Integer> lobbyIds;
+    private final List<Integer> lobbyIDs;
 
     /**
      * The fromJSON receiver side constructor where all data are accessible
      *
-     * @param UUID        the default constructor
-     * @param messageType the type of message
+     * @param UUID     the default constructor
+     * @param lobbyIDs the active lobbies IDs
      */
-    public ActiveLobbiesMessage(String UUID, MessageType messageType, List<Integer> lobbyIds) {
-        super(UUID, messageType);
-        this.lobbyIds = lobbyIds;
+    public ActiveLobbiesMessage(String UUID, List<Integer> lobbyIDs) {
+        super(UUID, MessageType.ACTIVE_LOBBIES);
+        this.lobbyIDs = lobbyIDs;
     }
 
     /**
      * The default sender side constructor for message preparing. UUID must be set using {@link Message#setUUID(String)}
      * before sending it
      *
-     * @param messageType the message enum type
+     * @param lobbyIDs the active lobbies IDs
      */
-    public ActiveLobbiesMessage(MessageType messageType, List<Integer> lobbyIds) {
-        super(messageType);
-        this.lobbyIds = lobbyIds;
+    public ActiveLobbiesMessage(List<Integer> lobbyIDs) {
+        super(MessageType.ACTIVE_LOBBIES);
+        this.lobbyIDs = lobbyIDs;
     }
 
     /**
      * @return the list of all started lobby on the server
      */
-    public List<Integer> getLobbyIds() {
-        return lobbyIds;
+    public List<Integer> getLobbyIDs() {
+        return lobbyIDs;
     }
 }
