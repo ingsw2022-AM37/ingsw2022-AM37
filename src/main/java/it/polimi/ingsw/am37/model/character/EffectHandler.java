@@ -10,6 +10,10 @@ import java.util.function.BiConsumer;
  * built based on base effects inside the {@link EffectDatabase} following what established in {@link Effect} fields
  */
 public class EffectHandler {
+    public final static int DEFAULT_NOENTRYTILES = -1;
+    public final static int GRANDMA_NOENTRYTILES = 4;
+    public final static int MONK_PRINCESS_CONTAINER_DIM = 4;
+    public final static int JESTER_CONTAINERD_DIM = 6;
 
     /**
      * It's the set of basic effects that make up the character's effect.
@@ -28,10 +32,10 @@ public class EffectHandler {
     public EffectHandler(Effect effect) {
         baseEffects = new ArrayList<>(EffectDatabase.getEffects(effect));
         switch (effect) {
-            case MONK, PRINCESS -> new State(new LimitedStudentsContainer(4), 0);
-            case GRANDMA -> new State(null, 4);
-            case JESTER -> new State(new LimitedStudentsContainer(6), 0);
-            default -> new State(null, 0);
+            case MONK, PRINCESS -> new State(new LimitedStudentsContainer(MONK_PRINCESS_CONTAINER_DIM), DEFAULT_NOENTRYTILES);
+            case GRANDMA -> new State(null, GRANDMA_NOENTRYTILES);
+            case JESTER -> new State(new LimitedStudentsContainer(JESTER_CONTAINERD_DIM), DEFAULT_NOENTRYTILES);
+            default -> new State(null, DEFAULT_NOENTRYTILES);
         }
 
     }
