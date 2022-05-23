@@ -6,6 +6,7 @@ import it.polimi.ingsw.am37.model.character.Option;
 import javax.management.InstanceAlreadyExistsException;
 import java.security.InvalidParameterException;
 import java.util.HashMap;
+import java.util.UUID;
 
 import static it.polimi.ingsw.am37.controller.UpdateController.Properties.*;
 import static it.polimi.ingsw.am37.model.UpdatableObject.UpdatableType.PLAYER;
@@ -21,6 +22,11 @@ public class Player extends UpdatableObject {
     private String playerId;
 
     /**
+     * Counter used to create increasing id for players
+     */
+    private static int counterId = 1;
+
+    /**
      * Default constructor
      */
     public Player() {
@@ -28,6 +34,8 @@ public class Player extends UpdatableObject {
         this.numberOfCoins = 0;
         this.lastAssistantPlayed = null;
         this.team = null;
+        playerId = Integer.toString(counterId);
+        counterId = counterId + 1;
     }
 
     /**

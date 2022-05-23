@@ -6,6 +6,7 @@ import it.polimi.ingsw.am37.message.*;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -289,7 +290,7 @@ public class ClientSocket implements Runnable {
                     .fromJson(json, Message.class);
             timer.cancel();
             if (message.getMessageType() != MessageType.PING && message.getMessageType() != MessageType.NEXT_TURN &&
-                    message.getMessageType() != MessageType.PLANNING_PHASE) {
+                    message.getMessageType() != MessageType.PLANNING_PHASE && message.getMessageType() != MessageType.START_GAME && message.getMessageType() != MessageType.END_GAME) {
                 messageBuffer = new MessageGsonBuilder().registerMessageAdapter()
                         .registerStudentContainerAdapter()
                         .getGsonBuilder()
@@ -314,6 +315,9 @@ public class ClientSocket implements Runnable {
 
                 Client.getView().printWinner(endGameMessage.getWinnerNickname());
 
+                //It empties the file with configurations because game is ended correctly
+                OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream("src/myConfigurations/resilience.txt"), StandardCharsets.UTF_8);
+
             } else if (message.getMessageType() == MessageType.UPDATE) {
                 Client.getView()
                         .getReducedModel()
@@ -332,6 +336,7 @@ public class ClientSocket implements Runnable {
                     Client.getView().yourTurn();
                 } else
                     Client.getView().hisTurn(nextTurnMessage.getNextPlayerNickname());
+
             } else if (message.getMessageType() == MessageType.PLANNING_PHASE) {
                 Client.getView().mustPlayAssistant();
                 Client.setStatus(ClientStatus.PLAYINGASSISTANT);
