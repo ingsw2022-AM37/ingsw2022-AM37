@@ -1,5 +1,10 @@
 package it.polimi.ingsw.am37.message;
 
+/**
+ * This message is used to request to join a lobby providing desired settings, such as advanced rules enabled or the
+ * number of players. This message should be answered with a {@link ConfirmMessage} with the lobby id of joined one, or
+ * in case of errors answer with a {@link ErrorMessage}.
+ */
 public class LobbyRequestMessage extends Message {
 
     /**
