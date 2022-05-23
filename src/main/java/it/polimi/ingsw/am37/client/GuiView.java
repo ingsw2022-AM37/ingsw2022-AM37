@@ -24,6 +24,11 @@ public class GuiView extends AbstractView {
 
     }
 
+    @Override
+    public void showCharacters() {
+
+    }
+
     /**
      * Notify if a player has inserted fewer parameters than expected during opening of the terminal
      */

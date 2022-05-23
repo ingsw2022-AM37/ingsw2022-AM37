@@ -5,12 +5,18 @@ import it.polimi.ingsw.am37.model.FactionColor;
 import it.polimi.ingsw.am37.model.Player;
 import it.polimi.ingsw.am37.model.student_container.UnlimitedStudentsContainer;
 import it.polimi.ingsw.am37.network.ClientSocket;
+import javafx.scene.chart.ScatterChart;
 
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class Client {
 
+    /**
+     *
+     */
+    private static OutputStreamWriter writer;
 
     /**
      * Method used to start the game after joining lobby
@@ -76,6 +82,21 @@ public class Client {
         final String graphics = "graphics";
         inGame = false;
 
+        InputStreamReader reader;
+        BufferedReader bufferedReader = null;
+
+        int oldLobby = -1;
+        List<Integer> totalLobbies;
+        boolean inOldGame = false;
+
+
+        try {
+            writer = new OutputStreamWriter(new FileOutputStream("src/myConfigurations/resilience.txt"), StandardCharsets.UTF_8);
+            reader = new InputStreamReader(new FileInputStream("src/myConfigurations/resilience.txt"), StandardCharsets.UTF_8);
+            bufferedReader = new BufferedReader(reader);
+        } catch (IOException e) {
+            System.err.println(" Impossible to use resilience ");
+        }
 
         view = new CliView();
         params = new HashMap<>();
@@ -86,22 +107,87 @@ public class Client {
 
         tryConnectionAgain(wrongInitialInput, address, port, graphics);
 
+        ActiveLobbiesMessage message;
+        message = (ActiveLobbiesMessage) ClientSocket.getMessageBuffer();
+        totalLobbies = message.getLobbyIDs();
 
         //preparing gui
         if (params.get(graphics).equals("gui"))
             view = new GuiView();
 
-
         status = ClientStatus.CHOOSINGNAME;
 
-        //start listening thread
-        new Thread(new ClientSocket()).start();
+        try {
+            UUID = bufferedReader.readLine();
+            nickname = bufferedReader.readLine();
+        } catch (IOException e) {
+            System.err.println(" Impossible to use resilience ");
+        }
 
-        chooseNickname();
+        if (nickname != null && UUID != null)
+            inOldGame = true;
+
+        if (UUID == null)
+            UUID = java.util.UUID.randomUUID().toString();
+
+        try {
+            String numLobby = bufferedReader.readLine();
+            if ((numLobby != null))
+                oldLobby = Integer.parseInt(numLobby);
+
+        } catch (IOException e) {
+            System.err.println(" Impossible to use resilience ");
+        }
+
+        if (totalLobbies.contains(oldLobby))
+            inOldGame = true;
+
+        else {
+            try {
+                OutputStreamWriter writer2 = new OutputStreamWriter(new FileOutputStream("src/myConfigurations/resilience.txt"), StandardCharsets.UTF_8);
+            } catch (FileNotFoundException e) {
+                System.err.println(" Error emptying config. file");
+            }
+        }
 
 
-        status = ClientStatus.CHOOSINGLOBBY;
-        chooseLobby();
+        if (inOldGame) {
+
+            try {
+
+                int numPlayers = Integer.parseInt(bufferedReader.readLine());
+                boolean advancedRules = bufferedReader.readLine().equals("yes");
+
+                sendNickname(UUID, nickname);
+
+                waitResponse();
+
+                if (ClientSocket.getMessageBuffer().getMessageType() == MessageType.ERROR) {
+                    inOldGame = false;
+                    nickname = null;
+
+                    try {
+                        OutputStreamWriter writer2 = new OutputStreamWriter(new FileOutputStream("src/myConfigurations/resilience.txt"), StandardCharsets.UTF_8);
+                    } catch (FileNotFoundException e) {
+                        System.err.println(" Error emptying config. file");
+                    }
+                }
+
+                if (inOldGame) {
+                    status = ClientStatus.CHOOSINGLOBBY;
+                    sendLobbyMessage(UUID, advancedRules, numPlayers);
+                }
+
+            } catch (IOException e) {
+                System.err.println(" Impossible to use resilience ");
+            }
+        }
+
+        if (!inOldGame) {
+            chooseNickname();
+            status = ClientStatus.CHOOSINGLOBBY;
+            chooseLobby();
+        }
 
         view.waitingMatch();
 
@@ -241,6 +327,9 @@ public class Client {
                 if (!wrongInitialInput) {
                     try {
                         ClientSocket.connectToServer(params.get(address), Integer.parseInt(params.get(port)));
+                        //start listening thread
+                        new Thread(new ClientSocket()).start();
+                        waitResponse();
                     } catch (IOException e) {
                         view.wrongServer();
                         wrongInitialInput = true;
@@ -289,6 +378,9 @@ public class Client {
                 try {
                     ClientSocket.connectToServer(params.get(address), Integer.parseInt(params.get(port)));
                     wrongInitialInput = false;
+                    //start listening thread
+                    new Thread(new ClientSocket()).start();
+                    waitResponse();
                 } catch (IOException e) {
                     view.wrongServer();
                 }
@@ -345,17 +437,37 @@ public class Client {
             if (tempNick.equals("close game"))
                 ClientSocket.closeGame();
 
-            message = new LoginMessage(UUID, tempNick);
-            ClientSocket.sendMessage(message);
+            sendNickname(UUID, tempNick);
 
             waitResponse();
 
             if (ClientSocket.getMessageBuffer().getMessageType() == MessageType.ERROR)
                 view.impossibleInputForNow();
 
-            else if (ClientSocket.getMessageBuffer().getMessageType() == MessageType.CONFIRM)
+            else if (ClientSocket.getMessageBuffer().getMessageType() == MessageType.CONFIRM) {
                 setNickname(tempNick);
+
+                try {
+                    writer.write(UUID + "\n");
+                    writer.flush();
+                    writer.write(tempNick + "\n");
+                    writer.flush();
+                } catch (IOException e) {
+                    System.err.println(" Impossible to use resilience ");
+                }
+            }
         }
+    }
+
+    /**
+     * @param UUID     UUID of the client
+     * @param nickname chosen nickname
+     */
+    static private void sendNickname(String UUID, String nickname) {
+
+        Message message = new LoginMessage(UUID, nickname);
+        ClientSocket.sendMessage(message);
+
     }
 
     /**
@@ -386,10 +498,44 @@ public class Client {
         else
             i = Integer.parseInt(response2);
 
-        message = new LobbyRequestMessage(UUID, i, j);
+        sendLobbyMessage(UUID, j, i);
+
+        waitResponse();
+
+        if (ClientSocket.getMessageBuffer().getMessageType() == MessageType.CONFIRM) {
+
+            ConfirmMessage confirmMessage = (ConfirmMessage) ClientSocket.getMessageBuffer();
+            String s = Integer.toString(confirmMessage.getLobbyId());
+            try {
+                writer.write(s + "\n");
+                writer.flush();
+            } catch (IOException e) {
+                System.err.println(" Impossible to use resilience ");
+            }
+
+        }
+
+        try {
+            writer.write(response2 + "\n");
+            writer.flush();
+            writer.write(response + "\n");
+            writer.flush();
+        } catch (IOException e) {
+            System.err.println(" Impossible to use resilience ");
+        }
+
+    }
+
+    /**
+     * @param UUID          UUID of the client
+     * @param advancedRules If player wants avanced rules
+     * @param numPlayers    num of players in the match
+     */
+    static private void sendLobbyMessage(String UUID, boolean advancedRules, int numPlayers) {
+
+        Message message = new LobbyRequestMessage(UUID, numPlayers, advancedRules);
 
         ClientSocket.sendMessage(message);
-
     }
 
 

@@ -38,6 +38,8 @@ public abstract class AbstractView {
      */
     public abstract void notifyInternetCrash();
 
+    public abstract void showCharacters();
+
     /**
      * Notify if a player has inserted fewer parameters than expected during opening of the terminal
      */

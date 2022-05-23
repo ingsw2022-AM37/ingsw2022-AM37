@@ -1,6 +1,8 @@
 package it.polimi.ingsw.am37.client;
 
 import it.polimi.ingsw.am37.model.*;
+import it.polimi.ingsw.am37.model.character.Character;
+import it.polimi.ingsw.am37.model.character.EffectHandler;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
 
@@ -11,6 +13,76 @@ import java.util.List;
 import java.util.Scanner;
 
 public class CliView extends AbstractView {
+    /**
+     * Construct a new console type view, registering and enabling the Jansi library output stream above the
+     * {@link System#out} standard stream.
+     */
+    public CliView() {
+        AnsiConsole.systemInstall();
+        Runtime.getRuntime().addShutdownHook(new Thread(AnsiConsole::systemUninstall));
+    }
+
+    /**
+     * Draw an assistant
+     *
+     * @param assistant the assistant to draw
+     */
+    protected static void drawAssistant(Assistant assistant) {
+        System.out.print(Ansi.ansi().fgCyan().a(assistant).reset());
+    }
+
+    /**
+     * Draw a player's board
+     *
+     * @param board the board to draw
+     */
+    protected static void drawBoard(Board board) {
+        System.out.println("\tEntrance: " + Ansi.ansi().render(board.getEntrance().getStudentsAsString()));
+        System.out.println("\tDining: " + Ansi.ansi().render(board.getDiningRoom().getStudentsAsString()));
+        System.out.println("\tTowers: " + Ansi.ansi().render(board.getTowers().getTowersAsString()));
+    }
+
+    /**
+     * Draw a cloud
+     *
+     * @param cloud the cloud to draw
+     */
+    protected static void drawCloud(Cloud cloud) {
+        System.out.println(Ansi.ansi().a("☁️Cloud ").a(cloud.getCloudId()).a(": ").render(cloud.getStudentsAsString()));
+    }
+
+    /**
+     * Draw an island
+     *
+     * @param island the island to draw
+     */
+    protected static void drawIsland(Island island) {
+        System.out.print(Ansi.ansi()
+                .a("🏝️  Isola ")
+                .a(island.getIslandId())
+                .a(" (dim ")
+                .a(island.getNumIslands())
+                .a("): "));
+        System.out.print(Ansi.ansi().render(island.getStudentsOnIsland().getStudentsAsString()));
+        if (island.getMotherNatureHere()) System.out.println(Ansi.ansi().a(" ⬅ mother nature"));
+        System.out.println();
+    }
+
+    /**
+     * Draw a character
+     *
+     * @param character the character to draw
+     */
+    protected static void drawCharacter(Character character) {
+        System.out.print(
+                "\t " + character.getEffectType().name().toLowerCase() + ": price " + character.getCurrentPrice() +
+                        " coins");
+        if (character.getState().getContainer() != null)
+            System.out.print(
+                    "\t students: " + Ansi.ansi().render(character.getState().getContainer().getStudentsAsString()));
+        else if (character.getState().getNoEntryTiles() != EffectHandler.DEFAULT_NOENTRYTILES)
+            System.out.print("\t no entry tales: " + character.getState().getNoEntryTiles());
+    }
 
     /**
      * This method notifies if address is unknown
@@ -21,6 +93,14 @@ public class CliView extends AbstractView {
         if (!address.equals("localhost"))
             System.out.println(" You have put an address different from \"localhost\", if this doesn't exists it will" +
                     " be considered \"localhost\" \n");
+    }
+
+    /**
+     * Method to notify if client or server has lost the connection
+     */
+    public void notifyInternetCrash() {
+        System.out.println(" Game has lost the connection, it tried to reconnect but it failed. Game is now closing " +
+                "\n");
     }
 
     /**
@@ -135,11 +215,24 @@ public class CliView extends AbstractView {
     }
 
     /**
-     * Method to notify if client or server has lost the connection
+     * Method used to ask player if he wants to use advanced rules or not
+     *
+     * @return Player's choice
      */
-    public void notifyInternetCrash() {
-        System.out.println(" Game has lost the connection, it tried to reconnect but it failed. Game is now closing " +
-                "\n");
+    public String requestAdvancedRules() {
+
+        String s;
+        Scanner scanner = new Scanner(System.in);
+
+        while (true) {
+            System.out.println(" Please insert \"yes\" or \"no\" according if you want to play with advanced rules or" +
+                    " write \"close game\": \n");
+            s = scanner.nextLine().trim().replaceAll(" +", " ");
+            if (s.equals("yes") || s.equals("no") || s.equals("close game"))
+                return s;
+
+            wrongInsert();
+        }
     }
 
     /**
@@ -160,27 +253,6 @@ public class CliView extends AbstractView {
                 s = "3";
             if (s.equals("2") || s.equals("3") || s.equals("close game"))
                 return s;
-            wrongInsert();
-        }
-    }
-
-    /**
-     * Method used to ask player if he wants to use advanced rules or not
-     *
-     * @return Player's choice
-     */
-    public String requestAdvancedRules() {
-
-        String s;
-        Scanner scanner = new Scanner(System.in);
-
-        while (true) {
-            System.out.println(" Please insert \"yes\" or \"no\" according if you want to play with advanced rules or" +
-                    " write \"close game\": \n");
-            s = scanner.nextLine().trim().replaceAll(" +", " ");
-            if (s.equals("yes") || s.equals("no") || s.equals("close game"))
-                return s;
-
             wrongInsert();
         }
     }
@@ -356,7 +428,6 @@ public class CliView extends AbstractView {
         }
     }
 
-
     /**
      * @return Where mother nature has to go
      */
@@ -460,41 +531,11 @@ public class CliView extends AbstractView {
         //BIOSGNA SICURAMENTE TOGLIERE IL VOID
     }
 
-
     /**
      * Method used when an error message come from server
      */
     public void impossibleAssistant() {
         System.out.println("You can't play this assistant now, try another one \n");
-    }
-
-    /**
-     * Method used when an error message come from server
-     */
-    public void impossibleStudents() {
-        System.out.println(" You can't move these students \n");
-    }
-
-    /**
-     * Method used when an error message come from server
-     */
-    public void impossibleMotherNature() {
-        System.out.println(" You can't move mother nature to that position \n");
-    }
-
-
-    /**
-     * Method used when an error message come from server
-     */
-    public void impossibleCloud() {
-        System.out.println(" You can't choose this cloud \n");
-    }
-
-    /**
-     * Method used when an error message come from server
-     */
-    public void impossibleCharacter() {
-        System.out.println(" You can't play a character now \n");
     }
 
     /**
@@ -535,7 +576,6 @@ public class CliView extends AbstractView {
 
     }
 
-
     /**
      * Method used to display connection info
      *
@@ -550,15 +590,40 @@ public class CliView extends AbstractView {
 
     }
 
+    /**
+     * Method used when an error message come from server
+     */
+    public void impossibleStudents() {
+        System.out.println(" You can't move these students \n");
+    }
 
     /**
-     * This function draw the current status of the table from the current player's point of view: draw all islands,
-     * boards and players status
+     * Method used when an error message come from server
+     */
+    public void impossibleMotherNature() {
+        System.out.println(" You can't move mother nature to that position \n");
+    }
+
+    /**
+     * Method used when an error message come from server
+     */
+    public void impossibleCloud() {
+        System.out.println(" You can't choose this cloud \n");
+    }
+
+    /**
+     * Method used when an error message come from server
+     */
+    public void impossibleCharacter() {
+        System.out.println(" You can't play a character now \n");
+    }
+
+    /**
+     * This function draw the current status of the table for all players point of view: draw all islands and clouds
      */
     @Override
     public void showTable() {
         System.setOut(new PrintStream(System.out, true, StandardCharsets.UTF_8));
-        AnsiConsole.systemInstall();
         AnsiConsole.out().print(Ansi.ansi().eraseScreen());
         for (Island island :
                 reducedModel.getIslands()) {
@@ -568,33 +633,6 @@ public class CliView extends AbstractView {
                 reducedModel.getClouds().values()) {
             drawCloud(cloud);
         }
-        AnsiConsole.systemUninstall();
-    }
-
-    protected void drawIsland(Island island) {
-        System.out.print(Ansi.ansi()
-                .a("🏝️  Isola ")
-                .a(island.getIslandId())
-                .a(" (dim ")
-                .a(island.getNumIslands())
-                .a("): "));
-        System.out.print(Ansi.ansi().render(island.getStudentsOnIsland().getStudentsAsString()));
-        if (island.getMotherNatureHere()) System.out.println(Ansi.ansi().a(" ⬅ mother nature"));
-        System.out.println();
-    }
-
-    protected void drawCloud(Cloud cloud) {
-        System.out.println(Ansi.ansi().a("☁️Cloud ").a(cloud.getCloudId()).a(": ").render(cloud.getStudentsAsString()));
-    }
-
-    protected void drawAssistant(Assistant assistant) {
-        System.out.print(Ansi.ansi().fgCyan().a(assistant).reset());
-    }
-
-    protected void drawBoard(Board board) {
-        System.out.println("\tEntrace: " + Ansi.ansi().render(board.getEntrance().getStudentsAsString()));
-        System.out.println("\tDining: " + Ansi.ansi().render(board.getDiningRoom().getStudentsAsString()));
-        System.out.println("\tTowers: " + Ansi.ansi().render(board.getTowers().getTowersAsString()));
     }
 
     /**
@@ -612,6 +650,11 @@ public class CliView extends AbstractView {
         if (player.getBoard() != null) drawBoard(player.getBoard());
     }
 
+    /**
+     * Show the assistant deck of the provided player. Each player must see only it's deck
+     *
+     * @param player the player to show the deck
+     */
     @Override
     public void showDeck(Player player) {
         System.out.println("Your deck is: [");
@@ -626,5 +669,17 @@ public class CliView extends AbstractView {
                 System.out.println();
         }
         System.out.println("]");
+    }
+
+    /**
+     * Show all the characters in the client model
+     */
+    @Override
+    public void showCharacters() {
+        for (Character character :
+                reducedModel.getCharacters()) {
+            drawCharacter(character);
+            System.out.println();
+        }
     }
 }
