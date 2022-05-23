@@ -7,7 +7,12 @@ package it.polimi.ingsw.am37.message;
  * {@link ErrorMessage}.
  */
 public class ConfirmMessage extends Message {
+    private final static int LOBBY_ID_NOT_SET = -1;
 
+    /**
+     * The joined lobby id, in case this message is sent as confirm for a LobbyRequest message; in other cases, should be -1 when not
+     * used or set.
+     */
     private final int lobbyId;
 
     /**
@@ -24,11 +29,11 @@ public class ConfirmMessage extends Message {
     /**
      * The fromJSON receiver side simple constructor to only provide an empty message
      *
-     * @param UUID    the sender identifier
+     * @param UUID the sender identifier
      */
     public ConfirmMessage(String UUID) {
         super(UUID, MessageType.CONFIRM);
-        this.lobbyId = 0;
+        this.lobbyId = LOBBY_ID_NOT_SET;
     }
 
     /**
@@ -48,6 +53,13 @@ public class ConfirmMessage extends Message {
      */
     public ConfirmMessage() {
         super(MessageType.CONFIRM);
-        this.lobbyId = 0;
+        this.lobbyId = LOBBY_ID_NOT_SET;
+    }
+
+    /**
+     * @return the joined lobby id or -1 when not set or used
+     */
+    public int getLobbyId() {
+        return lobbyId;
     }
 }

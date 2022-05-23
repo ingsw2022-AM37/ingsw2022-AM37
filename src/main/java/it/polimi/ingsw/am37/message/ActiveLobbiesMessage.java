@@ -8,7 +8,10 @@ import java.util.List;
  */
 public class ActiveLobbiesMessage extends Message {
 
-    final List<Integer> lobbyIds;
+    /**
+     * The list of all running lobbies in the server
+     */
+    private final List<Integer> lobbyIds;
 
     /**
      * The fromJSON receiver side constructor where all data are accessible
@@ -30,5 +33,12 @@ public class ActiveLobbiesMessage extends Message {
     public ActiveLobbiesMessage(MessageType messageType, List<Integer> lobbyIds) {
         super(messageType);
         this.lobbyIds = lobbyIds;
+    }
+
+    /**
+     * @return the list of all started lobby on the server
+     */
+    public List<Integer> getLobbyIds() {
+        return lobbyIds;
     }
 }
