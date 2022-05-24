@@ -3,6 +3,7 @@ package it.polimi.ingsw.am37.client;
 import it.polimi.ingsw.am37.model.*;
 import it.polimi.ingsw.am37.model.character.Character;
 import it.polimi.ingsw.am37.model.character.EffectHandler;
+import it.polimi.ingsw.am37.network.ClientSocket;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
 
@@ -343,6 +344,8 @@ public class CliView extends AbstractView {
         FactionColor color = null;
         boolean ok;
 
+        showPlayerStatus(getReducedModel().getPlayers().get(Client.getNickname()));
+
         while (true) {
 
             response = new HashMap<>();
@@ -356,8 +359,6 @@ public class CliView extends AbstractView {
                 continue;
             }
 
-            response.put("color", s1);
-
 
             switch (s1) {
                 case "r" -> color = FactionColor.RED;
@@ -366,6 +367,8 @@ public class CliView extends AbstractView {
                 case "y" -> color = FactionColor.YELLOW;
                 case "p" -> color = FactionColor.PINK;
             }
+
+            response.put("color", color.toString());
 
             System.out.println(" Write the number of student/s you want to move ");
 
@@ -376,7 +379,7 @@ public class CliView extends AbstractView {
                 if (Integer.parseInt(s2) + Client.getTotalStudentsInTurn() > 3 ||
                         getReducedModel().getBoards().get(Client.getNickname()).getEntrance().getByColor(color) <
                                 Integer.parseInt(s2)) {
-                    wrongInsert();
+                    System.out.println(" You don't have enough students of this color, try again with other parameters");
                     continue;
                 }
             } catch (NumberFormatException e) {
@@ -393,17 +396,24 @@ public class CliView extends AbstractView {
 
             s3 = scanner.nextLine().trim().replaceAll(" +", " ");
 
-            if (!(s3.equals("d") || s2.equals("i"))) {
+            if (!(s3.equals("d") || s3.equals("i"))) {
                 wrongInsert();
                 continue;
             }
 
-            if (s3.equals("d"))
+            if (s3.equals("d")) {
+                response.put("destination", s3);
                 return response;
+            } else {
+                response.put("destination", s3);
+
+            }
 
             System.out.println(" Write now \"n\" where n is the number of island, available islands are: ");
             for (Island island : getReducedModel().getIslands())
                 System.out.println(" Island " + island.getIslandId());
+
+            System.out.println("\n");
 
             s4 = scanner.nextLine().trim().replaceAll(" +", " ");
 

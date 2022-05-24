@@ -3,3 +3,4 @@
 *.class
 *.iml
 /logs/
+/src/main/resources/myConfigurations/

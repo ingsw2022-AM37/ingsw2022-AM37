@@ -17,7 +17,7 @@ public class ClientHandler implements Runnable {
     /**
      * Flag for disable disconnection when ping timeout fails on debug
      */
-    final static boolean debugMode = true;
+    final static boolean debugMode = false;
 
     /**
      * Input stream

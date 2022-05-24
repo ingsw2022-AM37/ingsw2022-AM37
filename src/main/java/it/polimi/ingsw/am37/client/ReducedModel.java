@@ -76,6 +76,7 @@ public class ReducedModel {
                 case PLAYER -> {
                     Player player = (Player) obj;
                     players.put(player.getPlayerId(), player);
+                    boards.put(player.getPlayerId(), player.getBoard());
                 }
                 case CHARACTER -> {
                     Character character = (Character) obj;

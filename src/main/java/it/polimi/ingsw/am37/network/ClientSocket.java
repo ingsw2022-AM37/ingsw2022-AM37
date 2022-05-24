@@ -316,7 +316,7 @@ public class ClientSocket implements Runnable {
                 Client.getView().printWinner(endGameMessage.getWinnerNickname());
 
                 //It empties the file with configurations because game is ended correctly
-                OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream("src/myConfigurations/resilience.txt"), StandardCharsets.UTF_8);
+                OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream("src/main/resources/myConfigurations/resilience.txt"), StandardCharsets.UTF_8);
 
             } else if (message.getMessageType() == MessageType.UPDATE) {
                 Client.getView()

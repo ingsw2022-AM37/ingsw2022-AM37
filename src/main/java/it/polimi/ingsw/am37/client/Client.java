@@ -91,8 +91,8 @@ public class Client {
 
 
         try {
-            writer = new OutputStreamWriter(new FileOutputStream("src/myConfigurations/resilience.txt"), StandardCharsets.UTF_8);
-            reader = new InputStreamReader(new FileInputStream("src/myConfigurations/resilience.txt"), StandardCharsets.UTF_8);
+            writer = new OutputStreamWriter(new FileOutputStream("src/main/resources/myConfigurations/resilience.txt"), StandardCharsets.UTF_8);
+            reader = new InputStreamReader(new FileInputStream("src/main/resources/myConfigurations/resilience.txt"), StandardCharsets.UTF_8);
             bufferedReader = new BufferedReader(reader);
         } catch (IOException e) {
             System.err.println(" Impossible to use resilience ");
@@ -144,7 +144,7 @@ public class Client {
 
         else {
             try {
-                OutputStreamWriter writer2 = new OutputStreamWriter(new FileOutputStream("src/myConfigurations/resilience.txt"), StandardCharsets.UTF_8);
+                OutputStreamWriter writer2 = new OutputStreamWriter(new FileOutputStream("src/main/resources/myConfigurations/resilience.txt"), StandardCharsets.UTF_8);
             } catch (FileNotFoundException e) {
                 System.err.println(" Error emptying config. file");
             }
@@ -167,7 +167,7 @@ public class Client {
                     nickname = null;
 
                     try {
-                        OutputStreamWriter writer2 = new OutputStreamWriter(new FileOutputStream("src/myConfigurations/resilience.txt"), StandardCharsets.UTF_8);
+                        OutputStreamWriter writer2 = new OutputStreamWriter(new FileOutputStream("src/main/resources/myConfigurations/resilience.txt"), StandardCharsets.UTF_8);
                     } catch (FileNotFoundException e) {
                         System.err.println(" Error emptying config. file");
                     }
@@ -412,7 +412,8 @@ public class Client {
     static private boolean onMessage() {
 
         if (ClientSocket.getMessageBuffer().getMessageType() == MessageType.ERROR) {
-            view.impossibleInputForNow();
+            ErrorMessage message = (ErrorMessage) ClientSocket.getMessageBuffer();
+            System.out.println("\n" + message.getMessage() + "\n");
             return false;
         } else if (ClientSocket.getMessageBuffer().getMessageType() == MessageType.UPDATE)
             return true;
@@ -441,10 +442,10 @@ public class Client {
 
             waitResponse();
 
-            if (ClientSocket.getMessageBuffer().getMessageType() == MessageType.ERROR)
-                view.impossibleInputForNow();
-
-            else if (ClientSocket.getMessageBuffer().getMessageType() == MessageType.CONFIRM) {
+            if (ClientSocket.getMessageBuffer().getMessageType() == MessageType.ERROR) {
+                ErrorMessage mes = (ErrorMessage) ClientSocket.getMessageBuffer();
+                System.out.println("\n" + mes.getMessage() + "\n");
+            } else if (ClientSocket.getMessageBuffer().getMessageType() == MessageType.CONFIRM) {
                 setNickname(tempNick);
 
                 try {
