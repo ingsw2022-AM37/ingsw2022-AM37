@@ -348,6 +348,8 @@ public class CliView extends AbstractView {
 
         while (true) {
 
+            System.out.println(" You have " + Client.getTotalStudentsInTurn() + "left \n");
+
             response = new HashMap<>();
             System.out.println(" Select the color of students you want to move, write \"R\" (red) or \"B\" (blue) or " +
                     "\"Y\" (yellow) or \"G\" (green) or \"P\" (pink) \n");
@@ -379,7 +381,7 @@ public class CliView extends AbstractView {
                 if (Integer.parseInt(s2) + Client.getTotalStudentsInTurn() > 3 ||
                         getReducedModel().getBoards().get(Client.getNickname()).getEntrance().getByColor(color) <
                                 Integer.parseInt(s2)) {
-                    System.out.println(" You don't have enough students of this color, try again with other parameters");
+                    System.out.println(" You don't have enough students of this color or you have moved too many students, try again with other parameters");
                     continue;
                 }
             } catch (NumberFormatException e) {

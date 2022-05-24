@@ -228,8 +228,7 @@ public class Client {
                 if (actionOkay && totalStudentsInTurn == 3) {
                     status = ClientStatus.MOVINGMOTHERNATURE;
                     totalStudentsInTurn = 0;
-                } else
-                    view.impossibleStudents();
+                }
             } else if (response.equals("4") && status == ClientStatus.MOVINGMOTHERNATURE) {
                 actionOkay = moveMotherNature();
                 if (actionOkay)
