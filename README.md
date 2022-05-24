@@ -12,16 +12,16 @@ Group components:
 
 ### Functionalities
 
-| Functionality       | State |
-|:--------------------|:-----:|
-| Basic rules         |  🟢   |
-| Complete rules      |  🟢   |
-| Socket              |  🟡   |
-| GUI                 |  🔴   |
-| CLI                 |  🔴   |
-| Advanced Characters |  🟢   |
-| Persistence         |  🔴   |
-| Multiple Games      |  🔴   |
+| Functionality                         | State |
+|:--------------------------------------|:-----:|
+| Basic rules                           |  🟢   |
+| Complete rules                        |  🟢   |
+| Socket                                |  🟢   |
+| GUI                                   |  🔴   |
+| CLI                                   |  🟡   |
+| Advanced characters                   |  🟢   |
+| Resilience to disconnections          |  🟡   |
+| Multiple games                        |  🟡   |
 
 ### Libraries and Plugins
 
@@ -30,4 +30,6 @@ Group components:
 | __Maven__        | Compilation automation tool used primarily for Java projects. |
 | __JavaFx__       | Graphic library for making user interfaces.                   |
 | __JUnit__        | Unit Testing Framework.                                       |
-| __Mockito__      | Mocking framework for unit tests                              |
+| __Mockito__      | Mocking framework for unit tests.                             |
+| __Log4j2__       | Logging framework.                                            |
+| __Jansi__        | ANSI CLI utility library for console output.                  |
