@@ -5,7 +5,6 @@ import it.polimi.ingsw.am37.model.FactionColor;
 import it.polimi.ingsw.am37.model.Player;
 import it.polimi.ingsw.am37.model.student_container.UnlimitedStudentsContainer;
 import it.polimi.ingsw.am37.network.ClientSocket;
-import javafx.scene.chart.ScatterChart;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -16,63 +15,65 @@ public class Client {
     /**
      *
      */
-    private static OutputStreamWriter writer;
+    private OutputStreamWriter writer;
 
     /**
      * Method used to start the game after joining lobby
      */
-    private static boolean inGame = false;
+    private boolean inGame = false;
 
     /**
      * client identifier
      */
-    private static String UUID;
+    private String UUID;
 
     /**
      * View which can be at real time GUI or CLI, based on the information given by player at the start
      */
-    private static AbstractView view;
+    private AbstractView view;
 
     /**
      * Client's nickname
      */
-    private static String nickname = null;
+    private String nickname = null;
 
     /**
      * It represents the state of client during a game
      */
-    private static ClientStatus status;
+    private ClientStatus status;
 
     /**
      * @return view of the client, used to display some information
      */
-    public static AbstractView getView() {
+    public AbstractView getView() {
         return view;
     }
 
     /**
      * @return Player's identifier
      */
-    public static String getUUID() {
+    public String getUUID() {
         return UUID;
     }
 
     /**
      * HashMap with address, port and graphics chosen for the match
      */
-    private static HashMap<String, String> params;
+    private HashMap<String, String> params;
     /**
      * It's the sum of moved students in action phase
      */
-    private static int totalStudentsInTurn = 0;
+    private int totalStudentsInTurn = 0;
+
+    private ClientSocket socket;
 
 
     /**
      * Main method
      */
-    public static void main(String[] args) {
+    public Client(String[] args) {
 
-        status = ClientStatus.LOGGING;
+        status = ClientStatus.LOGIN;
 
         String response;
         boolean wrongInitialInput;
@@ -91,14 +92,17 @@ public class Client {
 
 
         try {
-            writer = new OutputStreamWriter(new FileOutputStream("src/main/resources/myConfigurations/resilience.txt"), StandardCharsets.UTF_8);
-            reader = new InputStreamReader(new FileInputStream("src/main/resources/myConfigurations/resilience.txt"), StandardCharsets.UTF_8);
+            writer =
+                    new OutputStreamWriter(new FileOutputStream("src/main/resources/myConfigurations/resilience.txt")
+                            , StandardCharsets.UTF_8);
+            reader = new InputStreamReader(new FileInputStream("src/main/resources/myConfigurations/resilience.txt"),
+                    StandardCharsets.UTF_8);
             bufferedReader = new BufferedReader(reader);
         } catch (IOException e) {
             System.err.println(" Impossible to use resilience ");
         }
 
-        view = new CliView();
+        view = new CliView(this);
         params = new HashMap<>();
 
         UUID = java.util.UUID.randomUUID().toString();
@@ -108,7 +112,7 @@ public class Client {
         tryConnectionAgain(wrongInitialInput, address, port, graphics);
 
         ActiveLobbiesMessage message;
-        message = (ActiveLobbiesMessage) ClientSocket.getMessageBuffer();
+        message = (ActiveLobbiesMessage) socket.getMessageBuffer();
         totalLobbies = message.getLobbyIDs();
 
         //preparing gui
@@ -144,7 +148,8 @@ public class Client {
 
         else {
             try {
-                OutputStreamWriter writer2 = new OutputStreamWriter(new FileOutputStream("src/main/resources/myConfigurations/resilience.txt"), StandardCharsets.UTF_8);
+                OutputStreamWriter writer2 = new OutputStreamWriter(new FileOutputStream("src/main/resources" +
+                        "/myConfigurations/resilience.txt"), StandardCharsets.UTF_8);
             } catch (FileNotFoundException e) {
                 System.err.println(" Error emptying config. file");
             }
@@ -162,12 +167,13 @@ public class Client {
 
                 waitResponse();
 
-                if (ClientSocket.getMessageBuffer().getMessageType() == MessageType.ERROR) {
+                if (socket.getMessageBuffer().getMessageType() == MessageType.ERROR) {
                     inOldGame = false;
                     nickname = null;
 
                     try {
-                        OutputStreamWriter writer2 = new OutputStreamWriter(new FileOutputStream("src/main/resources/myConfigurations/resilience.txt"), StandardCharsets.UTF_8);
+                        OutputStreamWriter writer2 = new OutputStreamWriter(new FileOutputStream("src/main/resources" +
+                                "/myConfigurations/resilience.txt"), StandardCharsets.UTF_8);
                     } catch (FileNotFoundException e) {
                         System.err.println(" Error emptying config. file");
                     }
@@ -190,11 +196,16 @@ public class Client {
         }
 
         view.waitingMatch();
-
+    }
+    public void start() {
+        String response;
+        boolean actionOkay = false;
+        final String address = "address";
+        final String port = "port";
         while (!inGame) {
-            synchronized (ClientSocket.getWaitObject()) {
+            synchronized (socket.getWaitObject()) {
                 try {
-                    ClientSocket.getWaitObject().wait();
+                    socket.getWaitObject().wait();
 
                 } catch (InterruptedException e) {
                     ;
@@ -207,7 +218,7 @@ public class Client {
 
         view.possibleChoices();
         status = ClientStatus.WAITINGFORTURN;
-        while (ClientSocket.isConnectedToServer()) {
+        while (socket.isConnectedToServer()) {
 
             response = view.takeInput();
 
@@ -215,7 +226,7 @@ public class Client {
                 view.possibleChoices();
 
             else if (response.equals("1"))
-                ClientSocket.closeGame();
+                socket.closeGame();
 
             else if (response.equals("2") && status == ClientStatus.PLAYINGASSISTANT) {
                 actionOkay = playAssistant();
@@ -266,7 +277,7 @@ public class Client {
     /**
      * @param action New status for the client
      */
-    static public void setStatus(ClientStatus action) {
+    public void setStatus(ClientStatus action) {
         status = action;
     }
 
@@ -278,7 +289,7 @@ public class Client {
      * @param graphics It's how we call graphics in first input in terminal
      * @return if initial input was wrong
      */
-    static private boolean tryConnectionWithArgs(String[] args, String address, String port, String graphics) {
+    private boolean tryConnectionWithArgs(String[] args, String address, String port, String graphics) {
 
         final int expectedArguments = 6;
         int i = 0;
@@ -325,9 +336,10 @@ public class Client {
 
                 if (!wrongInitialInput) {
                     try {
-                        ClientSocket.connectToServer(params.get(address), Integer.parseInt(params.get(port)));
+                        this.socket = new ClientSocket(this);
+                        socket.connectToServer(params.get(address), Integer.parseInt(params.get(port)));
                         //start listening thread
-                        new Thread(new ClientSocket()).start();
+                        new Thread(socket).start();
                         waitResponse();
                     } catch (IOException e) {
                         view.wrongServer();
@@ -346,7 +358,7 @@ public class Client {
      * @param port              It's how we call port in first input in terminal
      * @param graphics          It's how we call graphics in first input in terminal
      */
-    static private void tryConnectionAgain(boolean wrongInitialInput, String address, String port, String graphics) {
+    private void tryConnectionAgain(boolean wrongInitialInput, String address, String port, String graphics) {
 
         final String defaultGraphics = "cli";
         final int defaultPort = 60000;
@@ -359,7 +371,7 @@ public class Client {
             response = view.askDefault();
 
             if ((response.equals("close game")))
-                ClientSocket.closeGame();
+                socket.closeGame();
 
             else {
                 if (response.equals("yes")) {
@@ -371,14 +383,15 @@ public class Client {
                     params = new HashMap<>();
                     response = view.insertYourParameters(address, port, graphics);
                     if (response.equals("close game"))
-                        ClientSocket.closeGame();
+                        socket.closeGame();
                 }
 
                 try {
-                    ClientSocket.connectToServer(params.get(address), Integer.parseInt(params.get(port)));
+                    this.socket = new ClientSocket(this);
+                    socket.connectToServer(params.get(address), Integer.parseInt(params.get(port)));
                     wrongInitialInput = false;
                     //start listening thread
-                    new Thread(new ClientSocket()).start();
+                    new Thread(socket).start();
                     waitResponse();
                 } catch (IOException e) {
                     view.wrongServer();
@@ -390,31 +403,31 @@ public class Client {
     /**
      * Method used after sending a message to wait the response
      */
-    static private void waitResponse() {
+    private void waitResponse() {
 
-        while (ClientSocket.getWaitingMessage()) {
-            synchronized (ClientSocket.getWaitObject()) {
+        while (socket.getWaitingMessage()) {
+            synchronized (socket.getWaitObject()) {
                 try {
-                    ClientSocket.getWaitObject().wait();
+                    socket.getWaitObject().wait();
                 } catch (InterruptedException e) {
                     ;
                 }
             }
         }
-        ClientSocket.setWaitingMessage(true);
+        socket.setWaitingMessage(true);
 
     }
 
     /**
      * Method used to check the message in the buffer
      */
-    static private boolean onMessage() {
+    private boolean onMessage() {
 
-        if (ClientSocket.getMessageBuffer().getMessageType() == MessageType.ERROR) {
-            ErrorMessage message = (ErrorMessage) ClientSocket.getMessageBuffer();
+        if (socket.getMessageBuffer().getMessageType() == MessageType.ERROR) {
+            ErrorMessage message = (ErrorMessage) socket.getMessageBuffer();
             System.out.println("\n" + message.getMessage() + "\n");
             return false;
-        } else if (ClientSocket.getMessageBuffer().getMessageType() == MessageType.UPDATE)
+        } else if (socket.getMessageBuffer().getMessageType() == MessageType.UPDATE)
             return true;
 
         return false;
@@ -424,7 +437,7 @@ public class Client {
     /**
      * Method used to set nickname, if chosen name is available then set it
      */
-    static private void chooseNickname() {
+    private void chooseNickname() {
 
         String tempNick;
         Message message;
@@ -435,16 +448,16 @@ public class Client {
             tempNick = view.chooseNickname();
 
             if (tempNick.equals("close game"))
-                ClientSocket.closeGame();
+                socket.closeGame();
 
             sendNickname(UUID, tempNick);
 
             waitResponse();
 
-            if (ClientSocket.getMessageBuffer().getMessageType() == MessageType.ERROR) {
-                ErrorMessage mes = (ErrorMessage) ClientSocket.getMessageBuffer();
+            if (socket.getMessageBuffer().getMessageType() == MessageType.ERROR) {
+                ErrorMessage mes = (ErrorMessage) socket.getMessageBuffer();
                 System.out.println("\n" + mes.getMessage() + "\n");
-            } else if (ClientSocket.getMessageBuffer().getMessageType() == MessageType.CONFIRM) {
+            } else if (socket.getMessageBuffer().getMessageType() == MessageType.CONFIRM) {
                 setNickname(tempNick);
 
                 try {
@@ -463,17 +476,17 @@ public class Client {
      * @param UUID     UUID of the client
      * @param nickname chosen nickname
      */
-    static private void sendNickname(String UUID, String nickname) {
+    private void sendNickname(String UUID, String nickname) {
 
         Message message = new LoginMessage(UUID, nickname);
-        ClientSocket.sendMessage(message);
+        socket.sendMessage(message);
 
     }
 
     /**
      * Method used to choose lobby, you have to insert number of players and if you want advanced rules
      */
-    static private void chooseLobby() {
+    private void chooseLobby() {
 
         String response;
         String response2;
@@ -484,7 +497,7 @@ public class Client {
 
         response = view.requestAdvancedRules();
         if (response.equals("close game"))
-            ClientSocket.closeGame();
+            socket.closeGame();
 
         if (response.equals("yes"))
             j = true;
@@ -494,7 +507,7 @@ public class Client {
         response2 = view.requestNumPlayers();
 
         if (response2.equals("close game"))
-            ClientSocket.closeGame();
+            socket.closeGame();
         else
             i = Integer.parseInt(response2);
 
@@ -502,9 +515,9 @@ public class Client {
 
         waitResponse();
 
-        if (ClientSocket.getMessageBuffer().getMessageType() == MessageType.CONFIRM) {
+        if (socket.getMessageBuffer().getMessageType() == MessageType.CONFIRM) {
 
-            ConfirmMessage confirmMessage = (ConfirmMessage) ClientSocket.getMessageBuffer();
+            ConfirmMessage confirmMessage = (ConfirmMessage) socket.getMessageBuffer();
             String s = Integer.toString(confirmMessage.getLobbyId());
             try {
                 writer.write(s + "\n");
@@ -531,25 +544,25 @@ public class Client {
      * @param advancedRules If player wants avanced rules
      * @param numPlayers    num of players in the match
      */
-    static private void sendLobbyMessage(String UUID, boolean advancedRules, int numPlayers) {
+    private void sendLobbyMessage(String UUID, boolean advancedRules, int numPlayers) {
 
         Message message = new LobbyRequestMessage(UUID, numPlayers, advancedRules);
 
-        ClientSocket.sendMessage(message);
+        socket.sendMessage(message);
     }
 
 
     /**
      * @param string Nickname to be set for the player
      */
-    static private void setNickname(String string) {
+    private void setNickname(String string) {
         nickname = string;
     }
 
     /**
      * @return My nickname
      */
-    static public String getNickname() {
+    public String getNickname() {
         return nickname;
     }
 
@@ -557,20 +570,20 @@ public class Client {
     /**
      * @return HashMap with values
      */
-    static public HashMap<String, String> getParams() {
+    public HashMap<String, String> getParams() {
         return params;
     }
 
     /**
      * @return if server has sent an exception for our assistant
      */
-    static private boolean playAssistant() {
+    private boolean playAssistant() {
         int val;
 
         val = view.askAssistant();
         Message message = new PlayAssistantMessage(UUID, val);
 
-        ClientSocket.sendMessage(message);
+        socket.sendMessage(message);
 
         waitResponse();
 
@@ -580,7 +593,7 @@ public class Client {
     /**
      * @return if server has sent an exception for our movement
      */
-    static private boolean moveStudents() {
+    private boolean moveStudents() {
 
         HashMap<String, String> response;
         Message message;
@@ -597,14 +610,14 @@ public class Client {
         if (response.get("destination").equals("d")) {
             message = new StudentsToDiningMessage(UUID, container);
 
-            ClientSocket.sendMessage(message);
+            socket.sendMessage(message);
             waitResponse();
             return onMessage();
         } else {
 
             message = new StudentsToIslandMessage(UUID, container, Integer.parseInt(response.get("islandDest")));
 
-            ClientSocket.sendMessage(message);
+            socket.sendMessage(message);
             waitResponse();
             return onMessage();
         }
@@ -613,7 +626,7 @@ public class Client {
     /**
      * @return if server has an exception for the movement
      */
-    static private boolean moveMotherNature() {
+    private boolean moveMotherNature() {
 
         int islandId;
 
@@ -621,7 +634,7 @@ public class Client {
 
         Message message = new MoveMotherNatureMessage(UUID, islandId);
 
-        ClientSocket.sendMessage(message);
+        socket.sendMessage(message);
 
         waitResponse();
 
@@ -631,7 +644,7 @@ public class Client {
     /**
      * @return if server has an exception for our choice
      */
-    static private boolean chooseCloud() {
+    private boolean chooseCloud() {
 
         String cloudId;
 
@@ -639,7 +652,7 @@ public class Client {
 
         Message message = new ChooseCloudMessage(UUID, cloudId);
 
-        ClientSocket.sendMessage(message);
+        socket.sendMessage(message);
 
         waitResponse();
 
@@ -649,11 +662,11 @@ public class Client {
     /**
      * Method used to set beginGame
      */
-    static public void beginGame() {
+    public void beginGame() {
         inGame = true;
     }
 
-    static private boolean playCharacter() {
+    private boolean playCharacter() {
 
         //TODO DA FARE IL METODO CHE CHIEDE VIEW.ASKCHARACTER E POI CREA UN MESSAGGIO E LO MANDA CON IL PERSONAGGIO SCELTO
 
@@ -664,14 +677,14 @@ public class Client {
     /**
      * @return total students moved in action phase in a turn
      */
-    public static int getTotalStudentsInTurn() {
+    public int getTotalStudentsInTurn() {
         return totalStudentsInTurn;
     }
 
     /**
      * @param num students moved
      */
-    public static void addTotalStudentsInTurn(int num) {
+    public void addTotalStudentsInTurn(int num) {
         totalStudentsInTurn = totalStudentsInTurn + num;
     }
 

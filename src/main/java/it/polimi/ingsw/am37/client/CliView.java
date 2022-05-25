@@ -14,13 +14,17 @@ import java.util.List;
 import java.util.Scanner;
 
 public class CliView extends AbstractView {
+
+    final Client client;
+
     /**
      * Construct a new console type view, registering and enabling the Jansi library output stream above the
      * {@link System#out} standard stream.
      */
-    public CliView() {
+    public CliView(Client client) {
         AnsiConsole.systemInstall();
         Runtime.getRuntime().addShutdownHook(new Thread(AnsiConsole::systemUninstall));
+        this.client = client;
     }
 
     /**
@@ -175,14 +179,14 @@ public class CliView extends AbstractView {
             if (s.equals("close game"))
                 return s;
             ifNonLocalhostAddress(s);
-            Client.getParams().put(address, s);
+            client.getParams().put(address, s);
             System.out.println(" Write server's port or \"close game\": \n");
             s = scanner.nextLine().toLowerCase().trim().replaceAll(" +", " ");
             if (s.equals("close game"))
                 return s;
             try {
                 int num = Integer.parseInt(s);
-                Client.getParams().put(port, Integer.toString(num));
+                client.getParams().put(port, Integer.toString(num));
             } catch (NumberFormatException e) {
                 wrongInsertPort();
                 continue;
@@ -190,9 +194,9 @@ public class CliView extends AbstractView {
             System.out.println(" Write \"cli\" or \"gui\" or \"close game\": \n");
             s = scanner.nextLine().toLowerCase().trim().replaceAll(" +", " ");
             if (s.equals("cli"))
-                Client.getParams().put(graphics, "cli");
+                client.getParams().put(graphics, "cli");
             else if (s.equals("gui"))
-                Client.getParams().put(graphics, "gui");
+                client.getParams().put(graphics, "gui");
             else if (s.equals("close game"))
                 return s;
             else {
@@ -284,9 +288,9 @@ public class CliView extends AbstractView {
                 continue;
             }
 
-            if (getReducedModel().getPlayers().get(Client.getNickname()).getAssistantsDeck().containsKey(num))
+            if (getReducedModel().getPlayers().get(client.getNickname()).getAssistantsDeck().containsKey(num))
                 return num;
-            else if (getReducedModel().getPlayers().get(Client.getNickname()).getAssistantsDeck().containsKey(num) &&
+            else if (getReducedModel().getPlayers().get(client.getNickname()).getAssistantsDeck().containsKey(num) &&
                     num > 0 && num < 11)
                 System.out.println(" You have already played this assistant \n");
             else
@@ -344,11 +348,11 @@ public class CliView extends AbstractView {
         FactionColor color = null;
         boolean ok;
 
-        showPlayerStatus(getReducedModel().getPlayers().get(Client.getNickname()));
+        showPlayerStatus(getReducedModel().getPlayers().get(client.getNickname()));
 
         while (true) {
 
-            System.out.println(" You have " + Client.getTotalStudentsInTurn() + "left \n");
+            System.out.println(" You have " + client.getTotalStudentsInTurn() + "left \n");
 
             response = new HashMap<>();
             System.out.println(" Select the color of students you want to move, write \"R\" (red) or \"B\" (blue) or " +
@@ -378,8 +382,8 @@ public class CliView extends AbstractView {
 
             try {
                 Integer.parseInt(s2);
-                if (Integer.parseInt(s2) + Client.getTotalStudentsInTurn() > 3 ||
-                        getReducedModel().getBoards().get(Client.getNickname()).getEntrance().getByColor(color) <
+                if (Integer.parseInt(s2) + client.getTotalStudentsInTurn() > 3 ||
+                        getReducedModel().getBoards().get(client.getNickname()).getEntrance().getByColor(color) <
                                 Integer.parseInt(s2)) {
                     System.out.println(" You don't have enough students of this color or you have moved too many students, try again with other parameters");
                     continue;
@@ -389,7 +393,7 @@ public class CliView extends AbstractView {
                 continue;
             }
 
-            Client.addTotalStudentsInTurn(Integer.parseInt(s2));
+            client.addTotalStudentsInTurn(Integer.parseInt(s2));
 
             response.put("number", s2);
 

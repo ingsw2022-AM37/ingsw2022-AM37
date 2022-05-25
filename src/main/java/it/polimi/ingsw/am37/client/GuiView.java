@@ -90,41 +90,7 @@ public class GuiView extends AbstractView {
      * @return Client's decision
      */
     public String insertYourParameters(String address, String port, String graphics) {
-        Scanner scanner = new Scanner(System.in);
-
-        while (true) {
-            System.out.println(" Write server's address or \"close game\": \n");
-            String s = scanner.nextLine().toLowerCase().trim().replaceAll(" +", " ");
-            if (s.equals("close game"))
-                return s;
-            ifNonLocalhostAddress(s);
-            Client.getParams().put(address, s);
-            System.out.println(" Write server's port or \"close game\": \n");
-            s = scanner.nextLine().toLowerCase().trim().replaceAll(" +", " ");
-            if (s.equals("close game"))
-                return s;
-            try {
-                int num = Integer.parseInt(s);
-                Client.getParams().put(port, Integer.toString(num));
-            } catch (NumberFormatException e) {
-                wrongInsertPort();
-                continue;
-            }
-            System.out.println(" Write \"cli\" or \"gui\" or \"close game\": \n");
-            s = scanner.nextLine().toLowerCase().trim().replaceAll(" +", " ");
-            if (s.equals("cli"))
-                Client.getParams().put(graphics, "cli");
-            else if (s.equals("gui"))
-                Client.getParams().put(graphics, "gui");
-            else if (s.equals("close game"))
-                return s;
-            else {
-                wrongInsertGraphics();
-                continue;
-            }
-
-            return "true";
-        }
+        return null;
     }
 
     /**

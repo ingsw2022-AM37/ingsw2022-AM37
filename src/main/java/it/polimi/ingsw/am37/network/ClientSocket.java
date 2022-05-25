@@ -22,78 +22,84 @@ public class ClientSocket implements Runnable {
     /**
      * Used for creating a loop for client's waiting after a message is received
      */
-    private static boolean waitingMessage = true;
+    private boolean waitingMessage = true;
 
     /**
      * Object used by main thread for waiting on after it sent a message
      */
-    private static final Object waitObject = new Object();
+    private final Object waitObject = new Object();
 
     /**
      * Buffer used to store a message (different from ping) when the secondary thread reads it
      */
-    private static Message messageBuffer = null;
+    private Message messageBuffer = null;
 
     /**
      * Socket used to connect
      */
-    private static Socket socket;
+    private Socket socket;
 
     /**
      * Boolean which represents the current state of client's connection
      */
-    private static boolean connectedToServer = false;
+    private boolean connectedToServer = false;
 
     /**
      * Input stream
      */
-    private static InputStream inputStream;
+    private InputStream inputStream;
 
     /**
      * Output stream
      */
-    private static OutputStream outputStream;
+    private OutputStream outputStream;
 
     /**
      * DataOutput stream used for sending messages
      */
-    private static DataOutputStream dataOutputStream;
+    private DataOutputStream dataOutputStream;
 
     /**
      * DataInput stream used for reading messages
      */
-    private static DataInputStream dataInputStream;
+    private DataInputStream dataInputStream;
+
+    final Client client;
 
     /**
      * @param address Server's IP
      * @param port    Server's port
      * @throws IOException When connection is failed
      */
-    static public void connectToServer(String address, int port) throws IOException {
+    public void connectToServer(String address, int port) throws IOException {
 
         socket = new Socket(address, port);
         connectedToServer = true;
         setInputAndOutput();
     }
 
+    public ClientSocket(Client client){
+        this.client = client;
+    }
+
     /**
      * @return waitObject used for synchronize
      */
-    static public Object getWaitObject() {
+    public Object getWaitObject() {
         return waitObject;
     }
 
     /**
      * @return if a message is received from server
      */
-    static public boolean getWaitingMessage() {
+    public boolean getWaitingMessage() {
         return waitingMessage;
     }
 
     /**
      * Set messageReceived to false
      */
-    static public void setWaitingMessage(boolean bool) {
+    public void setWaitingMessage(boolean bool) {
         waitingMessage = bool;
     }
 
@@ -101,14 +107,14 @@ public class ClientSocket implements Runnable {
     /**
      * @return buffer used to trade messages
      */
-    static public Message getMessageBuffer() {
+    public Message getMessageBuffer() {
         return messageBuffer;
     }
 
     /**
      * @return Current state of client's connection
      */
-    static public boolean isConnectedToServer() {
+    public boolean isConnectedToServer() {
 
         return connectedToServer;
     }
@@ -116,7 +122,7 @@ public class ClientSocket implements Runnable {
     /**
      * Tries to close socket and input/output stream and set connectedToServer to false, then close the game
      */
-    static public void closeGame() {
+    public void closeGame() {
 
         if (connectedToServer) {
             connectedToServer = false;
@@ -147,11 +153,11 @@ public class ClientSocket implements Runnable {
     /**
      * Tries to close socket and input/output stream and set connectedToServer to false, then close the game
      */
-    static private void disconnect() {
+    private void disconnect() {
 
         connectedToServer = false;
 
-        Client.getView().notifyInternetCrash();
+        client.getView().notifyInternetCrash();
 
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
@@ -175,7 +181,7 @@ public class ClientSocket implements Runnable {
     /**
      * @param message Client's message needed to be sent to server, if error occurs client will be disconnected
      */
-    static public void sendMessage(Message message) {
+    public void sendMessage(Message message) {
 
         //TODO PER ORA LO LASCIAMO IN SOSPESO, POI DECIDIAMO SE METTERE QUESTA FUNZIONE
         // ogni 0,3 secondi manda un ping, metto un contatore statico che incremento ad ogni messaggio, arrivato a
@@ -211,7 +217,7 @@ public class ClientSocket implements Runnable {
     /**
      * Create socket's OutputStream
      */
-    static private void setOutput() {
+    private void setOutput() {
 
         Timer timer = new Timer();
 
@@ -234,7 +240,7 @@ public class ClientSocket implements Runnable {
     /**
      * Create socket's InputStream
      */
-    static private void setInput() {
+    private void setInput() {
 
         Timer timer = new Timer();
 
@@ -257,7 +263,7 @@ public class ClientSocket implements Runnable {
     /**
      * Create streams for socket
      */
-    static private void setInputAndOutput() {
+    private void setInputAndOutput() {
         setInput();
         setOutput();
     }
@@ -265,7 +271,7 @@ public class ClientSocket implements Runnable {
     /**
      * Message received from server and executed
      */
-    static private void readMessage() {
+    private void readMessage() {
 
         String json;
         Message message = null;
@@ -306,20 +312,20 @@ public class ClientSocket implements Runnable {
                 synchronized (waitObject) {
                     waitObject.notifyAll();
                 }
-                Client.beginGame();
+                client.beginGame();
             } else if (message.getMessageType() == MessageType.END_GAME) {
                 EndGameMessage endGameMessage;
                 endGameMessage = (EndGameMessage) message;
 
-                Client.setStatus(ClientStatus.ENDGAME);
+                client.setStatus(ClientStatus.ENDGAME);
 
-                Client.getView().printWinner(endGameMessage.getWinnerNickname());
+                client.getView().printWinner(endGameMessage.getWinnerNickname());
 
                 //It empties the file with configurations because game is ended correctly
                 OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream("src/main/resources/myConfigurations/resilience.txt"), StandardCharsets.UTF_8);
 
             } else if (message.getMessageType() == MessageType.UPDATE) {
-                Client.getView()
+                client.getView()
                         .getReducedModel()
                         .update(((UpdateMessage) message).getUpdatedObjects()
                                 .values()
@@ -331,15 +337,15 @@ public class ClientSocket implements Runnable {
 
                 nextTurnMessage = (NextTurnMessage) message;
 
-                if (nextTurnMessage.getNextPlayerNickname().equals(Client.getNickname())) {
-                    Client.setStatus(ClientStatus.MOVINGSTUDENTS);
-                    Client.getView().yourTurn();
+                if (nextTurnMessage.getNextPlayerNickname().equals(client.getNickname())) {
+                    client.setStatus(ClientStatus.MOVINGSTUDENTS);
+                    client.getView().yourTurn();
                 } else
-                    Client.getView().hisTurn(nextTurnMessage.getNextPlayerNickname());
+                    client.getView().hisTurn(nextTurnMessage.getNextPlayerNickname());
 
             } else if (message.getMessageType() == MessageType.PLANNING_PHASE) {
-                Client.getView().mustPlayAssistant();
-                Client.setStatus(ClientStatus.PLAYINGASSISTANT);
+                client.getView().mustPlayAssistant();
+                client.setStatus(ClientStatus.PLAYINGASSISTANT);
             }
 
 
@@ -353,7 +359,7 @@ public class ClientSocket implements Runnable {
     /**
      * close the game
      */
-    static private void killGame() {
+    private void killGame() {
         Timer timer = new Timer();
 
         timer.schedule(new TimerTask() {
@@ -370,7 +376,7 @@ public class ClientSocket implements Runnable {
     /**
      * Method used for sending ping
      */
-    static private void messagePing() {
+    private void messagePing() {
 
         Timer timer = new Timer();
 
@@ -378,7 +384,7 @@ public class ClientSocket implements Runnable {
             @Override
             public void run() {
                 Message message;
-                message = new PingMessage(Client.getUUID());
+                message = new PingMessage(client.getUUID());
 
                 sendMessage(message);
             }
