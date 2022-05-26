@@ -14,6 +14,7 @@ import java.util.Random;
 
 import static it.polimi.ingsw.am37.controller.UpdateController.Properties.P_BOARD_DINING;
 
+@SuppressWarnings("ConstantConditions")
 public class TurnManager {
 
     /**
@@ -342,6 +343,17 @@ public class TurnManager {
     }
 
     /**
+     * Creates the deck of the Player.
+     */
+    public void createDeck(WizardTeam team) throws InstanceAlreadyExistsException {
+        try {
+            currentPlayer.createDeck(team);
+        } catch (InstanceAlreadyExistsException exception) {
+            throw new InstanceAlreadyExistsException(exception.toString());
+        }
+    }
+
+    /**
      * Checks whether the given Assistant can be played and if so it plays it
      *
      * @param assistant the Assistant that the current Player wants to play
@@ -350,7 +362,8 @@ public class TurnManager {
     public void playAssistant(Assistant assistant) throws AssistantImpossibleToPlay {
         for (Player p : players) {
             if (!p.equals(currentPlayer)) {
-                if (p.getLastAssistantPlayed() == assistant)
+                //p.getLastAssistantPlayed() is null only at the very first time (when there's no lastAssistantPlayed)
+                if (p.getLastAssistantPlayed() != null && p.getLastAssistantPlayed().getCardValue() == assistant.getCardValue())
                     //if in the current player's deck there is another playable card different from another player's
                     // card
                     if (currentPlayer.getAssistantsDeck()
@@ -364,19 +377,10 @@ public class TurnManager {
         }
         useAssistant(assistant);
         this.assistantPlayed.put(currentPlayer, assistant);
-        //FIXME: questo setta un nuovo current player, corretto farlo qua?
         if (orderPlayed.indexOf(currentPlayer) != orderPlayed.size() - 1)
             setCurrentPlayer(orderPlayed.get(orderPlayed.indexOf(currentPlayer) + 1));
-    }
-
-    /**
-     *
-     */
-    public void createDeck(WizardTeam team) throws InstanceAlreadyExistsException {
-        try {
-            currentPlayer.createDeck(team);
-        } catch (InstanceAlreadyExistsException exception) {
-            throw new InstanceAlreadyExistsException(exception.toString());
+        else {
+            nextTurn();
         }
     }
 

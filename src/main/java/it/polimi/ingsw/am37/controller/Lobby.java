@@ -23,6 +23,7 @@ import java.util.TimerTask;
 /**
  * It represents the in game Lobby
  */
+@SuppressWarnings("OptionalGetWithoutIsPresent")
 public class Lobby implements Runnable, MessageReceiver {
     /**
      * A Logger.
@@ -172,7 +173,6 @@ public class Lobby implements Runnable, MessageReceiver {
      * @return the UUID associated
      */
     private String findUUIDByUsername(String username) {
-        //noinspection OptionalGetWithoutIsPresent
         return playerNicknames.entrySet().stream().filter(entry -> Objects.equals(entry.getValue(), username)).findFirst().get().getKey();
     }
 
@@ -261,18 +261,20 @@ public class Lobby implements Runnable, MessageReceiver {
         HashMap<Integer, Assistant> deck = gameManager.getTurnManager().getCurrentPlayer().getAssistantsDeck();
         try {
             gameManager.playAssistant(deck.get(((PlayAssistantMessage) message).getCardValue()));
+            response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(), message.getMessageType().getClassName());
+            sendMessage(response);
+            if (Objects.equals(findUUIDByUsername(gameManager.getTurnManager().getOrderPlayed().get(gameManager.getTurnManager().getOrderPlayed().size() - 1).getPlayerId()), message.getUUID()))
+                response = new NextTurnMessage(findUUIDByUsername(gameManager.getTurnManager().getCurrentPlayer().getPlayerId()), gameManager.getTurnManager().getCurrentPlayer().getPlayerId());
+            else {
+                response = new PlanningPhaseMessage(findUUIDByUsername(gameManager.getTurnManager().getCurrentPlayer().getPlayerId()));
+            }
+            sendMessage(response);
         } catch (AssistantImpossibleToPlay | IllegalArgumentException e) {
             LOGGER.error("[Lobby " + matchID + "] Assistant impossible to play");
             LOGGER.error("[Lobby " + matchID + "]\n" + e.getMessage());
             response = new ErrorMessage(message.getUUID(), e.getMessage());
             sendMessage(response);
         }
-        if (Objects.equals(findUUIDByUsername(gameManager.getTurnManager().getOrderPlayed().get(gameManager.getTurnManager().getOrderPlayed().size() - 1).getPlayerId()), message.getUUID()))
-            response = new NextTurnMessage(findUUIDByUsername(gameManager.getTurnManager().getCurrentPlayer().getPlayerId()), gameManager.getTurnManager().getCurrentPlayer().getPlayerId());
-        else {
-            response = new PlanningPhaseMessage(findUUIDByUsername(gameManager.getTurnManager().getCurrentPlayer().getPlayerId()));
-        }
-        sendMessage(response);
     }
 
     /**
@@ -286,7 +288,7 @@ public class Lobby implements Runnable, MessageReceiver {
         int students;
         int movableStudents = 3;
         students = ((StudentsToDiningMessage) message).getContainer().size();
-        if (numberOfStudentsMoved + students < movableStudents) {
+        if (numberOfStudentsMoved + students <= movableStudents) {
             try {
                 gameManager.moveStudentsToDining(((StudentsToDiningMessage) message).getContainer());
             } catch (IllegalArgumentException e) {
@@ -311,7 +313,7 @@ public class Lobby implements Runnable, MessageReceiver {
         int students;
         int movableStudents = 3;
         students = ((StudentsToIslandMessage) message).getContainer().size();
-        if (numberOfStudentsMoved + students < movableStudents) {
+        if (numberOfStudentsMoved + students <= movableStudents) {
             try {
                 gameManager.moveStudentsToIsland(((StudentsToIslandMessage) message).getContainer(),
                         ((StudentsToIslandMessage) message).getIslandId());
