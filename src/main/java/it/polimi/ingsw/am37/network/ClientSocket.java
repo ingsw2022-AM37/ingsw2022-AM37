@@ -219,6 +219,7 @@ public class ClientSocket implements Runnable {
                     }
                     case NEXT_TURN -> {
                         NextTurnMessage nextTurnMessage = (NextTurnMessage) message;
+                        client.setStatus(ClientStatus.MOVINGSTUDENTS);
                         if (Objects.equals(nextTurnMessage.getNextPlayerNickname(), client.getNickname()))
                             client.getView().yourTurn();
                         else client.getView().hisTurn(nextTurnMessage.getNextPlayerNickname());

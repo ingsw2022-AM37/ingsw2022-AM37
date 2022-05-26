@@ -93,7 +93,10 @@ public class Client {
         savedProperties = new Properties();
         try {
             savedProperties.load(Client.class.getResourceAsStream("config.properties"));
-            resilienceUsable = true;
+            if (savedProperties.containsKey(P_UUID_KEY) && savedProperties.containsKey(P_LOBBYSIZE_KEY) &&
+                    savedProperties.containsKey(P_ADVANCEDRULES_KEY) && savedProperties.containsKey(P_LOBBY_KEY) &&
+                    savedProperties.containsKey(P_NICKNAME_KEY))
+                resilienceUsable = true;
         } catch (IOException e) {
             e.printStackTrace();
         } catch (NullPointerException e) {
@@ -111,13 +114,13 @@ public class Client {
         };
         while (!tryConnection(address, port)) {
             Boolean defaultOptions = view.askConfirm(
-                    "Do you want to use default options? Please write \"yes\" or \"no\" or \"close " + "game\": \n");
+                    "Do you want to use default options? Please write \"yes\" or \"no\" or \"close " + "game\":");
 
             if (defaultOptions == null) {
                 throw new PlayerAbortException();
             } else if (defaultOptions) {
                 address = "localhost";
-                port = "6000";
+                port = "60000";
             } else {
                 ConnectionParameters parameters = view.askConnectionParameters();
                 address = parameters.address();
@@ -399,7 +402,8 @@ public class Client {
             currentAction = view.takeInput(this);
 
             switch (currentAction) {
-                case SHOW_MENU -> {}
+                case SHOW_MENU -> {
+                }
                 case SHOW_TABLE -> view.showTable();
                 case SHOW_STATUS -> view.showPlayerStatus(view.askPlayer());
                 case SHOW_DECK -> view.showDeck(view.getReducedModel().getPlayers().get(this.nickname));
@@ -431,7 +435,7 @@ public class Client {
                     else view.impossibleAssistant();
                 }
                 case PLAY_CHARACTER -> //TODO implements logic and remove exception
-                        throw new IllegalArgumentException();
+                        view.impossibleInputForNow();
                 default -> {
                     view.impossibleInputForNow();
                     try {
