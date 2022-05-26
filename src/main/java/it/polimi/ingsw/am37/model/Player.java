@@ -6,7 +6,6 @@ import it.polimi.ingsw.am37.model.character.Option;
 import javax.management.InstanceAlreadyExistsException;
 import java.security.InvalidParameterException;
 import java.util.HashMap;
-import java.util.UUID;
 
 import static it.polimi.ingsw.am37.controller.UpdateController.Properties.*;
 import static it.polimi.ingsw.am37.model.UpdatableObject.UpdatableType.PLAYER;
@@ -117,9 +116,9 @@ public class Player extends UpdatableObject {
         int movement = 0;
         for (int i = 1; i <= 10; i++) {
             if (i % 2 == 0)
-                this.assistantsDeck.put(i - 1, new Assistant(team, i, movement));
+                this.assistantsDeck.put(i, new Assistant(team, i, movement));
             else
-                this.assistantsDeck.put(i - 1, new Assistant(team, i, ++movement));
+                this.assistantsDeck.put(i, new Assistant(team, i, ++movement));
         }
     }
 

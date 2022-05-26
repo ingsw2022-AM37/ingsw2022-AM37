@@ -236,6 +236,7 @@ public class GameManager {
      */
     public void moveMotherNature(int islandId) throws MNmovementWrongException {
         synchronized (lock) {
+            islandsManager.setCurrentPlayer(turnManager.getCurrentPlayer());
             islandsManager.motherNatureActionMovement(islandId, turnManager.getPlayers());
         }
     }
@@ -276,6 +277,7 @@ public class GameManager {
     public void nextTurn() {
         synchronized (lock) {
             turnManager.nextTurn();
+            islandsManager.setCurrentPlayer(turnManager.getCurrentPlayer());
         }
     }
 
