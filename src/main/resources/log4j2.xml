@@ -3,7 +3,7 @@
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout>
-                <LevelPatternSelector defaultPattern="%highlight{[%-5level %d{HH:mm:ss} %c{3} %m}{bright,red}%n">
+                <LevelPatternSelector defaultPattern="%highlight{[%-5level] %d{HH:mm:ss} %c{3} %m}{bright,red}%n">
                     <PatternMatch key="WARN" pattern="%highlight{%-5level%d{HH:mm:ss} %c{3} %m}{bright,yellow}%n"/>
                     <PatternMatch key="INFO" pattern="%highlight{%-5level}%d{HH:mm:ss} %c{3} %m%n"/>
                     <PatternMatch key="DEBUG" pattern="%highlight{%-5level} %d{HH:mm:ss} %c{3} %n%m%n"/>
