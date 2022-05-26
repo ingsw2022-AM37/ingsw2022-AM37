@@ -20,158 +20,12 @@ public abstract class AbstractView {
     }
 
     /**
-     * @return reduced model for the client
-     */
-    public ReducedModel getReducedModel() {
-        return reducedModel;
-    }
-
-    /**
-     * This method notifies if address is unknown
-     *
-     * @param address Address written by the player during connection to server
-     */
-    public abstract void ifNonLocalhostAddress(String address);
-
-    /**
-     * Method to notify if client or server has lost the connection
-     */
-    public abstract void notifyInternetCrash();
-
-    public abstract void showCharacters();
-
-    /**
-     * Notify if a player has inserted fewer parameters than expected during opening of the terminal
-     */
-    public abstract void wrongInsertFewArguments();
-
-    /**
-     * Generic notification of an input error
-     */
-    public abstract void wrongInsert();
-
-    /**
-     * Notify when a number port is expected but another input was given
-     */
-    public abstract void wrongInsertPort();
-
-    /**
-     * Notify when a string between "cli" or "gui" was expected but another string was given
-     */
-    public abstract void wrongInsertGraphics();
-
-    /**
-     * Notify when requested server is unreachable
-     */
-    public abstract void wrongServer();
-
-    /**
-     * Method used to ask if player wants to use default parameters for connection
-     *
-     * @return Client's response
-     */
-    public abstract String askDefault();
-
-    /**
-     * Method used if player decided to don't use default setting for connection, so he will be asked to insert his
-     * parameters
-     *
-     * @param address  It's how address parameter is called
-     * @param port     It's how port parameter is called
-     * @param graphics It's how graphics parameter is called
-     * @return Client's decision
-     */
-    public abstract String insertYourParameters(String address, String port, String graphics);
-
-    /**
-     * Method used to ask a nickname
-     *
-     * @return The chosen nickname
-     */
-    public abstract String chooseNickname();
-
-    /**
-     * Method used to ask player if he wants to use advanced rules or not
-     *
-     * @return Player's choice
-     */
-    public abstract String requestAdvancedRules();
-
-    /**
-     * Method used to ask player the total players of the game he wants to join in
-     *
-     * @return Player's choice
-     */
-    public abstract String requestNumPlayers();
-
-    /**
      * Method used to ask which assistant player want to use
      *
+     * @param client the client to get the nickname of the current player
      * @return The chosen assistant
      */
-    public abstract int askAssistant();
-
-    /**
-     * Method used to tell player possible commands
-     */
-    public abstract void possibleChoices();
-
-    /**
-     * @return Player's command at any time
-     */
-    public abstract String takeInput();
-
-    /**
-     * Tell player this input isn't ok for now
-     */
-    public abstract void impossibleInputForNow();
-
-    /**
-     * Ask player which students want to move and where
-     *
-     * @return HashMap with responses of the player
-     */
-    public abstract HashMap<String, String> askStudents();
-
-    /**
-     * @return Where mother nature has to go
-     */
-    public abstract int askMotherNature();
-
-    /**
-     * @return which cloud player has chosen to take
-     */
-    public abstract String askCloud();
-
-    /**
-     * Tell the player it's his turn
-     */
-    public abstract void yourTurn();
-
-    /**
-     * @param nick nickname of player who has to play the current turn
-     */
-    public abstract void hisTurn(String nick);
-
-    /**
-     * Method used to tell a player he has to play the assistant card
-     */
-    public abstract void mustPlayAssistant();
-
-    /**
-     * Method used to tell the player he is waiting for the match
-     */
-    public abstract void waitingMatch();
-
-    /**
-     * Method to tell the player the game has begun
-     */
-    public abstract void gameStarted();
-
-    /**
-     * @param nick the winner player
-     */
-    public abstract void printWinner(String nick);
+    public abstract int askAssistant(Client client);
 
     /**
      * Method used to ask a player which character he wants to play
@@ -179,9 +33,32 @@ public abstract class AbstractView {
     public abstract void askCharacter();
 
     /**
-     * Method used when an error message come from server
+     * @return which cloud player has chosen to take
      */
-    public abstract void impossibleAssistant();
+    public abstract String askCloud();
+
+    /**
+     * Method used to ask user to confirm at the provided message
+     *
+     * @param message a string containing the text to express confirm or negation
+     * @return Client's response
+     */
+    public abstract Boolean askConfirm(String message);
+
+    /**
+     * Method used if player decided to don't use default setting for connection, so he will be asked to insert his
+     * parameters
+     *
+     * @return Client's provided parameters
+     */
+    public abstract Client.ConnectionParameters askConnectionParameters();
+
+    public abstract Client.LobbyParameters askLobbyParameters();
+
+    /**
+     * @return Where mother nature has to go
+     */
+    public abstract int askMotherNature();
 
     /**
      * Method used to ask which player you want to look at
@@ -191,22 +68,65 @@ public abstract class AbstractView {
     public abstract Player askPlayer();
 
     /**
-     * Method used to show players in game
+     * Ask player which students want to move and where
+     *
+     * @param client the client to get the status of the current player
+     * @return HashMap with responses of the player
      */
-    public abstract void showPlayersNicknames();
+    public abstract HashMap<String, String> askStudents(Client client);
 
     /**
-     * Method used to display connection info
+     * Method used to ask a nickname
      *
-     * @param address How we named address in connection phase (args)
-     * @param port    How we named port in connection phase (args)
+     * @return The chosen nickname
      */
-    public abstract void showConnection(HashMap<String, String> params, String address, String port);
+    public abstract String chooseNickname();
+
+    /**
+     * Method to tell the player the game has begun
+     */
+    public abstract void gameStarted();
+
+    /**
+     * @return the reduced model of the view
+     */
+    public ReducedModel getReducedModel() {
+        return reducedModel;
+    }
+
+    /**
+     * Show to the view that now is the turn of the provided user's nickname
+     *
+     * @param nick nickname of player who has to play the current turn
+     */
+    public abstract void hisTurn(String nick);
+
+    /**
+     * This method notifies a warning sign when a non localhost address is provided
+     *
+     * @param address Address written by the player during connection to server
+     */
+    public abstract void ifNonLocalhostAddress(String address);
 
     /**
      * Method used when an error message come from server
      */
-    public abstract void impossibleStudents();
+    public abstract void impossibleAssistant();
+
+    /**
+     * Method used when an error message come from server
+     */
+    public abstract void impossibleCharacter();
+
+    /**
+     * Method used when an error message come from server
+     */
+    public abstract void impossibleCloud();
+
+    /**
+     * Tell player this input isn't ok for now
+     */
+    public abstract void impossibleInputForNow();
 
     /**
      * Method used when an error message come from server
@@ -216,13 +136,50 @@ public abstract class AbstractView {
     /**
      * Method used when an error message come from server
      */
-    public abstract void impossibleCloud();
+    public abstract void impossibleStudents();
 
     /**
-     * Method used when an error message come from server
+     * Method to notify if client or server has lost the connection
      */
-    public abstract void impossibleCharacter();
+    public abstract void notifyInternetCrash();
 
+    /**
+     * Show the winner of the match
+     *
+     * @param nick the winner player
+     */
+    public abstract void printWinner(String nick);
+
+    /**
+     * Show all the character of this match
+     */
+    public abstract void showCharacters();
+
+    /**
+     * Method used to display connection info
+     *
+     * @param client the client to show info about
+     */
+    public abstract void showConnection(Client client);
+
+    /**
+     * Method used to display the assistant deck of a player
+     *
+     * @param player the player to show the deck of
+     */
+    public abstract void showDeck(Player player);
+
+    /**
+     * This function print the view of a player's status: his last assistant and board
+     *
+     * @param player the players to show status of
+     */
+    public abstract void showPlayerStatus(Player player);
+
+    /**
+     * Method used to show the nickname of all players in this match
+     */
+    public abstract void showPlayersNicknames();
 
     /**
      * This function draw the current status of the table: islands and boards
@@ -230,10 +187,38 @@ public abstract class AbstractView {
     public abstract void showTable();
 
     /**
-     * This function print the view of a player's status: his last assistant and board
-     * @param player the players to show status of
+     * @param client the client to get the status of the current player
+     * @return Player's command at any time
      */
-    public abstract void showPlayerStatus(Player player);
+    public abstract ActionType takeInput(Client client);
 
-    public abstract void showDeck(Player player);
+    /**
+     * Method used to tell the player he is waiting for the match
+     */
+    public abstract void waitingMatch();
+
+    /**
+     * Generic notification of an input error
+     */
+    public abstract void wrongInsert();
+
+    /**
+     * Notify when a string between "cli" or "gui" was expected but another string was given
+     */
+    public abstract void wrongInsertGraphics();
+
+    /**
+     * Notify when a number port is expected but another input was given
+     */
+    public abstract void wrongInsertPort();
+
+    /**
+     * Notify when requested server is unreachable
+     */
+    public abstract void wrongServer();
+
+    /**
+     * Tell the player it's his turn
+     */
+    public abstract void yourTurn();
 }

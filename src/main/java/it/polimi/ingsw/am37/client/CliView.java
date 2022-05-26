@@ -3,8 +3,6 @@ package it.polimi.ingsw.am37.client;
 import it.polimi.ingsw.am37.model.*;
 import it.polimi.ingsw.am37.model.character.Character;
 import it.polimi.ingsw.am37.model.character.EffectHandler;
-import it.polimi.ingsw.am37.network.ClientSocket;
-import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
 
 import java.io.PrintStream;
@@ -13,18 +11,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 
+import static org.fusesource.jansi.Ansi.ansi;
+
 public class CliView extends AbstractView {
-
-    final Client client;
-
     /**
      * Construct a new console type view, registering and enabling the Jansi library output stream above the
      * {@link System#out} standard stream.
      */
-    public CliView(Client client) {
+    public CliView() {
         AnsiConsole.systemInstall();
         Runtime.getRuntime().addShutdownHook(new Thread(AnsiConsole::systemUninstall));
-        this.client = client;
     }
 
     /**
@@ -33,7 +29,7 @@ public class CliView extends AbstractView {
      * @param assistant the assistant to draw
      */
     protected static void drawAssistant(Assistant assistant) {
-        System.out.print(Ansi.ansi().fgCyan().a(assistant).reset());
+        System.out.print(ansi().fgCyan().a(assistant).reset());
     }
 
     /**
@@ -42,9 +38,9 @@ public class CliView extends AbstractView {
      * @param board the board to draw
      */
     protected static void drawBoard(Board board) {
-        System.out.println("\tEntrance: " + Ansi.ansi().render(board.getEntrance().getStudentsAsString()));
-        System.out.println("\tDining: " + Ansi.ansi().render(board.getDiningRoom().getStudentsAsString()));
-        System.out.println("\tTowers: " + Ansi.ansi().render(board.getTowers().getTowersAsString()));
+        System.out.println("\tEntrance: " + ansi().render(board.getEntrance().getStudentsAsString()));
+        System.out.println("\tDining: " + ansi().render(board.getDiningRoom().getStudentsAsString()));
+        System.out.println("\tTowers: " + ansi().render(board.getTowers().getTowersAsString()));
     }
 
     /**
@@ -53,7 +49,7 @@ public class CliView extends AbstractView {
      * @param cloud the cloud to draw
      */
     protected static void drawCloud(Cloud cloud) {
-        System.out.println(Ansi.ansi().a("☁️Cloud ").a(cloud.getCloudId()).a(": ").render(cloud.getStudentsAsString()));
+        System.out.println(ansi().a("☁️Cloud ").a(cloud.getCloudId()).a(": ").render(cloud.getStudentsAsString()));
     }
 
     /**
@@ -62,14 +58,13 @@ public class CliView extends AbstractView {
      * @param island the island to draw
      */
     protected static void drawIsland(Island island) {
-        System.out.print(Ansi.ansi()
-                .a("🏝️  Isola ")
+        System.out.print(ansi().a("🏝️  Isola ")
                 .a(island.getIslandId())
                 .a(" (dim ")
                 .a(island.getNumIslands())
                 .a("): "));
-        System.out.print(Ansi.ansi().render(island.getStudentsOnIsland().getStudentsAsString()));
-        if (island.getMotherNatureHere()) System.out.println(Ansi.ansi().a(" ⬅ mother nature"));
+        System.out.print(ansi().render(island.getStudentsOnIsland().getStudentsAsString()));
+        if (island.getMotherNatureHere()) System.out.println(ansi().a(" ⬅ mother nature"));
         System.out.println();
     }
 
@@ -82,9 +77,8 @@ public class CliView extends AbstractView {
         System.out.print(
                 "\t " + character.getEffectType().name().toLowerCase() + ": price " + character.getCurrentPrice() +
                         " coins");
-        if (character.getState().getContainer() != null)
-            System.out.print(
-                    "\t students: " + Ansi.ansi().render(character.getState().getContainer().getStudentsAsString()));
+        if (character.getState().getContainer() != null) System.out.print(
+                "\t students: " + ansi().render(character.getState().getContainer().getStudentsAsString()));
         else if (character.getState().getNoEntryTiles() != EffectHandler.DEFAULT_NOENTRYTILES)
             System.out.print("\t no entry tales: " + character.getState().getNoEntryTiles());
     }
@@ -95,52 +89,45 @@ public class CliView extends AbstractView {
      * @param address Address written by the player during connection to server
      */
     public void ifNonLocalhostAddress(String address) {
-        if (!address.equals("localhost"))
-            System.out.println(" You have put an address different from \"localhost\", if this doesn't exists it will" +
-                    " be considered \"localhost\" \n");
+        if (!address.equals("localhost")) System.out.println(
+                " You have put an address different from \"localhost\", if this doesn't exists it will" +
+                        " be considered \"localhost\"");
     }
 
     /**
      * Method to notify if client or server has lost the connection
      */
     public void notifyInternetCrash() {
-        System.out.println(" Game has lost the connection, it tried to reconnect but it failed. Game is now closing " +
-                "\n");
-    }
-
-    /**
-     * Notify if a player has inserted fewer parameters than expected during opening of the terminal
-     */
-    public void wrongInsertFewArguments() {
-        System.out.println(" You have written too few arguments \n");
+        System.out.println(
+                " Game has lost the connection, it tried to reconnect but it failed. Game is now closing ");
     }
 
     /**
      * Generic notification of an input error
      */
     public void wrongInsert() {
-        System.out.println(" You have written wrong parameters \n");
+        System.out.println(" You have written wrong parameters");
     }
 
     /**
      * Notify when a number port is expected but another input was given
      */
     public void wrongInsertPort() {
-        System.out.println(" You haven't written a number as server's port \n");
+        System.out.println(" You haven't written a number as server's port");
     }
 
     /**
      * Notify when a string between "cli" or "gui" was expected but another string was given
      */
     public void wrongInsertGraphics() {
-        System.out.println(" You had to choose between \"cli\" or \"gui\" \n");
+        System.out.println(" You had to choose between \"cli\" or \"gui\"");
     }
 
     /**
      * Notify when requested server is unreachable
      */
     public void wrongServer() {
-        System.out.println(" This server is unreachable \n");
+        System.out.println(" This server is unreachable");
     }
 
     /**
@@ -148,16 +135,25 @@ public class CliView extends AbstractView {
      *
      * @return Client's response
      */
-    public String askDefault() {
+    @Override
+    public Boolean askConfirm(String message) {
         String s;
         Scanner scanner = new Scanner(System.in);
         while (true) {
-            System.out.println(" Do you want to use default options? Please write \"yes\" or \"no\" or \"close " +
-                    "game\": \n");
+            System.out.println(message);
             s = scanner.nextLine().toLowerCase().trim().replaceAll(" +", " ");
-            if (s.equals("yes") || s.equals("no") || s.equals("close game"))
-                return s;
-            wrongInsert();
+            switch (s.toLowerCase()) {
+                case "yes", "y" -> {
+                    return true;
+                }
+                case "no", "n" -> {
+                    return false;
+                }
+                case "close game" -> {
+                    return null;
+                }
+                default -> wrongInsert();
+            }
         }
     }
 
@@ -165,46 +161,25 @@ public class CliView extends AbstractView {
      * Method used if player decided to don't use default setting for connection, so he will be asked to insert his
      * parameters
      *
-     * @param address  It's how address parameter is called
-     * @param port     It's how port parameter is called
-     * @param graphics It's how graphics parameter is called
      * @return Client's decision
      */
-    public String insertYourParameters(String address, String port, String graphics) {
+    @Override
+    public Client.ConnectionParameters askConnectionParameters() {
         Scanner scanner = new Scanner(System.in);
 
         while (true) {
-            System.out.println(" Write server's address or \"close game\": \n");
-            String s = scanner.nextLine().toLowerCase().trim().replaceAll(" +", " ");
-            if (s.equals("close game"))
-                return s;
-            ifNonLocalhostAddress(s);
-            client.getParams().put(address, s);
-            System.out.println(" Write server's port or \"close game\": \n");
-            s = scanner.nextLine().toLowerCase().trim().replaceAll(" +", " ");
-            if (s.equals("close game"))
-                return s;
+            System.out.print(" Write server's address or \"close game\": ");
+            String addressInput = scanner.nextLine().toLowerCase().trim().replaceAll(" +", " ");
+            if (addressInput.equals("close game")) return null;
+            ifNonLocalhostAddress(addressInput);
+            System.out.print(" Write server's port or \"close game\": ");
+            String portInput = scanner.nextLine().toLowerCase().trim().replaceAll(" +", " ");
+            if (portInput.equals("close game")) return null;
             try {
-                int num = Integer.parseInt(s);
-                client.getParams().put(port, Integer.toString(num));
+                return new Client.ConnectionParameters(addressInput, Integer.parseInt(portInput));
             } catch (NumberFormatException e) {
                 wrongInsertPort();
-                continue;
             }
-            System.out.println(" Write \"cli\" or \"gui\" or \"close game\": \n");
-            s = scanner.nextLine().toLowerCase().trim().replaceAll(" +", " ");
-            if (s.equals("cli"))
-                client.getParams().put(graphics, "cli");
-            else if (s.equals("gui"))
-                client.getParams().put(graphics, "gui");
-            else if (s.equals("close game"))
-                return s;
-            else {
-                wrongInsertGraphics();
-                continue;
-            }
-
-            return "true";
         }
     }
 
@@ -215,51 +190,31 @@ public class CliView extends AbstractView {
      */
     public String chooseNickname() {
         Scanner scanner = new Scanner(System.in);
-        System.out.println(" Please insert a nickname or write \"close game\": \n");
+        System.out.print(" Please insert a nickname or write \"close game\": ");
         return scanner.nextLine().trim().replaceAll(" +", " ");
     }
 
-    /**
-     * Method used to ask player if he wants to use advanced rules or not
-     *
-     * @return Player's choice
-     */
-    public String requestAdvancedRules() {
-
-        String s;
-        Scanner scanner = new Scanner(System.in);
-
-        while (true) {
-            System.out.println(" Please insert \"yes\" or \"no\" according if you want to play with advanced rules or" +
-                    " write \"close game\": \n");
-            s = scanner.nextLine().trim().replaceAll(" +", " ");
-            if (s.equals("yes") || s.equals("no") || s.equals("close game"))
-                return s;
-
-            wrongInsert();
-        }
-    }
-
-    /**
-     * Method used to ask player the total players of the game he wants to join in
-     *
-     * @return Player's choice
-     */
-    public String requestNumPlayers() {
-        String s;
-        Scanner scanner = new Scanner(System.in);
-        while (true) {
-            System.out.println(" Please insert number of players you want in your match (yourself included), they can" +
+    @Override
+    public Client.LobbyParameters askLobbyParameters() {
+        Boolean advancedRules = askConfirm(
+                " Please insert \"yes\" or \"no\" according if you want to play with advanced rules or" +
+                        " write \"close game\":");
+        if (advancedRules == null) return null;
+        int numPlayers = 0;
+        while (numPlayers != 2 && numPlayers != 3) {
+            System.out.print(" Please insert number of players you want in your match (yourself included), they can" +
                     " be \"two\" or \"three\" \n. You can also write \"close game\": ");
-            s = scanner.nextLine().trim().replaceAll(" +", " ");
-            if (s.equals("two"))
-                s = "2";
-            else if (s.equals("three"))
-                s = "3";
-            if (s.equals("2") || s.equals("3") || s.equals("close game"))
-                return s;
-            wrongInsert();
+            String input = new Scanner(System.in).nextLine().trim().replaceAll(" +", " ");
+            switch (input.toLowerCase()) {
+                case "two", "2" -> numPlayers = 2;
+                case "three", "3" -> numPlayers = 3;
+                case "close game" -> {
+                    return null;
+                }
+                default -> numPlayers = -1;
+            }
         }
+        return new Client.LobbyParameters(advancedRules, numPlayers);
     }
 
     /**
@@ -267,17 +222,16 @@ public class CliView extends AbstractView {
      *
      * @return The chosen assistant
      */
-    public int askAssistant() {
+    public int askAssistant(Client client) {
 
         Scanner scanner = new Scanner(System.in);
         String s;
-        boolean present = false;
         int num;
-
+        showDeck(client.getView().getReducedModel().getPlayers().get(client.getNickname()));
 
         while (true) {
 
-            System.out.println(" Please insert the value of your chosen assistant: \n");
+            System.out.print(" Please insert the value of your chosen assistant: \n");
 
             s = scanner.nextLine().trim().replaceAll(" +", " ");
 
@@ -300,32 +254,20 @@ public class CliView extends AbstractView {
     }
 
     /**
-     * Method used to tell player possible commands
-     */
-    public void possibleChoices() {
-
-        System.out.println(" These are your possible inputs, write one of sequent numbers: \n");
-        System.out.println(" \"0\" : print this screen again ");
-        System.out.println(" \"1\" : close the game ");
-        System.out.println(" \"2\" : play assistant ");
-        System.out.println(" \"3\" : move students ");
-        System.out.println(" \"4\" : move Mother Nature ");
-        System.out.println(" \"5\" : pick students from cloud ");
-        System.out.println(" \"6\" : play a character ");
-        System.out.println(" \"7\" : show a player's status ");
-        System.out.println(" \"8\" : show a player's deck ");
-        System.out.println(" \"9\" : show game's table ");
-        System.out.println(" \"10\" : show players in the game ");
-        System.out.println(" \"11\" : show connection's info ");
-    }
-
-    /**
      * @return Player's command at any time
      */
-    public String takeInput() {
-        Scanner scanner = new Scanner(System.in);
-
-        return scanner.nextLine().trim().replaceAll(" +", " ");
+    public ActionType takeInput(Client client) {
+        List<ActionType> actions = ActionType.getActionByStatus(client.getStatus());
+        System.out.print(ansi().eraseScreen());
+        for (int i = 0; i < actions.size(); i++) {
+            System.out.println(ansi().bold().a(i).reset().a(":\t" + actions.get(i).description));
+        }
+        try {
+            String input = new Scanner(System.in).nextLine().trim().replaceAll(" +"," ");
+            return actions.get(Integer.parseInt(input));
+        } catch (IndexOutOfBoundsException | NumberFormatException e) {
+            return ActionType.SHOW_MENU;
+        }
     }
 
     /**
@@ -340,7 +282,7 @@ public class CliView extends AbstractView {
      *
      * @return HashMap with responses of the player
      */
-    public HashMap<String, String> askStudents() {
+    public HashMap<String, String> askStudents(Client client) {
 
         HashMap<String, String> response;
         Scanner scanner = new Scanner(System.in);
@@ -385,7 +327,8 @@ public class CliView extends AbstractView {
                 if (Integer.parseInt(s2) + client.getTotalStudentsInTurn() > 3 ||
                         getReducedModel().getBoards().get(client.getNickname()).getEntrance().getByColor(color) <
                                 Integer.parseInt(s2)) {
-                    System.out.println(" You don't have enough students of this color or you have moved too many students, try again with other parameters");
+                    System.out.println(" You don't have enough students of this color or you have moved too many " +
+                            "students, try again with other parameters");
                     continue;
                 }
             } catch (NumberFormatException e) {
@@ -437,10 +380,8 @@ public class CliView extends AbstractView {
                     ok = true;
                 }
 
-            if (ok)
-                return response;
-            else
-                wrongInsert();
+            if (ok) return response;
+            else wrongInsert();
         }
     }
 
@@ -469,8 +410,7 @@ public class CliView extends AbstractView {
             }
 
             for (Island island : getReducedModel().getIslands())
-                if (island.getIslandId() == numResponse)
-                    return numResponse;
+                if (island.getIslandId() == numResponse) return numResponse;
 
             System.out.println(" You have written an invalid Island, please try again: \n");
 
@@ -485,13 +425,13 @@ public class CliView extends AbstractView {
 
         String response;
         Scanner scanner = new Scanner(System.in);
+        showTable();
         System.out.println(" Now choose a cloud to pick, number \"1\" or \"2\" or \"3\" :  \n");
 
 
         while (true) {
             response = scanner.nextLine().trim().replaceAll(" +", " ");
-            if (response.equals("1") || response.equals("2") || response.equals("3"))
-                return response;
+            if (response.equals("1") || response.equals("2") || response.equals("3")) return response;
         }
 
     }
@@ -500,7 +440,7 @@ public class CliView extends AbstractView {
      * Tell the player it's his turn
      */
     public void yourTurn() {
-        System.out.println(" It's your turn \n");
+        System.out.println(" It's your turn. Please press enter to proceed \n");
     }
 
     /**
@@ -508,13 +448,6 @@ public class CliView extends AbstractView {
      */
     public void hisTurn(String nick) {
         System.out.println(" It's " + nick + "'s turn \n");
-    }
-
-    /**
-     * Method used to tell a player he has to play the assistant card
-     */
-    public void mustPlayAssistant() {
-        System.out.println(" You have to play now an assistant card \n");
     }
 
     /**
@@ -571,8 +504,7 @@ public class CliView extends AbstractView {
         while (true) {
             response = scanner.nextLine().trim().replaceAll(" +", " ");
             for (String nickname : getReducedModel().getPlayers().keySet())
-                if (nickname.equals(response))
-                    return getReducedModel().getPlayers().get(nickname);
+                if (nickname.equals(response)) return getReducedModel().getPlayers().get(nickname);
 
             System.out.println(" You have to choose one nickname from available! Please try again \n");
         }
@@ -595,14 +527,11 @@ public class CliView extends AbstractView {
     /**
      * Method used to display connection info
      *
-     * @param address How we named address in connection phase (args)
-     * @param port    How we named port in connection phase (args)
+     * @param client the client to display info about
      */
-    public void showConnection(HashMap<String, String> params, String address, String port) {
+    public void showConnection(Client client) {
 
-        System.out.println(" Here there are connection parameters you have insert at the beginning: ");
-
-        System.out.println("Address: " + params.get(address) + " - Port: " + params.get(port));
+        System.out.println(" Your are current connected to: " + client.getAddress() + ":" + client.getPort());
 
     }
 
@@ -640,13 +569,11 @@ public class CliView extends AbstractView {
     @Override
     public void showTable() {
         System.setOut(new PrintStream(System.out, true, StandardCharsets.UTF_8));
-        AnsiConsole.out().print(Ansi.ansi().eraseScreen());
-        for (Island island :
-                reducedModel.getIslands()) {
+        AnsiConsole.out().print(ansi().eraseScreen());
+        for (Island island : reducedModel.getIslands()) {
             drawIsland(island);
         }
-        for (Cloud cloud :
-                reducedModel.getClouds().values()) {
+        for (Cloud cloud : reducedModel.getClouds().values()) {
             drawCloud(cloud);
         }
     }
@@ -676,13 +603,10 @@ public class CliView extends AbstractView {
         System.out.println("Your deck is: [");
         List<Assistant> assistants = player.getAssistantsDeck().values().stream().toList();
         for (int i = 0; i < assistants.size(); i++) {
-            if (i % 2 == 0)
-                System.out.print("\t");
+            if (i % 2 == 0) System.out.print("\t");
             drawAssistant(assistants.get(i));
-            if (i != assistants.size() - 1)
-                System.out.print(", ");
-            if (i % 2 == 1 || i == assistants.size() - 1)
-                System.out.println();
+            if (i != assistants.size() - 1) System.out.print(", ");
+            if (i % 2 == 1 || i == assistants.size() - 1) System.out.println();
         }
         System.out.println("]");
     }
@@ -692,8 +616,7 @@ public class CliView extends AbstractView {
      */
     @Override
     public void showCharacters() {
-        for (Character character :
-                reducedModel.getCharacters()) {
+        for (Character character : reducedModel.getCharacters()) {
             drawCharacter(character);
             System.out.println();
         }

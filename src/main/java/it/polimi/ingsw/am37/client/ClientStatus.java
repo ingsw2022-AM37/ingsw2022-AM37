@@ -1,7 +1,9 @@
 package it.polimi.ingsw.am37.client;
 
+import java.util.List;
+
 public enum ClientStatus {
-    LOGGING,
+    LOGIN,
     CHOOSINGNAME,
     CHOOSINGLOBBY,
     PLAYINGASSISTANT,
@@ -9,5 +11,8 @@ public enum ClientStatus {
     MOVINGMOTHERNATURE,
     CHOOSINGCLOUD,
     WAITINGFORTURN,
-    ENDGAME
+    ENDGAME;
+
+    public final static List<ClientStatus> activeStatus = List.of(PLAYINGASSISTANT, MOVINGSTUDENTS,
+            MOVINGMOTHERNATURE, CHOOSINGCLOUD);
 }

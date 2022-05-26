@@ -48,12 +48,9 @@ public class ClientApp {
             }
 
         }
-        /*
         if (noData) return new Client(null, null, "GUI");
         else if (badFormatted || graphics == null) printUsage();
         else return new Client(address, port, graphics);
-        */
-        Client client = new Client(args);
         return null;
     }
 
