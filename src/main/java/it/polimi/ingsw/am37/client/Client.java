@@ -5,7 +5,7 @@ import it.polimi.ingsw.am37.model.FactionColor;
 import it.polimi.ingsw.am37.model.student_container.UnlimitedStudentsContainer;
 import it.polimi.ingsw.am37.network.ClientSocket;
 
-import java.io.IOException;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.Properties;
@@ -17,6 +17,19 @@ import java.util.Properties;
  * {@link PlayerAbortException} if user decide to abort the current action and close the game.
  */
 public class Client {
+
+    /**
+     * Flag for disabling the resilience logic
+     */
+    final static boolean disabledResilience = true;
+
+    /**
+     * Static constant that store the path to the saves folder
+     */
+    final static String resilienceFilePath =
+            System.getProperty("user.home") + File.separator + ".eryantisGame" + File.separator +
+                    "resilience.properties";
+
     /**
      * Key of properties that contains old lobby id value
      */
@@ -62,10 +75,6 @@ public class Client {
      */
     private int totalStudentsInTurn = 0;
     /**
-     * Flag used to start the game after joining lobby
-     */
-    private boolean inGame = false;
-    /**
      * Client's nickname
      */
     private String nickname = null;
@@ -78,9 +87,11 @@ public class Client {
      */
     private ClientSocket socket;
 
+    /**
+     * This is used by internal {@link Client#onMessage()} to store the read message for further processing by some
+     * other functions.
+     */
     private Message lastReadMessage;
-
-    private Thread userInputThread;
 
     /**
      * Construct a fully functional client and connect to the lobby with provided argumetns. The lobby is restored from
@@ -91,18 +102,23 @@ public class Client {
         boolean resilienceUsable = false;
         status = ClientStatus.LOGIN;
         savedProperties = new Properties();
-        try {
-            savedProperties.load(Client.class.getResourceAsStream("config.properties"));
-            if (savedProperties.containsKey(P_UUID_KEY) && savedProperties.containsKey(P_LOBBYSIZE_KEY) &&
-                    savedProperties.containsKey(P_ADVANCEDRULES_KEY) && savedProperties.containsKey(P_LOBBY_KEY) &&
-                    savedProperties.containsKey(P_NICKNAME_KEY))
-                resilienceUsable = true;
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (NullPointerException e) {
-            System.err.println("Persistence disabled because file not found");
+        if (!disabledResilience) {
+            try {
+                savedProperties.load(new FileInputStream(resilienceFilePath));
+                if (savedProperties.containsKey(P_UUID_KEY) && savedProperties.containsKey(P_LOBBYSIZE_KEY) &&
+                        savedProperties.containsKey(P_ADVANCEDRULES_KEY) && savedProperties.containsKey(P_LOBBY_KEY) &&
+                        savedProperties.containsKey(P_NICKNAME_KEY)) resilienceUsable = true;
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (NullPointerException e) {
+                System.err.println("Persistence disabled because file not found");
+            }
         }
-        UUID = (String) savedProperties.getOrDefault(P_UUID_KEY, java.util.UUID.randomUUID().toString());
+        if (resilienceUsable) UUID = savedProperties.getProperty(P_UUID_KEY);
+        else {
+            UUID = java.util.UUID.randomUUID().toString();
+            savedProperties.setProperty(P_UUID_KEY, UUID);
+        }
 
         view = switch (graphics.toUpperCase()) {
             case "GUI" -> new GuiView();
@@ -114,7 +130,7 @@ public class Client {
         };
         while (!tryConnection(address, port)) {
             Boolean defaultOptions = view.askConfirm(
-                    "Do you want to use default options? Please write \"yes\" or \"no\" or \"close " + "game\":");
+                    "Do you want to use default options? Please write \"yes\" or \"no\" or \"close game\":");
 
             if (defaultOptions == null) {
                 throw new PlayerAbortException();
@@ -129,13 +145,13 @@ public class Client {
         }
         this.address = address;
         this.port = Integer.parseInt(port);
-        ActiveLobbiesMessage activeLobbiesMessage = null;
+        ActiveLobbiesMessage activeLobbiesMessage;
         try {
             activeLobbiesMessage = (ActiveLobbiesMessage) socket.getMessageBuffer().take();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        if (activeLobbiesMessage.getLobbyIDs()
+        if (resilienceUsable && activeLobbiesMessage.getLobbyIDs()
                 .contains(Integer.parseInt(savedProperties.getProperty(P_LOBBY_KEY, "-1")))) {
             this.nickname = savedProperties.getProperty(P_NICKNAME_KEY);
             if (!Objects.equals(UUID, savedProperties.getProperty(P_UUID_KEY)) || this.nickname == null)
@@ -153,6 +169,14 @@ public class Client {
             chooseLobby();
         }
         view.waitingMatch();
+        if(!disabledResilience){
+            try (OutputStream stream = new FileOutputStream(resilienceFilePath)) {
+                savedProperties.store(stream,
+                        "This file is for resilience only. DO NOT MODIFY ANY OF THE FOLLOWING LINES\n");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     /**
@@ -160,13 +184,6 @@ public class Client {
      */
     void addTotalStudentsInTurn(int num) {
         totalStudentsInTurn = totalStudentsInTurn + num;
-    }
-
-    /**
-     * Method used to set beginGame
-     */
-    public void beginGame() {
-        inGame = true;
     }
 
     /**
@@ -222,6 +239,9 @@ public class Client {
         }
     }
 
+    /**
+     * @return the server address this client is connected to
+     */
     public String getAddress() {
         return address;
     }
@@ -313,7 +333,7 @@ public class Client {
      * @return if last action was accepted by the server or rejected
      */
     private boolean onMessage() {
-        Message message = null;
+        Message message;
         try {
             message = socket.getMessageBuffer().take();
         } catch (InterruptedException e) {

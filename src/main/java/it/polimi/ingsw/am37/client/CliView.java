@@ -94,8 +94,8 @@ public class CliView extends AbstractView {
      */
     public void ifNonLocalhostAddress(String address) {
         if (!address.equals("localhost")) System.out.println(
-                " You have put an address different from \"localhost\", if this doesn't exists it will" +
-                        " be considered \"localhost\"");
+                " You have put an address different from \"localhost\", if this doesn't exists it will be considered " +
+                        "\"localhost\"");
     }
 
     /**
@@ -199,8 +199,8 @@ public class CliView extends AbstractView {
     @Override
     public Client.LobbyParameters askLobbyParameters() {
         Boolean advancedRules = askConfirm(
-                " Please insert \"yes\" or \"no\" according if you want to play with advanced rules or" +
-                        " write \"close game\":");
+                " Please insert \"yes\" or \"no\" according if you want to play with advanced rules or write \"close " +
+                        "game\":");
         if (advancedRules == null) return null;
         int numPlayers = 0;
         while (numPlayers != 2 && numPlayers != 3) {
@@ -257,7 +257,7 @@ public class CliView extends AbstractView {
      */
     public ActionType takeInput(Client client) {
         List<ActionType> actions = ActionType.getActionByStatus(client.getStatus());
-        System.out.print(ansi().eraseScreen());
+        //System.out.println(ansi().eraseScreen());
         System.out.flush();
         System.out.println("Current available actions:");
         for (int i = 0; i < actions.size(); i++) {
@@ -442,8 +442,7 @@ public class CliView extends AbstractView {
      * Tell the player it's his turn
      */
     public void yourTurn() {
-        System.out.print(ansi().eraseScreen());
-        System.out.println(" It's your turn. Please press enter to proceed...");
+        System.out.println("\nIt's your turn. Please press enter to proceed...");
     }
 
     /**
@@ -572,7 +571,6 @@ public class CliView extends AbstractView {
     @Override
     public void showTable() {
         System.setOut(new PrintStream(System.out, true, StandardCharsets.UTF_8));
-        AnsiConsole.out().print(ansi().eraseScreen());
         for (Island island : reducedModel.getIslands()) {
             drawIsland(island);
         }
