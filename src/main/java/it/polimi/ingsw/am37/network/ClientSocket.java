@@ -14,19 +14,16 @@ import java.util.TimerTask;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-
 public class ClientSocket implements Runnable {
-
     /**
      * Flag to disable disconnection for debug purpose
      */
-    final static boolean debugMode = true;
+    final static boolean debugMode = false;
     private final static Gson defaultMessageSerializer = new MessageGsonBuilder().registerMessageAdapter()
             .registerUpdatableObjectAdapter()
             .registerStudentContainerAdapter()
             .getGsonBuilder()
             .create();
-
 
     /**
      * Socket used to connect
@@ -101,7 +98,6 @@ public class ClientSocket implements Runnable {
 
     }
 
-
     /**
      * @return if we are connected to the server or not
      */
@@ -134,7 +130,6 @@ public class ClientSocket implements Runnable {
      * Method used for sending ping
      */
     private void messagePing() {
-
         Timer timer = new Timer();
 
         timer.scheduleAtFixedRate(new TimerTask() {
@@ -142,12 +137,9 @@ public class ClientSocket implements Runnable {
             public void run() {
                 Message message;
                 message = new PingMessage(client.getUUID());
-
                 sendMessage(message);
             }
         }, 300, 300);
-
-
     }
 
     /**
@@ -179,7 +171,7 @@ public class ClientSocket implements Runnable {
      */
     private void readMessage() {
         String json;
-        Message message = null;
+        Message message;
         Timer timer = new Timer();
         if (!debugMode) {
             timer.schedule(new TimerTask() {
@@ -238,11 +230,8 @@ public class ClientSocket implements Runnable {
      */
     @Override
     public void run() {
-
         messagePing();
-
         while (connectedToServer) readMessage();
-
     }
 
     /**
@@ -251,25 +240,19 @@ public class ClientSocket implements Runnable {
      * @param message the message to be sent
      */
     public void sendMessage(Message message) {
-
         //TODO PER ORA LO LASCIAMO IN SOSPESO, POI DECIDIAMO SE METTERE QUESTA FUNZIONE
         // ogni 0,3 secondi manda un ping, metto un contatore statico che incremento ad ogni messaggio, arrivato a
         // 700 avviso che se non viene mandato un messaggio valido a breve verrà disconnesso
         // gestisco anche quando non è il mio turno ovviamente questo non deve accadere
-
         if (connectedToServer) {
-            String json = defaultMessageSerializer
-                    .toJson(message);
-
+            String json = defaultMessageSerializer.toJson(message);
             Timer timer = new Timer();
-
             if (!debugMode) timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
                     onDisconnect();
                 }
             }, 5000);
-
             try {
                 dataOutputStream.writeUTF(json);
                 dataOutputStream.flush();
@@ -284,16 +267,13 @@ public class ClientSocket implements Runnable {
      * Create socket's InputStream
      */
     private void setInput() {
-
         Timer timer = new Timer();
-
         if (!debugMode) timer.schedule(new TimerTask() {
             @Override
             public void run() {
                 onDisconnect();
             }
         }, 5000);
-
         try {
             inputStream = socket.getInputStream();
             dataInputStream = new DataInputStream(inputStream);
@@ -315,16 +295,13 @@ public class ClientSocket implements Runnable {
      * Create socket's OutputStream
      */
     private void setOutput() {
-
         Timer timer = new Timer();
-
         if (!debugMode) timer.schedule(new TimerTask() {
             @Override
             public void run() {
                 onDisconnect();
             }
         }, 5000);
-
         try {
             outputStream = socket.getOutputStream();
             dataOutputStream = new DataOutputStream(outputStream);

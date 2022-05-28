@@ -21,31 +21,33 @@ public class Client {
     /**
      * Flag for disabling the resilience logic
      */
-    final static boolean disabledResilience = true;
+    private final static boolean disabledResilience = true;
 
     /**
      * Static constant that store the path to the saves folder
      */
-    final static String resilienceFilePath =
+    private final static String resilienceFilePath =
             System.getProperty("user.home") + File.separator + ".eryantisGame" + File.separator +
                     "resilience.properties";
 
     /**
      * Key of properties that contains old lobby id value
      */
-    final static String P_LOBBY_KEY = "Lobby";
+    private final static String P_LOBBY_KEY = "Lobby";
+
     /**
      * Key of properties that contains old nickname
      */
-    final static String P_NICKNAME_KEY = "Nickname";
+    private final static String P_NICKNAME_KEY = "Nickname";
+
     /**
      * Key of properties that contains old advanced rules setting
      */
-    final static String P_ADVANCEDRULES_KEY = "AdvancedRulesEnable";
+    private final static String P_ADVANCEDRULES_KEY = "AdvancedRulesEnable";
     /**
      * Key of properties that contains old number of player setting
      */
-    final static String P_LOBBYSIZE_KEY = "LobbySize";
+    private final static String P_LOBBYSIZE_KEY = "LobbySize";
     /**
      * Key of properties that contains old UUID value
      */
@@ -53,7 +55,7 @@ public class Client {
     /**
      * Old configuration settings stored as properties entry
      */
-    final Properties savedProperties;
+    private final Properties savedProperties;
     /**
      * Client identifier
      */
@@ -94,7 +96,7 @@ public class Client {
     private Message lastReadMessage;
 
     /**
-     * Construct a fully functional client and connect to the lobby with provided argumetns. The lobby is restored from
+     * Construct a fully functional client and connect to the lobby with provided arguments. The lobby is restored from
      * a save files if clients was disconnected before the end of a match; otherwise, the user if prompted to provide
      * new nickname and connection setting.
      */
@@ -182,7 +184,7 @@ public class Client {
     /**
      * @param num students moved
      */
-    void addTotalStudentsInTurn(int num) {
+    public void addTotalStudentsInTurn(int num) {
         totalStudentsInTurn = totalStudentsInTurn + num;
     }
 
@@ -194,11 +196,8 @@ public class Client {
         String cloudId;
 
         cloudId = view.askCloud();
-
         Message message = new ChooseCloudMessage(UUID, cloudId);
-
         socket.sendMessage(message);
-
         return onMessage();
     }
 
@@ -271,7 +270,7 @@ public class Client {
     /**
      * @return total students moved in action phase in a turn
      */
-    int getTotalStudentsInTurn() {
+    public int getTotalStudentsInTurn() {
         return totalStudentsInTurn;
     }
 
@@ -350,11 +349,8 @@ public class Client {
      * @see ActionType
      */
     private boolean playAssistant() {
-        int val;
-
-        val = view.askAssistant(this);
+        int val = view.askAssistant(this);
         Message message = new PlayAssistantMessage(UUID, val);
-
         socket.sendMessage(message);
 
         return onMessage();
@@ -367,10 +363,8 @@ public class Client {
      * @see ActionType
      */
     private boolean playCharacter() {
-
         //TODO DA FARE IL METODO CHE CHIEDE VIEW.ASKCHARACTER E POI CREA UN MESSAGGIO E LO MANDA CON IL PERSONAGGIO
         // SCELTO
-
         return false;
     }
 
@@ -382,9 +376,7 @@ public class Client {
      * @param numPlayers    num of players in the match
      */
     private void sendLobbyMessage(String UUID, boolean advancedRules, int numPlayers) {
-
         Message message = new LobbyRequestMessage(UUID, numPlayers, advancedRules);
-
         socket.sendMessage(message);
     }
 
@@ -397,7 +389,6 @@ public class Client {
     private void sendLoginMessage(String UUID, String nickname) {
         Message message = new LoginMessage(UUID, nickname);
         socket.sendMessage(message);
-
     }
 
     /**
@@ -414,7 +405,6 @@ public class Client {
         }
 
         view.gameStarted();
-
 
         status = ClientStatus.WAITINGFORTURN;
         while (socket.isConnectedToServer()) {
@@ -490,7 +480,6 @@ public class Client {
         }
     }
 
-
     /**
      * Define a simple record to store parameters of connection to be exchange between methods
      *
@@ -508,6 +497,4 @@ public class Client {
      */
     protected record LobbyParameters(boolean advancedRulesEnabled, int lobbySize) {
     }
-
-
 }

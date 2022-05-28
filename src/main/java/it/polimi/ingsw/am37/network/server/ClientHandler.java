@@ -17,7 +17,7 @@ public class ClientHandler implements Runnable {
     /**
      * Flag for disable disconnection when ping timeout fails on debug
      */
-    final static boolean debugMode = true;
+    private final static boolean debugMode = false;
 
     /**
      * Input stream
@@ -47,7 +47,7 @@ public class ClientHandler implements Runnable {
     /**
      * It's the socket connected to the handler
      */
-    private Socket clientSocket;
+    private final Socket clientSocket;
 
     /**
      * A boolean value which represents the state of connection
@@ -59,13 +59,15 @@ public class ClientHandler implements Runnable {
      */
     private String UUID = null;
 
-
     /**
      * @return client UUID
      */
     public String getUUID() {
-
         return UUID;
+    }
+
+    public void setUUID(String UUID) {
+        this.UUID = UUID;
     }
 
     /**
@@ -83,7 +85,6 @@ public class ClientHandler implements Runnable {
         return this.connectedToClient;
     }
 
-
     /**
      * @param messageReceiver Actual messageReceiver
      */
@@ -96,28 +97,26 @@ public class ClientHandler implements Runnable {
      * @throws InternetException Thrown when connection is failed
      */
     public void sendMessageToClient(Message message) throws InternetException {
-
         message.setUUID(UUID);
-
         String json = new MessageGsonBuilder().registerMessageAdapter().registerStudentContainerAdapter().registerUpdatableObjectAdapter().getGsonBuilder().create().toJson(message);
-
         ExecutorService service = Executors.newSingleThreadExecutor();
-
         try {
             Callable<Object> r = new Callable() {
                 @Override
                 public Object call() throws IOException {
+                    System.out.println("dataInput: " + dataInputStream);
+                    System.out.println("dataOutput: " + dataOutputStream);
+                    System.out.println("json: " + json);
                     dataOutputStream.writeUTF(json);
                     dataOutputStream.flush();
                     return null;
                 }
             };
-
             Future<?> f = service.submit(r);
-
             f.get(5, TimeUnit.SECONDS);
         } catch (final InterruptedException | ExecutionException | TimeoutException e) {
             disconnect();
+            e.printStackTrace();
             throw new InternetException();
         } finally {
             service.shutdown();
@@ -129,26 +128,21 @@ public class ClientHandler implements Runnable {
      */
     @Override
     public void run() {
-
         Message message;
-
         setInputAndOutput();
 
         while (connectedToClient) {
-
             try {
                 message = readMessage();
             } catch (InternetException e) {
                 return;
             }
-
             if (message.getMessageType() == MessageType.PING)
                 try {
                     sendMessageToClient(message);
                 } catch (InternetException e) {
                     return;
                 }
-
             else {
                 try {
                     messageReceiver.onMessageReceived(message, this);
@@ -165,7 +159,6 @@ public class ClientHandler implements Runnable {
     public void disconnect() {
         this.connectedToClient = false;
         messageReceiver.onDisconnect(UUID);
-
         try {
             dataInputStream.close();
             dataOutputStream.close();
@@ -181,16 +174,13 @@ public class ClientHandler implements Runnable {
      * Create clientHandler's OutputStream
      */
     private void setOutput() {
-
         Timer timer = new Timer();
-
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
                 disconnect();
             }
         }, 5000);
-
         try {
             outputStream = clientSocket.getOutputStream();
             dataOutputStream = new DataOutputStream(outputStream);
@@ -198,14 +188,12 @@ public class ClientHandler implements Runnable {
         } catch (IOException e) {
             disconnect();
         }
-
     }
 
     /**
      * Create clientHandler's InputStream
      */
     private void setInput() {
-
         Timer timer = new Timer();
 
         timer.schedule(new TimerTask() {
@@ -222,7 +210,6 @@ public class ClientHandler implements Runnable {
         } catch (IOException e) {
             disconnect();
         }
-
     }
 
     /**
@@ -238,35 +225,25 @@ public class ClientHandler implements Runnable {
      * @throws InternetException If connection is failed
      */
     private Message readMessage() throws InternetException {
-
-
         ExecutorService service = Executors.newSingleThreadExecutor();
-
         try {
             Callable<Message> r = new Callable() {
                 @Override
                 public Message call() throws IOException {
-
                     Message message = null;
-
                     String json = dataInputStream.readUTF();
-
                     try {
                         message = new MessageGsonBuilder().registerMessageAdapter().registerStudentContainerAdapter().getGsonBuilder().create().fromJson(json, Message.class);
                     } catch (JsonParseException e) {
                         disconnect();
                     }
-
                     if (UUID == null)
                         UUID = message.getUUID();
                     return message;
                 }
             };
-
             Future<Message> messageFuture = service.submit(r);
-
             messageFuture.get(2000, TimeUnit.MILLISECONDS);
-
             return messageFuture.get();
         } catch (final InterruptedException | ExecutionException | TimeoutException e) {
             if(!debugMode) disconnect();
@@ -276,6 +253,4 @@ public class ClientHandler implements Runnable {
         }
 
     }
-
-
 }

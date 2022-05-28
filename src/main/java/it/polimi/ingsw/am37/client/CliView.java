@@ -94,7 +94,7 @@ public class CliView extends AbstractView {
      */
     public void ifNonLocalhostAddress(String address) {
         if (!address.equals("localhost")) System.out.println(
-                " You have put an address different from \"localhost\", if this doesn't exists it will be considered " +
+                "You have put an address different from \"localhost\", if this doesn't exists it will be considered " +
                         "\"localhost\"");
     }
 
@@ -102,35 +102,35 @@ public class CliView extends AbstractView {
      * Method to notify if client or server has lost the connection
      */
     public void notifyInternetCrash() {
-        System.out.println(" Game has lost the connection, it tried to reconnect but it failed. Game is now closing ");
+        System.out.println("Game has lost the connection, it tried to reconnect but it failed. Game is now closing");
     }
 
     /**
      * Generic notification of an input error
      */
     public void wrongInsert() {
-        System.out.println(" You have written wrong parameters");
+        System.out.println("You have written wrong parameters");
     }
 
     /**
      * Notify when a number port is expected but another input was given
      */
     public void wrongInsertPort() {
-        System.out.println(" You haven't written a number as server's port");
+        System.out.println("You haven't written a number as server's port");
     }
 
     /**
      * Notify when a string between "cli" or "gui" was expected but another string was given
      */
     public void wrongInsertGraphics() {
-        System.out.println(" You had to choose between \"cli\" or \"gui\"");
+        System.out.println("You had to choose between \"cli\" or \"gui\"");
     }
 
     /**
      * Notify when requested server is unreachable
      */
     public void wrongServer() {
-        System.out.println(" This server is unreachable");
+        System.out.println("This server is unreachable");
     }
 
     /**
@@ -170,11 +170,11 @@ public class CliView extends AbstractView {
     public Client.ConnectionParameters askConnectionParameters() {
         Scanner scanner = new Scanner(System.in);
         while (true) {
-            System.out.print(" Write server's address or \"close game\": ");
+            System.out.print("Write server's address or \"close game\": ");
             String addressInput = scanner.nextLine().toLowerCase().trim().replaceAll(" +", " ");
             if (addressInput.equals("close game")) return null;
             ifNonLocalhostAddress(addressInput);
-            System.out.print(" Write server's port or \"close game\": ");
+            System.out.print("Write server's port or \"close game\": ");
             String portInput = scanner.nextLine().toLowerCase().trim().replaceAll(" +", " ");
             if (portInput.equals("close game")) return null;
             try {
@@ -192,20 +192,20 @@ public class CliView extends AbstractView {
      */
     public String chooseNickname() {
         Scanner scanner = new Scanner(System.in);
-        System.out.print(" Please insert a nickname or write \"close game\": ");
+        System.out.print("Please insert a nickname or write \"close game\": ");
         return scanner.nextLine().trim().replaceAll(" +", " ");
     }
 
     @Override
     public Client.LobbyParameters askLobbyParameters() {
         Boolean advancedRules = askConfirm(
-                " Please insert \"yes\" or \"no\" according if you want to play with advanced rules or write \"close " +
-                        "game\":");
+                "Please insert \"yes\" or \"no\" according if you want to play with advanced rules or write \"close " +
+                        "game\": ");
         if (advancedRules == null) return null;
         int numPlayers = 0;
         while (numPlayers != 2 && numPlayers != 3) {
-            System.out.print(" Please insert number of players you want in your match (yourself included), they can" +
-                    " be \"two\" or \"three\" \n. You can also write \"close game\": ");
+            System.out.print("Please insert number of players you want in your match (yourself included), they can" +
+                    " be \"two\" or \"three\". \nYou can also write \"close game\": ");
             String input = new Scanner(System.in).nextLine().trim().replaceAll(" +", " ");
             switch (input.toLowerCase()) {
                 case "two", "2" -> numPlayers = 2;
@@ -232,7 +232,7 @@ public class CliView extends AbstractView {
 
         while (true) {
 
-            System.out.print(" Please insert the value of your chosen assistant:");
+            System.out.print("Please insert the value of your chosen assistant: ");
 
             s = scanner.nextLine().trim().replaceAll(" +", " ");
 
@@ -246,8 +246,8 @@ public class CliView extends AbstractView {
             if (getReducedModel().getPlayers().get(client.getNickname()).getAssistantsDeck().containsKey(num))
                 return num;
             else if (getReducedModel().getPlayers().get(client.getNickname()).getAssistantsDeck().containsKey(num) &&
-                    num > 0 && num < 11) System.out.println(" You have already played this assistant");
-            else System.out.println(" You don't have this assistant");
+                    num > 0 && num < 11) System.out.println("You have already played this assistant");
+            else System.out.println("You don't have this assistant");
 
         }
     }
@@ -276,7 +276,7 @@ public class CliView extends AbstractView {
      * Tell player this input isn't ok for now
      */
     public void impossibleInputForNow() {
-        System.out.println(" You can't do it now, choose something else");
+        System.out.println("You can't do it now, choose something else");
     }
 
     /**
@@ -299,7 +299,7 @@ public class CliView extends AbstractView {
             System.out.println(" You have " + client.getTotalStudentsInTurn() + "left \n");
 
             response = new HashMap<>();
-            System.out.println(" Select the color of students you want to move, write \"R\" (red) or \"B\" (blue) or " +
+            System.out.println("Select the color of students you want to move, write \"R\" (red) or \"B\" (blue) or " +
                     "\"Y\" (yellow) or \"G\" (green) or \"P\" (pink) \n");
 
             s1 = scanner.nextLine().trim().replaceAll(" +", " ");
@@ -308,7 +308,6 @@ public class CliView extends AbstractView {
                 wrongInsert();
                 continue;
             }
-
 
             switch (s1) {
                 case "r" -> color = FactionColor.RED;
@@ -320,7 +319,7 @@ public class CliView extends AbstractView {
 
             response.put("color", color.toString());
 
-            System.out.println(" Write the number of student/s you want to move ");
+            System.out.println("Write the number of student/s you want to move ");
 
             s2 = scanner.nextLine().trim().replaceAll(" +", " ");
 
@@ -329,7 +328,7 @@ public class CliView extends AbstractView {
                 if (Integer.parseInt(s2) + client.getTotalStudentsInTurn() > 3 ||
                         getReducedModel().getBoards().get(client.getNickname()).getEntrance().getByColor(color) <
                                 Integer.parseInt(s2)) {
-                    System.out.println(" You don't have enough students of this color or you have moved too many " +
+                    System.out.println("You don't have enough students of this color or you have moved too many " +
                             "students, try again with other parameters");
                     continue;
                 }
@@ -342,7 +341,7 @@ public class CliView extends AbstractView {
 
             response.put("number", s2);
 
-            System.out.println(" Write now \"D\" if you want to move students from entrance to dining or \"I\" for " +
+            System.out.println("Write now \"D\" if you want to move students from entrance to dining or \"I\" for " +
                     "moving to one island \n");
 
             s3 = scanner.nextLine().trim().replaceAll(" +", " ");
@@ -360,7 +359,7 @@ public class CliView extends AbstractView {
 
             }
 
-            System.out.println(" Write now \"n\" where n is the number of island, available islands are: ");
+            System.out.println("Write now \"n\" where n is the number of island, available islands are: ");
             for (Island island : getReducedModel().getIslands())
                 System.out.println(" Island " + island.getIslandId());
 
@@ -396,7 +395,7 @@ public class CliView extends AbstractView {
         String response;
         int numResponse;
 
-        System.out.println(" Now choose your destination, available islands are :");
+        System.out.println("Now choose your destination, available islands are :");
         for (Island island : getReducedModel().getIslands())
             System.out.println(" Island " + island.getIslandId());
 
@@ -414,7 +413,7 @@ public class CliView extends AbstractView {
             for (Island island : getReducedModel().getIslands())
                 if (island.getIslandId() == numResponse) return numResponse;
 
-            System.out.println(" You have written an invalid Island, please try again: \n");
+            System.out.println("You have written an invalid Island, please try again: \n");
 
         }
 
@@ -428,7 +427,7 @@ public class CliView extends AbstractView {
         String response;
         Scanner scanner = new Scanner(System.in);
         showTable();
-        System.out.print(" Now choose a cloud to pick, number \"1\" or \"2\" or \"3\" :");
+        System.out.print("Now choose a cloud to pick, number \"1\" or \"2\" or \"3\":");
 
 
         while (true) {
@@ -449,28 +448,28 @@ public class CliView extends AbstractView {
      * @param nick nickname of player who has to play the current turn
      */
     public void hisTurn(String nick) {
-        System.out.println(" It's " + nick + "'s turn");
+        System.out.println("It's " + nick + "'s turn");
     }
 
     /**
      * Method used to tell the player he is waiting for the match
      */
     public void waitingMatch() {
-        System.out.println(" You are now waiting for the start of the game");
+        System.out.println("You are now waiting for the start of the game");
     }
 
     /**
      * Method to tell the player the game has begun
      */
     public void gameStarted() {
-        System.out.println(" Game is now stared");
+        System.out.println("Game is now stared");
     }
 
     /**
      * @param nick the winner player
      */
     public void printWinner(String nick) {
-        System.out.println(nick.toUpperCase() + " has won the game!!!");
+        System.out.println(nick.toUpperCase() + "has won the game!!!");
 
     }
 
@@ -517,7 +516,7 @@ public class CliView extends AbstractView {
      */
     public void showPlayersNicknames() {
 
-        System.out.println(" Players in this game are : ");
+        System.out.println("Players in this game are: ");
         for (String nickname : getReducedModel().getPlayers().keySet())
             System.out.println(nickname);
 
@@ -533,7 +532,7 @@ public class CliView extends AbstractView {
      */
     public void showConnection(Client client) {
 
-        System.out.println(" Your are current connected to: " + client.getAddress() + ":" + client.getPort());
+        System.out.println("Your are current connected to: " + client.getAddress() + ":" + client.getPort());
 
     }
 
@@ -541,28 +540,28 @@ public class CliView extends AbstractView {
      * Method used when an error message come from server
      */
     public void impossibleStudents() {
-        System.out.println(" You can't move these students \n");
+        System.out.println("You can't move these students \n");
     }
 
     /**
      * Method used when an error message come from server
      */
     public void impossibleMotherNature() {
-        System.out.println(" You can't move mother nature to that position \n");
+        System.out.println("You can't move mother nature to that position \n");
     }
 
     /**
      * Method used when an error message come from server
      */
     public void impossibleCloud() {
-        System.out.println(" You can't choose this cloud \n");
+        System.out.println("You can't choose this cloud \n");
     }
 
     /**
      * Method used when an error message come from server
      */
     public void impossibleCharacter() {
-        System.out.println(" You can't play a character now \n");
+        System.out.println("You can't play a character now \n");
     }
 
     /**
