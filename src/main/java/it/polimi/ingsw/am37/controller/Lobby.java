@@ -86,6 +86,12 @@ public class Lobby implements Runnable, MessageReceiver {
     private int numberOfStudentsMoved;
 
     /**
+     * It represents the timer that starts when there's only one Player in the Lobby.
+     */
+    private final Timer endGameTimer;
+
+
+    /**
      * Default constructor.
      */
     public Lobby(int lobbySize, boolean advancedMode, int matchID) {
@@ -99,6 +105,7 @@ public class Lobby implements Runnable, MessageReceiver {
         this.matchID = matchID;
         this.updateController = new UpdateController();
         this.disconnectedPlayers = new HashMap<>();
+        this.endGameTimer = new Timer();
         reset();
     }
 
@@ -244,9 +251,8 @@ public class Lobby implements Runnable, MessageReceiver {
      * When a message is received perform a specific action based on the Message type.
      *
      * @param message the Message received.
-     * @param ch      the ClientHandler that called the method.
      */
-    private void playAssistantCase(Message message, ClientHandler ch) {
+    private void playAssistantCase(Message message) {
         Message response;
         //Refill clouds if is the first player of the round
         if (Objects.equals(findUUIDByUsername(gameManager.getTurnManager().getOrderPlayed().get(0).getPlayerId()), message.getUUID())) {
@@ -260,6 +266,7 @@ public class Lobby implements Runnable, MessageReceiver {
         }
         HashMap<Integer, Assistant> deck = gameManager.getTurnManager().getCurrentPlayer().getAssistantsDeck();
         try {
+            //TODO: Se lancio errore, allora non mandare nextTurn, testa con due assistant uguali
             gameManager.playAssistant(deck.get(((PlayAssistantMessage) message).getCardValue()));
             response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(), message.getMessageType().getClassName());
             sendMessage(response);
@@ -423,7 +430,6 @@ public class Lobby implements Runnable, MessageReceiver {
      *
      * @param clientUUID the Client that wants to reconnect.
      */
-    @SuppressWarnings("OptionalGetWithoutIsPresent")
     public void onReconnect(String clientUUID) {
         //Forces the addition of the player who has reconnected to the list orderPlayed in GM
         Player playerToAdd = gameManager.getTurnManager().getPlayers().stream()
@@ -433,8 +439,11 @@ public class Lobby implements Runnable, MessageReceiver {
         ClientHandler clientToReconnect = disconnectedPlayers.get(clientUUID);
         players.put(clientUUID, clientToReconnect);
         disconnectedPlayers.remove(clientUUID);
+        endGameTimer.cancel();
 
         LOGGER.info("[Lobby " + matchID + "] " + playerNicknames.get(clientUUID) + " reconnected in the lobby");
+        LOGGER.debug("[Lobby " + matchID + "] The Players in the lobby now are: " + players.values());
+        LOGGER.debug("[Lobby " + matchID + "] Timer canceled");
     }
 
     /**
@@ -448,7 +457,7 @@ public class Lobby implements Runnable, MessageReceiver {
         switch (message.getMessageType()) {
             case PLAY_ASSISTANT -> {
                 LOGGER.info("[Lobby " + matchID + "] PlayAssistant Message received from: " + playerNicknames.get(message.getUUID()));
-                playAssistantCase(message, ch);
+                playAssistantCase(message);
             }
             case STUDENTS_TO_DINING -> {
                 LOGGER.info("[Lobby " + matchID + "] StudentsToDining Message received from: " + playerNicknames.get(message.getUUID()));
@@ -525,8 +534,27 @@ public class Lobby implements Runnable, MessageReceiver {
         ClientHandler clientToDisconnect = players.get(clientUUID);
         disconnectedPlayers.put(clientUUID, clientToDisconnect);
         players.remove(clientUUID);
-        LOGGER.info("[Lobby " + matchID + "] Disconnected " + playerNicknames.get(clientUUID) + " from the lobby " + matchID);
-
+        LOGGER.info("[Lobby " + matchID + "] Disconnected " + playerNicknames.get(clientUUID) + " from the lobby");
+        LOGGER.debug("[Lobby " + matchID + "] Remaining players in the lobby are: " + players.values());
         Server.server.onDisconnect(clientUUID);
+        Lobby lobby = this;
+        if (players.size() == 1) {
+            endGameTimer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    //TODO: new ResilienceMessage etc
+                    //sendMessage(message);
+                }
+            }, 500);
+            endGameTimer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    Message message = new EndGameMessage(players.keySet().stream().toList().get(0), playerNicknames.get(players.keySet().stream().toList().get(0)));
+                    sendMessage(message);
+                    Server.server.closeLobby(lobby);
+                    LOGGER.debug("[Lobby " + matchID + "] Timer started");
+                }
+            }, 300500);
+        }
     }
 }
