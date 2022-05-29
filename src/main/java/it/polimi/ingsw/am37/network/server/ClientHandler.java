@@ -104,9 +104,6 @@ public class ClientHandler implements Runnable {
             Callable<Object> r = new Callable() {
                 @Override
                 public Object call() throws IOException {
-                    System.out.println("dataInput: " + dataInputStream);
-                    System.out.println("dataOutput: " + dataOutputStream);
-                    System.out.println("json: " + json);
                     dataOutputStream.writeUTF(json);
                     dataOutputStream.flush();
                     return null;
