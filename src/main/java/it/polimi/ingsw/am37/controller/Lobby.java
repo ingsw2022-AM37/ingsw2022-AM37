@@ -15,6 +15,8 @@ import it.polimi.ingsw.am37.network.server.Server;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.Timer;
@@ -432,6 +434,7 @@ public class Lobby implements Runnable, MessageReceiver {
      */
     public void onReconnect(String clientUUID) {
         //Forces the addition of the player who has reconnected to the list orderPlayed in GM
+        Message message;
         Player playerToAdd = gameManager.getTurnManager().getPlayers().stream()
                 .filter(player -> findUUIDByUsername(player.getPlayerId()).equals(clientUUID)).findFirst().get();
         gameManager.getTurnManager().getOrderPlayed().add(playerToAdd);
@@ -440,6 +443,12 @@ public class Lobby implements Runnable, MessageReceiver {
         players.put(clientUUID, clientToReconnect);
         disconnectedPlayers.remove(clientUUID);
         endGameTimer.cancel();
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss z");
+        LocalDateTime date = LocalDateTime.now().plusMinutes(5);
+        String expiring = date.format(formatter);
+        message = new ResilienceMessage(false, playerNicknames.get(clientUUID), expiring);
+        sendMessage(message);
 
         LOGGER.info("[Lobby " + matchID + "] " + playerNicknames.get(clientUUID) + " reconnected in the lobby");
         LOGGER.debug("[Lobby " + matchID + "] The Players in the lobby now are: " + players.values());
@@ -492,7 +501,7 @@ public class Lobby implements Runnable, MessageReceiver {
     @Override
     public void sendMessage(Message message) throws InternetException {
         switch (message.getMessageType()) {
-            case NEXT_TURN, START_GAME, UPDATE -> {
+            case NEXT_TURN, START_GAME, RESILIENCE, UPDATE -> {
                 for (ClientHandler ch : players.values()) {
                     ch.sendMessageToClient(message);
                     LOGGER.info("[Lobby " + matchID + "] Sent " + message.getMessageType().getClassName() + " to " + playerNicknames.get(ch.getUUID()));
@@ -542,8 +551,11 @@ public class Lobby implements Runnable, MessageReceiver {
             endGameTimer.schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    //TODO: new ResilienceMessage etc
-                    //sendMessage(message);
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss z");
+                    LocalDateTime date = LocalDateTime.now().plusMinutes(5);
+                    String expiring = date.format(formatter);
+                    Message message = new ResilienceMessage(false, playerNicknames.get(clientUUID), expiring);
+                    sendMessage(message);
                 }
             }, 500);
             endGameTimer.schedule(new TimerTask() {
