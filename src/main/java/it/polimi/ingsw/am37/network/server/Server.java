@@ -22,7 +22,7 @@ import java.util.TimerTask;
 public class Server implements MessageReceiver {
 
     /**
-     *
+     * singleton server
      */
     public static Server server;
 
