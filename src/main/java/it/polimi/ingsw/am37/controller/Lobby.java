@@ -16,6 +16,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Objects;
@@ -268,13 +269,14 @@ public class Lobby implements Runnable, MessageReceiver {
         }
         HashMap<Integer, Assistant> deck = gameManager.getTurnManager().getCurrentPlayer().getAssistantsDeck();
         try {
-            //TODO: Se lancio errore, allora non mandare nextTurn, testa con due assistant uguali
             gameManager.playAssistant(deck.get(((PlayAssistantMessage) message).getCardValue()));
             response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(), message.getMessageType().getClassName());
             sendMessage(response);
-            if (Objects.equals(findUUIDByUsername(gameManager.getTurnManager().getOrderPlayed().get(gameManager.getTurnManager().getOrderPlayed().size() - 1).getPlayerId()), message.getUUID()))
+            //FIXME: Bugged se giochi una carta bassa per secondo
+            if (Objects.equals(findUUIDByUsername(gameManager.getTurnManager().getOrderPlayed().get(gameManager.getTurnManager().getOrderPlayed().size() - 1).getPlayerId()), message.getUUID())) {
+                gameManager.nextTurn();
                 response = new NextTurnMessage(findUUIDByUsername(gameManager.getTurnManager().getCurrentPlayer().getPlayerId()), gameManager.getTurnManager().getCurrentPlayer().getPlayerId());
-            else {
+            } else {
                 response = new PlanningPhaseMessage(findUUIDByUsername(gameManager.getTurnManager().getCurrentPlayer().getPlayerId()));
             }
             sendMessage(response);
@@ -282,6 +284,8 @@ public class Lobby implements Runnable, MessageReceiver {
             LOGGER.error("[Lobby " + matchID + "] Assistant impossible to play");
             LOGGER.error("[Lobby " + matchID + "]\n" + e.getMessage());
             response = new ErrorMessage(message.getUUID(), e.getMessage());
+            sendMessage(response);
+            response = new PlanningPhaseMessage(findUUIDByUsername(gameManager.getTurnManager().getCurrentPlayer().getPlayerId()));
             sendMessage(response);
         }
     }
@@ -360,6 +364,7 @@ public class Lobby implements Runnable, MessageReceiver {
             } catch (MNmovementWrongException e) {
                 response = new ErrorMessage(message.getUUID(), e.getMessage());
                 sendMessage(response);
+                //FIXME: Se riceve messaggio di errore CLI non lo fa richiedere (solo al secondo spostamento di studenti).
             }
         } else
             ch.disconnect();
@@ -417,9 +422,9 @@ public class Lobby implements Runnable, MessageReceiver {
             ch = newCh;
         }
         if (ch.isConnectedToClient()) {
-            if (!Objects.equals(findUUIDByUsername(gameManager.getTurnManager().getOrderPlayed().get(gameManager.getTurnManager().getOrderPlayed().size() - 1).getPlayerId()), message.getUUID()))
+            if (!Objects.equals(findUUIDByUsername(gameManager.getTurnManager().getOrderPlayed().get(gameManager.getTurnManager().getOrderPlayed().size() - 1).getPlayerId()), message.getUUID())) {
                 response = new NextTurnMessage(findUUIDByUsername(gameManager.getTurnManager().getCurrentPlayer().getPlayerId()), gameManager.getTurnManager().getCurrentPlayer().getPlayerId());
-            else {
+            } else {
                 response = new PlanningPhaseMessage(findUUIDByUsername(gameManager.getTurnManager().getCurrentPlayer().getPlayerId()));
                 gameManager.getTurnManager().getAssistantPlayed().clear();
             }
@@ -471,10 +476,12 @@ public class Lobby implements Runnable, MessageReceiver {
             case STUDENTS_TO_DINING -> {
                 LOGGER.info("[Lobby " + matchID + "] StudentsToDining Message received from: " + playerNicknames.get(message.getUUID()));
                 studentsToDining(message, ch);
+                //FIXME client non fa andare avanti se gioco questo messaggio (non c'è nella CLI la possibilità di 8 gioca MN)
             }
             case STUDENTS_TO_ISLAND -> {
                 LOGGER.info("[Lobby " + matchID + "] StudentsToIsland Message received from: " + playerNicknames.get(message.getUUID()));
                 studentsToIslandCase(message, ch);
+                //FIXME CHECK CONQUEROR lancia un'eccezione molto spesso (riga 259 del metodo) se si spostano degli studenti su delle isole e poi si sposta madre natura
             }
             case MOVE_MOTHER_NATURE -> {
                 LOGGER.info("[Lobby " + matchID + "] MoveMotherNature Message received from: " + playerNicknames.get(message.getUUID()));
@@ -487,6 +494,7 @@ public class Lobby implements Runnable, MessageReceiver {
             case CHOOSE_CLOUD -> {
                 LOGGER.info("[Lobby " + matchID + "] ChooseCloud Message received from: " + playerNicknames.get(message.getUUID()));
                 chooseCloudCase(message, ch);
+                //FIXME Nella cli se scelgo la cloud non manda il messaggio, non posso testare il nextTurn
             }
             default -> {
                 LOGGER.error("[Lobby " + matchID + "] Unexpected value: " + message.getMessageType());
@@ -544,7 +552,7 @@ public class Lobby implements Runnable, MessageReceiver {
         disconnectedPlayers.put(clientUUID, clientToDisconnect);
         players.remove(clientUUID);
         LOGGER.info("[Lobby " + matchID + "] Disconnected " + playerNicknames.get(clientUUID) + " from the lobby");
-        LOGGER.debug("[Lobby " + matchID + "] Remaining players in the lobby are: " + players.values());
+        LOGGER.debug("[Lobby " + matchID + "] Remaining players in the lobby are: " + playerNicknames.values());
         Server.server.onDisconnect(clientUUID);
         Lobby lobby = this;
         if (players.size() == 1) {
@@ -552,7 +560,7 @@ public class Lobby implements Runnable, MessageReceiver {
                 @Override
                 public void run() {
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss z");
-                    LocalDateTime date = LocalDateTime.now().plusMinutes(5);
+                    ZonedDateTime date = ZonedDateTime.now().plusMinutes(5);
                     String expiring = date.format(formatter);
                     Message message = new ResilienceMessage(false, playerNicknames.get(clientUUID), expiring);
                     sendMessage(message);

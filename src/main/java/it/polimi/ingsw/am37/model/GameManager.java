@@ -277,6 +277,7 @@ public class GameManager {
     public void nextTurn() {
         synchronized (lock) {
             turnManager.nextTurn();
+            turnManager.setCurrentPlayer(turnManager.getOrderPlayed().get(0));
             islandsManager.setCurrentPlayer(turnManager.getCurrentPlayer());
         }
     }

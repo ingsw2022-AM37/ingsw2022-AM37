@@ -380,7 +380,7 @@ public class TurnManager {
         if (orderPlayed.indexOf(currentPlayer) != orderPlayed.size() - 1)
             setCurrentPlayer(orderPlayed.get(orderPlayed.indexOf(currentPlayer) + 1));
         else {
-            nextTurn();
+            //nextTurn();
         }
     }
 
@@ -407,6 +407,5 @@ public class TurnManager {
                 return assistantPlayed.get(p1).getCardValue() - assistantPlayed.get(p2).getCardValue();
             }
         }).toList());
-        setCurrentPlayer(orderPlayed.get(0));
     }
 }
