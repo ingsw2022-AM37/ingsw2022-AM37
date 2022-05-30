@@ -57,6 +57,10 @@ public class Client {
      */
     private final Properties savedProperties;
     /**
+     *
+     */
+    private final Properties messagesConstants;
+    /**
      * Client identifier
      */
     private final String UUID;
@@ -104,6 +108,12 @@ public class Client {
         boolean resilienceUsable = false;
         status = ClientStatus.LOGIN;
         savedProperties = new Properties();
+        messagesConstants = new Properties();
+        try {
+            messagesConstants.load(getClass().getResourceAsStream("messages.properties"));
+        } catch (IOException e) {
+            System.err.println("Unable to find messages file");
+        }
         if (!disabledResilience) {
             try {
                 savedProperties.load(new FileInputStream(resilienceFilePath));
@@ -157,7 +167,7 @@ public class Client {
                 .contains(Integer.parseInt(savedProperties.getProperty(P_LOBBY_KEY, "-1")))) {
             this.nickname = savedProperties.getProperty(P_NICKNAME_KEY);
             if (!Objects.equals(UUID, savedProperties.getProperty(P_UUID_KEY)) || this.nickname == null)
-                System.err.println("Impossible to use resilience");
+                view.displayError("Impossible to use resilience");
             else {
                 sendLoginMessage(UUID, nickname);
                 if (onMessage()) {
@@ -170,7 +180,7 @@ public class Client {
             chooseNickname();
             chooseLobby();
         }
-        view.waitingMatch();
+        view.displayImportant(messagesConstants.getProperty("i.waitingStart"));
         if(!disabledResilience){
             try (OutputStream stream = new FileOutputStream(resilienceFilePath)) {
                 savedProperties.store(stream,
@@ -404,7 +414,7 @@ public class Client {
             throw new RuntimeException(e);
         }
 
-        view.gameStarted();
+        view.displayImportant(messagesConstants.getProperty("i.gameStart"));
 
         status = ClientStatus.WAITINGFORTURN;
         while (socket.isConnectedToServer()) {
@@ -428,26 +438,26 @@ public class Client {
                     if (actionOk && totalStudentsInTurn == 3) {
                         status = ClientStatus.MOVINGMOTHERNATURE;
                         totalStudentsInTurn = 0;
-                    } else if (!actionOk) view.impossibleStudents();
+                    } else if (!actionOk) view.displayError("e.impossibleStudents");
                 }
                 case MOVE_MOTHER_NATURE -> {
                     if (moveMotherNature()) status = ClientStatus.CHOOSINGCLOUD;
-                    else view.impossibleMotherNature();
+                    else view.displayError("e.impossibleMotherNature");
                 }
                 case CHOOSE_CLOUD -> {
                     if (chooseCloud()) {
                         System.out.println("You have finished your turn");
                         status = ClientStatus.WAITINGFORTURN;
-                    } else view.impossibleCloud();
+                    } else view.displayError("e.impossibleCloud");
                 }
                 case PLAY_ASSISTANT -> {
                     if (playAssistant()) status = ClientStatus.WAITINGFORTURN;
-                    else view.impossibleAssistant();
+                    else view.displayError(messagesConstants.getProperty("e.impossibleAssistant"));
                 }
                 case PLAY_CHARACTER -> //TODO implements logic and remove exception
-                        view.impossibleInputForNow();
+                        view.displayError("e.impossibleAction");
                 default -> {
-                    view.impossibleInputForNow();
+                    view.displayError("e.impossibleAction");
                     try {
                         Thread.sleep(5000);
                     } catch (InterruptedException e) {

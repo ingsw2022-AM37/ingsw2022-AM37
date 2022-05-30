@@ -102,43 +102,6 @@ public abstract class AbstractView {
     public abstract void hisTurn(String nick);
 
     /**
-     * This method notifies a warning sign when a non localhost address is provided
-     *
-     * @param address Address written by the player during connection to server
-     */
-    public abstract void ifNonLocalhostAddress(String address);
-
-    /**
-     * Method used when an error message come from server
-     */
-    public abstract void impossibleAssistant();
-
-    /**
-     * Method used when an error message come from server
-     */
-    public abstract void impossibleCharacter();
-
-    /**
-     * Method used when an error message come from server
-     */
-    public abstract void impossibleCloud();
-
-    /**
-     * Tell player this input isn't ok for now
-     */
-    public abstract void impossibleInputForNow();
-
-    /**
-     * Method used when an error message come from server
-     */
-    public abstract void impossibleMotherNature();
-
-    /**
-     * Method used when an error message come from server
-     */
-    public abstract void impossibleStudents();
-
-    /**
      * Method to notify if client or server has lost the connection
      */
     public abstract void notifyInternetCrash();
@@ -221,4 +184,10 @@ public abstract class AbstractView {
      * Tell the player it's his turn
      */
     public abstract void yourTurn();
+
+    public abstract void displayInfo(String message);
+
+    public abstract void displayImportant(String message);
+
+    public abstract void displayError(String message);
 }

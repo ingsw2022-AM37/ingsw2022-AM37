@@ -118,64 +118,6 @@ public class GuiView extends AbstractView {
     }
 
     /**
-     * This method notifies a warning sign when a non localhost address is provided
-     *
-     * @param address Address written by the player during connection to server
-     */
-    @Override
-    public void ifNonLocalhostAddress(String address) {
-
-    }
-
-    /**
-     * Method used when an error message come from server
-     */
-    @Override
-    public void impossibleAssistant() {
-
-    }
-
-    /**
-     * Method used when an error message come from server
-     */
-    @Override
-    public void impossibleCharacter() {
-
-    }
-
-    /**
-     * Method used when an error message come from server
-     */
-    @Override
-    public void impossibleCloud() {
-
-    }
-
-    /**
-     * Tell player this input isn't ok for now
-     */
-    @Override
-    public void impossibleInputForNow() {
-
-    }
-
-    /**
-     * Method used when an error message come from server
-     */
-    @Override
-    public void impossibleMotherNature() {
-
-    }
-
-    /**
-     * Method used when an error message come from server
-     */
-    @Override
-    public void impossibleStudents() {
-
-    }
-
-    /**
      * Method to notify if client or server has lost the connection
      */
     @Override
@@ -301,6 +243,21 @@ public class GuiView extends AbstractView {
      */
     @Override
     public void yourTurn() {
+
+    }
+
+    @Override
+    public void displayInfo(String message) {
+
+    }
+
+    @Override
+    public void displayImportant(String message) {
+
+    }
+
+    @Override
+    public void displayError(String message) {
 
     }
 }

@@ -9,6 +9,7 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.Scanner;
 
 import static org.fusesource.jansi.Ansi.ansi;
@@ -21,6 +22,7 @@ public class CliView extends AbstractView {
     public CliView() {
         AnsiConsole.systemInstall();
         Runtime.getRuntime().addShutdownHook(new Thread(AnsiConsole::systemUninstall));
+        System.setOut(new PrintStream(System.out, true, StandardCharsets.UTF_8));
     }
 
     /**
@@ -85,17 +87,6 @@ public class CliView extends AbstractView {
                 "\t students: " + ansi().render(character.getState().getContainer().getStudentsAsString()));
         else if (character.getState().getNoEntryTiles() != EffectHandler.DEFAULT_NOENTRYTILES)
             System.out.print("\t no entry tales: " + character.getState().getNoEntryTiles());
-    }
-
-    /**
-     * This method notifies if address is unknown
-     *
-     * @param address Address written by the player during connection to server
-     */
-    public void ifNonLocalhostAddress(String address) {
-        if (!address.equals("localhost")) System.out.println(
-                "You have put an address different from \"localhost\", if this doesn't exists it will be considered " +
-                        "\"localhost\"");
     }
 
     /**
@@ -173,7 +164,7 @@ public class CliView extends AbstractView {
             System.out.print("Write server's address or \"close game\": ");
             String addressInput = scanner.nextLine().toLowerCase().trim().replaceAll(" +", " ");
             if (addressInput.equals("close game")) return null;
-            ifNonLocalhostAddress(addressInput);
+            if(!Objects.equals(addressInput.toLowerCase(), "localhost")) displayImportant("i.notLocalhost");
             System.out.print("Write server's port or \"close game\": ");
             String portInput = scanner.nextLine().toLowerCase().trim().replaceAll(" +", " ");
             if (portInput.equals("close game")) return null;
@@ -270,13 +261,6 @@ public class CliView extends AbstractView {
         } catch (IndexOutOfBoundsException | NumberFormatException e) {
             return ActionType.SHOW_MENU;
         }
-    }
-
-    /**
-     * Tell player this input isn't ok for now
-     */
-    public void impossibleInputForNow() {
-        System.out.println("You can't do it now, choose something else");
     }
 
     /**
@@ -444,6 +428,21 @@ public class CliView extends AbstractView {
         System.out.println("\nIt's your turn. Please press enter to proceed...");
     }
 
+    @Override
+    public void displayInfo(String message) {
+        System.out.println(ansi().fgDefault().render(message));
+    }
+
+    @Override
+    public void displayImportant(String message) {
+        System.out.println(ansi().fgYellow().render(message));
+    }
+
+    @Override
+    public void displayError(String message) {
+        System.out.println(ansi().fgRed().render(message));
+    }
+
     /**
      * @param nick nickname of player who has to play the current turn
      */
@@ -479,13 +478,6 @@ public class CliView extends AbstractView {
     public void askCharacter() {
         //TODO BISOGNA CHIEDERE CHE PERSONAGGIO VUOLE USARE E FARLO TORNARE INDIETRO, FORSE CON LA ENUM??
         //BIOSGNA SICURAMENTE TOGLIERE IL VOID
-    }
-
-    /**
-     * Method used when an error message come from server
-     */
-    public void impossibleAssistant() {
-        System.out.println("You can't play this assistant now, try another one");
     }
 
     /**
@@ -537,39 +529,10 @@ public class CliView extends AbstractView {
     }
 
     /**
-     * Method used when an error message come from server
-     */
-    public void impossibleStudents() {
-        System.out.println("You can't move these students \n");
-    }
-
-    /**
-     * Method used when an error message come from server
-     */
-    public void impossibleMotherNature() {
-        System.out.println("You can't move mother nature to that position \n");
-    }
-
-    /**
-     * Method used when an error message come from server
-     */
-    public void impossibleCloud() {
-        System.out.println("You can't choose this cloud \n");
-    }
-
-    /**
-     * Method used when an error message come from server
-     */
-    public void impossibleCharacter() {
-        System.out.println("You can't play a character now \n");
-    }
-
-    /**
      * This function draw the current status of the table for all players point of view: draw all islands and clouds
      */
     @Override
     public void showTable() {
-        System.setOut(new PrintStream(System.out, true, StandardCharsets.UTF_8));
         for (Island island : reducedModel.getIslands()) {
             drawIsland(island);
         }
