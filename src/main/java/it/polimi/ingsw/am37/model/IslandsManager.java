@@ -2,7 +2,6 @@ package it.polimi.ingsw.am37.model;
 
 import it.polimi.ingsw.am37.model.character.State;
 import it.polimi.ingsw.am37.model.exceptions.MNmovementWrongException;
-import it.polimi.ingsw.am37.model.exceptions.NoIslandConquerorException;
 import it.polimi.ingsw.am37.model.student_container.FixedUnlimitedStudentsContainer;
 
 import java.util.ArrayList;
@@ -200,9 +199,8 @@ public class IslandsManager {
      * @param island  The island in the array we are looking to
      * @param players It's the ArrayList of all players, it gives the access to all boards
      * @return The player who conquered the island
-     * @throws NoIslandConquerorException If there isn't a new conqueror due to a draw between the two possible winners
      */
-    public Player checkConqueror(Island island, ArrayList<Player> players) throws NoIslandConquerorException {
+    public void checkConqueror(Island island, ArrayList<Player> players) {
 
         HashMap<Player, Integer> playerPower = new HashMap<>();
         boolean[] controlledProf;
@@ -220,7 +218,7 @@ public class IslandsManager {
         if (island.getNoEntryTile() > 0) {
             island.removeNoEntryTile();
             this.stateCharacterNoEntryTile.setNoEntryTiles(this.stateCharacterNoEntryTile.getNoEntryTiles() + 1);
-            return null;
+            return;
         }
 
         for (Player player : players) {
@@ -247,7 +245,7 @@ public class IslandsManager {
                     max2 = playerPower.get(player);
             }
             if (max1 == max2)
-                throw new NoIslandConquerorException();
+                return;
 
             for (Player player : players)
                 if (playerPower.get(player) > numStudentsControlling) {
@@ -270,7 +268,7 @@ public class IslandsManager {
             }
             if (max1 == max2 && max1 > playerPower.get(island.getCurrentConqueror()) + (this.noTowerFlag ? 0 :
                     island.getNumIslands()) && playerMax1.getBoard().getTowers().getCurrentTower() != island.getCurrentTower() && playerMax2.getBoard().getTowers().getCurrentTower() != island.getCurrentTower())
-                throw new NoIslandConquerorException();
+                return;
 
             numStudentsControlling = playerPower.get(island.getCurrentConqueror());
             exConqueror = island.getCurrentConqueror();
@@ -290,7 +288,7 @@ public class IslandsManager {
 
         island.setTower(island.getCurrentConqueror().getBoard().getTowers().getCurrentTower());
 
-        return island.getCurrentConqueror();
+        return;
 
     }
 

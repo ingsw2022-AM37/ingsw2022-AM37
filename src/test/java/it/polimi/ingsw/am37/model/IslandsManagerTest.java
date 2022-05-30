@@ -1,7 +1,6 @@
 package it.polimi.ingsw.am37.model;
 
 import it.polimi.ingsw.am37.model.exceptions.MNmovementWrongException;
-import it.polimi.ingsw.am37.model.exceptions.NoIslandConquerorException;
 import it.polimi.ingsw.am37.model.student_container.FixedUnlimitedStudentsContainer;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -229,14 +228,13 @@ class IslandsManagerTest {
         islandsManager.setCurrentPlayer(players.get(0));
 
 
-        player = islandsManager.checkConqueror(islandsManager.getIslands().get(0), players);
+        islandsManager.checkConqueror(islandsManager.getIslands().get(0), players);
 
-        assertEquals(players.get(1), player);
         assertEquals(TowerColor.GRAY, island.getCurrentTower());
 
-        player = islandsManager.checkConqueror(islandsManager.getIslands().get(0), players);
+        islandsManager.checkConqueror(islandsManager.getIslands().get(0), players);
 
-        assertEquals(players.get(1), player);
+
         assertEquals(TowerColor.GRAY, island.getCurrentTower());
         int q = players.get(0).getBoard().getTowers().getCurrentSize();
         assertEquals(8, q);
@@ -252,9 +250,8 @@ class IslandsManagerTest {
         v = players.get(1).getBoard().getTowers().getCurrentSize();
         assertEquals(7, v);
 
-        player = islandsManager.checkConqueror(islandsManager.getIslands().get(0), players);
+        islandsManager.checkConqueror(islandsManager.getIslands().get(0), players);
 
-        assertEquals(players.get(0), player);
         assertEquals(TowerColor.BLACK, island.getCurrentTower());
         q = players.get(0).getBoard().getTowers().getCurrentSize();
         assertEquals(7, q);
@@ -292,7 +289,8 @@ class IslandsManagerTest {
         Island island = new Island(students, 0);
         islandsManager.getIslands().add(0, island);
 
-        assertThrows(NoIslandConquerorException.class, () -> islandsManager.checkConqueror(islandsManager.getIslands().get(0), players));
+        islandsManager.checkConqueror(islandsManager.getIslands().get(0), players);
+        assertEquals(TowerColor.NONE, islandsManager.getIslands().get(0).getCurrentTower());
 
         players.get(0).getBoard().addProf(FactionColor.BLUE);
         players.get(0).getBoard().addProf(FactionColor.RED);
@@ -304,9 +302,8 @@ class IslandsManagerTest {
         int h = players.get(2).getBoard().getTowers().getCurrentSize();
         assertEquals(6, h);
 
-        player = islandsManager.checkConqueror(islandsManager.getIslands().get(0), players);
+        islandsManager.checkConqueror(islandsManager.getIslands().get(0), players);
 
-        assertEquals(players.get(0), player);
         assertEquals(TowerColor.BLACK, island.getCurrentTower());
 
         n = players.get(0).getBoard().getTowers().getCurrentSize();
@@ -321,9 +318,8 @@ class IslandsManagerTest {
         players.get(0).getBoard().removeProf(FactionColor.RED);
         players.get(2).getBoard().addProf(FactionColor.RED);
 
-        player = islandsManager.checkConqueror(islandsManager.getIslands().get(0), players);
+        islandsManager.checkConqueror(islandsManager.getIslands().get(0), players);
 
-        assertEquals(players.get(0), player);
         assertEquals(TowerColor.BLACK, island.getCurrentTower());
 
         n = players.get(0).getBoard().getTowers().getCurrentSize();
@@ -336,9 +332,8 @@ class IslandsManagerTest {
         players.get(0).getBoard().removeProf(FactionColor.GREEN);
         players.get(2).getBoard().addProf(FactionColor.GREEN);
 
-        player = islandsManager.checkConqueror(islandsManager.getIslands().get(0), players);
+        islandsManager.checkConqueror(islandsManager.getIslands().get(0), players);
 
-        assertEquals(players.get(2), player);
         assertEquals(TowerColor.WHITE, island.getCurrentTower());
 
         n = players.get(0).getBoard().getTowers().getCurrentSize();
@@ -412,9 +407,8 @@ class IslandsManagerTest {
         players.get(1).getBoard().addProf(FactionColor.PINK);
         players.get(2).getBoard().addProf(FactionColor.YELLOW);
 
-        player = islandsManager.checkConqueror(islandsManager.getIslands().get(2), players);
+        islandsManager.checkConqueror(islandsManager.getIslands().get(2), players);
 
-        assertEquals(players.get(2), player);
         assertEquals(TowerColor.WHITE, islandsManager.getIslands().get(2).getCurrentTower());
 
         int n = players.get(0).getBoard().getTowers().getCurrentSize();
@@ -424,33 +418,33 @@ class IslandsManagerTest {
         int h = players.get(2).getBoard().getTowers().getCurrentSize();
         assertEquals(5, h);
 
-        assertThrows(NoIslandConquerorException.class, () -> islandsManager.checkConqueror(islandsManager.getIslands().get(1), players));
-        assertThrows(NoIslandConquerorException.class, () -> islandsManager.checkConqueror(islandsManager.getIslands().get(3), players));
+        islandsManager.checkConqueror(islandsManager.getIslands().get(1), players);
+        assertEquals(TowerColor.NONE, islandsManager.getIslands().get(1).getCurrentTower());
+        islandsManager.checkConqueror(islandsManager.getIslands().get(3), players);
+        assertEquals(TowerColor.NONE, islandsManager.getIslands().get(3).getCurrentTower());
 
         players.get(1).getBoard().addProf(FactionColor.BLUE);
-        player = islandsManager.checkConqueror(islandsManager.getIslands().get(3), players);
-        assertEquals(players.get(1), player);
+        islandsManager.checkConqueror(islandsManager.getIslands().get(3), players);
+        assertEquals(TowerColor.GRAY, islandsManager.getIslands().get(3).getCurrentTower());
 
         islandsManager.uniteIfPossible(islandsManager.getIslands().get(3));
         assertEquals(1, islandsManager.getIslands().get(3).getNumIslands());
 
         players.get(1).getBoard().addProf(FactionColor.RED);
-        player = islandsManager.checkConqueror(islandsManager.getIslands().get(2), players);
-        assertEquals(players.get(2), player);
+        islandsManager.checkConqueror(islandsManager.getIslands().get(2), players);
+        assertEquals(TowerColor.GRAY, islandsManager.getIslands().get(3).getCurrentTower());
 
         players.get(2).getBoard().removeProf(FactionColor.YELLOW);
         players.get(1).getBoard().removeProf(FactionColor.BLUE);
-        assertThrows(NoIslandConquerorException.class, () -> islandsManager.checkConqueror(islandsManager.getIslands().get(2), players));
+        islandsManager.checkConqueror(islandsManager.getIslands().get(2), players);
         assertEquals(TowerColor.WHITE, islandsManager.getIslands().get(2).getCurrentTower());
 
         players.get(1).getBoard().addProf(FactionColor.BLUE);
 
-        player = islandsManager.checkConqueror(islandsManager.getIslands().get(2), players);
-        assertEquals(players.get(1), player);
+        islandsManager.checkConqueror(islandsManager.getIslands().get(2), players);
         assertEquals(TowerColor.GRAY, islandsManager.getIslands().get(2).getCurrentTower());
 
-        player = islandsManager.checkConqueror(islandsManager.getIslands().get(0), players);
-        assertEquals(players.get(1), player);
+        islandsManager.checkConqueror(islandsManager.getIslands().get(0), players);
         assertEquals(TowerColor.GRAY, islandsManager.getIslands().get(0).getCurrentTower());
 
         islandsManager.uniteIfPossible(islandsManager.getIslands().get(2));
@@ -458,14 +452,13 @@ class IslandsManagerTest {
         players.get(1).getBoard().removeProf(FactionColor.BLUE);
         players.get(0).getBoard().addProf(FactionColor.BLUE);
 
-        player = islandsManager.checkConqueror(islandsManager.getIslands().get(2), players);
-        assertEquals(players.get(1), player);
-
+        islandsManager.checkConqueror(islandsManager.getIslands().get(2), players);
+        assertEquals(TowerColor.GRAY, islandsManager.getIslands().get(0).getCurrentTower());
         players.get(0).getBoard().removeProf(FactionColor.GREEN);
         players.get(0).getBoard().addProf(FactionColor.YELLOW);
 
-        player = islandsManager.checkConqueror(islandsManager.getIslands().get(2), players);
-        assertEquals(players.get(0), player);
+        islandsManager.checkConqueror(islandsManager.getIslands().get(2), players);
+        assertEquals(TowerColor.BLACK, islandsManager.getIslands().get(2).getCurrentTower());
 
         assertEquals(TowerColor.GRAY, islandsManager.getIslands().get(0).getCurrentTower());
         assertEquals(TowerColor.NONE, islandsManager.getIslands().get(1).getCurrentTower());
@@ -622,33 +615,34 @@ class IslandsManagerTest {
         players.get(0).getBoard().addProf(FactionColor.BLUE);
         players.get(1).getBoard().addProf(FactionColor.PINK);
 
-        assertThrows(NoIslandConquerorException.class, () -> islandsManager.checkConqueror(island, players));
+        islandsManager.checkConqueror(island, players);
+        assertEquals(TowerColor.NONE, islandsManager.getIslands().get(0).getCurrentTower());
 
         islandsManager.setDisabledColorFlag(FactionColor.BLUE);
-        winner = islandsManager.checkConqueror(island, players);
-        assertEquals(players.get(1), winner);
+        islandsManager.checkConqueror(island, players);
+        assertEquals(players.get(1).getBoard().getTowers().getCurrentTower(), islandsManager.getIslands().get(0).getCurrentTower());
 
         islandsManager.resetFlags();
-        winner = islandsManager.checkConqueror(island, players);
-        assertEquals(players.get(1), winner);
+        islandsManager.checkConqueror(island, players);
+        assertEquals(players.get(1).getBoard().getTowers().getCurrentTower(), islandsManager.getIslands().get(0).getCurrentTower());
         assertEquals(TowerColor.WHITE, island.getCurrentTower());
 
         islandsManager.setPowerBonusFlag(1);
-        winner = islandsManager.checkConqueror(island, players);
-        assertEquals(players.get(1), winner);
+        islandsManager.checkConqueror(island, players);
+        assertEquals(players.get(1).getBoard().getTowers().getCurrentTower(), islandsManager.getIslands().get(0).getCurrentTower());
         assertEquals(TowerColor.WHITE, island.getCurrentTower());
 
         islandsManager.resetFlags();
         islandsManager.setPowerBonusFlag(2);
-        winner = islandsManager.checkConqueror(island, players);
-        assertEquals(players.get(0), winner);
+        islandsManager.checkConqueror(island, players);
+        assertEquals(players.get(0).getBoard().getTowers().getCurrentTower(), islandsManager.getIslands().get(0).getCurrentTower());
         assertEquals(TowerColor.BLACK, island.getCurrentTower());
 
         players.get(2).getBoard().addProf(FactionColor.GREEN);
 
         islandsManager.setNoTowerFlag();
-        winner = islandsManager.checkConqueror(island, players);
-        assertEquals(players.get(2), winner);
+        islandsManager.checkConqueror(island, players);
+        assertEquals(players.get(2).getBoard().getTowers().getCurrentTower(), islandsManager.getIslands().get(0).getCurrentTower());
         assertEquals(TowerColor.GRAY, island.getCurrentTower());
         assertEquals(5, players.get(2).getBoard().getTowers().getCurrentSize());
 
