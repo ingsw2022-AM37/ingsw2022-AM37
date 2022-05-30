@@ -272,8 +272,7 @@ public class Lobby implements Runnable, MessageReceiver {
             gameManager.playAssistant(deck.get(((PlayAssistantMessage) message).getCardValue()));
             response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(), message.getMessageType().getClassName());
             sendMessage(response);
-            //FIXME: Bugged se giochi una carta bassa per secondo
-            if (Objects.equals(findUUIDByUsername(gameManager.getTurnManager().getOrderPlayed().get(gameManager.getTurnManager().getOrderPlayed().size() - 1).getPlayerId()), message.getUUID())) {
+            if (isLastPlayerInOrder(message.getUUID())) {
                 gameManager.nextTurn();
                 response = new NextTurnMessage(findUUIDByUsername(gameManager.getTurnManager().getCurrentPlayer().getPlayerId()), gameManager.getTurnManager().getCurrentPlayer().getPlayerId());
             } else {
@@ -422,7 +421,7 @@ public class Lobby implements Runnable, MessageReceiver {
             ch = newCh;
         }
         if (ch.isConnectedToClient()) {
-            if (!Objects.equals(findUUIDByUsername(gameManager.getTurnManager().getOrderPlayed().get(gameManager.getTurnManager().getOrderPlayed().size() - 1).getPlayerId()), message.getUUID())) {
+            if (!isLastPlayerInOrder(message.getUUID())) {
                 response = new NextTurnMessage(findUUIDByUsername(gameManager.getTurnManager().getCurrentPlayer().getPlayerId()), gameManager.getTurnManager().getCurrentPlayer().getPlayerId());
             } else {
                 response = new PlanningPhaseMessage(findUUIDByUsername(gameManager.getTurnManager().getCurrentPlayer().getPlayerId()));
@@ -430,6 +429,14 @@ public class Lobby implements Runnable, MessageReceiver {
             }
         }
         sendMessage(response);
+    }
+
+    /**
+     * @param UUID player id
+     * @return true if the player is in the last that has to play
+     */
+    private boolean isLastPlayerInOrder(String UUID) {
+        return Objects.equals(findUUIDByUsername(gameManager.getTurnManager().getOrderPlayed().get(gameManager.getTurnManager().getOrderPlayed().size() - 1).getPlayerId()), UUID);
     }
 
     /**

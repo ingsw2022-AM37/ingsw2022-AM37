@@ -378,10 +378,14 @@ public class TurnManager {
         useAssistant(assistant);
         this.assistantPlayed.put(currentPlayer, assistant);
         if (orderPlayed.indexOf(currentPlayer) != orderPlayed.size() - 1)
-            setCurrentPlayer(orderPlayed.get(orderPlayed.indexOf(currentPlayer) + 1));
-        else {
-            //nextTurn();
-        }
+            nextPlayer();
+    }
+
+    /**
+     * sets the current player to the next player in the order;
+     */
+    public void nextPlayer() {
+        setCurrentPlayer(orderPlayed.get(orderPlayed.indexOf(currentPlayer) + 1));
     }
 
     /**
