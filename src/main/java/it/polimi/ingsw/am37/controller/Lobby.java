@@ -552,9 +552,13 @@ public class Lobby implements Runnable, MessageReceiver {
         disconnectedPlayers.put(clientUUID, clientToDisconnect);
         players.remove(clientUUID);
         LOGGER.info("[Lobby " + matchID + "] Disconnected " + playerNicknames.get(clientUUID) + " from the lobby");
-        LOGGER.debug("[Lobby " + matchID + "] Remaining players in the lobby are: " + playerNicknames.values());
+        LOGGER.debug("[Lobby " + matchID + "] Remaining players in the lobby are: " + playerNicknames.keySet().stream().filter(el -> !disconnectedPlayers.containsKey(el)).map(playerNicknames::get).toList());
         Server.server.onDisconnect(clientUUID);
         Lobby lobby = this;
+        if (players.size() == 0) {
+            Server.server.closeLobby(lobby);
+            LOGGER.debug("[Lobby " + matchID + "] The game is over because there aren't any players in the lobby");
+        }
         if (players.size() == 1) {
             endGameTimer.schedule(new TimerTask() {
                 @Override
@@ -566,13 +570,19 @@ public class Lobby implements Runnable, MessageReceiver {
                     sendMessage(message);
                 }
             }, 500);
+            LOGGER.debug("[Lobby " + matchID + "] The 10-minutes timer has started");
             endGameTimer.schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    Message message = new EndGameMessage(players.keySet().stream().toList().get(0), playerNicknames.get(players.keySet().stream().toList().get(0)));
-                    sendMessage(message);
-                    Server.server.closeLobby(lobby);
-                    LOGGER.debug("[Lobby " + matchID + "] Timer started");
+                    if (players.size() == 0) {
+                        Server.server.closeLobby(lobby);
+                        LOGGER.debug("[Lobby " + matchID + "] The game is over because there aren't any players in the lobby");
+                    } else {
+                        Message message = new EndGameMessage(players.keySet().stream().toList().get(0), playerNicknames.get(players.keySet().stream().toList().get(0)));
+                        sendMessage(message);
+                        Server.server.closeLobby(lobby);
+                        LOGGER.debug("[Lobby " + matchID + "] The game is over because the timer has expired");
+                    }
                 }
             }, 300500);
         }
