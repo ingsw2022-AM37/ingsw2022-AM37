@@ -2,8 +2,8 @@ package it.polimi.ingsw.am37.client;
 
 
 import it.polimi.ingsw.am37.model.Player;
-
-import java.util.HashMap;
+import it.polimi.ingsw.am37.model.character.Effect;
+import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
 
 public abstract class AbstractView {
 
@@ -29,8 +29,10 @@ public abstract class AbstractView {
 
     /**
      * Method used to ask a player which character he wants to play
+     *
+     * @return the effect of the chosen character
      */
-    public abstract void askCharacter();
+    public abstract Effect askCharacter();
 
     /**
      * @return which cloud player has chosen to take
@@ -55,6 +57,8 @@ public abstract class AbstractView {
 
     public abstract Client.LobbyParameters askLobbyParameters();
 
+    public abstract int askIsland();
+
     /**
      * @return Where mother nature has to go
      */
@@ -73,7 +77,7 @@ public abstract class AbstractView {
      * @param client the client to get the status of the current player
      * @return HashMap with responses of the player
      */
-    public abstract HashMap<String, String> askStudents(Client client);
+    public abstract StudentsContainer askStudents(Client client);
 
     /**
      * Method used to ask a nickname

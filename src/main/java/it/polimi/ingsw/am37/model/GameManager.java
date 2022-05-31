@@ -21,7 +21,11 @@ public class GameManager {
     /**
      * Number of characters available
      */
-    private static final int NUMBER_OF_CHARACTERS = 3;
+    public static final int NUMBER_OF_CHARACTERS = 3;
+    /**
+     *
+     */
+    public static final int MAX_FOR_MOVEMENTS = 3;
     /**
      * Number of player in the game handled by this manager
      */
@@ -177,8 +181,7 @@ public class GameManager {
             if (container == null) {
                 throw new IllegalArgumentException("container of moveStudentsToIsland can't be null");
             }
-            final int maxForMovement = 3;
-            if (container.size() > maxForMovement) throw new RuntimeException();
+            if (container.size() > MAX_FOR_MOVEMENTS) throw new RuntimeException();
             Island island = islandsManager.getIslands()
                     .stream()
                     .filter(island1 -> island1.getIslandId() == islandId)
@@ -200,8 +203,7 @@ public class GameManager {
             if (container == null) {
                 throw new IllegalArgumentException("container of moveStudentsToDining can't be null");
             }
-            final int maxForMovement = 3;
-            if (container.size() > maxForMovement) throw new RuntimeException();
+            if (container.size() > MAX_FOR_MOVEMENTS) throw new RuntimeException();
             turnManager.getCurrentPlayer().getBoard().getEntrance().removeContainer(container);
             turnManager.addStudentsToDining(container);
         }

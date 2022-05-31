@@ -1,8 +1,8 @@
 package it.polimi.ingsw.am37.client;
 
 import it.polimi.ingsw.am37.model.Player;
-
-import java.util.HashMap;
+import it.polimi.ingsw.am37.model.character.Effect;
+import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
 
 public class GuiView extends AbstractView {
 
@@ -19,10 +19,12 @@ public class GuiView extends AbstractView {
 
     /**
      * Method used to ask a player which character he wants to play
+     *
+     * @return
      */
     @Override
-    public void askCharacter() {
-
+    public Effect askCharacter() {
+        return null;
     }
 
     /**
@@ -60,6 +62,11 @@ public class GuiView extends AbstractView {
         return null;
     }
 
+    @Override
+    public int askIsland() {
+        return 0;
+    }
+
     /**
      * @return Where mother nature has to go
      */
@@ -85,7 +92,7 @@ public class GuiView extends AbstractView {
      * @return HashMap with responses of the player
      */
     @Override
-    public HashMap<String, String> askStudents(Client client) {
+    public StudentsContainer askStudents(Client client) {
         return null;
     }
 

@@ -2,6 +2,10 @@ package it.polimi.ingsw.am37.client;
 
 import it.polimi.ingsw.am37.message.*;
 import it.polimi.ingsw.am37.model.FactionColor;
+import it.polimi.ingsw.am37.model.Player;
+import it.polimi.ingsw.am37.model.character.Effect;
+import it.polimi.ingsw.am37.model.character.OptionBuilder;
+import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
 import it.polimi.ingsw.am37.model.student_container.UnlimitedStudentsContainer;
 import it.polimi.ingsw.am37.network.ClientSocket;
 
@@ -52,6 +56,7 @@ public class Client {
      * Key of properties that contains old UUID value
      */
     private final static String P_UUID_KEY = "UUID";
+
     /**
      * Old configuration settings stored as properties entry
      */
@@ -110,7 +115,7 @@ public class Client {
         savedProperties = new Properties();
         messagesConstants = new Properties();
         try {
-            messagesConstants.load(getClass().getResourceAsStream("messages.properties"));
+            messagesConstants.load(Client.class.getResourceAsStream("/messages.properties"));
         } catch (IOException e) {
             System.err.println("Unable to find messages file");
         }
@@ -141,8 +146,7 @@ public class Client {
             }
         };
         while (!tryConnection(address, port)) {
-            Boolean defaultOptions = view.askConfirm(
-                    "Do you want to use default options? Please write \"yes\" or \"no\" or \"close game\":");
+            Boolean defaultOptions = view.askConfirm("Do you want to use default options?");
 
             if (defaultOptions == null) {
                 throw new PlayerAbortException();
@@ -181,10 +185,10 @@ public class Client {
             chooseLobby();
         }
         view.displayImportant(messagesConstants.getProperty("i.waitingStart"));
-        if(!disabledResilience){
+        if (!disabledResilience) {
             try (OutputStream stream = new FileOutputStream(resilienceFilePath)) {
-                savedProperties.store(stream,
-                        "This file is for resilience only. DO NOT MODIFY ANY OF THE FOLLOWING LINES\n");
+                savedProperties.store(stream, "This file is for resilience only. DO NOT MODIFY ANY OF THE FOLLOWING " +
+                        "LINES\n");
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -314,21 +318,14 @@ public class Client {
      * @return if action has accepted or reject by the server
      * @see ActionType
      */
-    private boolean moveStudents() {
-        HashMap<String, String> response;
+    private boolean moveStudentsRegular(boolean isToIsland) {
+        StudentsContainer container = view.askStudents(this);
         Message message;
-        UnlimitedStudentsContainer container = new UnlimitedStudentsContainer();
-        FactionColor color = null;
-
-        response = view.askStudents(this);
-        for (FactionColor temp : FactionColor.values())
-            if (response.get("color").equals(temp.toString())) color = temp;
-        container.addStudents(Integer.parseInt(response.get("number")), color);
-
-        if (response.get("destination").equals("d")) {
+        if (isToIsland){
+            message = new StudentsToIslandMessage(UUID, container, view.askIsland());
+        }
+        else {
             message = new StudentsToDiningMessage(UUID, container);
-        } else {
-            message = new StudentsToIslandMessage(UUID, container, Integer.parseInt(response.get("islandDest")));
         }
         socket.sendMessage(message);
         return onMessage();
@@ -373,8 +370,23 @@ public class Client {
      * @see ActionType
      */
     private boolean playCharacter() {
-        //TODO DA FARE IL METODO CHE CHIEDE VIEW.ASKCHARACTER E POI CREA UN MESSAGGIO E LO MANDA CON IL PERSONAGGIO
-        // SCELTO
+        view.showCharacters();
+        Effect effect = view.askCharacter();
+        Player currentPlayer = view.getReducedModel().getPlayers().get(nickname);
+        OptionBuilder oBuilder = OptionBuilder.newBuilder(null, currentPlayer);
+        PlayCharacterMessage message;
+        switch (effect) {
+            case MONK -> {
+
+            }
+            case HERALD -> {
+                int islandId = view.askIsland();
+                oBuilder.island(view.getReducedModel().getIslands().stream().filter(i -> i.getIslandId() == islandId).findFirst().get());
+            }
+            default -> {}
+        }
+        new PlayCharacterMessage(null, oBuilder.build());
+
         return false;
     }
 
@@ -433,8 +445,15 @@ public class Client {
                     socket.closeGame();
                     throw new PlayerAbortException();
                 }
-                case MOVE_STUDENTS_ISLAND, MOVE_STUDENTS_DINING -> {
-                    boolean actionOk = moveStudents();
+                case MOVE_STUDENTS_ISLAND -> {
+                    boolean actionOk = moveStudentsRegular(true);
+                    if (actionOk && totalStudentsInTurn == 3) {
+                        status = ClientStatus.MOVINGMOTHERNATURE;
+                        totalStudentsInTurn = 0;
+                    } else if (!actionOk) view.displayError("e.impossibleStudents");
+                }
+                case MOVE_STUDENTS_DINING -> {
+                    boolean actionOk = moveStudentsRegular(false);
                     if (actionOk && totalStudentsInTurn == 3) {
                         status = ClientStatus.MOVINGMOTHERNATURE;
                         totalStudentsInTurn = 0;
@@ -488,6 +507,10 @@ public class Client {
             view.wrongServer();
             return false;
         }
+    }
+
+    public String getMessageString(String key) {
+        return messagesConstants.getProperty(key);
     }
 
     /**

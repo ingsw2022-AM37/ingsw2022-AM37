@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am37.model;
 
+import it.polimi.ingsw.am37.model.exceptions.WinningException;
 import it.polimi.ingsw.am37.model.student_container.LimitedStudentsContainer;
 import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
 
@@ -132,9 +133,13 @@ public class Board {
     /**
      * @param num the number of towers to remove
      */
-    public void removeTowers(int num) {
+    public void removeTowers(int num) throws WinningException {
         int oldValue = towerArea.getCurrentSize();
-        towerArea.removeTowers(num);
+        try {
+            towerArea.removeTowers(num);
+        } catch (IllegalStateException e) {
+            throw new WinningException(this.player);
+        }
         player.support.firePropertyChange(P_BOARD_TOWER.toString(), oldValue, towerArea.getCurrentSize());
     }
 

@@ -71,8 +71,8 @@ public class LimitedTowerContainer {
             throw new IllegalArgumentException("Negative number or zero");
 
         int tmp = this.currentSize - num;
-        if (tmp < 0)
-            throw new IllegalArgumentException("Number is too big");
+        if (tmp <= 0)
+            throw new IllegalStateException("Number is too big");
 
         this.currentSize = this.currentSize - num;
     }
