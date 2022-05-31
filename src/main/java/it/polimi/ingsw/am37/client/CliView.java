@@ -276,11 +276,11 @@ public class CliView extends AbstractView {
 
         while (true) {
 
-            displayInfo("You have to move "+(GameManager.MAX_FOR_MOVEMENTS-client.getTotalStudentsInTurn())+"in this turn");
+            displayInfo("You have to move "+(GameManager.MAX_FOR_MOVEMENTS-client.getTotalStudentsInTurn())+" in this turn");
 
-            displayInfo("Select the color of students you want to move, write @|red,bold R|@ or @|blue,bold B|@ or @|yellow,bold Y|@ or @|green,bold G|@ @|magenta,bold P|@");
+            displayInfo("Select the color of students you want to move, write @|red,bold R|@ or @|blue,bold B|@ or @|yellow,bold Y|@ or @|green,bold G|@ or @|magenta,bold P|@");
 
-            Optional<FactionColor> color = Arrays.stream(FactionColor.values()).filter(c -> c.name().charAt(0)==scanner.nextLine().trim().replaceAll(" +", " ").charAt(0)).findFirst();
+            Optional<FactionColor> color = Arrays.stream(FactionColor.values()).filter(c -> c.name().charAt(0)==scanner.nextLine().trim().replaceAll(" +", " ").toUpperCase().charAt(0)).findFirst();
             if (color.isEmpty()) {
                 displayError(client.getMessageString("e.wrongColor"));
                 if(!askConfirm("Do you want to try again to move some students?"))
