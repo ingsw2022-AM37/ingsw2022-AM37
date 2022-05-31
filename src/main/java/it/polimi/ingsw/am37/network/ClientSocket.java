@@ -215,7 +215,10 @@ public class ClientSocket implements Runnable {
                             client.setStatus(ClientStatus.MOVINGSTUDENTS);
                             client.getView().yourTurn();
 
-                        } else client.getView().hisTurn(nextTurnMessage.getNextPlayerNickname());
+                        } else {
+                            client.getView().hisTurn(nextTurnMessage.getNextPlayerNickname());
+                            client.setStatus(ClientStatus.WAITINGFORTURN);
+                        }
                     }
                 }
             }
