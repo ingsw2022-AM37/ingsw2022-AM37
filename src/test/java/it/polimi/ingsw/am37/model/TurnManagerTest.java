@@ -268,7 +268,7 @@ class TurnManagerTest {
     @DisplayName("Tests removing students from cloud and giving them to a board's entrance")
     void studentCloudToEntrance() {
 
-        Cloud cloud = new Cloud(false);
+        Cloud cloud = new Cloud(false, 0);
         LimitedStudentsContainer temp = new LimitedStudentsContainer(4);
         temp.addStudents(1, FactionColor.GREEN);
         temp.addStudents(2, FactionColor.RED);

@@ -24,7 +24,7 @@ public class UpdatableChangeTest {
     @Test
     @DisplayName("test cloud firing property")
     void testCloudFireProperty() {
-        Cloud cloud = new Cloud(true);
+        Cloud cloud = new Cloud(true, 0);
         UpdateController controller = new UpdateController();
         cloud.support.addPropertyChangeListener("cloud", controller);
         UnlimitedStudentsContainer container = new UnlimitedStudentsContainer();

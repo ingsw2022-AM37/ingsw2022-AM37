@@ -30,11 +30,11 @@ class ViewTest {
     void testShowClouds() {
         FixedUnlimitedStudentsContainer container = new FixedUnlimitedStudentsContainer();
         container.addStudents(3, FactionColor.BLUE);
-        Cloud cloud = new Cloud(true);
+        Cloud cloud = new Cloud(true, 0);
         cloud.addStudents(container);
         FixedUnlimitedStudentsContainer container1 = new FixedUnlimitedStudentsContainer();
         container1.addStudents(3, FactionColor.RED);
-        Cloud cloud1 = new Cloud(true);
+        Cloud cloud1 = new Cloud(true, 1);
         cloud1.addStudents(container);
         AbstractView view = new CliView();
         view.getReducedModel().update(List.of(cloud, cloud1));

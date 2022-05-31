@@ -150,7 +150,7 @@ public class GameManager {
             //follow the order of the manual of the game
             islandsManager.setUp();
             for (int i = 0; i < numberCloudsForPlayers.get(playersNumber); i++) {
-                clouds.add(new Cloud(playersNumber == 2));
+                clouds.add(new Cloud(playersNumber == 2, i));
             }
             Arrays.fill(notUsedTeachers, true);
             turnManager.setUp(bag);

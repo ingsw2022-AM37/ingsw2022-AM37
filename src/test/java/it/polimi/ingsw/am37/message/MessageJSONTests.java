@@ -192,7 +192,7 @@ public class MessageJSONTests {
     @Test
     @DisplayName("Serialization and deserialization of UpdateMessage")
     void updateMessageJSONTest() {
-        UpdateMessage updateMessage = new UpdateMessage("110011", List.of(new Cloud(true), new Island(null, 3)),
+        UpdateMessage updateMessage = new UpdateMessage("110011", List.of(new Cloud(true, 0), new Island(null, 3)),
                 MessageType.PING, "Last action " + "description");
         String json = gson.toJson(updateMessage);
         assertNotNull(json);

@@ -20,7 +20,7 @@ public class CloudTest
     @Test
     @DisplayName("Tests the addition of students in case of a two-player game.")
     public void addStudents2Players(){
-        Cloud c = new Cloud(true);
+        Cloud c = new Cloud(true, 0);
         LimitedStudentsContainer studentsToAdd = new LimitedStudentsContainer(3);
         studentsToAdd.addStudents(1, FactionColor.RED);
         studentsToAdd.addStudents(1, FactionColor.GREEN);
@@ -39,7 +39,7 @@ public class CloudTest
     @Test
     @DisplayName("Tests the addition of students in case of a three-player game.")
     public void addStudentsTest3Players(){
-        Cloud c = new Cloud(false);
+        Cloud c = new Cloud(false, 0);
 
         LimitedStudentsContainer studentsToAdd = new LimitedStudentsContainer(4);
         studentsToAdd.addStudents(1, FactionColor.RED);
@@ -63,7 +63,7 @@ public class CloudTest
     @Test
     @DisplayName("Tests the removal of students in case of a two-player game.")
     public void removeStudents2Players(){
-        Cloud c = new Cloud(true);
+        Cloud c = new Cloud(true, 0);
         LimitedStudentsContainer studentsToAdd = new LimitedStudentsContainer(3);
         studentsToAdd.addStudents(1, FactionColor.RED);
         studentsToAdd.addStudents(1, FactionColor.GREEN);
@@ -82,7 +82,7 @@ public class CloudTest
     @Test
     @DisplayName("Tests the removal of students in case of a three-player game.")
     public void removeStudentsTest3Players() {
-        Cloud c = new Cloud(false);
+        Cloud c = new Cloud(false, 0);
 
         LimitedStudentsContainer studentsToAdd = new LimitedStudentsContainer(4);
         studentsToAdd.addStudents(1, FactionColor.RED);
@@ -104,7 +104,7 @@ public class CloudTest
     @Test
     @DisplayName("Tests the addition and the removal of students in case of a two-player game.")
     public void mixedTest2Players() {
-        Cloud c = new Cloud(false);
+        Cloud c = new Cloud(false, 0);
 
         LimitedStudentsContainer studentsToAdd = new LimitedStudentsContainer(4);
         studentsToAdd.addStudents(1, FactionColor.RED);
@@ -131,9 +131,9 @@ public class CloudTest
     @DisplayName("Tests that isFor2 parameter is equal for each element of the ArrayList")
     public void sameIsFor2() {
         ArrayList<Cloud> c = new ArrayList<>();
-        c.add(new Cloud(true));
-        c.add(new Cloud(true));
-        c.add(new Cloud(true));
+        c.add(new Cloud(true, 0));
+        c.add(new Cloud(true, 1));
+        c.add(new Cloud(true, 2));
 
         for(Cloud cloud : c) {
             assertTrue(cloud.getIsFor2());
