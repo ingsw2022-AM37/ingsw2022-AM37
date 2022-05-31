@@ -418,7 +418,7 @@ public class CliView extends AbstractView {
      * @param nick nickname of player who has to play the current turn
      */
     public void hisTurn(String nick) {
-        System.out.println("It's " + nick + "'s turn");
+        System.out.println("\nIt's " + nick + "'s turn");
     }
 
     /**

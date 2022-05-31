@@ -1,16 +1,13 @@
 package it.polimi.ingsw.am37.client;
 
 import it.polimi.ingsw.am37.message.*;
-import it.polimi.ingsw.am37.model.FactionColor;
 import it.polimi.ingsw.am37.model.Player;
 import it.polimi.ingsw.am37.model.character.Effect;
 import it.polimi.ingsw.am37.model.character.OptionBuilder;
 import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
-import it.polimi.ingsw.am37.model.student_container.UnlimitedStudentsContainer;
 import it.polimi.ingsw.am37.network.ClientSocket;
 
 import java.io.*;
-import java.util.HashMap;
 import java.util.Objects;
 import java.util.Properties;
 
@@ -320,15 +317,20 @@ public class Client {
      */
     private boolean moveStudentsRegular(boolean isToIsland) {
         StudentsContainer container = view.askStudents(this);
-        Message message;
-        if (isToIsland){
-            message = new StudentsToIslandMessage(UUID, container, view.askIsland());
+        if (container == null) {
+            view.displayError("Students error");
+            return false;
         }
         else {
-            message = new StudentsToDiningMessage(UUID, container);
+            Message message;
+            if (isToIsland) {
+                message = new StudentsToIslandMessage(UUID, container, view.askIsland());
+            } else {
+                message = new StudentsToDiningMessage(UUID, container);
+            }
+            socket.sendMessage(message);
+            return onMessage();
         }
-        socket.sendMessage(message);
-        return onMessage();
     }
 
     /**
@@ -381,9 +383,15 @@ public class Client {
             }
             case HERALD -> {
                 int islandId = view.askIsland();
-                oBuilder.island(view.getReducedModel().getIslands().stream().filter(i -> i.getIslandId() == islandId).findFirst().get());
+                oBuilder.island(view.getReducedModel()
+                        .getIslands()
+                        .stream()
+                        .filter(i -> i.getIslandId() == islandId)
+                        .findFirst()
+                        .get());
             }
-            default -> {}
+            default -> {
+            }
         }
         new PlayCharacterMessage(null, oBuilder.build());
 
