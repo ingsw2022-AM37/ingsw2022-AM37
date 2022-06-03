@@ -220,6 +220,7 @@ public class ClientSocket implements Runnable {
                             client.setStatus(ClientStatus.WAITINGFORTURN);
                         }
                     }
+                    case END_GAME -> client.getView().printWinner(((EndGameMessage) message).getWinnerNickname());
                 }
             }
         } catch (IOException e) {

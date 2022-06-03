@@ -54,7 +54,7 @@ class LimitedTowerContainerTest {
 
         assertThrows(IllegalArgumentException.class, () -> towerTest.removeTowers(-2));
         assertThrows(IllegalArgumentException.class, () -> towerTest.removeTowers(0));
-        assertThrows(IllegalArgumentException.class, () -> towerTest.removeTowers(1));
+        assertThrows(IllegalStateException.class, () -> towerTest.removeTowers(1));
     }
 
     /**
