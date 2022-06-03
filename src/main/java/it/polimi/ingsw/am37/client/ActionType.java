@@ -24,7 +24,7 @@ public enum ActionType {
         this.description = description;
     }
 
-    public static List<ActionType> getActionByStatus(ClientStatus status) {
+    public static List<ActionType> getActionByStatus(ClientStatus status, boolean advancedRules) {
         List<ActionType> list = new ArrayList<>(List.of(
                 SHOW_MENU,
                 SHOW_TABLE,
@@ -35,7 +35,8 @@ public enum ActionType {
                 CLOSE_GAME
         ));
         if (ClientStatus.activeStatus.contains(status)) {
-            list.add(PLAY_CHARACTER);
+            if (advancedRules)
+                list.add(PLAY_CHARACTER);
             switch (status) {
                 case PLAYINGASSISTANT -> list.add(PLAY_ASSISTANT);
                 case MOVINGSTUDENTS -> {

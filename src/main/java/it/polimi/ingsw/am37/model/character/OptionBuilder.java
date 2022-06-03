@@ -22,10 +22,12 @@ public class OptionBuilder {
     private OptionBuilder(GameManager controller, Player player) {
         this.controller = controller;
         this.player = player;
+        this.bag = controller.getBag();
         this.intPar = -1;
     }
 
     public static OptionBuilder newBuilder(GameManager controller, Player player) {
+        if (player == null) return null;
         return new OptionBuilder(controller, player);
     }
 
@@ -41,11 +43,6 @@ public class OptionBuilder {
 
     public OptionBuilder intPar(int intPar) {
         this.intPar = intPar;
-        return this;
-    }
-
-    public OptionBuilder bag(Bag bag) {
-        this.bag = bag;
         return this;
     }
 

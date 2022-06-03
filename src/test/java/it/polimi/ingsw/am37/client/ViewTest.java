@@ -42,6 +42,20 @@ class ViewTest {
     }
 
     @Test
+    @DisplayName("Test display of board")
+    void testShowBoard() {
+        Player player = new Player();
+        player.setPlayerId("bramba2000");
+        LimitedStudentsContainer container = new LimitedStudentsContainer(5);
+        container.addStudents(2, FactionColor.GREEN);
+        Board board = new Board(2, TowerColor.GRAY, false, container, player);
+        player.setBoard(board);
+        AbstractView view = new CliView();
+        view.getReducedModel().update(List.of(player));
+        view.showPlayerStatus(player, false);
+    }
+
+    @Test
     @DisplayName("Test display of last assistant")
     void testShowLastAssistant() throws InstanceAlreadyExistsException {
         Player player = new Player();
@@ -50,21 +64,7 @@ class ViewTest {
         player.setLastAssistantPlayed(player.getAssistantsDeck().get(1));
         AbstractView view = new CliView();
         view.getReducedModel().update(List.of(player));
-        view.showPlayerStatus(player);
-    }
-
-    @Test
-    @DisplayName("Test display of board")
-    void testShowBoard() {
-        Player player = new Player();
-        player.setPlayerId("bramba2000");
-        LimitedStudentsContainer container = new LimitedStudentsContainer(5);
-        container.addStudents(2, FactionColor.GREEN);
-        Board board = new Board(2, TowerColor.GRAY, false, container, player );
-        player.setBoard(board);
-        AbstractView view = new CliView();
-        view.getReducedModel().update(List.of(player));
-        view.showPlayerStatus(player);
+        view.showPlayerStatus(player, false);
     }
 
     @Test

@@ -251,8 +251,7 @@ public class GameManager {
     public void playCharacter(Character character, Option option) throws CharacterImpossibleToPlay {
         synchronized (lock) {
             if (turnManager.getCurrentPlayer().getNumberOfCoins() >= character.getCurrentPrice()) {
-                Character used = Arrays.stream(characters).filter(character::equals).findFirst().orElseThrow();
-                used.useEffect(option);
+                character.useEffect(option);
             } else throw new CharacterImpossibleToPlay("Can't play Character");
         }
     }

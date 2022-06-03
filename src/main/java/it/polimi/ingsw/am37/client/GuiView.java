@@ -1,6 +1,8 @@
 package it.polimi.ingsw.am37.client;
 
+import it.polimi.ingsw.am37.model.FactionColor;
 import it.polimi.ingsw.am37.model.Player;
+import it.polimi.ingsw.am37.model.character.Character;
 import it.polimi.ingsw.am37.model.character.Effect;
 import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
 
@@ -20,7 +22,7 @@ public class GuiView extends AbstractView {
     /**
      * Method used to ask a player which character he wants to play
      *
-     * @return
+     * @return the effect of the select character
      */
     @Override
     public Effect askCharacter() {
@@ -85,14 +87,30 @@ public class GuiView extends AbstractView {
         return null;
     }
 
+    @Override
+    public FactionColor askColor(Client client) {
+        return null;
+    }
+
+    @Override
+    public StudentsContainer askStudentFromDining(Client client, int num) {
+        return null;
+    }
+
+    @Override
+    public StudentsContainer askStudentsFromCharacter(Character character, int num, Client client) {
+        return null;
+    }
+
     /**
      * Ask player which students want to move and where
      *
      * @param client the client to get the status of the current player
+     * @param num    the num of students to move; put 0 for normal 3 students movements
      * @return HashMap with responses of the player
      */
     @Override
-    public StudentsContainer askStudents(Client client) {
+    public StudentsContainer askStudentsFromEntrance(Client client, int num) {
         return null;
     }
 
@@ -173,10 +191,11 @@ public class GuiView extends AbstractView {
     /**
      * This function print the view of a player's status: his last assistant and board
      *
-     * @param player the players to show status of
+     * @param player        the players to show status of
+     * @param advancedRules if the advanced rules are enabled
      */
     @Override
-    public void showPlayerStatus(Player player) {
+    public void showPlayerStatus(Player player, boolean advancedRules) {
 
     }
 

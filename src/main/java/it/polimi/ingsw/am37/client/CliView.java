@@ -125,6 +125,18 @@ public class CliView extends AbstractView {
     }
 
     /**
+     * Method used to ask a player which character he wants to play
+     *
+     * @return the effect of the selected character
+     */
+    public Effect askCharacter() {
+        displayInfo("Which character you want to play? ");
+        Scanner scanner = new Scanner(System.in);
+        int response = scanner.nextInt();
+        return ((Character) reducedModel.getCharacters().toArray()[response]).getEffectType();
+    }
+
+    /**
      * Method used to ask if player wants to use default parameters for connection
      *
      * @return Client's response
@@ -135,7 +147,8 @@ public class CliView extends AbstractView {
         Scanner scanner = new Scanner(System.in);
         while (true) {
             System.out.print(ansi().render(message));
-            System.out.print(ansi().render(" Please insert @|bold,italic yes|@ or @|bold,italic no|@ or @|bold,italic close game|@: "));
+            System.out.print(ansi().render(" Please insert @|bold,italic yes|@ or @|bold,italic no|@ or @|bold,italic" +
+                    " close game|@: "));
             s = scanner.nextLine().toLowerCase().trim().replaceAll(" +", " ");
             switch (s.toLowerCase()) {
                 case "yes", "y" -> {
@@ -148,31 +161,6 @@ public class CliView extends AbstractView {
                     return null;
                 }
                 default -> wrongInsert();
-            }
-        }
-    }
-
-    /**
-     * Method used if player decided to don't use default setting for connection, so he will be asked to insert his
-     * parameters
-     *
-     * @return Client's decision
-     */
-    @Override
-    public Client.ConnectionParameters askConnectionParameters() {
-        Scanner scanner = new Scanner(System.in);
-        while (true) {
-            System.out.print("Write server's address or \"close game\": ");
-            String addressInput = scanner.nextLine().toLowerCase().trim().replaceAll(" +", " ");
-            if (addressInput.equals("close game")) return null;
-            if(!Objects.equals(addressInput.toLowerCase(), "localhost")) displayImportant("i.notLocalhost");
-            System.out.print("Write server's port or \"close game\": ");
-            String portInput = scanner.nextLine().toLowerCase().trim().replaceAll(" +", " ");
-            if (portInput.equals("close game")) return null;
-            try {
-                return new Client.ConnectionParameters(addressInput, Integer.parseInt(portInput));
-            } catch (NumberFormatException e) {
-                wrongInsertPort();
             }
         }
     }
@@ -244,78 +232,28 @@ public class CliView extends AbstractView {
     }
 
     /**
-     * @return Player's command at any time
-     */
-    public ActionType takeInput(Client client) {
-        List<ActionType> actions = ActionType.getActionByStatus(client.getStatus());
-        //System.out.println(ansi().eraseScreen());
-        System.out.flush();
-        System.out.println("Current available actions:");
-        for (int i = 0; i < actions.size(); i++) {
-            System.out.println(ansi().a("\t").bold().a(i).reset().a(":\t" + actions.get(i).description));
-        }
-        System.out.print("Please insert the number of the desired action: ");
-        try {
-            String input = new Scanner(System.in).nextLine().trim().replaceAll(" +", " ");
-            return actions.get(Integer.parseInt(input));
-        } catch (IndexOutOfBoundsException | NumberFormatException e) {
-            return ActionType.SHOW_MENU;
-        }
-    }
-
-    /**
-     * Ask players to provide a group of students
+     * Method used if player decided to don't use default setting for connection, so he will be asked to insert his
+     * parameters
      *
-     * @return HashMap with responses of the player
+     * @return Client's decision
      */
-    public StudentsContainer askStudents(Client client) {
-        int students = 0;
-        String input;
+    @Override
+    public Client.ConnectionParameters askConnectionParameters() {
         Scanner scanner = new Scanner(System.in);
-        StudentsContainer container = new LimitedStudentsContainer(GameManager.MAX_FOR_MOVEMENTS-client.getTotalStudentsInTurn());
-        showPlayerStatus(getReducedModel().getPlayers().get(client.getNickname()));
-
         while (true) {
-
-            displayInfo("You have to move "+(GameManager.MAX_FOR_MOVEMENTS-client.getTotalStudentsInTurn())+" in this turn");
-
-            displayInfo("Select the color of students you want to move, write @|red,bold R|@ or @|blue,bold B|@ or @|yellow,bold Y|@ or @|green,bold G|@ or @|magenta,bold P|@");
-            input = scanner.nextLine().trim().replaceAll(" +", " ");
-            String finalInput = input;
-            Optional<FactionColor> color = Arrays.stream(FactionColor.values()).filter(c -> c.name().charAt(0)==
-                    finalInput.toUpperCase().charAt(0)).findFirst();
-            if (color.isEmpty()) {
-                displayError(client.getMessageString("e.wrongColor"));
-                if(!askConfirm("Do you want to try again to move some students?"))
-                    return null;
-                continue;
+            System.out.print("Write server's address or \"close game\": ");
+            String addressInput = scanner.nextLine().toLowerCase().trim().replaceAll(" +", " ");
+            if (addressInput.equals("close game")) return null;
+            if (!Objects.equals(addressInput.toLowerCase(), "localhost")) displayImportant("i.notLocalhost");
+            System.out.print("Write server's port or \"close game\": ");
+            String portInput = scanner.nextLine().toLowerCase().trim().replaceAll(" +", " ");
+            if (portInput.equals("close game")) return null;
+            try {
+                return new Client.ConnectionParameters(addressInput, Integer.parseInt(portInput));
+            } catch (NumberFormatException e) {
+                wrongInsertPort();
             }
-            else{
-                displayInfo("Write the number of students you want to move of color "+color.get());
-                try{
-                    students = Integer.parseInt(scanner.nextLine().trim().replaceAll(" +", " "));
-                    if (students>GameManager.MAX_FOR_MOVEMENTS-client.getTotalStudentsInTurn() || students>reducedModel.getPlayers().get(client.getNickname()).getBoard().getEntrance().getByColor(color.get())){
-                        displayError("You have tried to move to much students");
-                        if(!askConfirm("Do you want to try again to move some students?"))
-                           return null;
-                        continue;
-                    }
-                    container = new LimitedStudentsContainer(students);
-                    container.addStudents(students, color.get());
-                }catch (NumberFormatException e)
-                {
-                    displayError(client.getMessageString("e.wrongNumber"));
-                    if(!askConfirm("Do you want to try again to move some students?"))
-                        return null;
-                    continue;
-                }
-            }
-
-            client.addTotalStudentsInTurn(students);
-            if (client.getTotalStudentsInTurn()==GameManager.MAX_FOR_MOVEMENTS || !askConfirm("Do you want to move more students?"))
-                break;
         }
-        return container;
     }
 
     @Override
@@ -326,19 +264,201 @@ public class CliView extends AbstractView {
         for (Island island :
                 reducedModel.getIslands()) {
             drawIsland(island);
-            System.out.println();
         }
-        while (true){
-            displayInfo("Which island do you want? Please insert is index");
+        while (true) {
+            displayInfo("Which island do you want? Please insert its index");
             input = scanner.nextInt();
             int finalInput = input;
             if (reducedModel.getIslands().stream().filter(i -> i.getIslandId() == finalInput).findFirst().isEmpty()) {
                 displayError("The island with the provided id is not present");
-            }
-            else {
+            } else {
                 return input;
             }
         }
+    }
+
+    @Override
+    public FactionColor askColor(Client client) {
+        String input;
+        Scanner scanner = new Scanner(System.in);
+        Optional<FactionColor> color;
+        while (true) {
+            displayInfo("Select one of the color available: write @|red,bold R|@ or @|blue,bold B|@ or " +
+                    "@|yellow,bold Y|@ or @|green,bold G|@ or @|magenta,bold P|@");
+            input = scanner.nextLine().trim().replaceAll(" +", " ");
+            String finalInput = input;
+            color = Arrays.stream(FactionColor.values()).filter(c -> c.name().charAt(0) ==
+                    finalInput.toUpperCase().charAt(0)).findFirst();
+            if (color.isEmpty()) {
+                displayError(client.getMessageString("e.wrongColor"));
+            } else {
+                break;
+            }
+        }
+        return color.get();
+    }
+
+    @Override
+    public StudentsContainer askStudentFromDining(Client client, int num) {
+        int students;
+        String input;
+        Scanner scanner = new Scanner(System.in);
+        StudentsContainer container = new LimitedStudentsContainer(num);
+        showPlayerStatus(getReducedModel().getPlayers().get(client.getNickname()), client.getSettings()
+                .advancedRulesEnabled());
+
+        while (true) {
+            displayInfo("You have to move " + (num - container.size()) + " students");
+            displayInfo("Select the color of students you want to move, write @|red,bold R|@ or @|blue,bold B|@ or " +
+                    "@|yellow,bold Y|@ or @|green,bold G|@ or @|magenta,bold P|@");
+            input = scanner.nextLine().trim().replaceAll(" +", " ");
+            String finalInput = input;
+            Optional<FactionColor> color = Arrays.stream(FactionColor.values()).filter(c -> c.name().charAt(0) ==
+                    finalInput.toUpperCase().charAt(0)).findFirst();
+            if (color.isEmpty()) {
+                displayError(client.getMessageString("e.wrongColor"));
+                if (!askConfirm("Do you want to try again to move some students?"))
+                    return null;
+                continue;
+            } else {
+                displayInfo("Write the number of students you want to move of color " + color.get());
+                try {
+                    students = Integer.parseInt(scanner.nextLine().trim().replaceAll(" +", " "));
+                    if (students > num || students > reducedModel.getPlayers()
+                            .get(client.getNickname())
+                            .getBoard()
+                            .getDiningRoom()
+                            .getByColor(color.get())) {
+                        displayError("You have tried to move to much students");
+                        if (!askConfirm("Do you want to try again to move some students?"))
+                            return null;
+                        continue;
+                    }
+                    container.addStudents(students, color.get());
+                } catch (NumberFormatException e) {
+                    displayError(client.getMessageString("e.wrongNumber"));
+                    if (!askConfirm("Do you want to try again to move some students?"))
+                        return null;
+                    continue;
+                }
+            }
+            if (container.size() == num)
+                break;
+        }
+        return container;
+    }
+
+    @Override
+    public StudentsContainer askStudentsFromCharacter(Character character, int num, Client client) {
+        int students;
+        String input;
+        Scanner scanner = new Scanner(System.in);
+        StudentsContainer container = new LimitedStudentsContainer(num);
+        drawCharacter(character);
+
+        while (true) {
+            displayInfo("You have to move " + (num - container.size()) + " students");
+            displayInfo("Select the color of students you want to move, write @|red,bold R|@ or @|blue,bold B|@ or " +
+                    "@|yellow,bold Y|@ or @|green,bold G|@ or @|magenta,bold P|@");
+            input = scanner.nextLine().trim().replaceAll(" +", " ");
+            String finalInput = input;
+            Optional<FactionColor> color = Arrays.stream(FactionColor.values()).filter(c -> c.name().charAt(0) ==
+                    finalInput.toUpperCase().charAt(0)).findFirst();
+            if (color.isEmpty()) {
+                displayError(client.getMessageString("e.wrongColor"));
+                if (!askConfirm("Do you want to try again to move some students?"))
+                    return null;
+                continue;
+            } else {
+                displayInfo("Write the number of students you want to move of color " + color.get());
+                try {
+                    students = Integer.parseInt(scanner.nextLine().trim().replaceAll(" +", " "));
+                    if (students > num || students > character.getState().getContainer().getByColor(color.get())) {
+                        displayError("You have tried to move to much students");
+                        if (!askConfirm("Do you want to try again to move some students?"))
+                            return null;
+                        continue;
+                    }
+                    container.addStudents(students, color.get());
+                } catch (NumberFormatException e) {
+                    displayError(client.getMessageString("e.wrongNumber"));
+                    if (!askConfirm("Do you want to try again to move some students?"))
+                        return null;
+                    continue;
+                }
+            }
+            if (container.size() == num)
+                break;
+        }
+        return container;
+    }
+
+    /**
+     * Ask players to provide a group of students
+     *
+     * @return HashMap with responses of the player
+     */
+    public StudentsContainer askStudentsFromEntrance(Client client, int num) {
+        int students;
+        String input;
+        Scanner scanner = new Scanner(System.in);
+        StudentsContainer container = new LimitedStudentsContainer(num == 0 ?
+                GameManager.MAX_FOR_MOVEMENTS - client.getTotalStudentsInTurn() : num);
+        showPlayerStatus(getReducedModel().getPlayers().get(client.getNickname()), client.getSettings()
+                .advancedRulesEnabled());
+
+        while (true) {
+
+            displayInfo("You have to move " + (num == 0
+                    ? (GameManager.MAX_FOR_MOVEMENTS - client.getTotalStudentsInTurn())
+                    : num) +
+                    " in this turn");
+
+            displayInfo("Select the color of students you want to move, write @|red,bold R|@ or @|blue,bold B|@ or " +
+                    "@|yellow,bold Y|@ or @|green,bold G|@ or @|magenta,bold P|@");
+            input = scanner.nextLine().trim().replaceAll(" +", " ");
+            String finalInput = input;
+            Optional<FactionColor> color = Arrays.stream(FactionColor.values()).filter(c -> c.name().charAt(0) ==
+                    finalInput.toUpperCase().charAt(0)).findFirst();
+            if (color.isEmpty()) {
+                displayError(client.getMessageString("e.wrongColor"));
+                if (!askConfirm("Do you want to try again to move some students?"))
+                    return null;
+                continue;
+            } else {
+                displayInfo("Write the number of students you want to move of color " + color.get());
+                try {
+                    students = Integer.parseInt(scanner.nextLine().trim().replaceAll(" +", " "));
+                    if (students > (num == 0 ? GameManager.MAX_FOR_MOVEMENTS - client.getTotalStudentsInTurn() : num) ||
+                            students >
+                                    reducedModel.getPlayers()
+                                            .get(client.getNickname())
+                                            .getBoard()
+                                            .getEntrance()
+                                            .getByColor(color.get())) {
+                        displayError("You have tried to move to much students");
+                        if (!askConfirm("Do you want to try again to move some students?"))
+                            return null;
+                        continue;
+                    }
+                    container.addStudents(students, color.get());
+                } catch (NumberFormatException e) {
+                    displayError(client.getMessageString("e.wrongNumber"));
+                    if (!askConfirm("Do you want to try again to move some students?"))
+                        return null;
+                    continue;
+                }
+            }
+
+            if (num == 0) {
+                client.addTotalStudentsInTurn(students);
+                if (client.getTotalStudentsInTurn() == GameManager.MAX_FOR_MOVEMENTS ||
+                        !askConfirm("Do you want to move more students?"))
+                    break;
+            } else if (container.size() == num)
+                break;
+        }
+        return container;
     }
 
     /**
@@ -444,15 +564,20 @@ public class CliView extends AbstractView {
     }
 
     /**
-     * Method used to ask a player which character he wants to play
+     * This method print on console a colorful representation of the last assistant played and his entire board
      *
-     * @return
+     * @param player        the players to show status of
+     * @param advancedRules if the advanced rules are enabled or not
      */
-    public Effect askCharacter() {
-        displayInfo("Which character you want to play? ");
-        Scanner scanner = new Scanner(System.in);
-        int response = scanner.nextInt();
-        return ((Character) reducedModel.getCharacters().toArray()[response]).getEffectType();
+    @Override
+    public void showPlayerStatus(Player player, boolean advancedRules) {
+        System.out.println(player.getPlayerId() + " status:");
+        if (player.getLastAssistantPlayed() != null) {
+            drawAssistant(player.getLastAssistantPlayed());
+            System.out.println();
+        }
+        if (player.getBoard() != null) drawBoard(player.getBoard());
+        if (advancedRules) System.out.println("Coins: " + player.getNumberOfCoins());
     }
 
     /**
@@ -517,18 +642,24 @@ public class CliView extends AbstractView {
     }
 
     /**
-     * This method print on console a colorful representation of the last assistant played and his entire board
-     *
-     * @param player the players to show status of
+     * @return Player's command at any time
      */
-    @Override
-    public void showPlayerStatus(Player player) {
-        System.out.println(player.getPlayerId() + " status:");
-        if (player.getLastAssistantPlayed() != null) {
-            drawAssistant(player.getLastAssistantPlayed());
-            System.out.println();
+    public ActionType takeInput(Client client) {
+        List<ActionType> actions = ActionType.getActionByStatus(client.getStatus(), client.getSettings()
+                .advancedRulesEnabled());
+        //System.out.println(ansi().eraseScreen());
+        System.out.flush();
+        System.out.println("Current available actions:");
+        for (int i = 0; i < actions.size(); i++) {
+            System.out.println(ansi().a("\t").bold().a(i).reset().a(":\t" + actions.get(i).description));
         }
-        if (player.getBoard() != null) drawBoard(player.getBoard());
+        System.out.print("Please insert the number of the desired action: ");
+        try {
+            String input = new Scanner(System.in).nextLine().trim().replaceAll(" +", " ");
+            return actions.get(Integer.parseInt(input));
+        } catch (IndexOutOfBoundsException | NumberFormatException e) {
+            return ActionType.SHOW_MENU;
+        }
     }
 
     /**
