@@ -18,10 +18,7 @@ import org.apache.logging.log4j.Logger;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.Objects;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 /**
  * It represents the in game Lobby
@@ -379,15 +376,23 @@ public class Lobby implements Runnable, MessageReceiver {
     private void playCharacterCase(Message message, ClientHandler ch) {
         Message response;
         if (characterPlayed) {
-            Character characterToBePlayed = new Character(((PlayCharacterMessage) message).getChosenCharacter().getInitialPrice(), ((PlayCharacterMessage) message).getChosenCharacter());
-            Option optionNeeded = ((PlayCharacterMessage) message).getOption();
+            Character characterToBePlayed = Arrays.stream(gameManager.getCharacters())
+                    .filter(c -> c.getEffectType() == ((PlayCharacterMessage) message).getChosenCharacter())
+                    .findFirst()
+                    .orElse(null);
+            Option optionNeeded = ((PlayCharacterMessage) message).getOption(gameManager);
             try {
+                if (optionNeeded == null || characterToBePlayed == null) throw new IllegalStateException();
                 gameManager.playCharacter(characterToBePlayed, optionNeeded);
             } catch (CharacterImpossibleToPlay e) {
                 response = new ErrorMessage(message.getUUID(), e.getMessage());
                 sendMessage(response);
+            } catch (IllegalStateException e) {
+                //TODO disconnect the player because client hacked
             }
-            response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(), message.getMessageType().getClassName());
+            response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(),
+                    message.getMessageType()
+                    .getClassName());
             sendMessage(response);
             characterPlayed = true;
         } else

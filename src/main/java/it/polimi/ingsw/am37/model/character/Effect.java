@@ -10,7 +10,7 @@ public enum Effect {
     MAGIC_POSTMAN(new int[]{7}, 1),
     GRANDMA(new int[]{8, 9}, 2),
     CENTAUR(new int[]{10}, 3),
-    JESTER(new int[]{18, 11, 19, 12, 1}, 1),
+    JESTER(new int[]{18, 0, 11, 19, 12, 1}, 1),
     KNIGHT(new int[]{15}, 2),
     MUSHROOM_MAN(new int[]{16}, 3),
     MINSTREL(new int[]{18, 12, 13, 19, 14, 11}, 1),

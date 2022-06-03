@@ -1,9 +1,12 @@
 package it.polimi.ingsw.am37.client;
 
 import it.polimi.ingsw.am37.message.*;
+import it.polimi.ingsw.am37.model.FactionColor;
 import it.polimi.ingsw.am37.model.Player;
+import it.polimi.ingsw.am37.model.character.Character;
 import it.polimi.ingsw.am37.model.character.Effect;
 import it.polimi.ingsw.am37.model.character.OptionBuilder;
+import it.polimi.ingsw.am37.model.student_container.LimitedStudentsContainer;
 import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
 import it.polimi.ingsw.am37.network.ClientSocket;
 
@@ -94,12 +97,15 @@ public class Client {
      * This is the socket to handle communication with the server
      */
     private ClientSocket socket;
-
     /**
      * This is used by internal {@link Client#onMessage()} to store the read message for further processing by some
      * other functions.
      */
     private Message lastReadMessage;
+    /**
+     * The settings of this match
+     */
+    private LobbyParameters settings;
 
     /**
      * Construct a fully functional client and connect to the lobby with provided arguments. The lobby is restored from
@@ -174,6 +180,9 @@ public class Client {
                 if (onMessage()) {
                     sendLobbyMessage(UUID, Boolean.parseBoolean(savedProperties.getProperty(P_ADVANCEDRULES_KEY)),
                             Integer.parseInt(savedProperties.getProperty(P_LOBBYSIZE_KEY)));
+                    if (onMessage())
+                        settings =
+                                new LobbyParameters(Boolean.parseBoolean(savedProperties.getProperty(P_ADVANCEDRULES_KEY)), Integer.parseInt(savedProperties.getProperty(P_LOBBY_KEY)));
                 }
             }
         } else {
@@ -184,8 +193,8 @@ public class Client {
         view.displayImportant(messagesConstants.getProperty("i.waitingStart"));
         if (!disabledResilience) {
             try (OutputStream stream = new FileOutputStream(resilienceFilePath)) {
-                savedProperties.store(stream, "This file is for resilience only. DO NOT MODIFY ANY OF THE FOLLOWING " +
-                        "LINES\n");
+                savedProperties.store(stream,
+                        "This file is for resilience only. DO NOT MODIFY ANY OF THE FOLLOWING " + "LINES\n");
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -226,6 +235,7 @@ public class Client {
             savedProperties.setProperty(P_LOBBY_KEY, s);
             savedProperties.setProperty(P_ADVANCEDRULES_KEY, String.valueOf(parameters.advancedRulesEnabled()));
             savedProperties.setProperty(P_LOBBYSIZE_KEY, String.valueOf(parameters.lobbySize()));
+            settings = parameters;
         }
     }
 
@@ -256,6 +266,10 @@ public class Client {
         return address;
     }
 
+    public String getMessageString(String key) {
+        return messagesConstants.getProperty(key);
+    }
+
     /**
      * @return My nickname
      */
@@ -265,6 +279,10 @@ public class Client {
 
     public int getPort() {
         return port;
+    }
+
+    public LobbyParameters getSettings() {
+        return settings;
     }
 
     public ClientStatus getStatus() {
@@ -316,12 +334,11 @@ public class Client {
      * @see ActionType
      */
     private boolean moveStudentsRegular(boolean isToIsland) {
-        StudentsContainer container = view.askStudents(this);
+        StudentsContainer container = view.askStudentsFromEntrance(this, 0);
         if (container == null) {
             view.displayError("Students error");
             return false;
-        }
-        else {
+        } else {
             Message message;
             if (isToIsland) {
                 message = new StudentsToIslandMessage(UUID, container, view.askIsland());
@@ -374,14 +391,22 @@ public class Client {
     private boolean playCharacter() {
         view.showCharacters();
         Effect effect = view.askCharacter();
+        Character character = view.getReducedModel()
+                .getCharacters()
+                .stream()
+                .filter(c -> c.getEffectType() == effect)
+                .findFirst()
+                .get();
         Player currentPlayer = view.getReducedModel().getPlayers().get(nickname);
         OptionBuilder oBuilder = OptionBuilder.newBuilder(null, currentPlayer);
         PlayCharacterMessage message;
         switch (effect) {
             case MONK -> {
-
+                final int MONK_STUDENTS = 1;
+                StudentsContainer container = view.askStudentsFromCharacter(character, MONK_STUDENTS, this);
+                oBuilder.primaryContainer((LimitedStudentsContainer) container);
             }
-            case HERALD -> {
+            case HERALD, GRANDMA, CENTAUR -> {
                 int islandId = view.askIsland();
                 oBuilder.island(view.getReducedModel()
                         .getIslands()
@@ -390,12 +415,34 @@ public class Client {
                         .findFirst()
                         .get());
             }
+            case JESTER -> {
+                LimitedStudentsContainer container1 =
+                        (LimitedStudentsContainer) view.askStudentsFromCharacter(character, 3, this);
+                LimitedStudentsContainer container2 = (LimitedStudentsContainer) view.askStudentsFromEntrance(this, 3);
+                if (container1 == null || container2 == null) return false;
+                else oBuilder.primaryContainer(container1).secondaryContainer(container2);
+            }
+            case MUSHROOM_MAN, THIEF -> {
+                FactionColor color = view.askColor(this);
+                if (color == null) return false;
+                else oBuilder.color(color);
+            }
+            case MINSTREL -> {
+                LimitedStudentsContainer container1 = (LimitedStudentsContainer) view.askStudentsFromEntrance(this, 2);
+                LimitedStudentsContainer container2 = (LimitedStudentsContainer) view.askStudentFromDining(this, 2);
+                if (container1 == null || container2 == null) return false;
+                else oBuilder.primaryContainer(container1).secondaryContainer(container2);
+            }
+            case PRINCESS -> {
+                LimitedStudentsContainer container =
+                        (LimitedStudentsContainer) view.askStudentsFromCharacter(character, 1, this);
+                oBuilder.primaryContainer(container);
+            }
             default -> {
             }
         }
-        new PlayCharacterMessage(null, oBuilder.build());
-
-        return false;
+        new PlayCharacterMessage(UUID, effect, oBuilder.build());
+        return onMessage();
     }
 
     /**
@@ -445,7 +492,7 @@ public class Client {
                 case SHOW_MENU -> {
                 }
                 case SHOW_TABLE -> view.showTable();
-                case SHOW_STATUS -> view.showPlayerStatus(view.askPlayer());
+                case SHOW_STATUS -> view.showPlayerStatus(view.askPlayer(), settings.advancedRulesEnabled);
                 case SHOW_DECK -> view.showDeck(view.getReducedModel().getPlayers().get(this.nickname));
                 case SHOW_CONNECTION -> view.showConnection(this);
                 case SHOW_PLAYERS -> view.showPlayersNicknames();
@@ -473,7 +520,7 @@ public class Client {
                 }
                 case CHOOSE_CLOUD -> {
                     if (chooseCloud()) {
-                        System.out.println("You have finished your turn");
+                        view.displayImportant("You have finished your turn");
                         status = ClientStatus.WAITINGFORTURN;
                     } else view.displayError("e.impossibleCloud");
                 }
@@ -481,8 +528,11 @@ public class Client {
                     if (playAssistant()) status = ClientStatus.WAITINGFORTURN;
                     else view.displayError(messagesConstants.getProperty("e.impossibleAssistant"));
                 }
-                case PLAY_CHARACTER -> //TODO implements logic and remove exception
-                        view.displayError("e.impossibleAction");
+                case PLAY_CHARACTER -> {
+                    if (!playCharacter()) {
+                        view.displayError(messagesConstants.getProperty("e.impossibleCharacter"));
+                    }
+                }
                 default -> {
                     view.displayError("e.impossibleAction");
                     try {
@@ -515,10 +565,6 @@ public class Client {
             view.wrongServer();
             return false;
         }
-    }
-
-    public String getMessageString(String key) {
-        return messagesConstants.getProperty(key);
     }
 
     /**

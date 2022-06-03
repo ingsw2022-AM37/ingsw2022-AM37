@@ -1,7 +1,9 @@
 package it.polimi.ingsw.am37.client;
 
 
+import it.polimi.ingsw.am37.model.FactionColor;
 import it.polimi.ingsw.am37.model.Player;
+import it.polimi.ingsw.am37.model.character.Character;
 import it.polimi.ingsw.am37.model.character.Effect;
 import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
 
@@ -71,13 +73,20 @@ public abstract class AbstractView {
      */
     public abstract Player askPlayer();
 
+    public abstract FactionColor askColor(Client client);
+
+    public abstract StudentsContainer askStudentFromDining(Client client, int num);
+
+    public abstract StudentsContainer askStudentsFromCharacter(Character character, int num, Client client);
+
     /**
      * Ask player which students want to move and where
      *
      * @param client the client to get the status of the current player
+     * @param num    the num of students to move; if 0 regular behaviour is followed
      * @return HashMap with responses of the player
      */
-    public abstract StudentsContainer askStudents(Client client);
+    public abstract StudentsContainer askStudentsFromEntrance(Client client, int num);
 
     /**
      * Method used to ask a nickname
@@ -139,9 +148,10 @@ public abstract class AbstractView {
     /**
      * This function print the view of a player's status: his last assistant and board
      *
-     * @param player the players to show status of
+     * @param player        the players to show status of
+     * @param advancedRules if the advanced rules are enabled or not
      */
-    public abstract void showPlayerStatus(Player player);
+    public abstract void showPlayerStatus(Player player, boolean advancedRules);
 
     /**
      * Method used to show the nickname of all players in this match
