@@ -552,7 +552,7 @@ public class CliView extends AbstractView {
      * Method to tell the player the game has begun
      */
     public void gameStarted() {
-        System.out.println("Game is now stared");
+        displayImportant(messagesConstants.getProperty("i.gameStart"));
     }
 
     /**

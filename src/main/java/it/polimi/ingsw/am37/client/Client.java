@@ -251,7 +251,7 @@ public class Client {
             sendLoginMessage(UUID, tempNick);
             if (!onMessage()) {
                 ErrorMessage mes = (ErrorMessage) lastReadMessage;
-                System.out.println("\n" + mes.getMessage() + "\n");
+                view.displayError(mes.getMessage());
             } else if (lastReadMessage.getMessageType() == MessageType.CONFIRM) {
                 this.nickname = tempNick;
                 savedProperties.setProperty(P_NICKNAME_KEY, this.nickname);
@@ -481,7 +481,7 @@ public class Client {
             throw new RuntimeException(e);
         }
 
-        view.displayImportant(messagesConstants.getProperty("i.gameStart"));
+        view.gameStarted();
 
         status = ClientStatus.WAITINGFORTURN;
         while (socket.isConnectedToServer()) {
@@ -573,7 +573,7 @@ public class Client {
      * @param address the address of the server
      * @param port    the port of the server
      */
-    protected record ConnectionParameters(String address, int port) {
+    public record ConnectionParameters(String address, int port) {
     }
 
     /**
@@ -582,6 +582,6 @@ public class Client {
      * @param advancedRulesEnabled flag for advanced rules enabling
      * @param lobbySize            size of the lobby
      */
-    protected record LobbyParameters(boolean advancedRulesEnabled, int lobbySize) {
+    public record LobbyParameters(boolean advancedRulesEnabled, int lobbySize) {
     }
 }

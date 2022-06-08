@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import com.jfoenix.controls.JFXButton?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TextField?>
+<?import com.jfoenix.controls.JFXCheckBox?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.Pane?>
-<?import javafx.scene.text.Font?>
-
+<?import javafx.scene.text.*?>
 <Pane xmlns:fx="http://javafx.com/fxml/1" fx:id="nicknameScene" maxHeight="-Infinity" maxWidth="-Infinity"
       minHeight="-Infinity" minWidth="-Infinity" prefHeight="550.0" prefWidth="499.0"
-      xmlns="http://javafx.com/javafx/18">
+      xmlns="http://javafx.com/javafx/16"
+      fx:controller="it.polimi.ingsw.am37.client.gui.controller.EnterInGameController">
    <children>
       <ImageView fitHeight="500.0" fitWidth="500.0">
          <image>
@@ -30,14 +30,13 @@
          </font>
       </Label>
       <TextField fx:id="numOfPlayersField" layoutX="212.0" layoutY="505.0" prefHeight="25.0" prefWidth="77.0"/>
-      <TextField fx:id="advancedRulesField" layoutX="413.0" layoutY="505.0" prefHeight="25.0" prefWidth="77.0"/>
       <Label layoutX="408.0" layoutY="530.0" text="Advanced rules" textFill="#aa3838">
          <font>
             <Font name="System Bold Italic" size="12.0"/>
          </font>
       </Label>
       <Label fx:id="errorLabel" layoutX="14.0" layoutY="193.0" prefHeight="62.0" prefWidth="471.0"
-             text="USARE PER ERRORI CAMPI" textFill="WHITE">
+             text="USARE PER ERRORI CAMPI" textFill="WHITE" visible="false">
          <font>
             <Font name="System Bold Italic" size="30.0"/>
          </font>
@@ -48,5 +47,6 @@
             <Font name="System Bold Italic" size="40.0"/>
          </font>
       </JFXButton>
+      <JFXCheckBox fx:id="advancedRulesField" layoutX="443.0" layoutY="508.0" text=" "/>
    </children>
 </Pane>

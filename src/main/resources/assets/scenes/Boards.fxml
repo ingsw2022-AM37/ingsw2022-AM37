@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import com.jfoenix.controls.JFXButton?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.text.Font?>
-
-
 <Pane xmlns:fx="http://javafx.com/fxml/1" fx:id="boardsPane" maxHeight="-Infinity" maxWidth="-Infinity"
       minHeight="-Infinity" minWidth="-Infinity" prefHeight="980.0" prefWidth="980.0"
       xmlns="http://javafx.com/javafx/18">
@@ -31,5 +30,11 @@
                 <Font name="System Bold Italic" size="40.0"/>
             </font>
         </Label>
+        <JFXButton fx:id="closeButton" alignment="CENTER" layoutX="381.0" layoutY="885.0" onAction="#returnToGame"
+                   text="BUTTON">
+            <font>
+                <Font name="System Bold Italic" size="40.0"/>
+            </font>
+        </JFXButton>
     </children>
 </Pane>
