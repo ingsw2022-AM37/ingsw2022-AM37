@@ -168,7 +168,7 @@ public class GuiView extends AbstractView {
      */
     @Override
     public void hisTurn(String nick) {
-
+        displayImportant("It's " + nick + "'s turn");
     }
 
     /**
@@ -250,6 +250,13 @@ public class GuiView extends AbstractView {
      */
     @Override
     public ActionType takeInput(Client client) {
+        synchronized (SceneController.waitObject) {
+            try {
+                SceneController.waitObject.wait();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
         return null;
     }
 
