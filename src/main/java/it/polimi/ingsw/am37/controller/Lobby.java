@@ -292,7 +292,7 @@ public class Lobby implements Runnable, MessageReceiver {
      * @param message the Message received.
      * @param ch      the ClientHandler that called the method.
      */
-    private void studentsToDining(Message message, ClientHandler ch) {
+    private void studentsToDiningCase(Message message, ClientHandler ch) {
         Message response;
         int students;
         int movableStudents = 3;
@@ -360,7 +360,6 @@ public class Lobby implements Runnable, MessageReceiver {
             } catch (MNmovementWrongException e) {
                 response = new ErrorMessage(message.getUUID(), e.getMessage());
                 sendMessage(response);
-                //FIXME: Se riceve messaggio di errore CLI non lo fa richiedere (solo al secondo spostamento di studenti).
             }
         } else
             ch.disconnect();
@@ -410,7 +409,16 @@ public class Lobby implements Runnable, MessageReceiver {
             gameManager.chooseCloud(((ChooseCloudMessage) message).getCloudId());
             response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(), message.getMessageType().getClassName());
             sendMessage(response);
-            gameManager.nextTurn();
+            System.err.println("pre next turn:" + gameManager.getTurnManager().getOrderPlayed().stream().map(Player::getPlayerId));
+            //FIXME: nextTurn non va lanciato sempre, solo se è l'ultimo della lista, altrimenti continua solo il giro
+            if (isLastPlayerInOrder(message.getUUID())) {
+                System.err.println("Ho fatto la nextTurn");
+                gameManager.nextTurn();
+            } else {
+                System.err.println("Ho fatto la nextPlayer");
+                gameManager.getTurnManager().nextPlayer();
+            }
+            System.err.println("post next turn:" + gameManager.getTurnManager().getOrderPlayed().stream().map(Player::getPlayerId));
         } catch (IllegalArgumentException | StudentSpaceException e) {
             response = new ErrorMessage(message.getUUID(), e.getMessage());
             sendMessage(response);
@@ -487,13 +495,11 @@ public class Lobby implements Runnable, MessageReceiver {
             }
             case STUDENTS_TO_DINING -> {
                 LOGGER.info("[Lobby " + matchID + "] StudentsToDining Message received from: " + playerNicknames.get(message.getUUID()));
-                studentsToDining(message, ch);
-                //FIXME client non fa andare avanti se gioco questo messaggio (non c'è nella CLI la possibilità di 8 gioca MN)
+                studentsToDiningCase(message, ch);
             }
             case STUDENTS_TO_ISLAND -> {
                 LOGGER.info("[Lobby " + matchID + "] StudentsToIsland Message received from: " + playerNicknames.get(message.getUUID()));
                 studentsToIslandCase(message, ch);
-                //FIXME CHECK CONQUEROR lancia un'eccezione molto spesso (riga 259 del metodo) se si spostano degli studenti su delle isole e poi si sposta madre natura
             }
             case MOVE_MOTHER_NATURE -> {
                 LOGGER.info("[Lobby " + matchID + "] MoveMotherNature Message received from: " + playerNicknames.get(message.getUUID()));
@@ -506,7 +512,6 @@ public class Lobby implements Runnable, MessageReceiver {
             case CHOOSE_CLOUD -> {
                 LOGGER.info("[Lobby " + matchID + "] ChooseCloud Message received from: " + playerNicknames.get(message.getUUID()));
                 chooseCloudCase(message, ch);
-                //FIXME Nella cli se scelgo la cloud non manda il messaggio, non posso testare il nextTurn
             }
             default -> {
                 LOGGER.error("[Lobby " + matchID + "] Unexpected value: " + message.getMessageType());
@@ -524,7 +529,10 @@ public class Lobby implements Runnable, MessageReceiver {
             case NEXT_TURN, START_GAME, RESILIENCE, UPDATE -> {
                 for (ClientHandler ch : players.values()) {
                     ch.sendMessageToClient(message);
-                    LOGGER.info("[Lobby " + matchID + "] Sent " + message.getMessageType().getClassName() + " to " + playerNicknames.get(ch.getUUID()));
+                    if (message.getMessageType() == MessageType.NEXT_TURN)
+                        LOGGER.info("[Lobby " + matchID + "] Sent " + message.getMessageType().getClassName() + "[nextPlayer: " + ((NextTurnMessage) message).getNextPlayerNickname() + "] to " + playerNicknames.get(ch.getUUID()));
+                    else
+                        LOGGER.info("[Lobby " + matchID + "] Sent " + message.getMessageType().getClassName() + " to " + playerNicknames.get(ch.getUUID()));
                 }
             }
             case END_GAME -> {
