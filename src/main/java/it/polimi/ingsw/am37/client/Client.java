@@ -20,6 +20,7 @@ import java.util.Properties;
  * {@link Client#start()} method to start the game logic. Constructor and start method may throw
  * {@link PlayerAbortException} if user decide to abort the current action and close the game.
  */
+@SuppressWarnings("OptionalGetWithoutIsPresent")
 public class Client {
 
     /**
@@ -212,9 +213,7 @@ public class Client {
      * @return if server has an exception for our choice
      */
     private boolean chooseCloud() {
-
         String cloudId;
-
         cloudId = view.askCloud();
         Message message = new ChooseCloudMessage(UUID, cloudId);
         socket.sendMessage(message);
@@ -485,7 +484,6 @@ public class Client {
 
         status = ClientStatus.WAITINGFORTURN;
         while (socket.isConnectedToServer()) {
-
             currentAction = view.takeInput(this);
 
             switch (currentAction) {

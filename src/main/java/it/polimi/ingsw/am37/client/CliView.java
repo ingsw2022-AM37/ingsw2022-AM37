@@ -93,7 +93,7 @@ public class CliView extends AbstractView {
      * Method to notify if client or server has lost the connection
      */
     public void notifyInternetCrash() {
-        System.out.println("Game has lost the connection, it tried to reconnect but it failed. Game is now closing");
+        displayError("Game has lost the connection, it tried to reconnect but it failed. Game is now closing");
     }
 
     /**
@@ -125,15 +125,14 @@ public class CliView extends AbstractView {
     }
 
     /**
-     * Method used to ask a player which character he wants to play
+     * Method used to ask a nickname
      *
-     * @return the effect of the selected character
+     * @return The chosen nickname
      */
-    public Effect askCharacter() {
-        displayInfo("Which character you want to play? ");
+    public String chooseNickname() {
         Scanner scanner = new Scanner(System.in);
-        int response = scanner.nextInt();
-        return ((Character) reducedModel.getCharacters().toArray()[response]).getEffectType();
+        System.out.print("Please insert a nickname or write \"close game\": ");
+        return scanner.nextLine().trim().replaceAll(" ", "");
     }
 
     /**
@@ -166,14 +165,28 @@ public class CliView extends AbstractView {
     }
 
     /**
-     * Method used to ask a nickname
+     * Method used if player decided to don't use default setting for connection, so he will be asked to insert his
+     * parameters
      *
-     * @return The chosen nickname
+     * @return Client's decision
      */
-    public String chooseNickname() {
+    @Override
+    public Client.ConnectionParameters askConnectionParameters() {
         Scanner scanner = new Scanner(System.in);
-        System.out.print("Please insert a nickname or write \"close game\": ");
-        return scanner.nextLine().trim().replaceAll(" ", "");
+        while (true) {
+            System.out.print("Write server's address or \"close game\": ");
+            String addressInput = scanner.nextLine().toLowerCase().trim().replaceAll(" +", " ");
+            if (addressInput.equals("close game")) return null;
+            if (!Objects.equals(addressInput.toLowerCase(), "localhost")) displayImportant("i.notLocalhost");
+            System.out.print("Write server's port or \"close game\": ");
+            String portInput = scanner.nextLine().toLowerCase().trim().replaceAll(" +", " ");
+            if (portInput.equals("close game")) return null;
+            try {
+                return new Client.ConnectionParameters(addressInput, Integer.parseInt(portInput));
+            } catch (NumberFormatException e) {
+                wrongInsertPort();
+            }
+        }
     }
 
     @Override
@@ -232,28 +245,15 @@ public class CliView extends AbstractView {
     }
 
     /**
-     * Method used if player decided to don't use default setting for connection, so he will be asked to insert his
-     * parameters
+     * Method used to ask a player which character he wants to play
      *
-     * @return Client's decision
+     * @return the effect of the selected character
      */
-    @Override
-    public Client.ConnectionParameters askConnectionParameters() {
+    public Effect askCharacter() {
+        displayInfo("Which character you want to play? ");
         Scanner scanner = new Scanner(System.in);
-        while (true) {
-            System.out.print("Write server's address or \"close game\": ");
-            String addressInput = scanner.nextLine().toLowerCase().trim().replaceAll(" +", " ");
-            if (addressInput.equals("close game")) return null;
-            if (!Objects.equals(addressInput.toLowerCase(), "localhost")) displayImportant("i.notLocalhost");
-            System.out.print("Write server's port or \"close game\": ");
-            String portInput = scanner.nextLine().toLowerCase().trim().replaceAll(" +", " ");
-            if (portInput.equals("close game")) return null;
-            try {
-                return new Client.ConnectionParameters(addressInput, Integer.parseInt(portInput));
-            } catch (NumberFormatException e) {
-                wrongInsertPort();
-            }
-        }
+        int response = scanner.nextInt();
+        return ((Character) reducedModel.getCharacters().toArray()[response]).getEffectType();
     }
 
     @Override
@@ -408,11 +408,8 @@ public class CliView extends AbstractView {
                 .advancedRulesEnabled());
 
         while (true) {
-
-            displayInfo("You have to move " + (num == 0
-                    ? (GameManager.MAX_FOR_MOVEMENTS - client.getTotalStudentsInTurn())
-                    : num) +
-                    " in this turn");
+            int studentsToMove = (num == 0 ? (GameManager.MAX_FOR_MOVEMENTS - client.getTotalStudentsInTurn()) : num);
+            displayInfo("You have to move " + studentsToMove + (studentsToMove == 1 ? " student" : " students") + " in this turn");
 
             displayInfo("Select the color of students you want to move, write @|red,bold R|@ or @|blue,bold B|@ or " +
                     "@|yellow,bold Y|@ or @|green,bold G|@ or @|magenta,bold P|@");
@@ -475,48 +472,43 @@ public class CliView extends AbstractView {
             System.out.println(" Island " + island.getIslandId());
 
         while (true) {
-
             response = scanner.nextLine().trim().replaceAll(" +", " ");
-
             try {
                 numResponse = Integer.parseInt(response);
             } catch (NumberFormatException e) {
                 wrongInsert();
                 continue;
             }
-
             for (Island island : getReducedModel().getIslands())
                 if (island.getIslandId() == numResponse) return numResponse;
 
             System.out.println("You have written an invalid Island, please try again: \n");
-
         }
-
     }
 
     /**
      * @return which cloud player has chosen to take
      */
     public String askCloud() {
-
         String response;
         Scanner scanner = new Scanner(System.in);
         showTable();
-        System.out.print("Now choose a cloud to pick, number \"1\" or \"2\" or \"3\":");
-
-
+        System.out.print("Now choose your cloud, available clouds are: ");
+        String toPrint = reducedModel.getClouds().keySet().
+                stream()
+                .reduce("", (stringa, cloud) -> stringa + "\"" + cloud + "\" or ");
+        System.out.println(toPrint.substring(0, toPrint.length() - 4));
         while (true) {
             response = scanner.nextLine().trim().replaceAll(" +", " ");
-            if (response.equals("1") || response.equals("2") || response.equals("3")) return response;
+            if (reducedModel.getClouds().containsKey(response)) return response;
         }
-
     }
 
     /**
      * Tell the player it's his turn
      */
     public void yourTurn() {
-        System.out.println("\nIt's your turn. Please press enter to proceed...");
+        displayImportant("\nIt's your turn. Please press enter to proceed...");
     }
 
     @Override

@@ -11,12 +11,10 @@ import java.io.IOException;
 import java.util.Properties;
 
 public abstract class AbstractView {
-
     /**
      * Model in client
      */
     protected final ReducedModel reducedModel;
-
 
     protected final Properties messagesConstants;
 
