@@ -596,7 +596,7 @@ public class Lobby implements Runnable, MessageReceiver {
                         LOGGER.debug("[Lobby " + matchID + "] The game is over because the timer has expired");
                     }
                 }
-            }, 300500);
+            }, 600500);
         }
     }
 }
