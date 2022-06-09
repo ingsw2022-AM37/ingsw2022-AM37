@@ -1,12 +1,19 @@
 package it.polimi.ingsw.am37.client;
 
+import it.polimi.ingsw.am37.client.gui.GuiApp;
+import it.polimi.ingsw.am37.client.gui.SceneController;
+import it.polimi.ingsw.am37.client.gui.controller.ConnectionController;
+import it.polimi.ingsw.am37.client.gui.controller.EnterInGameController;
 import it.polimi.ingsw.am37.model.FactionColor;
 import it.polimi.ingsw.am37.model.Player;
 import it.polimi.ingsw.am37.model.character.Character;
 import it.polimi.ingsw.am37.model.character.Effect;
 import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
+import javafx.application.Application;
+import javafx.application.Platform;
 
 public class GuiView extends AbstractView {
+    private final GuiApp app;
 
     /**
      * Method used to ask which assistant player want to use
@@ -17,6 +24,11 @@ public class GuiView extends AbstractView {
     @Override
     public int askAssistant(Client client) {
         return 0;
+    }
+
+    public GuiView() {
+        new Thread(() -> Application.launch(GuiApp.class)).start();
+        app = GuiApp.waitForStartUp();
     }
 
     /**
@@ -45,7 +57,7 @@ public class GuiView extends AbstractView {
      */
     @Override
     public Boolean askConfirm(String message) {
-        return null;
+        return false;
     }
 
     /**
@@ -56,12 +68,21 @@ public class GuiView extends AbstractView {
      */
     @Override
     public Client.ConnectionParameters askConnectionParameters() {
-        return null;
+        synchronized (SceneController.waitObject) {
+            try {
+                SceneController.waitObject.wait();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
+        return ((ConnectionController) SceneController.getActiveController()).getConnectionParameters();
     }
 
     @Override
     public Client.LobbyParameters askLobbyParameters() {
-        return null;
+
+        return ((EnterInGameController) SceneController.getActiveController()).getLobbyParameters();
     }
 
     @Override
@@ -121,7 +142,15 @@ public class GuiView extends AbstractView {
      */
     @Override
     public String chooseNickname() {
-        return null;
+        Platform.runLater(() -> SceneController.switchScreen("/assets/scenes/EnterInGame.fxml"));
+        synchronized (SceneController.waitObject) {
+            try {
+                SceneController.waitObject.wait();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return ((EnterInGameController) SceneController.getActiveController()).getNickname();
     }
 
     /**
@@ -129,7 +158,7 @@ public class GuiView extends AbstractView {
      */
     @Override
     public void gameStarted() {
-
+        Platform.runLater(() -> SceneController.switchScreen("/assets/scenes/GameScene.fxml"));
     }
 
     /**
@@ -253,15 +282,14 @@ public class GuiView extends AbstractView {
      */
     @Override
     public void wrongInsertPort() {
-
+        displayError("You haven't written a number as server's port");
     }
 
     /**
      * Notify when requested server is unreachable
      */
-    @Override
     public void wrongServer() {
-
+        displayError("This server is unreachable");
     }
 
     /**
@@ -274,16 +302,16 @@ public class GuiView extends AbstractView {
 
     @Override
     public void displayInfo(String message) {
-
+        Platform.runLater(() -> SceneController.getActiveController().showInfo(message));
     }
 
     @Override
     public void displayImportant(String message) {
-
+        Platform.runLater(() -> SceneController.getActiveController().showImportant(message));
     }
 
     @Override
     public void displayError(String message) {
-
+        Platform.runLater(() -> SceneController.getActiveController().showError(message));
     }
 }

@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXCheckBox?>
+<?import com.jfoenix.controls.JFXToggleButton?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
@@ -10,7 +12,8 @@
 
 <Pane xmlns:fx="http://javafx.com/fxml/1" fx:id="nicknameScene" maxHeight="-Infinity" maxWidth="-Infinity"
       minHeight="-Infinity" minWidth="-Infinity" prefHeight="550.0" prefWidth="499.0"
-      xmlns="http://javafx.com/javafx/18">
+      xmlns="http://javafx.com/javafx/18"
+      fx:controller="it.polimi.ingsw.am37.client.gui.controller.EnterInGameController">
    <children>
       <ImageView fitHeight="500.0" fitWidth="500.0">
          <image>
@@ -29,15 +32,13 @@
             <Font name="System Bold Italic" size="12.0"/>
          </font>
       </Label>
-      <TextField fx:id="numOfPlayersField" layoutX="212.0" layoutY="505.0" prefHeight="25.0" prefWidth="77.0"/>
-      <TextField fx:id="advancedRulesField" layoutX="413.0" layoutY="505.0" prefHeight="25.0" prefWidth="77.0"/>
       <Label layoutX="408.0" layoutY="530.0" text="Advanced rules" textFill="#aa3838">
          <font>
             <Font name="System Bold Italic" size="12.0"/>
          </font>
       </Label>
       <Label fx:id="errorLabel" layoutX="14.0" layoutY="193.0" prefHeight="62.0" prefWidth="471.0"
-             text="USARE PER ERRORI CAMPI" textFill="WHITE">
+             text="USARE PER ERRORI CAMPI" textFill="WHITE" visible="false">
          <font>
             <Font name="System Bold Italic" size="30.0"/>
          </font>
@@ -48,5 +49,18 @@
             <Font name="System Bold Italic" size="40.0"/>
          </font>
       </JFXButton>
+      <JFXCheckBox fx:id="advancedRulesField" layoutX="443.0" layoutY="508.0" text=" "/>
+      <JFXToggleButton fx:id="numOfPlayersField" layoutX="212.0" layoutY="487.0" prefHeight="58.0" prefWidth="58.0"
+                       text=" " toggleColor="#fafafa" toggleLineColor="#999999"/>
+      <Label layoutX="210.0" layoutY="509.0" prefHeight="17.0" prefWidth="10.0" text="2" textFill="#aa3838">
+         <font>
+            <Font name="System Bold Italic" size="12.0"/>
+         </font>
+      </Label>
+      <Label layoutX="270.0" layoutY="509.0" prefHeight="17.0" prefWidth="10.0" text="3" textFill="#aa3838">
+         <font>
+            <Font name="System Bold Italic" size="12.0"/>
+         </font>
+      </Label>
    </children>
 </Pane>

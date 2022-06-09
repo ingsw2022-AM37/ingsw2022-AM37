@@ -10,828 +10,828 @@
 <Pane xmlns:fx="http://javafx.com/fxml/1" fx:id="wallpaperPane" maxHeight="-Infinity" maxWidth="-Infinity"
       minHeight="-Infinity" minWidth="-Infinity" prefHeight="980.0" prefWidth="1880.0"
       xmlns="http://javafx.com/javafx/18">
-   <children>
-      <ImageView fitHeight="980.0" fitWidth="1880.0">
-         <image>
-            <Image url="@../images/GameWallpaper.jpg"/>
-         </image>
+    <children>
+        <ImageView fitHeight="980.0" fitWidth="1880.0">
+            <image>
+                <Image url="@../images/GameWallpaper.jpg"/>
+            </image>
+        </ImageView>
+        <ImageView fitHeight="367.4" fitWidth="880.0" layoutX="-245.0" layoutY="270.0" rotate="90.0">
+            <image>
+                <Image url="@../images/Board.png"/>
+            </image>
       </ImageView>
-      <ImageView fitHeight="367.4" fitWidth="880.0" layoutX="-245.0" layoutY="270.0" rotate="90.0">
-         <image>
-            <Image url="@../images/Board.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="island12" fitHeight="147.5" fitWidth="166.6" layoutX="604.0" layoutY="81.0"
-                 onMouseClicked="#island12Clicked">
-         <image>
-            <Image url="@../images/Island1.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="island1" fitHeight="162.5" fitWidth="166.6" layoutX="820.0" layoutY="21.0"
-                 onMouseClicked="#island1Clicked">
-         <image>
-            <Image url="@../images/Island2.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="island8" fitHeight="162.5" fitWidth="166.6" layoutX="541.0" layoutY="779.0"
-                 onMouseClicked="#island8Clicked">
-         <image>
-            <Image url="@../images/Island3.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="island9" fitHeight="162.5" fitWidth="166.6" layoutX="401.0" layoutY="574.0"
-                 onMouseClicked="#island9Clicked">
-         <image>
-            <Image url="@../images/Island2.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="island11" fitHeight="162.5" fitWidth="166.6" layoutX="406.0" layoutY="170.0"
-                 onMouseClicked="#island11Clicked">
-         <image>
-            <Image url="@../images/Island3.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="island10" fitHeight="147.5" fitWidth="166.6" layoutX="406.0" layoutY="387.0"
-                 onMouseClicked="#island10Clicked">
-         <image>
-            <Image url="@../images/Island1.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="island2" fitHeight="162.5" fitWidth="166.6" layoutX="1048.0" layoutY="72.0"
-                 onMouseClicked="#island2Clicked">
-         <image>
-            <Image url="@../images/Island2.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="island3" fitHeight="162.5" fitWidth="166.6" layoutX="1185.0" layoutY="262.0"
-                 onMouseClicked="#island3Clicked">
-         <image>
-            <Image url="@../images/Island3.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="island4" fitHeight="147.5" fitWidth="166.6" layoutX="1190.0" layoutY="472.0"
-                 onMouseClicked="#island4Clicked">
-         <image>
-            <Image url="@../images/Island1.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="island7" fitHeight="147.5" fitWidth="166.6" layoutX="771.0" layoutY="819.0"
-                 onMouseClicked="#island7Clicked">
-         <image>
-            <Image url="@../images/Island1.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="island5" fitHeight="162.5" fitWidth="166.6" layoutX="1164.0" layoutY="662.0"
-                 onMouseClicked="#island5Clicked">
-         <image>
-            <Image url="@../images/Island3.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="island6" fitHeight="162.5" fitWidth="166.6" layoutX="972.0" layoutY="812.0"
-                 onMouseClicked="#island6Clicked">
-         <image>
-            <Image url="@../images/Island2.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="assistant1" fitHeight="166.66" fitWidth="113.33" layoutX="1384.0" layoutY="12.0"
-                 onMouseClicked="#playAssistant1">
-         <image>
-            <Image url="@../images/Assistant1.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="assistant2" fitHeight="166.66" fitWidth="113.33" layoutX="1509.0" layoutY="12.0"
-                 onMouseClicked="#playAssistant2">
-         <image>
-            <Image url="@../images/Assistant2.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="assistant3" fitHeight="166.66" fitWidth="113.33" layoutX="1632.0" layoutY="12.0"
-                 onMouseClicked="#playAssistant3">
-         <image>
-            <Image url="@../images/Assistant3.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="assistant4" fitHeight="166.66" fitWidth="113.33" layoutX="1752.0" layoutY="12.0"
-                 onMouseClicked="#playAssistant4">
-         <image>
-            <Image url="@../images/Assistant4.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="assistant5" fitHeight="166.66" fitWidth="113.33" layoutX="1384.0" layoutY="179.0"
-                 onMouseClicked="#playAssistant5">
-         <image>
-            <Image url="@../images/Assistant5.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="assistant6" fitHeight="166.66" fitWidth="113.33" layoutX="1509.0" layoutY="179.0"
-                 onMouseClicked="#playAssistant6">
-         <image>
-            <Image url="@../images/Assistant6.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="assistant7" fitHeight="166.66" fitWidth="113.33" layoutX="1632.0" layoutY="179.0"
-                 onMouseClicked="#playAssistant7">
-         <image>
-            <Image url="@../images/Assistant7.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="assistant8" fitHeight="166.66" fitWidth="113.33" layoutX="1752.0" layoutY="179.0"
-                 onMouseClicked="#playAssistant8">
-         <image>
-            <Image url="@../images/Assistant8.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="assistant9" fitHeight="166.66" fitWidth="113.33" layoutX="1632.0" layoutY="354.0"
-                 onMouseClicked="#playAssistant9">
-         <image>
-            <Image url="@../images/Assistant9.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="assistant10" fitHeight="166.66" fitWidth="113.33" layoutX="1752.0" layoutY="354.0"
-                 onMouseClicked="#playAssistant10">
-         <image>
-            <Image url="@../images/Assistant10.png"/>
-         </image>
-      </ImageView>
-      <JFXButton fx:id="allBoards" layoutX="394.0" layoutY="10.0" onAction="#showBoards" prefHeight="65.0"
-                 prefWidth="293.0" text="OTHERS' BOARDS" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="30.0"/>
-         </font>
-      </JFXButton>
+        <ImageView fx:id="island12" fitHeight="147.5" fitWidth="166.6" layoutX="604.0" layoutY="81.0"
+                   onMouseClicked="#island12Clicked">
+            <image>
+                <Image url="@../images/Island1.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="island1" fitHeight="162.5" fitWidth="166.6" layoutX="820.0" layoutY="21.0"
+                   onMouseClicked="#island1Clicked">
+            <image>
+                <Image url="@../images/Island2.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="island8" fitHeight="162.5" fitWidth="166.6" layoutX="541.0" layoutY="779.0"
+                   onMouseClicked="#island8Clicked">
+            <image>
+                <Image url="@../images/Island3.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="island9" fitHeight="162.5" fitWidth="166.6" layoutX="401.0" layoutY="574.0"
+                   onMouseClicked="#island9Clicked">
+            <image>
+                <Image url="@../images/Island2.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="island11" fitHeight="162.5" fitWidth="166.6" layoutX="406.0" layoutY="170.0"
+                   onMouseClicked="#island11Clicked">
+            <image>
+                <Image url="@../images/Island3.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="island10" fitHeight="147.5" fitWidth="166.6" layoutX="406.0" layoutY="387.0"
+                   onMouseClicked="#island10Clicked">
+            <image>
+                <Image url="@../images/Island1.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="island2" fitHeight="162.5" fitWidth="166.6" layoutX="1048.0" layoutY="72.0"
+                   onMouseClicked="#island2Clicked">
+            <image>
+                <Image url="@../images/Island2.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="island3" fitHeight="162.5" fitWidth="166.6" layoutX="1185.0" layoutY="262.0"
+                   onMouseClicked="#island3Clicked">
+            <image>
+                <Image url="@../images/Island3.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="island4" fitHeight="147.5" fitWidth="166.6" layoutX="1190.0" layoutY="472.0"
+                   onMouseClicked="#island4Clicked">
+            <image>
+                <Image url="@../images/Island1.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="island7" fitHeight="147.5" fitWidth="166.6" layoutX="771.0" layoutY="819.0"
+                   onMouseClicked="#island7Clicked">
+            <image>
+                <Image url="@../images/Island1.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="island5" fitHeight="162.5" fitWidth="166.6" layoutX="1164.0" layoutY="662.0"
+                   onMouseClicked="#island5Clicked">
+            <image>
+                <Image url="@../images/Island3.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="island6" fitHeight="162.5" fitWidth="166.6" layoutX="972.0" layoutY="812.0"
+                   onMouseClicked="#island6Clicked">
+            <image>
+                <Image url="@../images/Island2.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="assistant1" fitHeight="166.66" fitWidth="113.33" layoutX="1384.0" layoutY="12.0"
+                   onMouseClicked="#playAssistant1">
+            <image>
+                <Image url="@../images/Assistant1.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="assistant2" fitHeight="166.66" fitWidth="113.33" layoutX="1509.0" layoutY="12.0"
+                   onMouseClicked="#playAssistant2">
+            <image>
+                <Image url="@../images/Assistant2.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="assistant3" fitHeight="166.66" fitWidth="113.33" layoutX="1632.0" layoutY="12.0"
+                   onMouseClicked="#playAssistant3">
+            <image>
+                <Image url="@../images/Assistant3.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="assistant4" fitHeight="166.66" fitWidth="113.33" layoutX="1752.0" layoutY="12.0"
+                   onMouseClicked="#playAssistant4">
+            <image>
+                <Image url="@../images/Assistant4.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="assistant5" fitHeight="166.66" fitWidth="113.33" layoutX="1384.0" layoutY="179.0"
+                   onMouseClicked="#playAssistant5">
+            <image>
+                <Image url="@../images/Assistant5.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="assistant6" fitHeight="166.66" fitWidth="113.33" layoutX="1509.0" layoutY="179.0"
+                   onMouseClicked="#playAssistant6">
+            <image>
+                <Image url="@../images/Assistant6.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="assistant7" fitHeight="166.66" fitWidth="113.33" layoutX="1632.0" layoutY="179.0"
+                   onMouseClicked="#playAssistant7">
+            <image>
+                <Image url="@../images/Assistant7.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="assistant8" fitHeight="166.66" fitWidth="113.33" layoutX="1752.0" layoutY="179.0"
+                   onMouseClicked="#playAssistant8">
+            <image>
+                <Image url="@../images/Assistant8.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="assistant9" fitHeight="166.66" fitWidth="113.33" layoutX="1632.0" layoutY="354.0"
+                   onMouseClicked="#playAssistant9">
+            <image>
+                <Image url="@../images/Assistant9.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="assistant10" fitHeight="166.66" fitWidth="113.33" layoutX="1752.0" layoutY="354.0"
+                   onMouseClicked="#playAssistant10">
+            <image>
+                <Image url="@../images/Assistant10.png"/>
+            </image>
+        </ImageView>
+        <JFXButton fx:id="allBoards" layoutX="394.0" layoutY="10.0" onAction="#showBoards" prefHeight="65.0"
+                   prefWidth="293.0" text="OTHERS' BOARDS" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="30.0"/>
+            </font>
+        </JFXButton>
       <Label layoutX="1370.0" layoutY="542.0" text="LAST ASSISTANTS PLAYED " textFill="WHITE">
          <font>
-            <Font name="System Bold Italic" size="25.0"/>
+             <Font name="System Bold Italic" size="25.0"/>
          </font>
       </Label>
       <Label layoutX="1260.0" layoutY="16.0" text="MY DECK" textFill="WHITE">
          <font>
-            <Font name="System Bold Italic" size="25.0"/>
+             <Font name="System Bold Italic" size="25.0"/>
          </font>
       </Label>
       <Label fx:id="charactersLabel" layoutX="1370.0" layoutY="765.0" text="CHARACTERS" textFill="WHITE">
          <font>
-            <Font name="System Bold Italic" size="25.0"/>
+             <Font name="System Bold Italic" size="25.0"/>
          </font>
       </Label>
       <ImageView fitHeight="91.0" fitWidth="80.0" layoutX="843.0" layoutY="423.0">
          <image>
-            <Image url="@../images/Bag.png"/>
+             <Image url="@../images/Bag.png"/>
          </image>
       </ImageView>
-      <Label fx:id="nickname1" layoutX="1450.0" layoutY="680.0" prefHeight="28.0" prefWidth="113.0" rotate="-90.0"
-             text="Nickname1" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="20.0"/>
-         </font>
-      </Label>
+        <Label fx:id="nickname1" layoutX="1450.0" layoutY="680.0" prefHeight="28.0" prefWidth="113.0" rotate="-90.0"
+               text="Nickname1" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="20.0"/>
+            </font>
+        </Label>
       <Label fx:id="nickname2" layoutX="1630.0" layoutY="680.0" rotate="-90.0" text="Nickname2" textFill="WHITE">
          <font>
-            <Font name="System Bold Italic" size="20.0"/>
+             <Font name="System Bold Italic" size="20.0"/>
          </font>
       </Label>
       <Label fx:id="nickname3" layoutX="1810.0" layoutY="680.0" rotate="-90.0" text="Nickname3" textFill="WHITE">
          <font>
-            <Font name="System Bold Italic" size="20.0"/>
+             <Font name="System Bold Italic" size="20.0"/>
          </font>
       </Label>
       <Label fx:id="character1" layoutX="1450.0" layoutY="895.0" rotate="-90.0" text="Character1">
          <font>
-            <Font name="System Bold Italic" size="20.0"/>
+             <Font name="System Bold Italic" size="20.0"/>
          </font>
       </Label>
       <Label fx:id="character2" layoutX="1630.0" layoutY="895.0" rotate="-90.0" text="Character2">
          <font>
-            <Font name="System Bold Italic" size="20.0"/>
+             <Font name="System Bold Italic" size="20.0"/>
          </font>
       </Label>
       <Label fx:id="character3" layoutX="1810.0" layoutY="895.0" rotate="-90.0" text="Character3">
          <font>
-            <Font name="System Bold Italic" size="20.0"/>
+             <Font name="System Bold Italic" size="20.0"/>
          </font>
       </Label>
       <Label fx:id="errorLabel" layoutX="1392.0" layoutY="422.0" text="ERROR MESSAGE" textFill="RED">
          <font>
-            <Font name="System Bold Italic" size="20.0"/>
+             <Font name="System Bold Italic" size="20.0"/>
          </font>
       </Label>
-      <ImageView fx:id="y1" layoutX="809.0" layoutY="62.0">
-         <image>
-            <Image url="@../images/YellowStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="r1" layoutX="883.0" layoutY="12.0">
-         <image>
-            <Image url="@../images/RedStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="p1" layoutX="836.0" layoutY="137.0">
-         <image>
-            <Image url="@../images/PinkStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="g1" layoutX="934.0" layoutY="137.0">
-         <image>
-            <Image url="@../images/GreenStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="b1" layoutX="960.0" layoutY="62.0">
-         <image>
-            <Image url="@../images/BlueStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="y2" layoutX="1038.0" layoutY="113.0">
-         <image>
-            <Image url="@../images/YellowStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="r2" layoutX="1111.0" layoutY="63.0">
-         <image>
-            <Image url="@../images/RedStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="p2" layoutX="1064.0" layoutY="188.0">
-         <image>
-            <Image url="@../images/PinkStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="g2" layoutX="1162.0" layoutY="188.0">
-         <image>
-            <Image url="@../images/GreenStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="b2" layoutX="1188.0" layoutY="113.0">
-         <image>
-            <Image url="@../images/BlueStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="y3" layoutX="1175.0" layoutY="303.0">
-         <image>
-            <Image url="@../images/YellowStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="r3" layoutX="1248.0" layoutY="253.0">
-         <image>
-            <Image url="@../images/RedStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="p3" layoutX="1201.0" layoutY="378.0">
-         <image>
-            <Image url="@../images/PinkStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="g3" layoutX="1299.0" layoutY="378.0">
-         <image>
-            <Image url="@../images/GreenStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="b3" layoutX="1325.0" layoutY="303.0">
-         <image>
-            <Image url="@../images/BlueStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="y4" layoutX="1180.0" layoutY="513.0">
-         <image>
-            <Image url="@../images/YellowStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="r4" layoutX="1253.0" layoutY="463.0">
-         <image>
-            <Image url="@../images/RedStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="p4" layoutX="1206.0" layoutY="588.0">
-         <image>
-            <Image url="@../images/PinkStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="g4" layoutX="1304.0" layoutY="588.0">
-         <image>
-            <Image url="@../images/GreenStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="b4" layoutX="1330.0" layoutY="513.0">
-         <image>
-            <Image url="@../images/BlueStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="y5" layoutX="1154.0" layoutY="703.0">
-         <image>
-            <Image url="@../images/YellowStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="r5" layoutX="1227.0" layoutY="653.0">
-         <image>
-            <Image url="@../images/RedStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="p5" layoutX="1180.0" layoutY="778.0">
-         <image>
-            <Image url="@../images/PinkStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="g5" layoutX="1278.0" layoutY="778.0">
-         <image>
-            <Image url="@../images/GreenStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="b5" layoutX="1304.0" layoutY="703.0">
-         <image>
-            <Image url="@../images/BlueStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="y6" layoutX="962.0" layoutY="853.0">
-         <image>
-            <Image url="@../images/YellowStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="r6" layoutX="1035.0" layoutY="803.0">
-         <image>
-            <Image url="@../images/RedStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="p6" layoutX="988.0" layoutY="928.0">
-         <image>
-            <Image url="@../images/PinkStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="g6" layoutX="1086.0" layoutY="928.0">
-         <image>
-            <Image url="@../images/GreenStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="b6" layoutX="1112.0" layoutY="853.0">
-         <image>
-            <Image url="@../images/BlueStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="y7" layoutX="761.0" layoutY="860.0">
-         <image>
-            <Image url="@../images/YellowStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="r7" layoutX="834.0" layoutY="810.0">
-         <image>
-            <Image url="@../images/RedStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="p7" layoutX="787.0" layoutY="935.0">
-         <image>
-            <Image url="@../images/PinkStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="g7" layoutX="885.0" layoutY="935.0">
-         <image>
-            <Image url="@../images/GreenStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="b7" layoutX="911.0" layoutY="860.0">
-         <image>
-            <Image url="@../images/BlueStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="y8" layoutX="531.0" layoutY="820.0">
-         <image>
-            <Image url="@../images/YellowStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="r8" layoutX="604.0" layoutY="770.0">
-         <image>
-            <Image url="@../images/RedStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="p8" layoutX="557.0" layoutY="895.0">
-         <image>
-            <Image url="@../images/PinkStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="g8" layoutX="655.0" layoutY="895.0">
-         <image>
-            <Image url="@../images/GreenStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="b8" layoutX="681.0" layoutY="820.0">
-         <image>
-            <Image url="@../images/BlueStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="y9" layoutX="391.0" layoutY="615.0">
-         <image>
-            <Image url="@../images/YellowStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="r9" layoutX="464.0" layoutY="565.0">
-         <image>
-            <Image url="@../images/RedStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="p9" layoutX="417.0" layoutY="690.0">
-         <image>
-            <Image url="@../images/PinkStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="g9" layoutX="515.0" layoutY="690.0">
-         <image>
-            <Image url="@../images/GreenStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="b9" layoutX="541.0" layoutY="615.0">
-         <image>
-            <Image url="@../images/BlueStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="y10" layoutX="396.0" layoutY="428.0">
-         <image>
-            <Image url="@../images/YellowStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="r10" layoutX="469.0" layoutY="378.0">
-         <image>
-            <Image url="@../images/RedStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="p10" layoutX="422.0" layoutY="503.0">
-         <image>
-            <Image url="@../images/PinkStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="g10" layoutX="520.0" layoutY="503.0">
-         <image>
-            <Image url="@../images/GreenStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="b10" layoutX="546.0" layoutY="428.0">
-         <image>
-            <Image url="@../images/BlueStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="y11" layoutX="396.0" layoutY="211.0">
-         <image>
-            <Image url="@../images/YellowStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="r11" layoutX="469.0" layoutY="161.0">
-         <image>
-            <Image url="@../images/RedStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="p11" layoutX="422.0" layoutY="286.0">
-         <image>
-            <Image url="@../images/PinkStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="g11" layoutX="520.0" layoutY="286.0">
-         <image>
-            <Image url="@../images/GreenStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="b11" layoutX="546.0" layoutY="211.0">
-         <image>
-            <Image url="@../images/BlueStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="y12" layoutX="594.0" layoutY="122.0">
-         <image>
-            <Image url="@../images/YellowStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="r12" layoutX="667.0" layoutY="72.0">
-         <image>
-            <Image url="@../images/RedStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="p12" layoutX="620.0" layoutY="197.0">
-         <image>
-            <Image url="@../images/PinkStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="g12" layoutX="718.0" layoutY="197.0">
-         <image>
-            <Image url="@../images/GreenStudent.png"/>
-         </image>
-      </ImageView>
-      <ImageView fx:id="b12" layoutX="744.0" layoutY="122.0">
-         <image>
-            <Image url="@../images/BlueStudent.png"/>
-         </image>
-      </ImageView>
+        <ImageView fx:id="y1" layoutX="809.0" layoutY="62.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/YellowStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="r1" layoutX="883.0" layoutY="12.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/RedStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="p1" layoutX="836.0" layoutY="137.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/PinkStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="g1" layoutX="934.0" layoutY="137.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/GreenStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="b1" layoutX="960.0" layoutY="62.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/BlueStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="y2" layoutX="1038.0" layoutY="113.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/YellowStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="r2" layoutX="1111.0" layoutY="63.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/RedStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="p2" layoutX="1064.0" layoutY="188.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/PinkStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="g2" layoutX="1162.0" layoutY="188.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/GreenStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="b2" layoutX="1188.0" layoutY="113.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/BlueStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="y3" layoutX="1175.0" layoutY="303.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/YellowStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="r3" layoutX="1248.0" layoutY="253.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/RedStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="p3" layoutX="1201.0" layoutY="378.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/PinkStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="g3" layoutX="1299.0" layoutY="378.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/GreenStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="b3" layoutX="1325.0" layoutY="303.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/BlueStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="y4" layoutX="1180.0" layoutY="513.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/YellowStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="r4" layoutX="1253.0" layoutY="463.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/RedStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="p4" layoutX="1206.0" layoutY="588.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/PinkStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="g4" layoutX="1304.0" layoutY="588.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/GreenStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="b4" layoutX="1330.0" layoutY="513.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/BlueStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="y5" layoutX="1154.0" layoutY="703.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/YellowStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="r5" layoutX="1227.0" layoutY="653.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/RedStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="p5" layoutX="1180.0" layoutY="778.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/PinkStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="g5" layoutX="1278.0" layoutY="778.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/GreenStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="b5" layoutX="1304.0" layoutY="703.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/BlueStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="y6" layoutX="962.0" layoutY="853.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/YellowStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="r6" layoutX="1035.0" layoutY="803.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/RedStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="p6" layoutX="988.0" layoutY="928.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/PinkStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="g6" layoutX="1086.0" layoutY="928.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/GreenStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="b6" layoutX="1112.0" layoutY="853.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/BlueStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="y7" layoutX="761.0" layoutY="860.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/YellowStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="r7" layoutX="834.0" layoutY="810.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/RedStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="p7" layoutX="787.0" layoutY="935.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/PinkStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="g7" layoutX="885.0" layoutY="935.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/GreenStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="b7" layoutX="911.0" layoutY="860.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/BlueStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="y8" layoutX="531.0" layoutY="820.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/YellowStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="r8" layoutX="604.0" layoutY="770.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/RedStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="p8" layoutX="557.0" layoutY="895.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/PinkStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="g8" layoutX="655.0" layoutY="895.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/GreenStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="b8" layoutX="681.0" layoutY="820.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/BlueStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="y9" layoutX="391.0" layoutY="615.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/YellowStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="r9" layoutX="464.0" layoutY="565.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/RedStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="p9" layoutX="417.0" layoutY="690.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/PinkStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="g9" layoutX="515.0" layoutY="690.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/GreenStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="b9" layoutX="541.0" layoutY="615.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/BlueStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="y10" layoutX="396.0" layoutY="428.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/YellowStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="r10" layoutX="469.0" layoutY="378.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/RedStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="p10" layoutX="422.0" layoutY="503.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/PinkStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="g10" layoutX="520.0" layoutY="503.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/GreenStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="b10" layoutX="546.0" layoutY="428.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/BlueStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="y11" layoutX="396.0" layoutY="211.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/YellowStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="r11" layoutX="469.0" layoutY="161.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/RedStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="p11" layoutX="422.0" layoutY="286.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/PinkStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="g11" layoutX="520.0" layoutY="286.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/GreenStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="b11" layoutX="546.0" layoutY="211.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/BlueStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="y12" layoutX="594.0" layoutY="122.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/YellowStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="r12" layoutX="667.0" layoutY="72.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/RedStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="p12" layoutX="620.0" layoutY="197.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/PinkStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="g12" layoutX="718.0" layoutY="197.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/GreenStudent.png"/>
+            </image>
+        </ImageView>
+        <ImageView fx:id="b12" layoutX="744.0" layoutY="122.0" mouseTransparent="true">
+            <image>
+                <Image url="@../images/BlueStudent.png"/>
+            </image>
+        </ImageView>
       <Label layoutX="394.0" layoutY="741.0" text="MY DECK">
          <font>
-            <Font name="System Bold Italic" size="25.0"/>
+             <Font name="System Bold Italic" size="25.0"/>
          </font>
       </Label>
-      <Label fx:id="nB11" layoutX="546.0" layoutY="211.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nR11" layoutX="469.0" layoutY="161.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nG11" layoutX="520.0" layoutY="286.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nP11" layoutX="422.0" layoutY="286.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nY11" layoutX="396.0" layoutY="211.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nR12" layoutX="667.0" layoutY="72.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nB12" layoutX="744.0" layoutY="122.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nG12" layoutX="718.0" layoutY="197.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nP12" layoutX="620.0" layoutY="197.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nY12" layoutX="594.0" layoutY="122.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nY1" layoutX="809.0" layoutY="62.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nR1" layoutX="883.0" layoutY="12.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nB1" layoutX="960.0" layoutY="62.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nG1" layoutX="934.0" layoutY="137.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nP1" layoutX="836.0" layoutY="137.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nR2" layoutX="1111.0" layoutY="63.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nB2" layoutX="1188.0" layoutY="113.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nG2" layoutX="1162.0" layoutY="188.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nP2" layoutX="1064.0" layoutY="188.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nY2" layoutX="1038.0" layoutY="113.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nR3" layoutX="1248.0" layoutY="253.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nB3" layoutX="1325.0" layoutY="303.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nG3" layoutX="1299.0" layoutY="378.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nP3" layoutX="1201.0" layoutY="378.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nY3" layoutX="1175.0" layoutY="303.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nR4" layoutX="1253.0" layoutY="463.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nB4" layoutX="1330.0" layoutY="513.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nY4" layoutX="1180.0" layoutY="513.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nP4" layoutX="1206.0" layoutY="588.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nG4" layoutX="1304.0" layoutY="588.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nR5" layoutX="1227.0" layoutY="653.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nB5" layoutX="1304.0" layoutY="703.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nY5" layoutX="1154.0" layoutY="703.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nP5" layoutX="1180.0" layoutY="778.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nG5" layoutX="1278.0" layoutY="778.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nR6" layoutX="1035.0" layoutY="803.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nY6" layoutX="962.0" layoutY="853.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nB6" layoutX="1112.0" layoutY="853.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nP6" layoutX="988.0" layoutY="928.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nG6" layoutX="1086.0" layoutY="928.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nR7" layoutX="834.0" layoutY="810.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nB7" layoutX="911.0" layoutY="860.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nY7" layoutX="761.0" layoutY="860.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nP7" layoutX="787.0" layoutY="935.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nG7" layoutX="885.0" layoutY="935.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nR8" layoutX="604.0" layoutY="770.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nB8" layoutX="681.0" layoutY="820.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nG8" layoutX="655.0" layoutY="895.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nY8" layoutX="531.0" layoutY="820.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nP8" layoutX="557.0" layoutY="895.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nR9" layoutX="464.0" layoutY="565.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nB9" layoutX="541.0" layoutY="615.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nG9" layoutX="515.0" layoutY="690.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nY9" layoutX="391.0" layoutY="615.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nP9" layoutX="417.0" layoutY="690.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nR10" layoutX="469.0" layoutY="378.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nB10" layoutX="546.0" layoutY="428.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nG10" layoutX="520.0" layoutY="503.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nP10" layoutX="422.0" layoutY="503.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <Label fx:id="nY10" layoutX="396.0" layoutY="428.0" text="0" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="23.0"/>
-         </font>
-      </Label>
-      <ImageView fx:id="entrance" fitHeight="132.0" fitWidth="367.0" layoutX="11.0" layoutY="14.0"
-                 onMouseClicked="#entranceClicked" pickOnBounds="true" preserveRatio="true"/>
-      <ImageView fx:id="dining" fitHeight="447.0" fitWidth="367.0" layoutX="11.0" layoutY="158.0"
-                 onMouseClicked="#diningClicked" pickOnBounds="true" preserveRatio="true"/>
-      <ImageView fx:id="profPlace" fitHeight="78.0" fitWidth="367.0" layoutX="14.0" layoutY="617.0"
-                 onMouseClicked="#profPlaceClicked" pickOnBounds="true" preserveRatio="true"/>
-      <ImageView fx:id="towerPlace" fitHeight="185.0" fitWidth="367.0" layoutX="11.0" layoutY="708.0"
-                 onMouseClicked="#towerPlaceClicked" pickOnBounds="true" preserveRatio="true"/>
-      <Label fx:id="numCoins" layoutX="1259.0" layoutY="900.0" prefHeight="36.0" prefWidth="48.0" text="0">
-         <font>
-            <Font name="System Bold Italic" size="25.0"/>
-         </font>
-      </Label>
-   </children>
+        <Label fx:id="nB11" layoutX="546.0" layoutY="211.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nR11" layoutX="469.0" layoutY="161.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nG11" layoutX="520.0" layoutY="286.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nP11" layoutX="422.0" layoutY="286.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nY11" layoutX="396.0" layoutY="211.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nR12" layoutX="667.0" layoutY="72.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nB12" layoutX="744.0" layoutY="122.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nG12" layoutX="718.0" layoutY="197.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nP12" layoutX="620.0" layoutY="197.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nY12" layoutX="594.0" layoutY="122.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nY1" layoutX="809.0" layoutY="62.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nR1" layoutX="883.0" layoutY="12.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nB1" layoutX="960.0" layoutY="62.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nG1" layoutX="934.0" layoutY="137.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nP1" layoutX="836.0" layoutY="137.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nR2" layoutX="1111.0" layoutY="63.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nB2" layoutX="1188.0" layoutY="113.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nG2" layoutX="1162.0" layoutY="188.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nP2" layoutX="1064.0" layoutY="188.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nY2" layoutX="1038.0" layoutY="113.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nR3" layoutX="1248.0" layoutY="253.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nB3" layoutX="1325.0" layoutY="303.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nG3" layoutX="1299.0" layoutY="378.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nP3" layoutX="1201.0" layoutY="378.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nY3" layoutX="1175.0" layoutY="303.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nR4" layoutX="1253.0" layoutY="463.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nB4" layoutX="1330.0" layoutY="513.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nY4" layoutX="1180.0" layoutY="513.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nP4" layoutX="1206.0" layoutY="588.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nG4" layoutX="1304.0" layoutY="588.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nR5" layoutX="1227.0" layoutY="653.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nB5" layoutX="1304.0" layoutY="703.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nY5" layoutX="1154.0" layoutY="703.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nP5" layoutX="1180.0" layoutY="778.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nG5" layoutX="1278.0" layoutY="778.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nR6" layoutX="1035.0" layoutY="803.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nY6" layoutX="962.0" layoutY="853.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nB6" layoutX="1112.0" layoutY="853.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nP6" layoutX="988.0" layoutY="928.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nG6" layoutX="1086.0" layoutY="928.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nR7" layoutX="834.0" layoutY="810.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nB7" layoutX="911.0" layoutY="860.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nY7" layoutX="761.0" layoutY="860.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nP7" layoutX="787.0" layoutY="935.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nG7" layoutX="885.0" layoutY="935.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nR8" layoutX="604.0" layoutY="770.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nB8" layoutX="681.0" layoutY="820.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nG8" layoutX="655.0" layoutY="895.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nY8" layoutX="531.0" layoutY="820.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nP8" layoutX="557.0" layoutY="895.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nR9" layoutX="464.0" layoutY="565.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nB9" layoutX="541.0" layoutY="615.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nG9" layoutX="515.0" layoutY="690.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nY9" layoutX="391.0" layoutY="615.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nP9" layoutX="417.0" layoutY="690.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nR10" layoutX="469.0" layoutY="378.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nB10" layoutX="546.0" layoutY="428.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nG10" layoutX="520.0" layoutY="503.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nP10" layoutX="422.0" layoutY="503.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <Label fx:id="nY10" layoutX="396.0" layoutY="428.0" mouseTransparent="true" text="0" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="23.0"/>
+            </font>
+        </Label>
+        <ImageView fx:id="entrance" fitHeight="132.0" fitWidth="367.0" layoutX="11.0" layoutY="14.0"
+                   onMouseClicked="#entranceClicked" pickOnBounds="true" preserveRatio="true"/>
+        <ImageView fx:id="dining" fitHeight="447.0" fitWidth="367.0" layoutX="11.0" layoutY="158.0"
+                   onMouseClicked="#diningClicked" pickOnBounds="true" preserveRatio="true"/>
+        <ImageView fx:id="profPlace" fitHeight="78.0" fitWidth="367.0" layoutX="14.0" layoutY="617.0"
+                   onMouseClicked="#profPlaceClicked" pickOnBounds="true" preserveRatio="true"/>
+        <ImageView fx:id="towerPlace" fitHeight="185.0" fitWidth="367.0" layoutX="11.0" layoutY="708.0"
+                   onMouseClicked="#towerPlaceClicked" pickOnBounds="true" preserveRatio="true"/>
+        <Label fx:id="numCoins" layoutX="1259.0" layoutY="900.0" prefHeight="36.0" prefWidth="48.0" text="0">
+            <font>
+                <Font name="System Bold Italic" size="25.0"/>
+            </font>
+        </Label>
+    </children>
 </Pane>

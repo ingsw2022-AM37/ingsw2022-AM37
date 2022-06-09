@@ -7,6 +7,9 @@ import it.polimi.ingsw.am37.model.character.Character;
 import it.polimi.ingsw.am37.model.character.Effect;
 import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
 
+import java.io.IOException;
+import java.util.Properties;
+
 public abstract class AbstractView {
 
     /**
@@ -14,11 +17,20 @@ public abstract class AbstractView {
      */
     protected final ReducedModel reducedModel;
 
+
+    protected final Properties messagesConstants;
+
     /**
      * Default constructor
      */
     public AbstractView() {
         this.reducedModel = new ReducedModel();
+        messagesConstants = new Properties();
+        try {
+            messagesConstants.load(Client.class.getResourceAsStream("/messages.properties"));
+        } catch (IOException e) {
+            System.err.println("Unable to find messages file");
+        }
     }
 
     /**
