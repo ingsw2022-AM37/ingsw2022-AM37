@@ -8,6 +8,7 @@ import it.polimi.ingsw.am37.model.character.Effect;
 import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Properties;
 
 public abstract class AbstractView {
@@ -154,6 +155,14 @@ public abstract class AbstractView {
      * @param player the player to show the deck of
      */
     public abstract void showDeck(Player player);
+
+    /**
+     * Method used to display the last Assistant played except the client's one
+     *
+     * @param players      the players to show the last assistant played
+     * @param playerToSkip the player to skip
+     */
+    public abstract void showLastAssistantPlayed(Collection<Player> players, Player playerToSkip);
 
     /**
      * This function print the view of a player's status: his last assistant and board

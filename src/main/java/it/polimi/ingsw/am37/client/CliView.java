@@ -221,11 +221,10 @@ public class CliView extends AbstractView {
         String s;
         int num;
         showDeck(client.getView().getReducedModel().getPlayers().get(client.getNickname()));
+        showLastAssistantPlayed(client.getView().getReducedModel().getPlayers().values(), client.getView().getReducedModel().getPlayers().get(client.getNickname()));
 
         while (true) {
-
             System.out.print("Please insert the value of your chosen assistant: ");
-
             s = scanner.nextLine().trim().replaceAll(" +", " ");
 
             try {
@@ -670,6 +669,24 @@ public class CliView extends AbstractView {
             if (i % 2 == 1 || i == assistants.size() - 1) System.out.println();
         }
         System.out.println("]");
+    }
+
+    /**
+     * Method used to display the last Assistant played except the client's one
+     *
+     * @param players      the players to show the last assistant played
+     * @param playerToSkip the player to skip
+     */
+    @Override
+    public void showLastAssistantPlayed(Collection<Player> players, Player playerToSkip) {
+        for (Player player : players) {
+            if (!player.getPlayerId().equals(playerToSkip.getPlayerId())) {
+                System.out.print("Last assistant played by " + player.getPlayerId() + ": ");
+                if (player.getLastAssistantPlayed() != null) drawAssistant(player.getLastAssistantPlayed());
+                else System.out.print(ansi().fgCyan().a("No assistant has been played yet").reset());
+                System.out.println();
+            }
+        }
     }
 
     /**

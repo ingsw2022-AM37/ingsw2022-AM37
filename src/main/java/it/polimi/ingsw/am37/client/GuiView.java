@@ -12,6 +12,8 @@ import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
 import javafx.application.Application;
 import javafx.application.Platform;
 
+import java.util.Collection;
+
 public class GuiView extends AbstractView {
     private final GuiApp app;
 
@@ -47,6 +49,25 @@ public class GuiView extends AbstractView {
     @Override
     public String askCloud() {
         return null;
+    }
+
+    /**
+     * @return the reduced model of the view
+     */
+    @Override
+    public ReducedModel getReducedModel() {
+        return super.getReducedModel();
+    }
+
+    /**
+     * Method used to display the last Assistant played except the client's one
+     *
+     * @param players      the players to show the last assistant played
+     * @param playerToSkip the player to skip
+     */
+    @Override
+    public void showLastAssistantPlayed(Collection<Player> players, Player playerToSkip) {
+
     }
 
     /**
