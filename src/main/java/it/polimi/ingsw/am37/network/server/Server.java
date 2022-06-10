@@ -169,7 +169,7 @@ public class Server implements MessageReceiver {
                     new Thread(lobbyFound).start();
                     activeLobbies.add(lobbyFound);
                     lobbyFound.addPlayerInLobby(message.getUUID(), ch, nicknames.get(message.getUUID()));
-                    LOGGER.info(nicknames.get(message.getUUID()) + "entered lobby " + lobbyFound.getMatchID());
+                    LOGGER.info(nicknames.get(message.getUUID()) + " entered lobby " + lobbyFound.getMatchID());
                     ch.setMessageReceiver(lobbyFound);
                 }
                 for (Lobby lobby : activeLobbies) {
@@ -194,6 +194,10 @@ public class Server implements MessageReceiver {
      * @param lobby the Lobby to be closed.
      */
     public void closeLobby(Lobby lobby) {
+        for (String uuid : lobby.getPlayers().keySet()) {
+            clientHandlerMap.get(uuid).disconnect();
+            onDisconnect(uuid);
+        }
         nicknames.keySet().removeAll(lobby.getPlayerNicknames().keySet());
         activeLobbies.remove(lobby);
         LOGGER.info("Lobby " + lobby.getMatchID() + " closed");
