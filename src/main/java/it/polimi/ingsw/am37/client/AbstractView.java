@@ -1,6 +1,7 @@
 package it.polimi.ingsw.am37.client;
 
 
+import it.polimi.ingsw.am37.model.Assistant;
 import it.polimi.ingsw.am37.model.FactionColor;
 import it.polimi.ingsw.am37.model.Player;
 import it.polimi.ingsw.am37.model.character.Character;

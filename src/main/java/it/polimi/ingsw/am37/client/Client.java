@@ -246,13 +246,17 @@ public class Client {
         while (nickname == null) {
             tempNick = view.chooseNickname();
             if (tempNick.equals("close game")) throw new PlayerAbortException();
-            sendLoginMessage(UUID, tempNick);
-            if (!onMessage()) {
-                ErrorMessage mes = (ErrorMessage) lastReadMessage;
-                view.displayError(mes.getMessage());
-            } else if (lastReadMessage.getMessageType() == MessageType.CONFIRM) {
-                this.nickname = tempNick;
-                savedProperties.setProperty(P_NICKNAME_KEY, this.nickname);
+            if (tempNick.isBlank()) {
+                view.displayError(messagesConstants.getProperty("e.nicknameBlank"));
+            } else {
+                sendLoginMessage(UUID, tempNick);
+                if (!onMessage()) {
+                    ErrorMessage mes = (ErrorMessage) lastReadMessage;
+                    view.displayError(mes.getMessage());
+                } else if (lastReadMessage.getMessageType() == MessageType.CONFIRM) {
+                    this.nickname = tempNick;
+                    savedProperties.setProperty(P_NICKNAME_KEY, this.nickname);
+                }
             }
         }
     }
@@ -549,11 +553,12 @@ public class Client {
      * @return if initial input was wrong
      */
     private boolean tryConnection(String address, String port) {
-
         if (address == null || port == null) return false;
         try {
+            view.displayInfo("Connecting to server");
             socket = new ClientSocket(address, Integer.parseInt(port), this);
             new Thread(socket, "__client_socket").start();
+            view.displayInfo("Connected to server");
             return true;
         } catch (NumberFormatException e) {
             view.wrongInsertPort();
