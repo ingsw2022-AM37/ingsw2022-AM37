@@ -73,9 +73,10 @@ public abstract class AbstractView {
     public abstract int askIsland();
 
     /**
+     * @param assistant the assistant chosen by the player
      * @return Where mother nature has to go
      */
-    public abstract int askMotherNature();
+    public abstract int askMotherNature(Assistant assistant);
 
     /**
      * Method used to ask which player you want to look at
@@ -181,6 +182,13 @@ public abstract class AbstractView {
      * This function draw the current status of the table: islands and boards
      */
     public abstract void showTable();
+
+    /**
+     * Method used to show where mother nature can go
+     *
+     * @param assistant the assistant to know how many steps can mother nature take
+     */
+    public abstract void showPossibleIslandDestination(Assistant assistant);
 
     /**
      * @param client the client to get the status of the current player

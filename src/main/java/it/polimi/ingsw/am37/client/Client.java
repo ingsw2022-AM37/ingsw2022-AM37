@@ -151,7 +151,6 @@ public class Client {
         };
         while (!tryConnection(address, port)) {
             Boolean defaultOptions = view.askConfirm("Do you want to use default options?");
-
             if (defaultOptions == null) {
                 throw new PlayerAbortException();
             } else if (defaultOptions) {
@@ -320,7 +319,7 @@ public class Client {
      * @return if server has an exception for the movement
      */
     private boolean moveMotherNature() {
-        int islandId = view.askMotherNature();
+        int islandId = view.askMotherNature(view.getReducedModel().getPlayers().get(nickname).getLastAssistantPlayed());
         Message message = new MoveMotherNatureMessage(UUID, islandId);
         socket.sendMessage(message);
         return onMessage();

@@ -4,6 +4,7 @@ import it.polimi.ingsw.am37.client.gui.GuiApp;
 import it.polimi.ingsw.am37.client.gui.SceneController;
 import it.polimi.ingsw.am37.client.gui.controller.ConnectionController;
 import it.polimi.ingsw.am37.client.gui.controller.EnterInGameController;
+import it.polimi.ingsw.am37.model.Assistant;
 import it.polimi.ingsw.am37.model.FactionColor;
 import it.polimi.ingsw.am37.model.Player;
 import it.polimi.ingsw.am37.model.character.Character;
@@ -112,10 +113,11 @@ public class GuiView extends AbstractView {
     }
 
     /**
+     * @param assistant the assistant chosen by the players
      * @return Where mother nature has to go
      */
     @Override
-    public int askMotherNature() {
+    public int askMotherNature(Assistant assistant) {
         return 0;
     }
 
@@ -262,6 +264,16 @@ public class GuiView extends AbstractView {
      */
     @Override
     public void showTable() {
+
+    }
+
+    /**
+     * Method used to show where mother nature can go
+     *
+     * @param assistant the assistant to know how many steps can mother nature take
+     */
+    @Override
+    public void showPossibleIslandDestination(Assistant assistant) {
 
     }
 

@@ -460,15 +460,13 @@ public class CliView extends AbstractView {
     /**
      * @return Where mother nature has to go
      */
-    public int askMotherNature() {
-
+    public int askMotherNature(Assistant assistant) {
         Scanner scanner = new Scanner(System.in);
         String response;
         int numResponse;
 
-        System.out.println("Now choose your destination, available islands are :");
-        for (Island island : getReducedModel().getIslands())
-            System.out.println(" Island " + island.getIslandId());
+        displayImportant("Now choose your destination, available islands are:");
+        showPossibleIslandDestination(assistant);
 
         while (true) {
             response = scanner.nextLine().trim().replaceAll(" +", " ");
@@ -491,7 +489,9 @@ public class CliView extends AbstractView {
     public String askCloud() {
         String response;
         Scanner scanner = new Scanner(System.in);
-        showTable();
+        for (Cloud cloud : reducedModel.getClouds().values()) {
+            drawCloud(cloud);
+        }
         System.out.print("Now choose your cloud, available clouds are: ");
         String toPrint = reducedModel.getClouds().keySet().
                 stream()
@@ -698,6 +698,36 @@ public class CliView extends AbstractView {
             System.out.print(ansi().bold().a(i).reset().a("\t:"));
             drawCharacter((Character) reducedModel.getCharacters().toArray()[i]);
             System.out.println();
+        }
+    }
+
+    /**
+     * @return the reduced model of the view
+     */
+    @Override
+    public ReducedModel getReducedModel() {
+        return super.getReducedModel();
+    }
+
+    /**
+     * Method used to show where mother nature can go
+     *
+     * @param assistant the assistant to know how many steps can mother nature take
+     */
+    @Override
+    public void showPossibleIslandDestination(Assistant assistant) {
+        int indexMN;
+        int possibleMaxMovements = assistant.getMNMovement();
+        Island islandWithMN = null;
+
+        for (Island island : getReducedModel().getIslands())
+            if (island.getMotherNatureHere()) {
+                islandWithMN = island;
+                break;
+            }
+        indexMN = getReducedModel().getIslands().indexOf(islandWithMN);
+        for (int i = indexMN + 1, cont = 0; cont < possibleMaxMovements; cont++, i++) {
+            drawIsland(getReducedModel().getIslands().get(i % getReducedModel().getIslands().size()));
         }
     }
 }
