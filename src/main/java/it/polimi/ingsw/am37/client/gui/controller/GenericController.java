@@ -18,4 +18,5 @@ public class GenericController {
         Alert alert = new Alert(Alert.AlertType.INFORMATION, message, ButtonType.OK);
         alert.show();
     }
+
 }

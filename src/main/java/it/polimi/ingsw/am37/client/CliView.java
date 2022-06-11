@@ -174,7 +174,7 @@ public class CliView extends AbstractView {
     public String chooseNickname() {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Please insert a nickname or write \"close game\": ");
-        return scanner.nextLine().trim().replaceAll(" +", " ");
+        return scanner.nextLine().trim().replaceAll(" ", "");
     }
 
     @Override
