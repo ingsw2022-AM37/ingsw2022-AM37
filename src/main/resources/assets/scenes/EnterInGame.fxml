@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXToggleButton?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.Image?>
@@ -44,9 +45,17 @@
                         <Insets bottom="5.0" left="10.0" right="10.0" top="5.0"/>
                     </padding>
                     <children>
-                        <Spinner fx:id="numOfPlayersField" editable="true" min="2" max="3" initialValue="2"
-                                 amountToStepBy="1"/>
-                        <Label text="Number of players" textFill="#aa3838">
+                        <JFXToggleButton fx:id="numOfPlayersField" layoutX="212.0" layoutY="487.0" prefHeight="58.0"
+                                         prefWidth="58.0"
+                                         text=" " toggleColor="#fafafa" toggleLineColor="#999999"/>
+                        <Label layoutX="210.0" layoutY="509.0" prefHeight="17.0" prefWidth="10.0" text="2"
+                               textFill="#aa3838">
+                            <font>
+                                <Font name="System Bold Italic" size="12.0"/>
+                            </font>
+                        </Label>
+                        <Label layoutX="270.0" layoutY="509.0" prefHeight="17.0" prefWidth="10.0" text="3"
+                               textFill="#aa3838">
                             <font>
                                 <Font name="System Bold Italic" size="12.0"/>
                             </font>

@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am37.client;
 
+import it.polimi.ingsw.am37.message.UpdateMessage;
 import it.polimi.ingsw.am37.model.*;
 import it.polimi.ingsw.am37.model.character.Character;
 import it.polimi.ingsw.am37.model.character.Effect;
@@ -532,6 +533,15 @@ public class CliView extends AbstractView {
     @Override
     public void displayError(String message) {
         System.out.println(ansi().fgRed().render(message).reset());
+    }
+
+    @Override
+    public void updateView(UpdateMessage updateMessage, Client client) {
+        reducedModel.update(updateMessage.getUpdatedObjects()
+                .values()
+                .stream()
+                .flatMap(List::stream)
+                .toList());
     }
 
     /**
