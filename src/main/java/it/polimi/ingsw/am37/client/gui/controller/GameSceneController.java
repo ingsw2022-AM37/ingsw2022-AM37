@@ -1,12 +1,10 @@
 package it.polimi.ingsw.am37.client.gui.controller;
 
-import it.polimi.ingsw.am37.model.Assistant;
-import it.polimi.ingsw.am37.model.Cloud;
-import it.polimi.ingsw.am37.model.Island;
-import it.polimi.ingsw.am37.model.Player;
+import it.polimi.ingsw.am37.model.*;
 import javafx.event.ActionEvent;
 import javafx.scene.Group;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
@@ -15,11 +13,63 @@ import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static java.lang.Math.*;
+import static java.util.Map.entry;
 
 public class GameSceneController extends GenericController {
+
+
+    private final static double xSpaceStudents = 59;
+    private final static double ySpaceStudentsEntrance = 50;
+    private final static double ySpaceStudentsDining = 42;
+    private final static double xSpaceTowers = 50;
+    private final static double ySpaceTowers = 65;
+    private final static Coordinate firstEntrance = new Coordinate(57, 42);
+    private final static Coordinate firstTower = new Coordinate(107, 740);
+    private final static Coordinate firstDiningBlue = new Coordinate(57, 117);
+    private final static Coordinate firstDiningPink = new Coordinate(116, 117);
+    private final static Coordinate firstDiningYellow = new Coordinate(175, 117);
+    private final static Coordinate firstDiningRed = new Coordinate(234, 117);
+    private final static Coordinate firstDiningGreen = new Coordinate(293, 117);
+    private final int firstLineEntranceAndTowers = 4;
+    //--------------------------------------//
+    Map<FactionColor, Image> profImageFromColor = Map.ofEntries(
+            entry(FactionColor.BLUE, new Image(getClass().getResourceAsStream("/assets/images/BlueTeacher.png"))),
+            entry(FactionColor.PINK, new Image(getClass().getResourceAsStream("/assets/images/PinkTeacher.png"))),
+            entry(FactionColor.GREEN, new Image(getClass().getResourceAsStream("/assets/images/GreenTeacher.png"))),
+            entry(FactionColor.YELLOW, new Image(getClass().getResourceAsStream("/assets/images/YellowTeacher.png"))),
+            entry(FactionColor.RED, new Image(getClass().getResourceAsStream("/assets/images/RedTeacher.png")))
+    );
+    Map<FactionColor, Coordinate> profCoordinateFromColor = Map.ofEntries(
+            entry(FactionColor.BLUE, new Coordinate(55, 636)),
+            entry(FactionColor.PINK, new Coordinate(115, 117)),
+            entry(FactionColor.GREEN, new Coordinate(295, 117)),
+            entry(FactionColor.YELLOW, new Coordinate(175, 117)),
+            entry(FactionColor.RED, new Coordinate(235, 117))
+    );
+    Map<FactionColor, Image> studentImageFromColor = Map.ofEntries(
+            entry(FactionColor.BLUE, new Image(getClass().getResourceAsStream("/assets/images/BlueStudent.png"))),
+            entry(FactionColor.PINK, new Image(getClass().getResourceAsStream("/assets/images/PinkStudent.png"))),
+            entry(FactionColor.GREEN, new Image(getClass().getResourceAsStream("/assets/images/GreenStudent.png"))),
+            entry(FactionColor.YELLOW, new Image(getClass().getResourceAsStream("/assets/images/YellowStudent.png"))),
+            entry(FactionColor.RED, new Image(getClass().getResourceAsStream("/assets/images/RedStudent.png")))
+    );
+    Map<TowerColor, Image> towerImageFromColor = Map.ofEntries(
+            entry(TowerColor.BLACK, new Image(getClass().getResourceAsStream("/assets/images/BlackTower.png"))),
+            entry(TowerColor.GRAY, new Image(getClass().getResourceAsStream("/assets/images/GrayTower.png"))),
+            entry(TowerColor.WHITE, new Image(getClass().getResourceAsStream("/assets/images/WhiteTower.png")))
+
+    );
+    private ArrayList<ImageView> studentsEntranceView = new ArrayList<>();
+    private HashMap<FactionColor, ArrayList<ImageView>> studentsDiningView = new HashMap<>();
+    private ArrayList<ImageView> towersView = new ArrayList<>();
+    private HashMap<FactionColor, ImageView> professorsView = new HashMap<>();
+
+    //--------------------------------------//
 
 
     private final static Font labelFont = new Font("System Bold", 20);
@@ -147,4 +197,98 @@ public class GameSceneController extends GenericController {
             return new Coordinate(width / 2, height / 2);
         }
     }
+
+    //--------------------------------------//
+    private void drawEntrance(HashMap<FactionColor, Integer> entrance) {
+
+        studentsEntranceView = new ArrayList<>();
+
+        int posInLine = 0;
+        double additionalX = 0;
+        double additionalY = 0;
+        ImageView temp = null;
+
+        for (FactionColor color : FactionColor.values()) {
+
+            for (int i = 0; i < entrance.get(color); i++) {
+
+                temp = new ImageView();
+                temp.setImage(studentImageFromColor.get(color));
+                wallpaperPane.getChildren().add(temp);
+                temp.setX(0);
+                temp.setY(0);
+                temp.setFitWidth(40);
+                temp.setFitHeight(40);
+                temp.setTranslateX(firstEntrance.x + additionalX);
+                temp.setTranslateY(firstEntrance.y + additionalY);
+                studentsEntranceView.add(temp);
+                posInLine = posInLine + 1;
+                additionalX = additionalX + xSpaceStudents;
+                if (posInLine == firstLineEntranceAndTowers) {
+                    additionalX = 0;
+                    additionalY = ySpaceStudentsEntrance;
+                }
+            }
+        }
+    }
+
+    private void drawDining(HashMap<FactionColor, Integer> dining) {
+
+
+    }
+
+    private void drawProfessors(boolean[] professors) {
+
+        professorsView = new HashMap<>();
+
+        for (FactionColor color : FactionColor.values())
+            if (professors[color.getIndex()]) {
+                ImageView temp = new ImageView();
+                temp.setImage(profImageFromColor.get(color));
+                wallpaperPane.getChildren().add(temp);
+                temp.setFitWidth(40);
+                temp.setFitHeight(40);
+                temp.setX(profCoordinateFromColor.get(color).x);
+                temp.setY(profCoordinateFromColor.get(color).y);
+                professorsView.put(color, temp);
+            }
+    }
+
+    private void drawTowers(LimitedTowerContainer towers) {
+
+        towersView = new ArrayList<>();
+
+        int posInLine = 0;
+        double additionalX = 0;
+        double additionalY = 0;
+        ImageView temp = null;
+
+
+        for (int i = 0; i < towers.getCurrentSize(); i++) {
+            temp = new ImageView();
+            temp.setImage(towerImageFromColor.get(towers.getCurrentTower()));
+            wallpaperPane.getChildren().add(temp);
+            temp.setFitWidth(28);
+            temp.setFitHeight(50);
+            temp.setX(firstTower.x + additionalX);
+            temp.setY(firstTower.y + additionalY);
+            towersView.add(temp);
+            posInLine = posInLine + 1;
+            additionalX = additionalX + xSpaceTowers;
+            if (posInLine == firstLineEntranceAndTowers) {
+                additionalX = 0;
+                additionalY = ySpaceTowers;
+            }
+        }
+    }
+
+    public void drawBoard(HashMap<FactionColor, Integer> entrance, HashMap<FactionColor, Integer> dining, boolean[] professors, LimitedTowerContainer towers) {
+
+        drawEntrance(entrance);
+        drawDining(dining);
+        drawProfessors(professors);
+        drawTowers(towers);
+    }
+
+
 }
