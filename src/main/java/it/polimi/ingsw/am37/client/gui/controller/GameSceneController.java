@@ -23,6 +23,8 @@ import static java.util.Map.entry;
 public class GameSceneController extends GenericController {
 
 
+    //--------------------------------------//
+
     private final static double xSpaceStudents = 59;
     private final static double ySpaceStudentsEntrance = 50;
     private final static double ySpaceStudentsDining = 42;
@@ -30,13 +32,8 @@ public class GameSceneController extends GenericController {
     private final static double ySpaceTowers = 65;
     private final static Coordinate firstEntrance = new Coordinate(57, 42);
     private final static Coordinate firstTower = new Coordinate(107, 740);
-    private final static Coordinate firstDiningBlue = new Coordinate(57, 117);
-    private final static Coordinate firstDiningPink = new Coordinate(116, 117);
-    private final static Coordinate firstDiningYellow = new Coordinate(175, 117);
-    private final static Coordinate firstDiningRed = new Coordinate(234, 117);
-    private final static Coordinate firstDiningGreen = new Coordinate(293, 117);
     private final int firstLineEntranceAndTowers = 4;
-    //--------------------------------------//
+
     Map<FactionColor, Image> profImageFromColor = Map.ofEntries(
             entry(FactionColor.BLUE, new Image(getClass().getResourceAsStream("/assets/images/BlueTeacher.png"))),
             entry(FactionColor.PINK, new Image(getClass().getResourceAsStream("/assets/images/PinkTeacher.png"))),
@@ -58,6 +55,15 @@ public class GameSceneController extends GenericController {
             entry(FactionColor.YELLOW, new Image(getClass().getResourceAsStream("/assets/images/YellowStudent.png"))),
             entry(FactionColor.RED, new Image(getClass().getResourceAsStream("/assets/images/RedStudent.png")))
     );
+
+    Map<FactionColor, Coordinate> studentDiningFirstCoordinatesFromColor = Map.ofEntries(
+            entry(FactionColor.BLUE, new Coordinate(57, 117)),
+            entry(FactionColor.PINK, new Coordinate(116, 117)),
+            entry(FactionColor.GREEN, new Coordinate(293, 117)),
+            entry(FactionColor.YELLOW, new Coordinate(175, 117)),
+            entry(FactionColor.RED, new Coordinate(234, 117))
+    );
+
     Map<TowerColor, Image> towerImageFromColor = Map.ofEntries(
             entry(TowerColor.BLACK, new Image(getClass().getResourceAsStream("/assets/images/BlackTower.png"))),
             entry(TowerColor.GRAY, new Image(getClass().getResourceAsStream("/assets/images/GrayTower.png"))),
@@ -65,9 +71,9 @@ public class GameSceneController extends GenericController {
 
     );
     private ArrayList<ImageView> studentsEntranceView = new ArrayList<>();
-    private HashMap<FactionColor, ArrayList<ImageView>> studentsDiningView = new HashMap<>();
+    private ArrayList<ImageView> studentsDiningView = new ArrayList<>();
     private ArrayList<ImageView> towersView = new ArrayList<>();
-    private HashMap<FactionColor, ImageView> professorsView = new HashMap<>();
+    private ArrayList<ImageView> professorsView = new ArrayList<>();
 
     //--------------------------------------//
 
@@ -201,6 +207,9 @@ public class GameSceneController extends GenericController {
     //--------------------------------------//
     private void drawEntrance(HashMap<FactionColor, Integer> entrance) {
 
+        for (int i = 0; i < studentsEntranceView.size(); i++)
+            wallpaperPane.getChildren().remove(studentsEntranceView.get(i));
+
         studentsEntranceView = new ArrayList<>();
 
         int posInLine = 0;
@@ -226,6 +235,7 @@ public class GameSceneController extends GenericController {
                 additionalX = additionalX + xSpaceStudents;
                 if (posInLine == firstLineEntranceAndTowers) {
                     additionalX = 0;
+                    posInLine = 0;
                     additionalY = ySpaceStudentsEntrance;
                 }
             }
@@ -234,12 +244,40 @@ public class GameSceneController extends GenericController {
 
     private void drawDining(HashMap<FactionColor, Integer> dining) {
 
+        for (int i = 0; i < studentsDiningView.size(); i++)
+            wallpaperPane.getChildren().remove(studentsDiningView.get(i));
 
+        studentsDiningView = new ArrayList<>();
+
+        ImageView temp = null;
+
+        for (FactionColor color : FactionColor.values()) {
+
+            double additionalY = 0;
+
+            for (int i = 0; i < dining.get(color); i++) {
+
+                temp = new ImageView();
+                temp.setImage(studentImageFromColor.get(color));
+                wallpaperPane.getChildren().add(temp);
+                temp.setX(0);
+                temp.setY(0);
+                temp.setFitWidth(40);
+                temp.setFitHeight(40);
+                temp.setTranslateX(studentDiningFirstCoordinatesFromColor.get(color).x);
+                temp.setTranslateY(studentDiningFirstCoordinatesFromColor.get(color).y + additionalY);
+                studentsDiningView.add(temp);
+                additionalY = additionalY + ySpaceStudentsDining;
+            }
+        }
     }
 
     private void drawProfessors(boolean[] professors) {
 
-        professorsView = new HashMap<>();
+        for (int i = 0; i < professorsView.size(); i++)
+            wallpaperPane.getChildren().remove(professorsView.get(i));
+
+        professorsView = new ArrayList<>();
 
         for (FactionColor color : FactionColor.values())
             if (professors[color.getIndex()]) {
@@ -250,11 +288,14 @@ public class GameSceneController extends GenericController {
                 temp.setFitHeight(40);
                 temp.setX(profCoordinateFromColor.get(color).x);
                 temp.setY(profCoordinateFromColor.get(color).y);
-                professorsView.put(color, temp);
+                professorsView.add(temp);
             }
     }
 
     private void drawTowers(LimitedTowerContainer towers) {
+
+        for (int i = 0; i < towersView.size(); i++)
+            wallpaperPane.getChildren().remove(towersView.get(i));
 
         towersView = new ArrayList<>();
 
@@ -277,6 +318,7 @@ public class GameSceneController extends GenericController {
             additionalX = additionalX + xSpaceTowers;
             if (posInLine == firstLineEntranceAndTowers) {
                 additionalX = 0;
+                posInLine = 0;
                 additionalY = ySpaceTowers;
             }
         }
