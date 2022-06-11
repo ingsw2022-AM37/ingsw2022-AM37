@@ -4,9 +4,6 @@ import it.polimi.ingsw.am37.client.gui.GuiApp;
 import it.polimi.ingsw.am37.client.gui.SceneController;
 import it.polimi.ingsw.am37.client.gui.controller.ConnectionController;
 import it.polimi.ingsw.am37.client.gui.controller.EnterInGameController;
-import it.polimi.ingsw.am37.model.Assistant;
-import it.polimi.ingsw.am37.model.FactionColor;
-import it.polimi.ingsw.am37.model.Player;
 import it.polimi.ingsw.am37.client.gui.controller.GameSceneController;
 import it.polimi.ingsw.am37.message.UpdateMessage;
 import it.polimi.ingsw.am37.model.*;
@@ -17,10 +14,10 @@ import javafx.application.Application;
 import javafx.application.Platform;
 
 import java.util.Collection;
-
 import java.util.List;
 import java.util.Objects;
 
+@SuppressWarnings("ALL")
 public class GuiView extends AbstractView {
     private final GuiApp app;
 
@@ -170,7 +167,7 @@ public class GuiView extends AbstractView {
      * @return The chosen nickname
      */
     @Override
-    public String chooseNickname() {
+    public String askNickname() {
         Platform.runLater(() -> SceneController.switchScreen("/assets/scenes/EnterInGame.fxml"));
         synchronized (SceneController.waitObject) {
             try {

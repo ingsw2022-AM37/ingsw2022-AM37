@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am37.client;
 
+import it.polimi.ingsw.am37.message.UpdateMessage;
 import it.polimi.ingsw.am37.model.*;
 import it.polimi.ingsw.am37.model.character.Character;
 import it.polimi.ingsw.am37.model.character.Effect;
@@ -125,18 +126,6 @@ public class CliView extends AbstractView {
     }
 
     /**
-     * Method used to ask a player which character he wants to play
-     *
-     * @return the effect of the selected character
-     */
-    public Effect askCharacter() {
-        displayInfo("Which character you want to play? ");
-        Scanner scanner = new Scanner(System.in);
-        int response = scanner.nextInt();
-        return ((Character) reducedModel.getCharacters().toArray()[response]).getEffectType();
-    }
-
-    /**
      * Method used to ask if player wants to use default parameters for connection
      *
      * @return Client's response
@@ -166,14 +155,30 @@ public class CliView extends AbstractView {
     }
 
     /**
-     * Method used to ask a nickname
+     * Method used if player decided to don't use default setting for connection, so he will be asked to insert his
+     * parameters
      *
-     * @return The chosen nickname
+     * @return Client's decision
      */
-    public String chooseNickname() {
+    @Override
+    public Client.ConnectionParameters askConnectionParameters() {
         Scanner scanner = new Scanner(System.in);
-        System.out.print("Please insert a nickname or write \"close game\": ");
-        return scanner.nextLine().trim().replaceAll(" ", "");
+        while (true) {
+            System.out.print("Write server's address or \"close game\": ");
+            String addressInput = scanner.nextLine().toLowerCase().trim().replaceAll(" +", " ");
+            if (addressInput.equals("close game")) return null;
+            if (!Objects.equals(addressInput.toLowerCase(), "localhost")) displayImportant("i.notLocalhost");
+            System.out.print("Write server's port or \"close game\": ");
+            String portInput = scanner.nextLine().toLowerCase().trim().replaceAll(" +", " ");
+            if (portInput.equals("close game")) return null;
+            try {
+                int port = Integer.parseInt(portInput);
+                if (port > 65535 || port < 1) throw new NumberFormatException();
+                return new Client.ConnectionParameters(addressInput, port);
+            } catch (NumberFormatException e) {
+                wrongInsertPort();
+            }
+        }
     }
 
     @Override
@@ -196,6 +201,17 @@ public class CliView extends AbstractView {
             }
         }
         return new Client.LobbyParameters(advancedRules, numPlayers);
+    }
+
+    /**
+     * Method used to ask a nickname
+     *
+     * @return The chosen nickname
+     */
+    public String askNickname() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Please insert a nickname or write \"close game\": ");
+        return scanner.nextLine().trim().replaceAll(" ", "");
     }
 
     /**
@@ -231,30 +247,15 @@ public class CliView extends AbstractView {
     }
 
     /**
-     * Method used if player decided to don't use default setting for connection, so he will be asked to insert his
-     * parameters
+     * Method used to ask a player which character he wants to play
      *
-     * @return Client's decision
+     * @return the effect of the selected character
      */
-    @Override
-    public Client.ConnectionParameters askConnectionParameters() {
+    public Effect askCharacter() {
+        displayInfo("Which character you want to play? ");
         Scanner scanner = new Scanner(System.in);
-        while (true) {
-            System.out.print("Write server's address or \"close game\": ");
-            String addressInput = scanner.nextLine().toLowerCase().trim().replaceAll(" +", " ");
-            if (addressInput.equals("close game")) return null;
-            if (!Objects.equals(addressInput.toLowerCase(), "localhost")) displayImportant("i.notLocalhost");
-            System.out.print("Write server's port or \"close game\": ");
-            String portInput = scanner.nextLine().toLowerCase().trim().replaceAll(" +", " ");
-            if (portInput.equals("close game")) return null;
-            try {
-                int port = Integer.parseInt(portInput);
-                if (port > 65535 || port < 1) throw new NumberFormatException();
-                return new Client.ConnectionParameters(addressInput, port);
-            } catch (NumberFormatException e) {
-                wrongInsertPort();
-            }
-        }
+        int response = scanner.nextInt();
+        return ((Character) reducedModel.getCharacters().toArray()[response]).getEffectType();
     }
 
     @Override
@@ -506,6 +507,175 @@ public class CliView extends AbstractView {
     }
 
     /**
+     * Method used to ask which player you want to look at
+     *
+     * @return chosen player
+     */
+    public Player askPlayer() {
+
+        Scanner scanner = new Scanner(System.in);
+        String response;
+
+        showPlayersNicknames();
+
+        System.out.println("choose now one nickname from above: ");
+
+        while (true) {
+            response = scanner.nextLine().trim().replaceAll(" +", " ");
+            for (String nickname : getReducedModel().getPlayers().keySet())
+                if (nickname.equals(response)) return getReducedModel().getPlayers().get(nickname);
+
+            System.out.println("You have to choose one nickname from available! Please try again");
+        }
+    }
+
+    /**
+     * This method print on console a colorful representation of the last assistant played and his entire board
+     *
+     * @param player        the players to show status of
+     * @param advancedRules if the advanced rules are enabled or not
+     */
+    @Override
+    public void showPlayerStatus(Player player, boolean advancedRules) {
+        System.out.println(player.getPlayerId() + " status:");
+        if (player.getLastAssistantPlayed() != null) {
+            drawAssistant(player.getLastAssistantPlayed());
+            System.out.println();
+        }
+        if (player.getBoard() != null) drawBoard(player.getBoard());
+        if (advancedRules) System.out.println("Coins: " + player.getNumberOfCoins());
+    }
+
+    /**
+     * Method used to show players in game
+     */
+    public void showPlayersNicknames() {
+
+        System.out.println("Players in this game are: ");
+        for (String nickname : getReducedModel().getPlayers().keySet())
+            System.out.println(nickname);
+
+        System.out.println("\n");
+
+
+    }
+
+    /**
+     * Method used to display connection info
+     *
+     * @param client the client to display info about
+     */
+    public void showConnection(Client client) {
+
+        System.out.println("Your are current connected to: " + client.getAddress() + ":" + client.getPort());
+
+    }
+
+    /**
+     * This function draw the current status of the table for all players point of view: draw all islands and clouds
+     */
+    @Override
+    public void showTable() {
+        for (Island island : reducedModel.getIslands()) {
+            drawIsland(island);
+        }
+        for (Cloud cloud : reducedModel.getClouds().values()) {
+            drawCloud(cloud);
+        }
+    }
+
+    /**
+     * Show the assistant deck of the provided player. Each player must see only it's deck
+     *
+     * @param player the player to show the deck
+     */
+    @Override
+    public void showDeck(Player player) {
+        System.out.println("Your deck is: [");
+        List<Assistant> assistants = player.getAssistantsDeck().values().stream().toList();
+        for (int i = 0; i < assistants.size(); i++) {
+            if (i % 2 == 0) System.out.print("\t");
+            drawAssistant(assistants.get(i));
+            if (i != assistants.size() - 1) System.out.print(", ");
+            if (i % 2 == 1 || i == assistants.size() - 1) System.out.println();
+        }
+        System.out.println("]");
+    }
+
+    /**
+     * Method used to display the last Assistant played except the client's one
+     *
+     * @param players      the players to show the last assistant played
+     * @param playerToSkip the player to skip
+     */
+    @Override
+    public void showLastAssistantPlayed(Collection<Player> players, Player playerToSkip) {
+        for (Player player : players) {
+            if (!player.getPlayerId().equals(playerToSkip.getPlayerId())) {
+                System.out.print("Last assistant played by " + player.getPlayerId() + ": ");
+                if (player.getLastAssistantPlayed() != null) drawAssistant(player.getLastAssistantPlayed());
+                else System.out.print(ansi().fgCyan().a("No assistant has been played yet").reset());
+                System.out.println();
+            }
+        }
+    }
+
+    /**
+     * Show all the characters in the client model
+     */
+    @Override
+    public void showCharacters() {
+        for (int i = 0; i < reducedModel.getCharacters().size(); i++) {
+            System.out.print(ansi().bold().a(i).reset().a("\t:"));
+            drawCharacter((Character) reducedModel.getCharacters().toArray()[i]);
+            System.out.println();
+        }
+    }
+
+    /**
+     * Method used to show where mother nature can go
+     *
+     * @param assistant the assistant to know how many steps can mother nature take
+     */
+    @Override
+    public void showPossibleIslandDestination(Assistant assistant) {
+        int indexMN;
+        int possibleMaxMovements = assistant.getMNMovement();
+        Island islandWithMN = null;
+
+        for (Island island : getReducedModel().getIslands())
+            if (island.getMotherNatureHere()) {
+                islandWithMN = island;
+                break;
+            }
+        indexMN = getReducedModel().getIslands().indexOf(islandWithMN);
+        for (int i = indexMN + 1, cont = 0; cont < possibleMaxMovements; cont++, i++) {
+            drawIsland(getReducedModel().getIslands().get(i % getReducedModel().getIslands().size()));
+        }
+    }
+
+    /**
+     * @return Player's command at any time
+     */
+    public ActionType takeInput(Client client) {
+        List<ActionType> actions = ActionType.getActionByStatus(client.getStatus(), client.getSettings()
+                .advancedRulesEnabled());
+        //System.out.println(ansi().eraseScreen());
+        System.out.flush();
+        System.out.println("Current available actions:");
+        for (int i = 0; i < actions.size(); i++) {
+            System.out.println(ansi().a("\t").bold().a(i).reset().a(":\t" + actions.get(i).description));
+        }
+        System.out.print("Please insert the number of the desired action: ");
+        try {
+            String input = new Scanner(System.in).nextLine().trim().replaceAll(" +", " ");
+            return actions.get(Integer.parseInt(input));
+        } catch (IndexOutOfBoundsException | NumberFormatException e) {
+            return ActionType.SHOW_MENU;
+        }
+    }
+
+    /**
      * Tell the player it's his turn
      */
     public void yourTurn() {
@@ -561,155 +731,8 @@ public class CliView extends AbstractView {
      * @param nick the winner player
      */
     public void printWinner(String nick) {
-        System.out.println(nick.toUpperCase() + "has won the game!!!");
+        System.out.println(nick.toUpperCase() + " has won the game!!!");
 
-    }
-
-    /**
-     * This method print on console a colorful representation of the last assistant played and his entire board
-     *
-     * @param player        the players to show status of
-     * @param advancedRules if the advanced rules are enabled or not
-     */
-    @Override
-    public void showPlayerStatus(Player player, boolean advancedRules) {
-        System.out.println(player.getPlayerId() + " status:");
-        if (player.getLastAssistantPlayed() != null) {
-            drawAssistant(player.getLastAssistantPlayed());
-            System.out.println();
-        }
-        if (player.getBoard() != null) drawBoard(player.getBoard());
-        if (advancedRules) System.out.println("Coins: " + player.getNumberOfCoins());
-    }
-
-    /**
-     * Method used to ask which player you want to look at
-     *
-     * @return chosen player
-     */
-    public Player askPlayer() {
-
-        Scanner scanner = new Scanner(System.in);
-        String response;
-
-        showPlayersNicknames();
-
-        System.out.println("choose now one nickname from above: ");
-
-        while (true) {
-            response = scanner.nextLine().trim().replaceAll(" +", " ");
-            for (String nickname : getReducedModel().getPlayers().keySet())
-                if (nickname.equals(response)) return getReducedModel().getPlayers().get(nickname);
-
-            System.out.println("You have to choose one nickname from available! Please try again");
-        }
-    }
-
-    /**
-     * Method used to show players in game
-     */
-    public void showPlayersNicknames() {
-
-        System.out.println("Players in this game are: ");
-        for (String nickname : getReducedModel().getPlayers().keySet())
-            System.out.println(nickname);
-
-        System.out.println("\n");
-
-
-    }
-
-    /**
-     * Method used to display connection info
-     *
-     * @param client the client to display info about
-     */
-    public void showConnection(Client client) {
-
-        System.out.println("Your are current connected to: " + client.getAddress() + ":" + client.getPort());
-
-    }
-
-    /**
-     * This function draw the current status of the table for all players point of view: draw all islands and clouds
-     */
-    @Override
-    public void showTable() {
-        for (Island island : reducedModel.getIslands()) {
-            drawIsland(island);
-        }
-        for (Cloud cloud : reducedModel.getClouds().values()) {
-            drawCloud(cloud);
-        }
-    }
-
-    /**
-     * @return Player's command at any time
-     */
-    public ActionType takeInput(Client client) {
-        List<ActionType> actions = ActionType.getActionByStatus(client.getStatus(), client.getSettings()
-                .advancedRulesEnabled());
-        //System.out.println(ansi().eraseScreen());
-        System.out.flush();
-        System.out.println("Current available actions:");
-        for (int i = 0; i < actions.size(); i++) {
-            System.out.println(ansi().a("\t").bold().a(i).reset().a(":\t" + actions.get(i).description));
-        }
-        System.out.print("Please insert the number of the desired action: ");
-        try {
-            String input = new Scanner(System.in).nextLine().trim().replaceAll(" +", " ");
-            return actions.get(Integer.parseInt(input));
-        } catch (IndexOutOfBoundsException | NumberFormatException e) {
-            return ActionType.SHOW_MENU;
-        }
-    }
-
-    /**
-     * Show the assistant deck of the provided player. Each player must see only it's deck
-     *
-     * @param player the player to show the deck
-     */
-    @Override
-    public void showDeck(Player player) {
-        System.out.println("Your deck is: [");
-        List<Assistant> assistants = player.getAssistantsDeck().values().stream().toList();
-        for (int i = 0; i < assistants.size(); i++) {
-            if (i % 2 == 0) System.out.print("\t");
-            drawAssistant(assistants.get(i));
-            if (i != assistants.size() - 1) System.out.print(", ");
-            if (i % 2 == 1 || i == assistants.size() - 1) System.out.println();
-        }
-        System.out.println("]");
-    }
-
-    /**
-     * Method used to display the last Assistant played except the client's one
-     *
-     * @param players      the players to show the last assistant played
-     * @param playerToSkip the player to skip
-     */
-    @Override
-    public void showLastAssistantPlayed(Collection<Player> players, Player playerToSkip) {
-        for (Player player : players) {
-            if (!player.getPlayerId().equals(playerToSkip.getPlayerId())) {
-                System.out.print("Last assistant played by " + player.getPlayerId() + ": ");
-                if (player.getLastAssistantPlayed() != null) drawAssistant(player.getLastAssistantPlayed());
-                else System.out.print(ansi().fgCyan().a("No assistant has been played yet").reset());
-                System.out.println();
-            }
-        }
-    }
-
-    /**
-     * Show all the characters in the client model
-     */
-    @Override
-    public void showCharacters() {
-        for (int i = 0; i < reducedModel.getCharacters().size(); i++) {
-            System.out.print(ansi().bold().a(i).reset().a("\t:"));
-            drawCharacter((Character) reducedModel.getCharacters().toArray()[i]);
-            System.out.println();
-        }
     }
 
     /**
@@ -718,27 +741,5 @@ public class CliView extends AbstractView {
     @Override
     public ReducedModel getReducedModel() {
         return super.getReducedModel();
-    }
-
-    /**
-     * Method used to show where mother nature can go
-     *
-     * @param assistant the assistant to know how many steps can mother nature take
-     */
-    @Override
-    public void showPossibleIslandDestination(Assistant assistant) {
-        int indexMN;
-        int possibleMaxMovements = assistant.getMNMovement();
-        Island islandWithMN = null;
-
-        for (Island island : getReducedModel().getIslands())
-            if (island.getMotherNatureHere()) {
-                islandWithMN = island;
-                break;
-            }
-        indexMN = getReducedModel().getIslands().indexOf(islandWithMN);
-        for (int i = indexMN + 1, cont = 0; cont < possibleMaxMovements; cont++, i++) {
-            drawIsland(getReducedModel().getIslands().get(i % getReducedModel().getIslands().size()));
-        }
     }
 }

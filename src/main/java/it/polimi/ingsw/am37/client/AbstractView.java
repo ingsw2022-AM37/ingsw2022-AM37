@@ -1,8 +1,8 @@
 package it.polimi.ingsw.am37.client;
 
 
-import it.polimi.ingsw.am37.model.Assistant;
 import it.polimi.ingsw.am37.message.UpdateMessage;
+import it.polimi.ingsw.am37.model.Assistant;
 import it.polimi.ingsw.am37.model.FactionColor;
 import it.polimi.ingsw.am37.model.Player;
 import it.polimi.ingsw.am37.model.character.Character;
@@ -107,7 +107,7 @@ public abstract class AbstractView {
      *
      * @return The chosen nickname
      */
-    public abstract String chooseNickname();
+    public abstract String askNickname();
 
     /**
      * Method to tell the player the game has begun

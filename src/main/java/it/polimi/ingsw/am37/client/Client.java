@@ -244,7 +244,7 @@ public class Client {
     private void chooseNickname() throws PlayerAbortException {
         String tempNick;
         while (nickname == null) {
-            tempNick = view.chooseNickname();
+            tempNick = view.askNickname();
             if (tempNick.equals("close game")) throw new PlayerAbortException();
             if (tempNick.isBlank()) {
                 view.displayError(messagesConstants.getProperty("e.nicknameBlank"));
@@ -473,6 +473,7 @@ public class Client {
     /**
      * This is the main method that handle game flow
      */
+    @SuppressWarnings("BusyWait")
     public void start() throws PlayerAbortException {
         ActionType currentAction;
         try {
