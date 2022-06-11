@@ -4,6 +4,7 @@ import com.jfoenix.controls.JFXToggleButton;
 import it.polimi.ingsw.am37.client.Client;
 import it.polimi.ingsw.am37.client.gui.SceneController;
 import javafx.event.ActionEvent;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 
