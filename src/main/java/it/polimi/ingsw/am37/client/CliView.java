@@ -250,7 +250,9 @@ public class CliView extends AbstractView {
             String portInput = scanner.nextLine().toLowerCase().trim().replaceAll(" +", " ");
             if (portInput.equals("close game")) return null;
             try {
-                return new Client.ConnectionParameters(addressInput, Integer.parseInt(portInput));
+                int port = Integer.parseInt(portInput);
+                if (port > 65535 || port < 1) throw new NumberFormatException();
+                return new Client.ConnectionParameters(addressInput, port);
             } catch (NumberFormatException e) {
                 wrongInsertPort();
             }
