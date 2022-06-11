@@ -7,7 +7,6 @@ import it.polimi.ingsw.am37.message.*;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.List;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -18,7 +17,7 @@ public class ClientSocket implements Runnable {
     /**
      * Flag to disable disconnection for debug purpose
      */
-    final static boolean debugMode = false;
+    final static boolean debugMode = true;
     private final static Gson defaultMessageSerializer = new MessageGsonBuilder().registerMessageAdapter()
             .registerUpdatableObjectAdapter()
             .registerStudentContainerAdapter()
@@ -200,12 +199,7 @@ public class ClientSocket implements Runnable {
                     case UPDATE -> {
                         UpdateMessage updateMessage = (UpdateMessage) message;
                         client.getView()
-                                .getReducedModel()
-                                .update(updateMessage.getUpdatedObjects()
-                                        .values()
-                                        .stream()
-                                        .flatMap(List::stream)
-                                        .toList());
+                                .updateView(updateMessage, client);
                     }
                     case NEXT_TURN -> {
                         NextTurnMessage nextTurnMessage = (NextTurnMessage) message;

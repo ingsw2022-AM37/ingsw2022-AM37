@@ -7,6 +7,9 @@ import it.polimi.ingsw.am37.client.gui.controller.EnterInGameController;
 import it.polimi.ingsw.am37.model.Assistant;
 import it.polimi.ingsw.am37.model.FactionColor;
 import it.polimi.ingsw.am37.model.Player;
+import it.polimi.ingsw.am37.client.gui.controller.GameSceneController;
+import it.polimi.ingsw.am37.message.UpdateMessage;
+import it.polimi.ingsw.am37.model.*;
 import it.polimi.ingsw.am37.model.character.Character;
 import it.polimi.ingsw.am37.model.character.Effect;
 import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
@@ -14,6 +17,9 @@ import javafx.application.Application;
 import javafx.application.Platform;
 
 import java.util.Collection;
+
+import java.util.List;
+import java.util.Objects;
 
 public class GuiView extends AbstractView {
     private final GuiApp app;
@@ -191,7 +197,7 @@ public class GuiView extends AbstractView {
      */
     @Override
     public void hisTurn(String nick) {
-
+        displayImportant("It's " + nick + "'s turn");
     }
 
     /**
@@ -283,6 +289,13 @@ public class GuiView extends AbstractView {
      */
     @Override
     public ActionType takeInput(Client client) {
+        synchronized (SceneController.waitObject) {
+            try {
+                SceneController.waitObject.wait();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
         return null;
     }
 
@@ -346,5 +359,52 @@ public class GuiView extends AbstractView {
     @Override
     public void displayError(String message) {
         Platform.runLater(() -> SceneController.getActiveController().showError(message));
+    }
+
+    @Override
+    public void updateView(UpdateMessage updateMessage, Client client) {
+        reducedModel.update(updateMessage.getUpdatedObjects()
+                .values()
+                .stream()
+                .flatMap(List::stream)
+                .toList());
+        if (updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.ISLAND) != null &&
+                updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.ISLAND).size() != 0) {
+            Platform.runLater(() -> ((GameSceneController) SceneController.getActiveController()).drawIslands(updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.ISLAND)
+                    .stream()
+                    .map(o -> (Island) o)
+                    .toList()));
+        }
+        if (updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.CLOUD) != null &&
+                updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.CLOUD).size() != 0) {
+            Platform.runLater(() -> ((GameSceneController) SceneController.getActiveController()).drawClouds(updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.CLOUD)
+                    .stream()
+                    .map(o -> (Cloud) o)
+                    .toList()));
+        }
+        if (updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.PLAYER) != null &&
+                updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.PLAYER).size() != 0) {
+            Platform.runLater(() -> ((GameSceneController) SceneController.getActiveController()).drawPlayedAssistants(updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.PLAYER)
+                    .stream()
+                    .map(o -> (Player) o)
+                    .toList()));
+            if (updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.PLAYER)
+                    .stream()
+                    .anyMatch(p -> Objects.equals(((Player) p).getPlayerId(), client.getNickname()))) {
+                Player player = (Player) updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.PLAYER)
+                        .stream()
+                        .filter(p -> Objects.equals(((Player) p).getPlayerId(), client.getNickname()))
+                        .findFirst()
+                        .get();
+                List<Assistant> assistants = player.getAssistantsDeck().values().stream().toList();
+                Platform.runLater(() -> ((GameSceneController) SceneController.getActiveController()).drawDeck(assistants));
+            }
+        }
+        /*if (client.getSettings().advancedRulesEnabled() && updateMessage.getUpdatedObjects(UpdatableObject
+        .UpdatableType.CHARACTER) != null &&
+                updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.CHARACTER).size() != 0) {
+            Platform.runLater(() -> ((GameSceneController) SceneController.getActiveController()).drawCharacters
+            (updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.CHARACTER).stream().map(o -> (Character) o).toList()));
+        }*/
     }
 }

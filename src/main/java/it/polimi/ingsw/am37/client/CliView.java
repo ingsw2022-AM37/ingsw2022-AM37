@@ -125,14 +125,15 @@ public class CliView extends AbstractView {
     }
 
     /**
-     * Method used to ask a nickname
+     * Method used to ask a player which character he wants to play
      *
-     * @return The chosen nickname
+     * @return the effect of the selected character
      */
-    public String chooseNickname() {
+    public Effect askCharacter() {
+        displayInfo("Which character you want to play? ");
         Scanner scanner = new Scanner(System.in);
-        System.out.print("Please insert a nickname or write \"close game\": ");
-        return scanner.nextLine().trim().replaceAll(" ", "");
+        int response = scanner.nextInt();
+        return ((Character) reducedModel.getCharacters().toArray()[response]).getEffectType();
     }
 
     /**
@@ -165,28 +166,14 @@ public class CliView extends AbstractView {
     }
 
     /**
-     * Method used if player decided to don't use default setting for connection, so he will be asked to insert his
-     * parameters
+     * Method used to ask a nickname
      *
-     * @return Client's decision
+     * @return The chosen nickname
      */
-    @Override
-    public Client.ConnectionParameters askConnectionParameters() {
+    public String chooseNickname() {
         Scanner scanner = new Scanner(System.in);
-        while (true) {
-            System.out.print("Write server's address or \"close game\": ");
-            String addressInput = scanner.nextLine().toLowerCase().trim().replaceAll(" +", " ");
-            if (addressInput.equals("close game")) return null;
-            if (!Objects.equals(addressInput.toLowerCase(), "localhost")) displayImportant("i.notLocalhost");
-            System.out.print("Write server's port or \"close game\": ");
-            String portInput = scanner.nextLine().toLowerCase().trim().replaceAll(" +", " ");
-            if (portInput.equals("close game")) return null;
-            try {
-                return new Client.ConnectionParameters(addressInput, Integer.parseInt(portInput));
-            } catch (NumberFormatException e) {
-                wrongInsertPort();
-            }
-        }
+        System.out.print("Please insert a nickname or write \"close game\": ");
+        return scanner.nextLine().trim().replaceAll(" ", "");
     }
 
     @Override
@@ -244,15 +231,30 @@ public class CliView extends AbstractView {
     }
 
     /**
-     * Method used to ask a player which character he wants to play
+     * Method used if player decided to don't use default setting for connection, so he will be asked to insert his
+     * parameters
      *
-     * @return the effect of the selected character
+     * @return Client's decision
      */
-    public Effect askCharacter() {
-        displayInfo("Which character you want to play? ");
+    @Override
+    public Client.ConnectionParameters askConnectionParameters() {
         Scanner scanner = new Scanner(System.in);
-        int response = scanner.nextInt();
-        return ((Character) reducedModel.getCharacters().toArray()[response]).getEffectType();
+        while (true) {
+            System.out.print("Write server's address or \"close game\": ");
+            String addressInput = scanner.nextLine().toLowerCase().trim().replaceAll(" +", " ");
+            if (addressInput.equals("close game")) return null;
+            if (!Objects.equals(addressInput.toLowerCase(), "localhost")) displayImportant("i.notLocalhost");
+            System.out.print("Write server's port or \"close game\": ");
+            String portInput = scanner.nextLine().toLowerCase().trim().replaceAll(" +", " ");
+            if (portInput.equals("close game")) return null;
+            try {
+                int port = Integer.parseInt(portInput);
+                if (port > 65535 || port < 1) throw new NumberFormatException();
+                return new Client.ConnectionParameters(addressInput, port);
+            } catch (NumberFormatException e) {
+                wrongInsertPort();
+            }
+        }
     }
 
     @Override
@@ -523,6 +525,15 @@ public class CliView extends AbstractView {
     @Override
     public void displayError(String message) {
         System.out.println(ansi().fgRed().render(message).reset());
+    }
+
+    @Override
+    public void updateView(UpdateMessage updateMessage, Client client) {
+        reducedModel.update(updateMessage.getUpdatedObjects()
+                .values()
+                .stream()
+                .flatMap(List::stream)
+                .toList());
     }
 
     /**
