@@ -3,8 +3,9 @@
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout>
-                <LevelPatternSelector defaultPattern="%highlight{[%-5level] %d{HH:mm:ss} %c{3} %m}{bright,red}%n">
-                    <PatternMatch key="WARN" pattern="%highlight{%-5level%d{HH:mm:ss} %c{3} %m}{bright,yellow}%n"/>
+                <LevelPatternSelector>
+                    <PatternMatch key="ERROR" pattern="%highlight{%-5level} %d{HH:mm:ss} %c{3} %m%n"/>
+                    <PatternMatch key="WARN" pattern="%highlight{%-5level}%d{HH:mm:ss} %c{3} %m%n"/>
                     <PatternMatch key="INFO" pattern="%highlight{%-5level}%d{HH:mm:ss} %c{3} %m%n"/>
                     <PatternMatch key="DEBUG" pattern="%highlight{%-5level} %d{HH:mm:ss} %c{3} %n%m%n"/>
                     <PatternMatch key="TRACE" pattern="%highlight{%-5level}%d{HH:mm:ss} %c{3} %m%n"/>
@@ -14,7 +15,8 @@
         </Console>
         <File name="File" fileName="logs/server-${date:yyyyMMdd}.log" immediateFlush="false" append="true">
             <PatternLayout>
-                <LevelPatternSelector defaultPattern="%d{yyy-MM-dd HH:mm:ss.SSS} [%t] %c{3} - %m%n">
+                <LevelPatternSelector>
+                    <PatternMatch key="ERROR" pattern="%-5level %d{HH:mm:ss} %c{3} %m%n"/>
                     <PatternMatch key="WARN" pattern="%-5level%d{HH:mm:ss} %c{3} %m%n"/>
                     <PatternMatch key="INFO" pattern="%-5level%d{HH:mm:ss} %c{3} %m%n"/>
                     <PatternMatch key="DEBUG" pattern="%-5level %d{HH:mm:ss} %c{3} %n%m%n"/>
