@@ -26,7 +26,7 @@ public class Client {
     /**
      * Flag for disabling the resilience logic
      */
-    private final static boolean disabledResilience = true;
+    private final static boolean debug_disabledResilience = true;
 
     /**
      * Static constant that store the path to the saves folder
@@ -99,7 +99,7 @@ public class Client {
      */
     private ClientSocket socket;
     /**
-     * This is used by internal {@link Client#onMessage()} to store the read message for further processing by some
+     * This is used by internal {@link Client#hasReceivedError()} to store the read message for further processing by some
      * other functions.
      */
     private Message lastReadMessage;
@@ -123,7 +123,7 @@ public class Client {
         } catch (IOException e) {
             System.err.println("Unable to find messages file");
         }
-        if (!disabledResilience) {
+        if (!debug_disabledResilience) {
             try {
                 savedProperties.load(new FileInputStream(resilienceFilePath));
                 if (savedProperties.containsKey(P_UUID_KEY) && savedProperties.containsKey(P_LOBBYSIZE_KEY) &&
@@ -177,10 +177,10 @@ public class Client {
                 view.displayError("Impossible to use resilience");
             else {
                 sendLoginMessage(UUID, nickname);
-                if (onMessage()) {
+                if (!hasReceivedError()) {
                     sendLobbyMessage(UUID, Boolean.parseBoolean(savedProperties.getProperty(P_ADVANCEDRULES_KEY)),
                             Integer.parseInt(savedProperties.getProperty(P_LOBBYSIZE_KEY)));
-                    if (onMessage())
+                    if (!hasReceivedError())
                         settings =
                                 new LobbyParameters(Boolean.parseBoolean(savedProperties.getProperty(P_ADVANCEDRULES_KEY)), Integer.parseInt(savedProperties.getProperty(P_LOBBY_KEY)));
                 }
@@ -188,10 +188,11 @@ public class Client {
         } else {
             status = ClientStatus.CHOOSINGNAME;
             chooseNickname();
+            status = ClientStatus.CHOOSINGLOBBY;
             chooseLobby();
         }
         view.displayImportant(messagesConstants.getProperty("i.waitingStart"));
-        if (!disabledResilience) {
+        if (!debug_disabledResilience) {
             try (OutputStream stream = new FileOutputStream(resilienceFilePath)) {
                 savedProperties.store(stream,
                         "This file is for resilience only. DO NOT MODIFY ANY OF THE FOLLOWING " + "LINES\n");
@@ -209,17 +210,6 @@ public class Client {
     }
 
     /**
-     * @return if server has an exception for our choice
-     */
-    private boolean chooseCloud() {
-        String cloudId;
-        cloudId = view.askCloud();
-        Message message = new ChooseCloudMessage(UUID, cloudId);
-        socket.sendMessage(message);
-        return onMessage();
-    }
-
-    /**
      * This method ask user for nickname and try to set it (and store in config files) if it's available. This method
      * continues to ask until it's a correct and unique nickname is provided and accepted by the server
      */
@@ -227,7 +217,7 @@ public class Client {
         LobbyParameters parameters = view.askLobbyParameters();
         if (parameters == null) throw new PlayerAbortException();
         sendLobbyMessage(UUID, parameters.advancedRulesEnabled(), parameters.lobbySize());
-        if (onMessage()) {
+        if (!hasReceivedError()) {
             ConfirmMessage confirmMessage = (ConfirmMessage) lastReadMessage;
             String s = Integer.toString(confirmMessage.getLobbyId());
             savedProperties.setProperty(P_LOBBY_KEY, s);
@@ -250,15 +240,28 @@ public class Client {
                 view.displayError(messagesConstants.getProperty("e.nicknameBlank"));
             } else {
                 sendLoginMessage(UUID, tempNick);
-                if (!onMessage()) {
+                if (!hasReceivedError()) {
+                    if (lastReadMessage.getMessageType() == MessageType.CONFIRM) {
+                        this.nickname = tempNick;
+                        savedProperties.setProperty(P_NICKNAME_KEY, this.nickname);
+                    }
+                } else {
                     ErrorMessage mes = (ErrorMessage) lastReadMessage;
                     view.displayError(mes.getMessage());
-                } else if (lastReadMessage.getMessageType() == MessageType.CONFIRM) {
-                    this.nickname = tempNick;
-                    savedProperties.setProperty(P_NICKNAME_KEY, this.nickname);
                 }
             }
         }
+    }
+
+    /**
+     * @return if server has an exception for our choice
+     */
+    private boolean chooseCloud() {
+        String cloudId;
+        cloudId = view.askCloud();
+        Message message = new ChooseCloudMessage(UUID, cloudId);
+        socket.sendMessage(message);
+        return !hasReceivedError();
     }
 
     /**
@@ -326,7 +329,7 @@ public class Client {
         int islandId = view.askMotherNature(view.getReducedModel().getPlayers().get(nickname).getLastAssistantPlayed());
         Message message = new MoveMotherNatureMessage(UUID, islandId);
         socket.sendMessage(message);
-        return onMessage();
+        return !hasReceivedError();
     }
 
     /**
@@ -348,7 +351,7 @@ public class Client {
                 message = new StudentsToDiningMessage(UUID, container);
             }
             socket.sendMessage(message);
-            return onMessage();
+            return !hasReceivedError();
         }
     }
 
@@ -359,15 +362,19 @@ public class Client {
      *
      * @return if last action was accepted by the server or rejected
      */
-    private boolean onMessage() {
+    private boolean hasReceivedError() {
         Message message;
+        boolean isError = false;
         try {
-            message = socket.getMessageBuffer().take();
+            do {
+                message = socket.getMessageBuffer().take();
+                isError = message.getMessageType() == MessageType.ERROR || isError;
+            } while (socket.getMessageBuffer().size() > 0);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
         lastReadMessage = message;
-        return message.getMessageType() != MessageType.ERROR;
+        return isError;
     }
 
     /**
@@ -381,7 +388,7 @@ public class Client {
         Message message = new PlayAssistantMessage(UUID, val);
         socket.sendMessage(message);
 
-        return onMessage();
+        return !hasReceivedError();
     }
 
     /**
@@ -444,7 +451,7 @@ public class Client {
             }
         }
         new PlayCharacterMessage(UUID, effect, oBuilder.build());
-        return onMessage();
+        return !hasReceivedError();
     }
 
     /**

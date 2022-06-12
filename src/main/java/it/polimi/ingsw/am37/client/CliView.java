@@ -101,28 +101,28 @@ public class CliView extends AbstractView {
      * Generic notification of an input error
      */
     public void wrongInsert() {
-        System.out.println("You have written wrong parameters");
+        displayError("You have written wrong parameters");
     }
 
     /**
      * Notify when a number port is expected but another input was given
      */
     public void wrongInsertPort() {
-        System.out.println("You haven't written a number as server's port");
+        displayError("You haven't written a number as server's port");
     }
 
     /**
      * Notify when a string between "cli" or "gui" was expected but another string was given
      */
     public void wrongInsertGraphics() {
-        System.out.println("You had to choose between \"cli\" or \"gui\"");
+        displayError("You had to choose between \"cli\" or \"gui\"");
     }
 
     /**
      * Notify when requested server is unreachable
      */
     public void wrongServer() {
-        System.out.println("This server is unreachable");
+        displayError("This server is unreachable");
     }
 
     /**
@@ -188,8 +188,7 @@ public class CliView extends AbstractView {
         if (advancedRules == null) return null;
         int numPlayers = 0;
         while (numPlayers != 2 && numPlayers != 3) {
-            System.out.print("Please insert number of players you want in your match (yourself included), they can" +
-                    " be \"two\" or \"three\". \nYou can also write \"close game\": ");
+            System.out.print("Enter whether you want to play with two or three players or write \"close game\": ");
             String input = new Scanner(System.in).nextLine().trim().replaceAll(" +", " ");
             switch (input.toLowerCase()) {
                 case "two", "2" -> numPlayers = 2;
@@ -229,7 +228,6 @@ public class CliView extends AbstractView {
         while (true) {
             System.out.print("Please insert the value of your chosen assistant: ");
             s = scanner.nextLine().trim().replaceAll(" +", " ");
-
             try {
                 num = Integer.parseInt(s);
             } catch (NumberFormatException e) {
@@ -242,7 +240,6 @@ public class CliView extends AbstractView {
             else if (getReducedModel().getPlayers().get(client.getNickname()).getAssistantsDeck().containsKey(num) &&
                     num > 0 && num < 11) System.out.println("You have already played this assistant");
             else System.out.println("You don't have this assistant");
-
         }
     }
 
@@ -268,7 +265,7 @@ public class CliView extends AbstractView {
             drawIsland(island);
         }
         while (true) {
-            displayInfo("Which island do you want? Please insert its index");
+            displayImportant("Which island do you want? Please insert its index");
             input = scanner.nextInt();
             int finalInput = input;
             if (reducedModel.getIslands().stream().filter(i -> i.getIslandId() == finalInput).findFirst().isEmpty()) {
@@ -482,7 +479,7 @@ public class CliView extends AbstractView {
             for (Island island : getReducedModel().getIslands())
                 if (island.getIslandId() == numResponse) return numResponse;
 
-            System.out.println("You have written an invalid Island, please try again: \n");
+            displayError("You have written an invalid Island, please try again:");
         }
     }
 
@@ -495,7 +492,7 @@ public class CliView extends AbstractView {
         for (Cloud cloud : reducedModel.getClouds().values()) {
             drawCloud(cloud);
         }
-        System.out.print("Now choose your cloud, available clouds are: ");
+        displayImportant("Now choose your cloud, available clouds are: ");
         String toPrint = reducedModel.getClouds().keySet().
                 stream()
                 .reduce("", (stringa, cloud) -> stringa + "\"" + cloud + "\" or ");

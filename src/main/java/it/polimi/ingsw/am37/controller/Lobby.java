@@ -390,7 +390,7 @@ public class Lobby implements Runnable, MessageReceiver {
             }
             response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(),
                     message.getMessageType()
-                    .getClassName());
+                            .getClassName());
             sendMessage(response);
             characterPlayed = true;
         } else
@@ -407,6 +407,7 @@ public class Lobby implements Runnable, MessageReceiver {
         Message response;
         try {
             gameManager.chooseCloud(((ChooseCloudMessage) message).getCloudId());
+            reset();
             response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(), message.getMessageType().getClassName());
             sendMessage(response);
             System.err.println("pre next turn:" + gameManager.getTurnManager().getOrderPlayed().stream().map(Player::getPlayerId));

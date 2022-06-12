@@ -17,7 +17,7 @@ public class ClientSocket implements Runnable {
     /**
      * Flag to disable disconnection for debug purpose
      */
-    final static boolean debugMode = true;
+    final static boolean debug_disableTimers = true;
     private final static Gson defaultMessageSerializer = new MessageGsonBuilder().registerMessageAdapter()
             .registerUpdatableObjectAdapter()
             .registerStudentContainerAdapter()
@@ -170,7 +170,7 @@ public class ClientSocket implements Runnable {
         String json;
         Message message;
         Timer timer = new Timer();
-        if (!debugMode) {
+        if (!debug_disableTimers) {
             timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
@@ -239,7 +239,7 @@ public class ClientSocket implements Runnable {
         if (connectedToServer) {
             String json = defaultMessageSerializer.toJson(message);
             Timer timer = new Timer();
-            if (!debugMode) timer.schedule(new TimerTask() {
+            if (!debug_disableTimers) timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
                     onDisconnect();
@@ -260,7 +260,7 @@ public class ClientSocket implements Runnable {
      */
     private void setInput() {
         Timer timer = new Timer();
-        if (!debugMode) timer.schedule(new TimerTask() {
+        if (!debug_disableTimers) timer.schedule(new TimerTask() {
             @Override
             public void run() {
                 onDisconnect();
@@ -288,7 +288,7 @@ public class ClientSocket implements Runnable {
      */
     private void setOutput() {
         Timer timer = new Timer();
-        if (!debugMode) timer.schedule(new TimerTask() {
+        if (!debug_disableTimers) timer.schedule(new TimerTask() {
             @Override
             public void run() {
                 onDisconnect();
