@@ -43,6 +43,12 @@ public class CliView extends AbstractView {
     protected static void drawBoard(Board board) {
         System.out.println("\tEntrance: " + ansi().render(board.getEntrance().getStudentsAsString()));
         System.out.println("\tDining: " + ansi().render(board.getDiningRoom().getStudentsAsString()));
+        String[] professors = new String[FactionColor.values().length];
+        for (FactionColor color :
+                FactionColor.values()) {
+            professors[color.getIndex()] = "@|" + color.color + " " + (board.getProfTable()[color.getIndex()] ? "Yes" : "No") + "|@";
+        }
+        System.out.println("\tProfessors: " + ansi().render(Arrays.toString(professors)));
         System.out.println("\tTowers: " + ansi().render(board.getTowers().getTowersAsString()));
     }
 
@@ -61,7 +67,7 @@ public class CliView extends AbstractView {
      * @param island the island to draw
      */
     protected static void drawIsland(Island island) {
-        System.out.print(ansi().a("🏝️  Isola ")
+        System.out.print(ansi().a("🏝️  Island ")
                 .a(island.getIslandId())
                 .a(" (dim ")
                 .a(island.getNumIslands())
@@ -71,7 +77,7 @@ public class CliView extends AbstractView {
         if (island.getCurrentTower() != TowerColor.NONE) System.out.print(ansi().render(
                 "@|" + island.getCurrentTower().color + " " + island.getCurrentTower().name() + "|@"));
         else System.out.print("❌");
-        if (island.getMotherNatureHere()) System.out.print(ansi().a(" ⬅ mother nature"));
+        if (island.getMotherNatureHere()) System.out.print(ansi().a(" ⬅ Mother Nature"));
         System.out.println();
     }
 
@@ -513,20 +519,17 @@ public class CliView extends AbstractView {
      * @return chosen player
      */
     public Player askPlayer() {
-
         Scanner scanner = new Scanner(System.in);
         String response;
-
         showPlayersNicknames();
 
         System.out.println("choose now one nickname from above: ");
-
         while (true) {
             response = scanner.nextLine().trim().replaceAll(" +", " ");
             for (String nickname : getReducedModel().getPlayers().keySet())
                 if (nickname.equals(response)) return getReducedModel().getPlayers().get(nickname);
 
-            System.out.println("You have to choose one nickname from available! Please try again");
+            displayError("You have to choose one nickname from available! Please try again");
         }
     }
 
@@ -544,7 +547,7 @@ public class CliView extends AbstractView {
             drawAssistant(player.getLastAssistantPlayed());
             System.out.println();
         } else {
-            System.out.print(ansi().fgCyan().a("\tNo assistant has been played yet").reset());
+            System.out.println(ansi().fgCyan().a("\tNo assistant has been played yet").reset());
         }
         if (player.getBoard() != null) drawBoard(player.getBoard());
         if (advancedRules) System.out.println("Coins: " + player.getNumberOfCoins());
@@ -659,7 +662,6 @@ public class CliView extends AbstractView {
     public ActionType takeInput(Client client) {
         List<ActionType> actions = ActionType.getActionByStatus(client.getStatus(), client.getSettings()
                 .advancedRulesEnabled());
-        //System.out.println(ansi().eraseScreen());
         System.out.flush();
         System.out.println("Current available actions:");
         for (int i = 0; i < actions.size(); i++) {
