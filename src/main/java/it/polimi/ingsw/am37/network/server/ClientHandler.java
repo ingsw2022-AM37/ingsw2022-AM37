@@ -17,7 +17,7 @@ public class ClientHandler implements Runnable {
     /**
      * Flag for disable disconnection when ping timeout fails on debug
      */
-    private final static boolean debugMode = true;
+    private final static boolean debug_disableTimers = false;
 
     /**
      * Input stream
@@ -243,7 +243,7 @@ public class ClientHandler implements Runnable {
             messageFuture.get(2000, TimeUnit.MILLISECONDS);
             return messageFuture.get();
         } catch (final InterruptedException | ExecutionException | TimeoutException e) {
-            if(!debugMode) disconnect();
+            if (!debug_disableTimers) disconnect();
             throw new InternetException();
         } finally {
             service.shutdown();

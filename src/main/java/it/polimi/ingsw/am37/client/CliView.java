@@ -143,7 +143,7 @@ public class CliView extends AbstractView {
         while (true) {
             System.out.print(ansi().render(message));
             System.out.print(ansi().render(" Please insert @|bold,italic yes|@ or @|bold,italic no|@ or @|bold,italic" +
-                    " close game|@: "));
+                    " exit|@: "));
             s = scanner.nextLine().toLowerCase().trim().replaceAll(" +", " ");
             switch (s.toLowerCase()) {
                 case "yes", "y" -> {
@@ -152,7 +152,7 @@ public class CliView extends AbstractView {
                 case "no", "n" -> {
                     return false;
                 }
-                case "close game" -> {
+                case "exit" -> {
                     return null;
                 }
                 default -> wrongInsert();
@@ -170,13 +170,13 @@ public class CliView extends AbstractView {
     public Client.ConnectionParameters askConnectionParameters() {
         Scanner scanner = new Scanner(System.in);
         while (true) {
-            System.out.print("Write server's address or \"close game\": ");
+            System.out.print(ansi().render("Write server's @|bold,italic address|@ or @|bold,italic exit|@: "));
             String addressInput = scanner.nextLine().toLowerCase().trim().replaceAll(" +", " ");
-            if (addressInput.equals("close game")) return null;
+            if (addressInput.equals("exit")) return null;
             if (!Objects.equals(addressInput.toLowerCase(), "localhost")) displayImportant("i.notLocalhost");
-            System.out.print("Write server's port or \"close game\": ");
+            System.out.print(ansi().render("Write server's @|bold,italic port|@ or @|bold,italic exit|@: "));
             String portInput = scanner.nextLine().toLowerCase().trim().replaceAll(" +", " ");
-            if (portInput.equals("close game")) return null;
+            if (portInput.equals("exit")) return null;
             try {
                 int port = Integer.parseInt(portInput);
                 if (port > 65535 || port < 1) throw new NumberFormatException();
@@ -194,12 +194,12 @@ public class CliView extends AbstractView {
         if (advancedRules == null) return null;
         int numPlayers = 0;
         while (numPlayers != 2 && numPlayers != 3) {
-            System.out.print("Enter whether you want to play with two or three players or write \"close game\": ");
+            System.out.print(ansi().render("Enter whether you want to play with @|bold,italic two|@ or @|bold,italic three|@ players or write @|bold,italic exit|@: "));
             String input = new Scanner(System.in).nextLine().trim().replaceAll(" +", " ");
             switch (input.toLowerCase()) {
                 case "two", "2" -> numPlayers = 2;
                 case "three", "3" -> numPlayers = 3;
-                case "close game" -> {
+                case "exit" -> {
                     return null;
                 }
                 default -> numPlayers = -1;
@@ -215,7 +215,7 @@ public class CliView extends AbstractView {
      */
     public String askNickname() {
         Scanner scanner = new Scanner(System.in);
-        System.out.print("Please insert a nickname or write \"close game\": ");
+        System.out.print(ansi().render("Please insert a @|bold,italic nickname|@ or write @|bold,italic exit|@: "));
         return scanner.nextLine().trim().replaceAll(" ", "");
     }
 

@@ -17,7 +17,7 @@ public class ClientSocket implements Runnable {
     /**
      * Flag to disable disconnection for debug purpose
      */
-    final static boolean debug_disableTimers = true;
+    final static boolean debug_disableTimers = false;
     private final static Gson defaultMessageSerializer = new MessageGsonBuilder().registerMessageAdapter()
             .registerUpdatableObjectAdapter()
             .registerStudentContainerAdapter()

@@ -235,7 +235,7 @@ public class Client {
         String tempNick;
         while (nickname == null) {
             tempNick = view.askNickname();
-            if (tempNick.equals("close game")) throw new PlayerAbortException();
+            if (tempNick.equals("exit")) throw new PlayerAbortException();
             if (tempNick.isBlank()) {
                 view.displayError(messagesConstants.getProperty("e.nicknameBlank"));
             } else {
