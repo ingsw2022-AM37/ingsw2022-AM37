@@ -489,14 +489,18 @@ public class CliView extends AbstractView {
     public String askCloud() {
         String response;
         Scanner scanner = new Scanner(System.in);
+        HashMap<String, Cloud> cloudsToPrint = new HashMap<>();
         for (Cloud cloud : reducedModel.getClouds().values()) {
-            drawCloud(cloud);
+            if (cloud.size() != 0) {
+                drawCloud(cloud);
+                cloudsToPrint.put(cloud.getCloudId(), cloud);
+            }
         }
         displayImportant("Now choose your cloud, available clouds are: ");
-        String toPrint = reducedModel.getClouds().keySet().
+        String toPrint = cloudsToPrint.keySet().
                 stream()
                 .reduce("", (stringa, cloud) -> stringa + "\"" + cloud + "\" or ");
-        System.out.println(toPrint.substring(0, toPrint.length() - 4));
+        System.out.print(toPrint.substring(0, toPrint.length() - 4));
         while (true) {
             response = scanner.nextLine().trim().replaceAll(" +", " ");
             if (reducedModel.getClouds().containsKey(response)) return response;
@@ -536,8 +540,11 @@ public class CliView extends AbstractView {
     public void showPlayerStatus(Player player, boolean advancedRules) {
         System.out.println(player.getPlayerId() + " status:");
         if (player.getLastAssistantPlayed() != null) {
+            System.out.println("\t");
             drawAssistant(player.getLastAssistantPlayed());
             System.out.println();
+        } else {
+            System.out.print(ansi().fgCyan().a("\tNo assistant has been played yet").reset());
         }
         if (player.getBoard() != null) drawBoard(player.getBoard());
         if (advancedRules) System.out.println("Coins: " + player.getNumberOfCoins());
@@ -547,14 +554,9 @@ public class CliView extends AbstractView {
      * Method used to show players in game
      */
     public void showPlayersNicknames() {
-
         System.out.println("Players in this game are: ");
         for (String nickname : getReducedModel().getPlayers().keySet())
             System.out.println(nickname);
-
-        System.out.println("\n");
-
-
     }
 
     /**
