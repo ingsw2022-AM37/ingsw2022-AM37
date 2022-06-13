@@ -386,7 +386,8 @@ public class Lobby implements Runnable, MessageReceiver {
                 response = new ErrorMessage(message.getUUID(), e.getMessage());
                 sendMessage(response);
             } catch (IllegalStateException e) {
-                //TODO disconnect the player because client hacked
+                ch.disconnect();
+                onDisconnect(ch.getUUID());
             }
             response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(),
                     message.getMessageType()
@@ -410,16 +411,12 @@ public class Lobby implements Runnable, MessageReceiver {
             reset();
             response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(), message.getMessageType().getClassName());
             sendMessage(response);
-            System.err.println("pre next turn:" + gameManager.getTurnManager().getOrderPlayed().stream().map(Player::getPlayerId));
-            //FIXME: nextTurn non va lanciato sempre, solo se è l'ultimo della lista, altrimenti continua solo il giro
             if (isLastPlayerInOrder(message.getUUID())) {
-                System.err.println("Ho fatto la nextTurn");
                 gameManager.nextTurn();
-            } else {
-                System.err.println("Ho fatto la nextPlayer");
+                //Resets the last assistant played when a turn ends.
+                gameManager.getTurnManager().getPlayers().forEach(player -> player.setLastAssistantPlayed(null));
+            } else
                 gameManager.getTurnManager().nextPlayer();
-            }
-            System.err.println("post next turn:" + gameManager.getTurnManager().getOrderPlayed().stream().map(Player::getPlayerId));
         } catch (IllegalArgumentException | StudentSpaceException e) {
             response = new ErrorMessage(message.getUUID(), e.getMessage());
             sendMessage(response);
