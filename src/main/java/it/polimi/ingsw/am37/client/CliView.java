@@ -506,7 +506,7 @@ public class CliView extends AbstractView {
         String toPrint = cloudsToPrint.keySet().
                 stream()
                 .reduce("", (stringa, cloud) -> stringa + "\"" + cloud + "\" or ");
-        System.out.print(toPrint.substring(0, toPrint.length() - 4));
+        System.out.println(toPrint.substring(0, toPrint.length() - 4));
         while (true) {
             response = scanner.nextLine().trim().replaceAll(" +", " ");
             if (reducedModel.getClouds().containsKey(response)) return response;

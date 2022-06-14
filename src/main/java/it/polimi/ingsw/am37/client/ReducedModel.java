@@ -62,12 +62,14 @@ public class ReducedModel {
      * @param updatedObjects the list of updatedObjects
      */
     public void update(List<? extends UpdatableObject> updatedObjects) {
+        islands.clear();
         for (UpdatableObject obj : updatedObjects) {
             switch (obj.type) {
                 case ISLAND -> {
                     Island island = (Island) obj;
-                    if (island.getNumIslands() == 0) islands.remove(island.getIslandId());
-                    else islands.put(island.getIslandId(), island);
+                    if (island.getNumIslands() != 0) islands.put(island.getIslandId(), island);
+                    //else islands.remove(island.getIslandId());
+
                 }
                 case CLOUD -> {
                     Cloud cloud = (Cloud) obj;
