@@ -409,14 +409,16 @@ public class Lobby implements Runnable, MessageReceiver {
         try {
             gameManager.chooseCloud(((ChooseCloudMessage) message).getCloudId());
             reset();
-            response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(), message.getMessageType().getClassName());
-            sendMessage(response);
             if (isLastPlayerInOrder(message.getUUID())) {
                 gameManager.nextTurn();
                 //Resets the last assistant played when a turn ends.
                 gameManager.getTurnManager().getPlayers().forEach(player -> player.setLastAssistantPlayed(null));
-            } else
+                response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(), message.getMessageType().getClassName());
+            } else {
                 gameManager.getTurnManager().nextPlayer();
+                response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(), message.getMessageType().getClassName());
+            }
+            sendMessage(response);
         } catch (IllegalArgumentException | StudentSpaceException e) {
             response = new ErrorMessage(message.getUUID(), e.getMessage());
             sendMessage(response);

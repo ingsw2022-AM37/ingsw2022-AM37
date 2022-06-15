@@ -245,7 +245,7 @@ public class CliView extends AbstractView {
                 return num;
             else if (getReducedModel().getPlayers().get(client.getNickname()).getAssistantsDeck().containsKey(num) &&
                     num > 0 && num < 11) System.out.println("You have already played this assistant");
-            else System.out.println("You don't have this assistant");
+            else displayError("You don't have this assistant");
         }
     }
 
