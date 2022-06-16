@@ -88,12 +88,11 @@ public class CliView extends AbstractView {
      */
     protected static void drawCharacter(Character character) {
         System.out.print(
-                "\t " + character.getEffectType().name().toLowerCase() + ": price " + character.getCurrentPrice() +
-                        " coins");
+                "\t" + character.getEffectType().name().toLowerCase() + ":\tPrice " + character.getCurrentPrice() + (character.getCurrentPrice() == 1 ? " coin" : " coins"));
         if (character.getState().getContainer() != null) System.out.print(
-                "\t students: " + ansi().render(character.getState().getContainer().getStudentsAsString()));
+                "\tStudents on the card: " + ansi().render(character.getState().getContainer().getStudentsAsString()));
         else if (character.getState().getNoEntryTiles() != EffectHandler.DEFAULT_NOENTRYTILES)
-            System.out.print("\t no entry tales: " + character.getState().getNoEntryTiles());
+            System.out.print("\t No Entry tiles on the card: " + character.getState().getNoEntryTiles());
     }
 
     /**
@@ -255,7 +254,7 @@ public class CliView extends AbstractView {
      * @return the effect of the selected character
      */
     public Effect askCharacter() {
-        displayInfo("Which character you want to play? ");
+        displayImportant("Which character do you want to play? ");
         Scanner scanner = new Scanner(System.in);
         int response = scanner.nextInt();
         return ((Character) reducedModel.getCharacters().toArray()[response]).getEffectType();
@@ -359,7 +358,6 @@ public class CliView extends AbstractView {
         String input;
         Scanner scanner = new Scanner(System.in);
         StudentsContainer container = new LimitedStudentsContainer(num);
-        drawCharacter(character);
 
         while (true) {
             displayInfo("You have to move " + (num - container.size()) + " students");
@@ -628,7 +626,7 @@ public class CliView extends AbstractView {
     @Override
     public void showCharacters() {
         for (int i = 0; i < reducedModel.getCharacters().size(); i++) {
-            System.out.print(ansi().bold().a(i).reset().a("\t:"));
+            System.out.print(ansi().bold().a("\t").reset().a(i + ":"));
             drawCharacter((Character) reducedModel.getCharacters().toArray()[i]);
             System.out.println();
         }

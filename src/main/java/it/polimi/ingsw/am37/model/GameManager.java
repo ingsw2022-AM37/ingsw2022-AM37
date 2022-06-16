@@ -2,6 +2,7 @@ package it.polimi.ingsw.am37.model;
 
 import it.polimi.ingsw.am37.model.character.Character;
 import it.polimi.ingsw.am37.model.character.Effect;
+import it.polimi.ingsw.am37.model.character.EffectDatabase;
 import it.polimi.ingsw.am37.model.character.Option;
 import it.polimi.ingsw.am37.model.exceptions.AssistantImpossibleToPlay;
 import it.polimi.ingsw.am37.model.exceptions.CharacterImpossibleToPlay;
@@ -154,15 +155,15 @@ public class GameManager {
             }
             Arrays.fill(notUsedTeachers, true);
             turnManager.setUp(bag);
-            //TODO: handle assistants logic
 
             // advanced logic only
             if (this.advancedMode) {
+                EffectDatabase.setUp();
                 List<Effect> temp = new ArrayList<>(Arrays.stream(Effect.values()).toList());
                 Collections.shuffle(temp);
                 for (int i = 0; i < NUMBER_OF_CHARACTERS; i++) {
                     Effect effect = temp.get(i);
-                    characters[i] = new Character(effect.getInitialPrice(), effect);
+                    characters[i] = new Character(effect.getInitialPrice(), effect, bag);
                     if (effect == Effect.GRANDMA) islandsManager.setStateCharacterNoEntryTile(characters[i].getState());
                 }
             }
@@ -252,7 +253,7 @@ public class GameManager {
         synchronized (lock) {
             if (turnManager.getCurrentPlayer().getNumberOfCoins() >= character.getCurrentPrice()) {
                 character.useEffect(option);
-            } else throw new CharacterImpossibleToPlay("Can't play Character");
+            } else throw new CharacterImpossibleToPlay("Can't play Character, not enough coins");
         }
     }
 

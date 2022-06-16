@@ -26,9 +26,21 @@ public class OptionBuilder {
         this.intPar = -1;
     }
 
+    private OptionBuilder(Player player) {
+        this.controller = null;
+        this.player = player;
+        this.bag = null;
+        this.intPar = -1;
+    }
+
     public static OptionBuilder newBuilder(GameManager controller, Player player) {
         if (player == null) return null;
         return new OptionBuilder(controller, player);
+    }
+
+    public static OptionBuilder newBuilder(Player player) {
+        if (player == null) return null;
+        return new OptionBuilder(player);
     }
 
     public OptionBuilder island(Island island) {

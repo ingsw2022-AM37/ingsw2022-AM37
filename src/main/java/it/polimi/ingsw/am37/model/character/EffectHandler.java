@@ -1,5 +1,7 @@
 package it.polimi.ingsw.am37.model.character;
 
+
+import it.polimi.ingsw.am37.model.Bag;
 import it.polimi.ingsw.am37.model.student_container.LimitedStudentsContainer;
 
 import java.util.ArrayList;
@@ -18,9 +20,9 @@ public class EffectHandler {
     /**
      * It's the set of basic effects that make up the character's effect.
      */
-    private final ArrayList<BiConsumer<Option, State>> baseEffects;
+    private final transient ArrayList<BiConsumer<Option, State>> baseEffects;
 
-    private State state;
+    private final State state;
 
 
     /**
@@ -29,13 +31,19 @@ public class EffectHandler {
      *
      * @param effect the effect type to handle
      */
-    public EffectHandler(Effect effect) {
+    public EffectHandler(Effect effect, Bag bag) {
         baseEffects = new ArrayList<>(EffectDatabase.getEffects(effect));
         switch (effect) {
-            case MONK, PRINCESS -> new State(new LimitedStudentsContainer(MONK_PRINCESS_CONTAINER_DIM), DEFAULT_NOENTRYTILES);
-            case GRANDMA -> new State(null, GRANDMA_NOENTRYTILES);
-            case JESTER -> new State(new LimitedStudentsContainer(JESTER_CONTAINERD_DIM), DEFAULT_NOENTRYTILES);
-            default -> new State(null, DEFAULT_NOENTRYTILES);
+            case MONK, PRINCESS -> {
+                state = new State(new LimitedStudentsContainer(MONK_PRINCESS_CONTAINER_DIM), DEFAULT_NOENTRYTILES);
+                state.setContainer(bag.extractStudents(MONK_PRINCESS_CONTAINER_DIM));
+            }
+            case GRANDMA -> state = new State(null, GRANDMA_NOENTRYTILES);
+            case JESTER -> {
+                state = new State(new LimitedStudentsContainer(JESTER_CONTAINERD_DIM), DEFAULT_NOENTRYTILES);
+                state.setContainer(bag.extractStudents(JESTER_CONTAINERD_DIM));
+            }
+            default -> state = new State(null, DEFAULT_NOENTRYTILES);
         }
 
     }

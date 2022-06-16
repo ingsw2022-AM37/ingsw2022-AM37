@@ -398,6 +398,8 @@ public class Client {
      * @see ActionType
      */
     private boolean playCharacter() {
+        Player currentPlayer = view.getReducedModel().getPlayers().get(nickname);
+        view.displayImportant("You have " + currentPlayer.getNumberOfCoins() + (currentPlayer.getNumberOfCoins() == 1 ? " coin" : " coins"));
         view.showCharacters();
         Effect effect = view.askCharacter();
         Character character = view.getReducedModel()
@@ -406,9 +408,12 @@ public class Client {
                 .filter(c -> c.getEffectType() == effect)
                 .findFirst()
                 .get();
-        Player currentPlayer = view.getReducedModel().getPlayers().get(nickname);
-        OptionBuilder oBuilder = OptionBuilder.newBuilder(null, currentPlayer);
+        OptionBuilder oBuilder = OptionBuilder.newBuilder(currentPlayer);
         PlayCharacterMessage message;
+        if (currentPlayer.getNumberOfCoins() >= character.getCurrentPrice()) {
+            view.displayError("You don't have enough coins to play this character");
+            return true;
+        }
         switch (effect) {
             case MONK -> {
                 final int MONK_STUDENTS = 1;
@@ -450,7 +455,8 @@ public class Client {
             default -> {
             }
         }
-        new PlayCharacterMessage(UUID, effect, oBuilder.build());
+        message = new PlayCharacterMessage(UUID, effect, oBuilder.build());
+        socket.sendMessage(message);
         return !hasReceivedError();
     }
 

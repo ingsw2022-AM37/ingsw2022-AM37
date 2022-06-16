@@ -1,11 +1,12 @@
 package it.polimi.ingsw.am37.model.character;
 
+import it.polimi.ingsw.am37.model.Bag;
 import it.polimi.ingsw.am37.model.UpdatableObject;
 
 import java.util.Objects;
 
-import static it.polimi.ingsw.am37.model.UpdatableObject.UpdatableType.CHARACTER;
 import static it.polimi.ingsw.am37.controller.UpdateController.Properties.P_CHARACTER_PLAYED;
+import static it.polimi.ingsw.am37.model.UpdatableObject.UpdatableType.CHARACTER;
 
 /**
  * This class represents the Character in the game. They have special effects to modify and improve the game. They are
@@ -18,7 +19,7 @@ public class Character extends UpdatableObject {
     /**
      * The effect that distinguishes the character.
      */
-    private final transient EffectHandler effectHandler;
+    private final EffectHandler effectHandler;
     /**
      * The id of the Effect.
      */
@@ -35,12 +36,12 @@ public class Character extends UpdatableObject {
     /**
      * Default constructor
      */
-    public Character(int startPrice, Effect effectType) {
+    public Character(int startPrice, Effect effectType, Bag bag) {
         super(CHARACTER);
         this.startPrice = startPrice;
         this.currentPrice = startPrice;
         this.effectType = effectType;
-        this.effectHandler = new EffectHandler(effectType);
+        this.effectHandler = new EffectHandler(effectType, bag);
     }
 
     /**
@@ -56,7 +57,6 @@ public class Character extends UpdatableObject {
     public int getCurrentPrice() {
         return currentPrice;
     }
-
     /**
      * @param option The option parameters used to use the Effect.
      */
