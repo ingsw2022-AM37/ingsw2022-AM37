@@ -360,6 +360,10 @@ public class CliView extends AbstractView {
         StudentsContainer container = new LimitedStudentsContainer(num);
 
         while (true) {
+            if (character.getState().getContainer() != null) System.out.println(
+                    "Students on the card: " + ansi().render(character.getState().getContainer().getStudentsAsString()));
+            else if (character.getState().getNoEntryTiles() != EffectHandler.DEFAULT_NOENTRYTILES)
+                System.out.println("\t No Entry tiles on the card: " + character.getState().getNoEntryTiles());
             displayInfo("You have to move " + (num - container.size()) + " students");
             displayInfo("Select the color of students you want to move, write @|red,bold R|@ or @|blue,bold B|@ or " +
                     "@|yellow,bold Y|@ or @|green,bold G|@ or @|magenta,bold P|@");

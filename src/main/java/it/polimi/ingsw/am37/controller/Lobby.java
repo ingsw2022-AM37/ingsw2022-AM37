@@ -76,11 +76,6 @@ public class Lobby implements Runnable, MessageReceiver {
     private final HashMap<String, String> playerNicknames;
 
     /**
-     * Flags that checks if a Player already played a Character in his turn.
-     */
-    private boolean characterPlayed;
-
-    /**
      * Keeps track of the number of Students moved.
      */
     private int numberOfStudentsMoved;
@@ -106,7 +101,7 @@ public class Lobby implements Runnable, MessageReceiver {
         this.updateController = new UpdateController();
         this.disconnectedPlayers = new HashMap<>();
         this.endGameTimer = new Timer();
-        reset();
+        numberOfStudentsMoved = 0;
     }
 
     /**
@@ -169,7 +164,9 @@ public class Lobby implements Runnable, MessageReceiver {
      * resets the variables needed
      */
     private void reset() {
-        characterPlayed = false;
+        for (int i = 0; i < gameManager.getCharacters().length - 1; i++) {
+            gameManager.getCharacters()[i].setPlayedInThisTurn(false);
+        }
         numberOfStudentsMoved = 0;
     }
 
@@ -209,6 +206,7 @@ public class Lobby implements Runnable, MessageReceiver {
         LOGGER.info("[Lobby " + matchID + "] Everything is ready, game is about to start");
         Timer timer = new Timer();
         gameManager.prepareGame();
+        reset();
         gameManager.registerListener(updateController);
         int i = 0;
         for (String nickname : playerNicknames.values()) {
@@ -373,7 +371,17 @@ public class Lobby implements Runnable, MessageReceiver {
      */
     private void playCharacterCase(Message message, ClientHandler ch) {
         Message response;
-        if (characterPlayed) {
+        boolean characterPlayable = false;
+        int characterIndex;
+        for (characterIndex = 0; characterIndex < gameManager.getCharacters().length - 1; characterIndex++) {
+            if (gameManager.getCharacters()[characterIndex].getEffectType() == ((PlayCharacterMessage) message).getChosenCharacter()) {
+                if (!gameManager.getCharacters()[characterIndex].isPlayedInThisTurn()) {
+                    characterPlayable = true;
+                    break;
+                }
+            }
+        }
+        if (characterPlayable) {
             Character characterToBePlayed = Arrays.stream(gameManager.getCharacters())
                     .filter(c -> c.getEffectType() == ((PlayCharacterMessage) message).getChosenCharacter())
                     .findFirst()
@@ -393,7 +401,7 @@ public class Lobby implements Runnable, MessageReceiver {
                     message.getMessageType()
                             .getClassName());
             sendMessage(response);
-            characterPlayed = true;
+            gameManager.getCharacters()[characterIndex].setPlayedInThisTurn(true);
         } else
             ch.disconnect();
     }

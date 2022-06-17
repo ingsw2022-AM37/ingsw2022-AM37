@@ -1,10 +1,6 @@
 package it.polimi.ingsw.am37.client;
 
-import it.polimi.ingsw.am37.model.UpdatableObject;
-import it.polimi.ingsw.am37.model.Board;
-import it.polimi.ingsw.am37.model.Cloud;
-import it.polimi.ingsw.am37.model.Island;
-import it.polimi.ingsw.am37.model.Player;
+import it.polimi.ingsw.am37.model.*;
 import it.polimi.ingsw.am37.model.character.Character;
 
 import java.util.*;
@@ -68,8 +64,6 @@ public class ReducedModel {
                 case ISLAND -> {
                     Island island = (Island) obj;
                     if (island.getNumIslands() != 0) islands.put(island.getIslandId(), island);
-                    //else islands.remove(island.getIslandId());
-
                 }
                 case CLOUD -> {
                     Cloud cloud = (Cloud) obj;

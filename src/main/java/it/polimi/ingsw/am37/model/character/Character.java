@@ -34,6 +34,11 @@ public class Character extends UpdatableObject {
     private int currentPrice;
 
     /**
+     * flag to check if the character has been used in this turn.
+     */
+    private boolean playedInThisTurn;
+
+    /**
      * Default constructor
      */
     public Character(int startPrice, Effect effectType, Bag bag) {
@@ -41,6 +46,7 @@ public class Character extends UpdatableObject {
         this.startPrice = startPrice;
         this.currentPrice = startPrice;
         this.effectType = effectType;
+        this.playedInThisTurn = false;
         this.effectHandler = new EffectHandler(effectType, bag);
     }
 
@@ -57,6 +63,7 @@ public class Character extends UpdatableObject {
     public int getCurrentPrice() {
         return currentPrice;
     }
+
     /**
      * @param option The option parameters used to use the Effect.
      */
@@ -76,8 +83,22 @@ public class Character extends UpdatableObject {
     /**
      * @return the state of this characters
      */
-    public State getState(){
+    public State getState() {
         return effectHandler.getState();
+    }
+
+    /**
+     * @return true if the character has been used in this turn
+     */
+    public boolean isPlayedInThisTurn() {
+        return playedInThisTurn;
+    }
+
+    /**
+     * @param playedInThisTurn set the playedInThisTurn flag to true if the character has been used in this turn
+     */
+    public void setPlayedInThisTurn(boolean playedInThisTurn) {
+        this.playedInThisTurn = playedInThisTurn;
     }
 
     @Override

@@ -2,6 +2,7 @@ package it.polimi.ingsw.am37.client;
 
 import it.polimi.ingsw.am37.message.*;
 import it.polimi.ingsw.am37.model.FactionColor;
+import it.polimi.ingsw.am37.model.Island;
 import it.polimi.ingsw.am37.model.Player;
 import it.polimi.ingsw.am37.model.character.Character;
 import it.polimi.ingsw.am37.model.character.Effect;
@@ -410,7 +411,7 @@ public class Client {
                 .get();
         OptionBuilder oBuilder = OptionBuilder.newBuilder(currentPlayer);
         PlayCharacterMessage message;
-        if (currentPlayer.getNumberOfCoins() >= character.getCurrentPrice()) {
+        if (currentPlayer.getNumberOfCoins() < character.getCurrentPrice()) {
             view.displayError("You don't have enough coins to play this character");
             return true;
         }
@@ -418,7 +419,10 @@ public class Client {
             case MONK -> {
                 final int MONK_STUDENTS = 1;
                 StudentsContainer container = view.askStudentsFromCharacter(character, MONK_STUDENTS, this);
+                Island destinationIsland = view.getReducedModel().getIslands().get(view.askIsland());
                 oBuilder.primaryContainer((LimitedStudentsContainer) container);
+                oBuilder.island(destinationIsland);
+                oBuilder.intPar(MONK_STUDENTS);
             }
             case HERALD, GRANDMA, CENTAUR -> {
                 int islandId = view.askIsland();
@@ -430,11 +434,13 @@ public class Client {
                         .get());
             }
             case JESTER -> {
+                final int JESTER_STUDENTS = 3;
                 LimitedStudentsContainer container1 =
-                        (LimitedStudentsContainer) view.askStudentsFromCharacter(character, 3, this);
-                LimitedStudentsContainer container2 = (LimitedStudentsContainer) view.askStudentsFromEntrance(this, 3);
+                        (LimitedStudentsContainer) view.askStudentsFromCharacter(character, JESTER_STUDENTS, this);
+                LimitedStudentsContainer container2 = (LimitedStudentsContainer) view.askStudentsFromEntrance(this, JESTER_STUDENTS);
                 if (container1 == null || container2 == null) return false;
                 else oBuilder.primaryContainer(container1).secondaryContainer(container2);
+                oBuilder.intPar(JESTER_STUDENTS);
             }
             case MUSHROOM_MAN, THIEF -> {
                 FactionColor color = view.askColor(this);
@@ -442,15 +448,19 @@ public class Client {
                 else oBuilder.color(color);
             }
             case MINSTREL -> {
-                LimitedStudentsContainer container1 = (LimitedStudentsContainer) view.askStudentsFromEntrance(this, 2);
-                LimitedStudentsContainer container2 = (LimitedStudentsContainer) view.askStudentFromDining(this, 2);
+                final int MINSTREL_STUDENTS = 2;
+                LimitedStudentsContainer container1 = (LimitedStudentsContainer) view.askStudentsFromEntrance(this, MINSTREL_STUDENTS);
+                LimitedStudentsContainer container2 = (LimitedStudentsContainer) view.askStudentFromDining(this, MINSTREL_STUDENTS);
                 if (container1 == null || container2 == null) return false;
                 else oBuilder.primaryContainer(container1).secondaryContainer(container2);
+                oBuilder.intPar(MINSTREL_STUDENTS);
             }
             case PRINCESS -> {
+                final int PRINCESS_STUDENTS = 1;
                 LimitedStudentsContainer container =
-                        (LimitedStudentsContainer) view.askStudentsFromCharacter(character, 1, this);
+                        (LimitedStudentsContainer) view.askStudentsFromCharacter(character, PRINCESS_STUDENTS, this);
                 oBuilder.primaryContainer(container);
+                oBuilder.intPar(PRINCESS_STUDENTS);
             }
             default -> {
             }
