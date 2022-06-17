@@ -9,10 +9,12 @@ import it.polimi.ingsw.am37.message.UpdateMessage;
 import it.polimi.ingsw.am37.model.*;
 import it.polimi.ingsw.am37.model.character.Character;
 import it.polimi.ingsw.am37.model.character.Effect;
+import it.polimi.ingsw.am37.model.student_container.LimitedStudentsContainer;
 import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
 import javafx.application.Application;
 import javafx.application.Platform;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
@@ -363,6 +365,22 @@ public class GuiView extends AbstractView {
                         .get();
                 List<Assistant> assistants = player.getAssistantsDeck().values().stream().toList();
                 Platform.runLater(() -> ((GameSceneController) SceneController.getActiveController()).drawDeck(assistants));
+
+                //Start update my board -----------------------------
+                HashMap<FactionColor, Integer> entrance = new HashMap<>();
+                HashMap<FactionColor, Integer> dining = new HashMap<>();
+                boolean[] professors;
+                LimitedTowerContainer towers;
+
+                for (FactionColor color : FactionColor.values()) {
+                    entrance.put(color, getReducedModel().getBoards().get(client.getNickname()).getEntrance().getByColor(color));
+                    dining.put(color, getReducedModel().getBoards().get(client.getNickname()).getDiningRoom().getByColor(color));
+                }
+                professors = getReducedModel().getBoards().get(client.getNickname()).getProfTable();
+                towers = getReducedModel().getBoards().get(client.getNickname()).getTowers();
+
+                Platform.runLater(() -> ((GameSceneController) SceneController.getActiveController()).drawBoard(entrance, dining, professors, towers));
+                //My board drawn ------------------------------
             }
         }
         if (client.getSettings().advancedRulesEnabled() && updateMessage.getUpdatedObjects(UpdatableObject
