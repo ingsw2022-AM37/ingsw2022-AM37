@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import static java.lang.Math.*;
 import static java.util.Map.entry;
@@ -92,22 +93,22 @@ public class GameSceneController extends GenericController {
     public void diningClicked(MouseEvent mouseEvent) {
     }
 
-    /*public void drawCharacters(List<Character> characters) {
+    public void drawCharacters(List<Character> characters) {
         for (Character c :
                 characters) {
             ImageView imageView = new ImageView(getClass().getResource(
-                            "/assets/images/Character" + c + ".png")
+                            "/assets/images/" + c.getEffectType().name() + ".jpg")
                     .toString());
             imageView.setFitWidth(assistantDimension.width);
             imageView.setFitHeight(assistantDimension.height);
-            imageView.setId("lastAssistantPlayedBy" + c.getEffectType());
+            imageView.setId("character_" + c.getEffectType().name());
             assistantsHBox.getChildren().add(imageView);
             Label label = new Label(c.getEffectType().name());
             label.setFont(labelFont);
             label.setRotate(270);
             assistantsHBox.getChildren().add(new Group(label));
         }
-    }*/
+    }
 
     private List<Coordinate> drawCircle(Coordinate center, Dimension dimension, int numberOfElements, int radius) {
         List<Coordinate> result = new ArrayList<>(numberOfElements);
@@ -125,11 +126,9 @@ public class GameSceneController extends GenericController {
     }
 
     public void drawClouds(List<Cloud> clouds) {
-        for (Cloud cloud :
-                clouds) {
-            ImageView imageView = new ImageView(getClass().getResource(
-                            "/assets/images/Cloud.png")
-                    .toString());
+        cloudsHBox.getChildren().clear();
+        for (Cloud cloud : clouds) {
+            ImageView imageView = new ImageView(getClass().getResource("/assets/images/Cloud.png").toString());
             imageView.setFitWidth(cloudsDimension.width);
             imageView.setFitHeight(cloudsDimension.height);
             cloudsHBox.getChildren().add(imageView);
@@ -137,34 +136,47 @@ public class GameSceneController extends GenericController {
     }
 
     public void drawDeck(List<Assistant> assistants) {
+        final Pattern deckAssistantPattern = Pattern.compile("deck_assistant_.*");
+        if (wallpaperPane.getChildren().stream().anyMatch(n -> deckAssistantPattern.matcher(n.getId()).matches())) {
+            wallpaperPane.getChildren()
+                    .stream()
+                    .filter(n -> deckAssistantPattern.matcher(n.getId()).matches())
+                    .forEach(n -> wallpaperPane.getChildren().remove(n));
+        }
         for (int currentAssistant = 0; currentAssistant < assistants.size(); currentAssistant++) {
             ImageView imageView = new ImageView(getClass().getResource(
                             "/assets/images/assistants/Assistant" + assistants.get(currentAssistant).getCardValue() + ".png")
                     .toString());
             imageView.setFitHeight(assistantDimension.height);
             imageView.setFitWidth(assistantDimension.width);
-            imageView.setId("island" + islands.get(currentAssistant).getIslandId());
+            imageView.setId("deck_assistant_" + assistants.get(currentAssistant).getCardValue());
             assistantsGrid.add(imageView, currentAssistant % 4, currentAssistant / 4);
         }
     }
 
     public void drawIslands(List<Island> islands) {
-        this.islands = islands;
+        final Pattern islandIdPattern = Pattern.compile("island_.*");
+        if (wallpaperPane.getChildren().stream().anyMatch(n -> islandIdPattern.matcher(n.getId()).matches())) {
+            wallpaperPane.getChildren()
+                    .stream()
+                    .filter(n -> islandIdPattern.matcher(n.getId()).matches())
+                    .forEach(n -> wallpaperPane.getChildren().remove(n));
+        }
         List<Coordinate> coordinates = drawCircle(islandCenter, islandDimension, islands.size(), 350);
         for (int i = 0; i < islands.size(); i++) {
             ImageView imageView = new ImageView(getClass().getResource("/assets/images/Island" + ((i % 3) + 1) + ".png")
                     .toString());
             imageView.setFitHeight(islandDimension.height);
             imageView.setFitWidth(islandDimension.width);
-            imageView.setId("island" + islands.get(i).getIslandId());
+            imageView.setId("island_" + islands.get(i).getIslandId());
             imageView.relocate(coordinates.get(i).x, coordinates.get(i).y);
             wallpaperPane.getChildren().add(imageView);
         }
     }
 
     public void drawPlayedAssistants(List<Player> players) {
-        for (Player p :
-                players) {
+        assistantsHBox.getChildren().clear();
+        for (Player p : players) {
             if (p.getLastAssistantPlayed() != null) {
                 ImageView imageView = new ImageView(getClass().getResource(
                                 "/assets/images/assistants/Assistant" + p.getLastAssistantPlayed().getCardValue() +
@@ -172,7 +184,7 @@ public class GameSceneController extends GenericController {
                         .toString());
                 imageView.setFitWidth(assistantDimension.width);
                 imageView.setFitHeight(assistantDimension.height);
-                imageView.setId("lastAssistantPlayedBy" + p.getPlayerId());
+                imageView.setId("last_assistant_by_" + p.getPlayerId());
                 assistantsHBox.getChildren().add(imageView);
                 Label label = new Label(p.getPlayerId());
                 label.setFont(labelFont);
@@ -189,7 +201,6 @@ public class GameSceneController extends GenericController {
     }
 
     public void showBoards(ActionEvent actionEvent) {
-        drawIslands(islands);
     }
 
     public void towerPlaceClicked(MouseEvent mouseEvent) {

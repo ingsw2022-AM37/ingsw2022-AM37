@@ -415,11 +415,14 @@ public class GuiView extends AbstractView {
                 //My board drawn ------------------------------
             }
         }
-        /*if (client.getSettings().advancedRulesEnabled() && updateMessage.getUpdatedObjects(UpdatableObject
-        .UpdatableType.CHARACTER) != null &&
+        if (client.getSettings().advancedRulesEnabled() && updateMessage.getUpdatedObjects(UpdatableObject
+                .UpdatableType.CHARACTER) != null &&
                 updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.CHARACTER).size() != 0) {
             Platform.runLater(() -> ((GameSceneController) SceneController.getActiveController()).drawCharacters
-            (updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.CHARACTER).stream().map(o -> (Character) o).toList()));
-        }*/
+                    (updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.CHARACTER)
+                            .stream()
+                            .map(o -> (Character) o)
+                            .toList()));
+        }
     }
 }
