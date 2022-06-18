@@ -22,13 +22,14 @@ import static java.util.Map.entry;
 
 public class GameSceneController extends GenericController {
 
-    private final static Font labelFont = new Font("System Bold", 20);
-    private final static Coordinate firstEntranceCoordinate = new Coordinate(57, 42);
-    private final static Coordinate firstTowerCoordinate = new Coordinate(107, 740);
+    public Pane wallpaperPane;
+    public GridPane assistantsGrid;
+    public HBox assistantsHBox;
 
     //-------------------------------------------------------------------------------
     //Position and dimensions information
-    private final int firstLineEntranceAndTowersSize = 4;
+
+    private final static Font labelFont = new Font("System Bold", 20);
 
     private final static double xSpaceStudents = 59;
     private final static double ySpaceStudentsEntrance = 50;
@@ -36,10 +37,15 @@ public class GameSceneController extends GenericController {
 
     private final static double xSpaceTowers = 50;
     private final static double ySpaceTowers = 65;
+
+    private final static Coordinate firstEntranceCoordinate = new Coordinate(57, 42);
+    private final static Coordinate firstTowerCoordinate = new Coordinate(107, 740);
+    private final int firstLineEntranceAndTowersSize = 4;
     private final Coordinate islandCircleCenter = new Coordinate(850, 340);
     private final List<Coordinate> cloudsCoordinate = Arrays.asList(new Coordinate(680, 340), new Coordinate(880, 340), new Coordinate(780, 540));
     private final Coordinate shiftNoEntryTile = new Coordinate(29, 90);
     private final Coordinate shiftMotherNature = new Coordinate(18, 0);
+
     private final Dimension towerDimension = new Dimension(50, 28);
     private final Dimension studentAndProfDimension = new Dimension(40, 40);
     private final Dimension cloudDimension = new Dimension(150, 150);
@@ -48,12 +54,18 @@ public class GameSceneController extends GenericController {
     private final Dimension noEntryDimension = new Dimension(30, 30);
     private final Dimension assistantDimension = new Dimension(166.66, 113.33);
     private final int maxRadiusIslands = 350;
+
+
     //-------------------------------------------------------------------------------
     //Stand alone images
     private final Image cloudImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/assets/images/Cloud.png")));
     private final List<Image> islandImage = Arrays.asList(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/assets/images/Island1.png"))), new Image(Objects.requireNonNull(getClass().getResourceAsStream("/assets/images/Island2.png"))), new Image(Objects.requireNonNull(getClass().getResourceAsStream("/assets/images/Island3.png"))));
     private final Image motherNatureImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/assets/images/MotherNature.png")));
     private final Image noEntryTileImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/assets/images/NoEntryTile.png")));
+
+    //-------------------------------------------------------------------------------
+    //Link between factions and other info
+
     private final Map<FactionColor, Image> profImageFromColor = Map.ofEntries(
             entry(FactionColor.BLUE, new Image(Objects.requireNonNull(getClass().getResourceAsStream("/assets/images/BlueTeacher.png")))),
             entry(FactionColor.PINK, new Image(Objects.requireNonNull(getClass().getResourceAsStream("/assets/images/PinkTeacher.png")))),
@@ -76,8 +88,6 @@ public class GameSceneController extends GenericController {
             entry(FactionColor.RED, new Image(Objects.requireNonNull(getClass().getResourceAsStream("/assets/images/RedStudent.png"))))
     );
 
-    //-------------------------------------------------------------------------------
-    //Link between factions and other info
     private final Map<FactionColor, Coordinate> studentDiningFirstCoordinatesFromColor = Map.ofEntries(
             entry(FactionColor.BLUE, new Coordinate(57, 117)),
             entry(FactionColor.PINK, new Coordinate(116, 117)),
@@ -85,29 +95,30 @@ public class GameSceneController extends GenericController {
             entry(FactionColor.YELLOW, new Coordinate(175, 117)),
             entry(FactionColor.RED, new Coordinate(234, 117))
     );
+
     private final Map<TowerColor, Image> towerImageFromColor = Map.ofEntries(
             entry(TowerColor.BLACK, new Image(Objects.requireNonNull(getClass().getResourceAsStream("/assets/images/BlackTower.png")))),
             entry(TowerColor.GRAY, new Image(Objects.requireNonNull(getClass().getResourceAsStream("/assets/images/GrayTower.png")))),
             entry(TowerColor.WHITE, new Image(Objects.requireNonNull(getClass().getResourceAsStream("/assets/images/WhiteTower.png"))))
 
     );
+
     private final Map<FactionColor, Coordinate> studentsShiftPositionsOnIslandsAndClouds = Map.ofEntries(
             entry(FactionColor.BLUE, new Coordinate(140, 41)),
             entry(FactionColor.PINK, new Coordinate(16, 116)),
-            entry(FactionColor.GREEN, new Coordinate(114, 116)),
+            entry(FactionColor.GREEN, new Coordinate(114, 116) ),
             entry(FactionColor.YELLOW, new Coordinate(-10, 41)),
-            entry(FactionColor.RED, new Coordinate(63, -9))
+            entry(FactionColor.RED, new Coordinate(63, -9) )
     );
-    private final ImageView motherNature = new ImageView(motherNatureImage);
-    public Pane wallpaperPane;
-    public GridPane assistantsGrid;
-    public HBox assistantsHBox;
-    private ArrayList<ImageView> studentsDiningView = new ArrayList<>();
-    private ArrayList<ImageView> towersView = new ArrayList<>();
-    private ArrayList<ImageView> professorsView = new ArrayList<>();
+
+
+
     //-------------------------------------------------------------------------------
     //ImageView of everything
     private ArrayList<ImageView> studentsEntranceView = new ArrayList<>();
+    private ArrayList<ImageView> studentsDiningView = new ArrayList<>();
+    private ArrayList<ImageView> towersView = new ArrayList<>();
+    private ArrayList<ImageView> professorsView = new ArrayList<>();
     private ArrayList<ImageView> cloudsView = new ArrayList<>();
     private ArrayList<ImageView> islandsView = new ArrayList<>();
     private ArrayList<ImageView> totalStudentsOnIslandsView = new ArrayList<>();
@@ -116,14 +127,16 @@ public class GameSceneController extends GenericController {
     private ArrayList<Label> totalLabelsOnCloudsView = new ArrayList<>();
     private ArrayList<ImageView> noEntryView = new ArrayList<>();
 
-    private void cancelVisibleViewWallpaperPane(ArrayList<ImageView> view) {
-        for (int i = 0; i < view.size(); i++) {
+    private final ImageView motherNature = new ImageView(motherNatureImage);
+
+    private void cancelVisibleViewWallpaperPane(ArrayList<ImageView> view){
+        for(int i=0; i<view.size();i++){
             wallpaperPane.getChildren().remove(view.get(i));
         }
     }
 
-    private void cancelLabelsFromPane(ArrayList<Label> label) {
-        for (int i = 0; i < label.size(); i++) {
+    private void cancelLabelsFromPane(ArrayList<Label> label){
+        for(int i=0; i<label.size();i++){
             wallpaperPane.getChildren().remove(label.get(i));
         }
     }
@@ -173,7 +186,7 @@ public class GameSceneController extends GenericController {
         cancelVisibleViewWallpaperPane(cloudsView);
         cloudsView = new ArrayList<>();
 
-        for (int i = 0; i < clouds.size(); i++) {
+        for(int i=0; i<clouds.size(); i++){
 
             ImageView temp = new ImageView();
             temp.setImage(cloudImage);
@@ -182,7 +195,7 @@ public class GameSceneController extends GenericController {
             wallpaperPane.getChildren().add(temp);
             cloudsView.add(temp);
 
-            for (FactionColor color : FactionColor.values()) {
+            for(FactionColor color:FactionColor.values()){
 
                 ImageView tempColor = new ImageView();
                 tempColor.setImage(studentImageFromColor.get(color));
@@ -205,7 +218,7 @@ public class GameSceneController extends GenericController {
             }
         }
 
-        for (ImageView imageView : cloudsView)
+        for(ImageView imageView: cloudsView)
             drawWithDimension(cloudDimension, imageView);
     }
 
@@ -248,12 +261,12 @@ public class GameSceneController extends GenericController {
 
         List<Coordinate> islandsCoordinates = drawCircle(islandCircleCenter, islandDimension, numIslands, maxRadiusIslands);
 
-        for (int i = 0; i < islands.size(); i++) {
+        for(int i=0; i<islands.size(); i++){
 
             ImageView temp = new ImageView();
             temp.setImage(islandImage.get(numIslandImage));
             numIslandImage++;
-            if (numIslandImage == islandImage.size())
+            if(numIslandImage == islandImage.size())
                 numIslandImage = 0;
             drawWithDimension(islandDimension, temp);
             drawWithCoordinateDisablingAnimation(islandsCoordinates.get(i), temp);
@@ -261,7 +274,7 @@ public class GameSceneController extends GenericController {
             islandsView.add(temp);
 
 
-            for (FactionColor color : FactionColor.values()) {
+            for(FactionColor color : FactionColor.values()){
 
                 ImageView tempColor = new ImageView();
                 tempColor.setImage(studentImageFromColor.get(color));
@@ -293,7 +306,7 @@ public class GameSceneController extends GenericController {
                 motherNature.setMouseTransparent(true);
             }
 
-            if (islands.get(i).getNoEntryTile() != 0) {
+            if(islands.get(i).getNoEntryTile()!=0) {
                 temp = new ImageView();
                 temp.setImage(noEntryTileImage);
                 wallpaperPane.getChildren().add(temp);
@@ -316,7 +329,7 @@ public class GameSceneController extends GenericController {
             }
         }
 
-        for (ImageView imageView : islandsView)
+        for(ImageView imageView: islandsView)
             drawWithDimension(islandDimension, imageView);
     }
 
@@ -342,6 +355,7 @@ public class GameSceneController extends GenericController {
     }
 
 
+
     //-------------------------------------------------------------------------------
     //Methods for drawing my board
 
@@ -364,7 +378,7 @@ public class GameSceneController extends GenericController {
                 temp.setImage(studentImageFromColor.get(color));
                 wallpaperPane.getChildren().add(temp);
                 drawWithDimension(studentAndProfDimension, temp);
-                drawWithCoordinateEnablingAnimation(new Coordinate(firstEntranceCoordinate.x + additionalX, firstEntranceCoordinate.y + additionalY), temp);
+                drawWithCoordinateEnablingAnimation(new Coordinate(firstEntranceCoordinate.x + additionalX,firstEntranceCoordinate.y + additionalY ), temp);
                 studentsEntranceView.add(temp);
                 posInLine = posInLine + 1;
                 additionalX = additionalX + xSpaceStudents;
@@ -395,7 +409,7 @@ public class GameSceneController extends GenericController {
                 temp.setImage(studentImageFromColor.get(color));
                 wallpaperPane.getChildren().add(temp);
                 drawWithDimension(studentAndProfDimension, temp);
-                drawWithCoordinateEnablingAnimation(new Coordinate(studentDiningFirstCoordinatesFromColor.get(color).x, studentDiningFirstCoordinatesFromColor.get(color).y + additionalY), temp);
+                drawWithCoordinateEnablingAnimation(new Coordinate(studentDiningFirstCoordinatesFromColor.get(color).x,studentDiningFirstCoordinatesFromColor.get(color).y + additionalY ), temp);
                 studentsDiningView.add(temp);
                 additionalY = additionalY + ySpaceStudentsDining;
             }
@@ -460,55 +474,28 @@ public class GameSceneController extends GenericController {
     //-------------------------------------------------------------------------------
     //Methods for drawing coordinates and dimensions
 
-    private void drawWithDimension(Dimension dimension, ImageView temp) {
+    private void drawWithDimension(Dimension dimension, ImageView temp){
         temp.setFitWidth(dimension.width);
         temp.setFitHeight(dimension.height);
     }
 
-    private void drawWithCoordinateEnablingAnimation(Coordinate coordinate, ImageView temp) {
+    private void drawWithCoordinateEnablingAnimation(Coordinate coordinate, ImageView temp){
 
-        drawWithCoordinateDisablingAnimation(new Coordinate(0, 0), temp);
+        drawWithCoordinateDisablingAnimation(new Coordinate(0,0), temp);
 
         temp.setTranslateX(coordinate.x);
         temp.setTranslateY(coordinate.y);
     }
 
-    private void drawWithCoordinateDisablingAnimation(Coordinate coordinate, ImageView temp) {
+    private void drawWithCoordinateDisablingAnimation(Coordinate coordinate, ImageView temp){
 
         temp.setLayoutX(coordinate.x);
         temp.setLayoutY(coordinate.y);
     }
 
-    private Coordinate getCentreImageNoAnimation(ImageView imageView) {
-
-        double x = imageView.getLayoutX();
-        double y = imageView.getLayoutY();
-
-        return new Coordinate(x + imageView.getFitHeight(), y + imageView.getFitWidth());
-    }
-
-    public void entranceClicked(MouseEvent mouseEvent) {
-    }
-
-    public void profPlaceClicked(MouseEvent mouseEvent) {
-    }
-
-
-    //-------------------------------------------------------------------------------
-    //Methods for external input
-
-    public void showBoards(ActionEvent actionEvent) {
-    }
-
-    public void towerPlaceClicked(MouseEvent mouseEvent) {
-    }
-
-    public void diningClicked(MouseEvent mouseEvent) {
-    }
-
     private record Coordinate(double x, double y) {
 
-        private Coordinate addCoordinate(Coordinate temp) {
+        private Coordinate addCoordinate(Coordinate temp){
             return new Coordinate(x + temp.x, y + temp.y);
         }
     }
@@ -518,6 +505,33 @@ public class GameSceneController extends GenericController {
         private Coordinate getCenter() {
             return new Coordinate(width / 2, height / 2);
         }
+    }
+
+    private Coordinate getCentreImageNoAnimation(ImageView imageView){
+
+        double x = imageView.getLayoutX();
+        double y = imageView.getLayoutY();
+
+        return new Coordinate(x + imageView.getFitHeight(), y + imageView.getFitWidth());
+    }
+
+
+    //-------------------------------------------------------------------------------
+    //Methods for external input
+
+    public void entranceClicked(MouseEvent mouseEvent) {
+    }
+
+    public void profPlaceClicked(MouseEvent mouseEvent) {
+    }
+
+    public void showBoards(ActionEvent actionEvent) {
+    }
+
+    public void towerPlaceClicked(MouseEvent mouseEvent) {
+    }
+
+    public void diningClicked(MouseEvent mouseEvent) {
     }
 
 }
