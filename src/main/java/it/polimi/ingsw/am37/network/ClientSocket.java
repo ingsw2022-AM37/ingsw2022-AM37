@@ -17,7 +17,7 @@ public class ClientSocket implements Runnable {
     /**
      * Flag to disable disconnection for debug purpose
      */
-    final static boolean debugMode = true;
+    final static boolean debug_disableTimers = false;
     private final static Gson defaultMessageSerializer = new MessageGsonBuilder().registerMessageAdapter()
             .registerUpdatableObjectAdapter()
             .registerStudentContainerAdapter()
@@ -113,14 +113,12 @@ public class ClientSocket implements Runnable {
      */
     private void killGame() {
         Timer timer = new Timer();
-
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
                 Runtime.getRuntime().halt(0);
             }
         }, 3000);
-
         System.exit(0);
         timer.cancel();
     }
@@ -172,7 +170,7 @@ public class ClientSocket implements Runnable {
         String json;
         Message message;
         Timer timer = new Timer();
-        if (!debugMode) {
+        if (!debug_disableTimers) {
             timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
@@ -218,7 +216,6 @@ public class ClientSocket implements Runnable {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
             onDisconnect();
         }
 
@@ -239,14 +236,10 @@ public class ClientSocket implements Runnable {
      * @param message the message to be sent
      */
     public void sendMessage(Message message) {
-        //TODO PER ORA LO LASCIAMO IN SOSPESO, POI DECIDIAMO SE METTERE QUESTA FUNZIONE
-        // ogni 0,3 secondi manda un ping, metto un contatore statico che incremento ad ogni messaggio, arrivato a
-        // 700 avviso che se non viene mandato un messaggio valido a breve verrà disconnesso
-        // gestisco anche quando non è il mio turno ovviamente questo non deve accadere
         if (connectedToServer) {
             String json = defaultMessageSerializer.toJson(message);
             Timer timer = new Timer();
-            if (!debugMode) timer.schedule(new TimerTask() {
+            if (!debug_disableTimers) timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
                     onDisconnect();
@@ -267,7 +260,7 @@ public class ClientSocket implements Runnable {
      */
     private void setInput() {
         Timer timer = new Timer();
-        if (!debugMode) timer.schedule(new TimerTask() {
+        if (!debug_disableTimers) timer.schedule(new TimerTask() {
             @Override
             public void run() {
                 onDisconnect();
@@ -295,7 +288,7 @@ public class ClientSocket implements Runnable {
      */
     private void setOutput() {
         Timer timer = new Timer();
-        if (!debugMode) timer.schedule(new TimerTask() {
+        if (!debug_disableTimers) timer.schedule(new TimerTask() {
             @Override
             public void run() {
                 onDisconnect();

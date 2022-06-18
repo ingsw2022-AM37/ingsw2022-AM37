@@ -2,6 +2,7 @@ package it.polimi.ingsw.am37.client;
 
 
 import it.polimi.ingsw.am37.message.UpdateMessage;
+import it.polimi.ingsw.am37.model.Assistant;
 import it.polimi.ingsw.am37.model.FactionColor;
 import it.polimi.ingsw.am37.model.Player;
 import it.polimi.ingsw.am37.model.character.Character;
@@ -9,15 +10,14 @@ import it.polimi.ingsw.am37.model.character.Effect;
 import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Properties;
 
 public abstract class AbstractView {
-
     /**
      * Model in client
      */
     protected final ReducedModel reducedModel;
-
 
     protected final Properties messagesConstants;
 
@@ -75,9 +75,10 @@ public abstract class AbstractView {
     public abstract int askIsland();
 
     /**
+     * @param assistant the assistant chosen by the player
      * @return Where mother nature has to go
      */
-    public abstract int askMotherNature();
+    public abstract int askMotherNature(Assistant assistant);
 
     /**
      * Method used to ask which player you want to look at
@@ -106,7 +107,7 @@ public abstract class AbstractView {
      *
      * @return The chosen nickname
      */
-    public abstract String chooseNickname();
+    public abstract String askNickname();
 
     /**
      * Method to tell the player the game has begun
@@ -159,6 +160,14 @@ public abstract class AbstractView {
     public abstract void showDeck(Player player);
 
     /**
+     * Method used to display the last Assistant played except the client's one
+     *
+     * @param players      the players to show the last assistant played
+     * @param playerToSkip the player to skip
+     */
+    public abstract void showLastAssistantPlayed(Collection<Player> players, Player playerToSkip);
+
+    /**
      * This function print the view of a player's status: his last assistant and board
      *
      * @param player        the players to show status of
@@ -175,6 +184,13 @@ public abstract class AbstractView {
      * This function draw the current status of the table: islands and boards
      */
     public abstract void showTable();
+
+    /**
+     * Method used to show where mother nature can go
+     *
+     * @param assistant the assistant to know how many steps can mother nature take
+     */
+    public abstract void showPossibleIslandDestination(Assistant assistant);
 
     /**
      * @param client the client to get the status of the current player

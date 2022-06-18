@@ -6,3 +6,4 @@
 /logs/
 /src/main/resources/myConfigurations/
 /src/main/resources/manifests/
+/src/main/java/META-INF/MANIFEST.MF

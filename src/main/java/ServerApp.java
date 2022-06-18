@@ -2,6 +2,8 @@ import it.polimi.ingsw.am37.network.server.Server;
 
 import java.util.*;
 
+import static org.fusesource.jansi.Ansi.ansi;
+
 /**
  *
  */
@@ -97,7 +99,7 @@ public class ServerApp {
     private static String insertYourParameters() {
         Scanner scanner = new Scanner(System.in);
         while (true) {
-            System.out.println("Write server's port or \"exit\":");
+            System.out.println(ansi().render("Write server's @|bold,italic port|@ or @|bold,italic exit|@:"));
             String s = scanner.nextLine().toLowerCase().trim().replaceAll(" +", " ");
             if (s.equals("exit"))
                 return s;
@@ -121,7 +123,7 @@ public class ServerApp {
         String s;
         Scanner scanner = new Scanner(System.in);
         while (true) {
-            System.out.println("Do you want to use default options? y/n or \"exit\":");
+            System.out.println(ansi().render("Do you want to use default options? @|bold,italic y/n|@ or @|bold,italic exit|@:"));
             s = scanner.nextLine().toLowerCase().trim().replaceAll(" +", " ");
             if (s.equals("y") || s.equals("n") || s.equals("exit"))
                 return s;

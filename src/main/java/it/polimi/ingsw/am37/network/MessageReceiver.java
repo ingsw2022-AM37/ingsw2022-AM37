@@ -25,7 +25,7 @@ public interface MessageReceiver {
     /**
      * Perform actions when client wants to disconnect
      *
-     * @param client the ClientHandler to disconnect.
+     * @param UUID the client uuid to disconnect.
      */
     void onDisconnect(String UUID);
 }

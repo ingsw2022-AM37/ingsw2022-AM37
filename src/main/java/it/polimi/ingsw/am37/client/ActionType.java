@@ -35,8 +35,6 @@ public enum ActionType {
                 CLOSE_GAME
         ));
         if (ClientStatus.activeStatus.contains(status)) {
-            if (advancedRules)
-                list.add(PLAY_CHARACTER);
             switch (status) {
                 case PLAYINGASSISTANT -> list.add(PLAY_ASSISTANT);
                 case MOVINGSTUDENTS -> {
@@ -46,6 +44,8 @@ public enum ActionType {
                 case MOVINGMOTHERNATURE -> list.add(MOVE_MOTHER_NATURE);
                 case CHOOSINGCLOUD -> list.add(CHOOSE_CLOUD);
             }
+            if (advancedRules)
+                list.add(PLAY_CHARACTER);
         }
         return list;
     }

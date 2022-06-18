@@ -2,6 +2,7 @@ package it.polimi.ingsw.am37.client;
 
 import it.polimi.ingsw.am37.message.*;
 import it.polimi.ingsw.am37.model.FactionColor;
+import it.polimi.ingsw.am37.model.Island;
 import it.polimi.ingsw.am37.model.Player;
 import it.polimi.ingsw.am37.model.character.Character;
 import it.polimi.ingsw.am37.model.character.Effect;
@@ -20,12 +21,13 @@ import java.util.Properties;
  * {@link Client#start()} method to start the game logic. Constructor and start method may throw
  * {@link PlayerAbortException} if user decide to abort the current action and close the game.
  */
+@SuppressWarnings("OptionalGetWithoutIsPresent")
 public class Client {
 
     /**
      * Flag for disabling the resilience logic
      */
-    private final static boolean disabledResilience = true;
+    private final static boolean debug_disabledResilience = true;
 
     /**
      * Static constant that store the path to the saves folder
@@ -98,7 +100,7 @@ public class Client {
      */
     private ClientSocket socket;
     /**
-     * This is used by internal {@link Client#onMessage()} to store the read message for further processing by some
+     * This is used by internal {@link Client#hasReceivedError()} to store the read message for further processing by some
      * other functions.
      */
     private Message lastReadMessage;
@@ -122,7 +124,7 @@ public class Client {
         } catch (IOException e) {
             System.err.println("Unable to find messages file");
         }
-        if (!disabledResilience) {
+        if (!debug_disabledResilience) {
             try {
                 savedProperties.load(new FileInputStream(resilienceFilePath));
                 if (savedProperties.containsKey(P_UUID_KEY) && savedProperties.containsKey(P_LOBBYSIZE_KEY) &&
@@ -150,7 +152,6 @@ public class Client {
         };
         while (!tryConnection(address, port)) {
             Boolean defaultOptions = view.askConfirm("Do you want to use default options?");
-
             if (defaultOptions == null) {
                 throw new PlayerAbortException();
             } else if (defaultOptions) {
@@ -177,10 +178,10 @@ public class Client {
                 view.displayError("Impossible to use resilience");
             else {
                 sendLoginMessage(UUID, nickname);
-                if (onMessage()) {
+                if (!hasReceivedError()) {
                     sendLobbyMessage(UUID, Boolean.parseBoolean(savedProperties.getProperty(P_ADVANCEDRULES_KEY)),
                             Integer.parseInt(savedProperties.getProperty(P_LOBBYSIZE_KEY)));
-                    if (onMessage())
+                    if (!hasReceivedError())
                         settings =
                                 new LobbyParameters(Boolean.parseBoolean(savedProperties.getProperty(P_ADVANCEDRULES_KEY)), Integer.parseInt(savedProperties.getProperty(P_LOBBY_KEY)));
                 }
@@ -188,10 +189,11 @@ public class Client {
         } else {
             status = ClientStatus.CHOOSINGNAME;
             chooseNickname();
+            status = ClientStatus.CHOOSINGLOBBY;
             chooseLobby();
         }
         view.displayImportant(messagesConstants.getProperty("i.waitingStart"));
-        if (!disabledResilience) {
+        if (!debug_disabledResilience) {
             try (OutputStream stream = new FileOutputStream(resilienceFilePath)) {
                 savedProperties.store(stream,
                         "This file is for resilience only. DO NOT MODIFY ANY OF THE FOLLOWING " + "LINES\n");
@@ -209,19 +211,6 @@ public class Client {
     }
 
     /**
-     * @return if server has an exception for our choice
-     */
-    private boolean chooseCloud() {
-
-        String cloudId;
-
-        cloudId = view.askCloud();
-        Message message = new ChooseCloudMessage(UUID, cloudId);
-        socket.sendMessage(message);
-        return onMessage();
-    }
-
-    /**
      * This method ask user for nickname and try to set it (and store in config files) if it's available. This method
      * continues to ask until it's a correct and unique nickname is provided and accepted by the server
      */
@@ -229,7 +218,7 @@ public class Client {
         LobbyParameters parameters = view.askLobbyParameters();
         if (parameters == null) throw new PlayerAbortException();
         sendLobbyMessage(UUID, parameters.advancedRulesEnabled(), parameters.lobbySize());
-        if (onMessage()) {
+        if (!hasReceivedError()) {
             ConfirmMessage confirmMessage = (ConfirmMessage) lastReadMessage;
             String s = Integer.toString(confirmMessage.getLobbyId());
             savedProperties.setProperty(P_LOBBY_KEY, s);
@@ -246,17 +235,34 @@ public class Client {
     private void chooseNickname() throws PlayerAbortException {
         String tempNick;
         while (nickname == null) {
-            tempNick = view.chooseNickname();
-            if (tempNick.equals("close game")) throw new PlayerAbortException();
-            sendLoginMessage(UUID, tempNick);
-            if (!onMessage()) {
-                ErrorMessage mes = (ErrorMessage) lastReadMessage;
-                view.displayError(mes.getMessage());
-            } else if (lastReadMessage.getMessageType() == MessageType.CONFIRM) {
-                this.nickname = tempNick;
-                savedProperties.setProperty(P_NICKNAME_KEY, this.nickname);
+            tempNick = view.askNickname();
+            if (tempNick.equals("exit")) throw new PlayerAbortException();
+            if (tempNick.isBlank()) {
+                view.displayError(messagesConstants.getProperty("e.nicknameBlank"));
+            } else {
+                sendLoginMessage(UUID, tempNick);
+                if (!hasReceivedError()) {
+                    if (lastReadMessage.getMessageType() == MessageType.CONFIRM) {
+                        this.nickname = tempNick;
+                        savedProperties.setProperty(P_NICKNAME_KEY, this.nickname);
+                    }
+                } else {
+                    ErrorMessage mes = (ErrorMessage) lastReadMessage;
+                    view.displayError(mes.getMessage());
+                }
             }
         }
+    }
+
+    /**
+     * @return if server has an exception for our choice
+     */
+    private boolean chooseCloud() {
+        String cloudId;
+        cloudId = view.askCloud();
+        Message message = new ChooseCloudMessage(UUID, cloudId);
+        socket.sendMessage(message);
+        return !hasReceivedError();
     }
 
     /**
@@ -321,10 +327,10 @@ public class Client {
      * @return if server has an exception for the movement
      */
     private boolean moveMotherNature() {
-        int islandId = view.askMotherNature();
+        int islandId = view.askMotherNature(view.getReducedModel().getPlayers().get(nickname).getLastAssistantPlayed());
         Message message = new MoveMotherNatureMessage(UUID, islandId);
         socket.sendMessage(message);
-        return onMessage();
+        return !hasReceivedError();
     }
 
     /**
@@ -346,7 +352,7 @@ public class Client {
                 message = new StudentsToDiningMessage(UUID, container);
             }
             socket.sendMessage(message);
-            return onMessage();
+            return !hasReceivedError();
         }
     }
 
@@ -357,15 +363,19 @@ public class Client {
      *
      * @return if last action was accepted by the server or rejected
      */
-    private boolean onMessage() {
+    private boolean hasReceivedError() {
         Message message;
+        boolean isError = false;
         try {
-            message = socket.getMessageBuffer().take();
+            do {
+                message = socket.getMessageBuffer().take();
+                isError = message.getMessageType() == MessageType.ERROR || isError;
+            } while (socket.getMessageBuffer().size() > 0);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
         lastReadMessage = message;
-        return message.getMessageType() != MessageType.ERROR;
+        return isError;
     }
 
     /**
@@ -379,7 +389,7 @@ public class Client {
         Message message = new PlayAssistantMessage(UUID, val);
         socket.sendMessage(message);
 
-        return onMessage();
+        return !hasReceivedError();
     }
 
     /**
@@ -389,6 +399,8 @@ public class Client {
      * @see ActionType
      */
     private boolean playCharacter() {
+        Player currentPlayer = view.getReducedModel().getPlayers().get(nickname);
+        view.displayImportant("You have " + currentPlayer.getNumberOfCoins() + (currentPlayer.getNumberOfCoins() == 1 ? " coin" : " coins"));
         view.showCharacters();
         Effect effect = view.askCharacter();
         Character character = view.getReducedModel()
@@ -397,14 +409,20 @@ public class Client {
                 .filter(c -> c.getEffectType() == effect)
                 .findFirst()
                 .get();
-        Player currentPlayer = view.getReducedModel().getPlayers().get(nickname);
-        OptionBuilder oBuilder = OptionBuilder.newBuilder(null, currentPlayer);
+        OptionBuilder oBuilder = OptionBuilder.newBuilder(currentPlayer);
         PlayCharacterMessage message;
+        if (currentPlayer.getNumberOfCoins() < character.getCurrentPrice()) {
+            view.displayError("You don't have enough coins to play this character");
+            return true;
+        }
         switch (effect) {
             case MONK -> {
                 final int MONK_STUDENTS = 1;
                 StudentsContainer container = view.askStudentsFromCharacter(character, MONK_STUDENTS, this);
+                Island destinationIsland = view.getReducedModel().getIslands().get(view.askIsland());
                 oBuilder.primaryContainer((LimitedStudentsContainer) container);
+                oBuilder.island(destinationIsland);
+                oBuilder.intPar(MONK_STUDENTS);
             }
             case HERALD, GRANDMA, CENTAUR -> {
                 int islandId = view.askIsland();
@@ -416,11 +434,13 @@ public class Client {
                         .get());
             }
             case JESTER -> {
+                final int JESTER_STUDENTS = 3;
                 LimitedStudentsContainer container1 =
-                        (LimitedStudentsContainer) view.askStudentsFromCharacter(character, 3, this);
-                LimitedStudentsContainer container2 = (LimitedStudentsContainer) view.askStudentsFromEntrance(this, 3);
+                        (LimitedStudentsContainer) view.askStudentsFromCharacter(character, JESTER_STUDENTS, this);
+                LimitedStudentsContainer container2 = (LimitedStudentsContainer) view.askStudentsFromEntrance(this, JESTER_STUDENTS);
                 if (container1 == null || container2 == null) return false;
                 else oBuilder.primaryContainer(container1).secondaryContainer(container2);
+                oBuilder.intPar(JESTER_STUDENTS);
             }
             case MUSHROOM_MAN, THIEF -> {
                 FactionColor color = view.askColor(this);
@@ -428,21 +448,26 @@ public class Client {
                 else oBuilder.color(color);
             }
             case MINSTREL -> {
-                LimitedStudentsContainer container1 = (LimitedStudentsContainer) view.askStudentsFromEntrance(this, 2);
-                LimitedStudentsContainer container2 = (LimitedStudentsContainer) view.askStudentFromDining(this, 2);
+                final int MINSTREL_STUDENTS = 2;
+                LimitedStudentsContainer container1 = (LimitedStudentsContainer) view.askStudentsFromEntrance(this, MINSTREL_STUDENTS);
+                LimitedStudentsContainer container2 = (LimitedStudentsContainer) view.askStudentFromDining(this, MINSTREL_STUDENTS);
                 if (container1 == null || container2 == null) return false;
                 else oBuilder.primaryContainer(container1).secondaryContainer(container2);
+                oBuilder.intPar(MINSTREL_STUDENTS);
             }
             case PRINCESS -> {
+                final int PRINCESS_STUDENTS = 1;
                 LimitedStudentsContainer container =
-                        (LimitedStudentsContainer) view.askStudentsFromCharacter(character, 1, this);
+                        (LimitedStudentsContainer) view.askStudentsFromCharacter(character, PRINCESS_STUDENTS, this);
                 oBuilder.primaryContainer(container);
+                oBuilder.intPar(PRINCESS_STUDENTS);
             }
             default -> {
             }
         }
-        new PlayCharacterMessage(UUID, effect, oBuilder.build());
-        return onMessage();
+        message = new PlayCharacterMessage(UUID, effect, oBuilder.build());
+        socket.sendMessage(message);
+        return !hasReceivedError();
     }
 
     /**
@@ -471,6 +496,7 @@ public class Client {
     /**
      * This is the main method that handle game flow
      */
+    @SuppressWarnings("BusyWait")
     public void start() throws PlayerAbortException {
         ActionType currentAction;
         try {
@@ -485,7 +511,6 @@ public class Client {
 
         status = ClientStatus.WAITINGFORTURN;
         while (socket.isConnectedToServer()) {
-
             currentAction = view.takeInput(this);
 
             switch (currentAction) {
@@ -552,11 +577,12 @@ public class Client {
      * @return if initial input was wrong
      */
     private boolean tryConnection(String address, String port) {
-
         if (address == null || port == null) return false;
         try {
+            view.displayInfo("Connecting to server");
             socket = new ClientSocket(address, Integer.parseInt(port), this);
             new Thread(socket, "__client_socket").start();
+            view.displayInfo("Connected to server");
             return true;
         } catch (NumberFormatException e) {
             view.wrongInsertPort();

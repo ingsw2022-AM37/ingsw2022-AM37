@@ -30,7 +30,7 @@ public class Player extends UpdatableObject {
      */
     public Player() {
         super(PLAYER);
-        this.numberOfCoins = 0;
+        this.numberOfCoins = 1;
         this.lastAssistantPlayed = null;
         this.team = null;
         playerId = Integer.toString(counterId);

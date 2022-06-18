@@ -76,11 +76,6 @@ public class Lobby implements Runnable, MessageReceiver {
     private final HashMap<String, String> playerNicknames;
 
     /**
-     * Flags that checks if a Player already played a Character in his turn.
-     */
-    private boolean characterPlayed;
-
-    /**
      * Keeps track of the number of Students moved.
      */
     private int numberOfStudentsMoved;
@@ -106,7 +101,7 @@ public class Lobby implements Runnable, MessageReceiver {
         this.updateController = new UpdateController();
         this.disconnectedPlayers = new HashMap<>();
         this.endGameTimer = new Timer();
-        reset();
+        numberOfStudentsMoved = 0;
     }
 
     /**
@@ -169,7 +164,9 @@ public class Lobby implements Runnable, MessageReceiver {
      * resets the variables needed
      */
     private void reset() {
-        characterPlayed = false;
+        for (int i = 0; i < gameManager.getCharacters().length - 1; i++) {
+            gameManager.getCharacters()[i].setPlayedInThisTurn(false);
+        }
         numberOfStudentsMoved = 0;
     }
 
@@ -209,6 +206,7 @@ public class Lobby implements Runnable, MessageReceiver {
         LOGGER.info("[Lobby " + matchID + "] Everything is ready, game is about to start");
         Timer timer = new Timer();
         gameManager.prepareGame();
+        reset();
         gameManager.registerListener(updateController);
         int i = 0;
         for (String nickname : playerNicknames.values()) {
@@ -269,8 +267,7 @@ public class Lobby implements Runnable, MessageReceiver {
             gameManager.playAssistant(deck.get(((PlayAssistantMessage) message).getCardValue()));
             response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(), message.getMessageType().getClassName());
             sendMessage(response);
-            //FIXME: Bugged se giochi una carta bassa per secondo
-            if (Objects.equals(findUUIDByUsername(gameManager.getTurnManager().getOrderPlayed().get(gameManager.getTurnManager().getOrderPlayed().size() - 1).getPlayerId()), message.getUUID())) {
+            if (isLastPlayerInOrder(message.getUUID())) {
                 gameManager.nextTurn();
                 response = new NextTurnMessage(findUUIDByUsername(gameManager.getTurnManager().getCurrentPlayer().getPlayerId()), gameManager.getTurnManager().getCurrentPlayer().getPlayerId());
             } else {
@@ -293,7 +290,7 @@ public class Lobby implements Runnable, MessageReceiver {
      * @param message the Message received.
      * @param ch      the ClientHandler that called the method.
      */
-    private void studentsToDining(Message message, ClientHandler ch) {
+    private void studentsToDiningCase(Message message, ClientHandler ch) {
         Message response;
         int students;
         int movableStudents = 3;
@@ -361,7 +358,6 @@ public class Lobby implements Runnable, MessageReceiver {
             } catch (MNmovementWrongException e) {
                 response = new ErrorMessage(message.getUUID(), e.getMessage());
                 sendMessage(response);
-                //FIXME: Se riceve messaggio di errore CLI non lo fa richiedere (solo al secondo spostamento di studenti).
             }
         } else
             ch.disconnect();
@@ -375,7 +371,17 @@ public class Lobby implements Runnable, MessageReceiver {
      */
     private void playCharacterCase(Message message, ClientHandler ch) {
         Message response;
-        if (characterPlayed) {
+        boolean characterPlayable = false;
+        int characterIndex;
+        for (characterIndex = 0; characterIndex < gameManager.getCharacters().length - 1; characterIndex++) {
+            if (gameManager.getCharacters()[characterIndex].getEffectType() == ((PlayCharacterMessage) message).getChosenCharacter()) {
+                if (!gameManager.getCharacters()[characterIndex].isPlayedInThisTurn()) {
+                    characterPlayable = true;
+                    break;
+                }
+            }
+        }
+        if (characterPlayable) {
             Character characterToBePlayed = Arrays.stream(gameManager.getCharacters())
                     .filter(c -> c.getEffectType() == ((PlayCharacterMessage) message).getChosenCharacter())
                     .findFirst()
@@ -388,13 +394,14 @@ public class Lobby implements Runnable, MessageReceiver {
                 response = new ErrorMessage(message.getUUID(), e.getMessage());
                 sendMessage(response);
             } catch (IllegalStateException e) {
-                //TODO disconnect the player because client hacked
+                ch.disconnect();
+                onDisconnect(ch.getUUID());
             }
             response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(),
                     message.getMessageType()
-                    .getClassName());
+                            .getClassName());
             sendMessage(response);
-            characterPlayed = true;
+            gameManager.getCharacters()[characterIndex].setPlayedInThisTurn(true);
         } else
             ch.disconnect();
     }
@@ -409,9 +416,17 @@ public class Lobby implements Runnable, MessageReceiver {
         Message response;
         try {
             gameManager.chooseCloud(((ChooseCloudMessage) message).getCloudId());
-            response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(), message.getMessageType().getClassName());
+            reset();
+            if (isLastPlayerInOrder(message.getUUID())) {
+                gameManager.nextTurn();
+                //Resets the last assistant played when a turn ends.
+                gameManager.getTurnManager().getPlayers().forEach(player -> player.setLastAssistantPlayed(null));
+                response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(), message.getMessageType().getClassName());
+            } else {
+                gameManager.getTurnManager().nextPlayer();
+                response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(), message.getMessageType().getClassName());
+            }
             sendMessage(response);
-            gameManager.nextTurn();
         } catch (IllegalArgumentException | StudentSpaceException e) {
             response = new ErrorMessage(message.getUUID(), e.getMessage());
             sendMessage(response);
@@ -427,7 +442,7 @@ public class Lobby implements Runnable, MessageReceiver {
             ch = newCh;
         }
         if (ch.isConnectedToClient()) {
-            if (!Objects.equals(findUUIDByUsername(gameManager.getTurnManager().getOrderPlayed().get(gameManager.getTurnManager().getOrderPlayed().size() - 1).getPlayerId()), message.getUUID())) {
+            if (!isLastPlayerInOrder(message.getUUID())) {
                 response = new NextTurnMessage(findUUIDByUsername(gameManager.getTurnManager().getCurrentPlayer().getPlayerId()), gameManager.getTurnManager().getCurrentPlayer().getPlayerId());
             } else {
                 response = new PlanningPhaseMessage(findUUIDByUsername(gameManager.getTurnManager().getCurrentPlayer().getPlayerId()));
@@ -435,6 +450,14 @@ public class Lobby implements Runnable, MessageReceiver {
             }
         }
         sendMessage(response);
+    }
+
+    /**
+     * @param UUID player id
+     * @return true if the player is in the last that has to play
+     */
+    private boolean isLastPlayerInOrder(String UUID) {
+        return Objects.equals(findUUIDByUsername(gameManager.getTurnManager().getOrderPlayed().get(gameManager.getTurnManager().getOrderPlayed().size() - 1).getPlayerId()), UUID);
     }
 
     /**
@@ -480,13 +503,11 @@ public class Lobby implements Runnable, MessageReceiver {
             }
             case STUDENTS_TO_DINING -> {
                 LOGGER.info("[Lobby " + matchID + "] StudentsToDining Message received from: " + playerNicknames.get(message.getUUID()));
-                studentsToDining(message, ch);
-                //FIXME client non fa andare avanti se gioco questo messaggio (non c'è nella CLI la possibilità di 8 gioca MN)
+                studentsToDiningCase(message, ch);
             }
             case STUDENTS_TO_ISLAND -> {
                 LOGGER.info("[Lobby " + matchID + "] StudentsToIsland Message received from: " + playerNicknames.get(message.getUUID()));
                 studentsToIslandCase(message, ch);
-                //FIXME CHECK CONQUEROR lancia un'eccezione molto spesso (riga 259 del metodo) se si spostano degli studenti su delle isole e poi si sposta madre natura
             }
             case MOVE_MOTHER_NATURE -> {
                 LOGGER.info("[Lobby " + matchID + "] MoveMotherNature Message received from: " + playerNicknames.get(message.getUUID()));
@@ -499,7 +520,6 @@ public class Lobby implements Runnable, MessageReceiver {
             case CHOOSE_CLOUD -> {
                 LOGGER.info("[Lobby " + matchID + "] ChooseCloud Message received from: " + playerNicknames.get(message.getUUID()));
                 chooseCloudCase(message, ch);
-                //FIXME Nella cli se scelgo la cloud non manda il messaggio, non posso testare il nextTurn
             }
             default -> {
                 LOGGER.error("[Lobby " + matchID + "] Unexpected value: " + message.getMessageType());
@@ -517,7 +537,10 @@ public class Lobby implements Runnable, MessageReceiver {
             case NEXT_TURN, START_GAME, RESILIENCE, UPDATE -> {
                 for (ClientHandler ch : players.values()) {
                     ch.sendMessageToClient(message);
-                    LOGGER.info("[Lobby " + matchID + "] Sent " + message.getMessageType().getClassName() + " to " + playerNicknames.get(ch.getUUID()));
+                    if (message.getMessageType() == MessageType.NEXT_TURN)
+                        LOGGER.info("[Lobby " + matchID + "] Sent " + message.getMessageType().getClassName() + "[nextPlayer: " + ((NextTurnMessage) message).getNextPlayerNickname() + "] to " + playerNicknames.get(ch.getUUID()));
+                    else
+                        LOGGER.info("[Lobby " + matchID + "] Sent " + message.getMessageType().getClassName() + " to " + playerNicknames.get(ch.getUUID()));
                 }
             }
             case END_GAME -> {
@@ -557,9 +580,13 @@ public class Lobby implements Runnable, MessageReceiver {
         disconnectedPlayers.put(clientUUID, clientToDisconnect);
         players.remove(clientUUID);
         LOGGER.info("[Lobby " + matchID + "] Disconnected " + playerNicknames.get(clientUUID) + " from the lobby");
-        LOGGER.debug("[Lobby " + matchID + "] Remaining players in the lobby are: " + playerNicknames.values());
+        LOGGER.debug("[Lobby " + matchID + "] Remaining players in the lobby are: " + playerNicknames.keySet().stream().filter(el -> !disconnectedPlayers.containsKey(el)).map(playerNicknames::get).toList());
         Server.server.onDisconnect(clientUUID);
         Lobby lobby = this;
+        if (players.size() == 0) {
+            Server.server.closeLobby(lobby);
+            LOGGER.debug("[Lobby " + matchID + "] The game is over because there aren't any players in the lobby");
+        }
         if (players.size() == 1) {
             endGameTimer.schedule(new TimerTask() {
                 @Override
@@ -571,15 +598,21 @@ public class Lobby implements Runnable, MessageReceiver {
                     sendMessage(message);
                 }
             }, 500);
+            LOGGER.debug("[Lobby " + matchID + "] The 10-minutes timer has started");
             endGameTimer.schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    Message message = new EndGameMessage(players.keySet().stream().toList().get(0), playerNicknames.get(players.keySet().stream().toList().get(0)));
-                    sendMessage(message);
-                    Server.server.closeLobby(lobby);
-                    LOGGER.debug("[Lobby " + matchID + "] Timer started");
+                    if (players.size() == 0) {
+                        Server.server.closeLobby(lobby);
+                        LOGGER.debug("[Lobby " + matchID + "] The game is over because there aren't any players in the lobby");
+                    } else {
+                        Message message = new EndGameMessage(players.keySet().stream().toList().get(0), playerNicknames.get(players.keySet().stream().toList().get(0)));
+                        sendMessage(message);
+                        Server.server.closeLobby(lobby);
+                        LOGGER.debug("[Lobby " + matchID + "] The game is over because the timer has expired");
+                    }
                 }
-            }, 300500);
+            }, 600500);
         }
     }
 }

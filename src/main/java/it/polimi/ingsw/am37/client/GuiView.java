@@ -15,9 +15,11 @@ import javafx.application.Application;
 import javafx.application.Platform;
 
 import java.util.HashMap;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
+@SuppressWarnings("ALL")
 public class GuiView extends AbstractView {
     private final GuiApp app;
 
@@ -53,6 +55,25 @@ public class GuiView extends AbstractView {
     @Override
     public String askCloud() {
         return null;
+    }
+
+    /**
+     * @return the reduced model of the view
+     */
+    @Override
+    public ReducedModel getReducedModel() {
+        return super.getReducedModel();
+    }
+
+    /**
+     * Method used to display the last Assistant played except the client's one
+     *
+     * @param players      the players to show the last assistant played
+     * @param playerToSkip the player to skip
+     */
+    @Override
+    public void showLastAssistantPlayed(Collection<Player> players, Player playerToSkip) {
+
     }
 
     /**
@@ -97,10 +118,11 @@ public class GuiView extends AbstractView {
     }
 
     /**
+     * @param assistant the assistant chosen by the players
      * @return Where mother nature has to go
      */
     @Override
-    public int askMotherNature() {
+    public int askMotherNature(Assistant assistant) {
         return 0;
     }
 
@@ -147,7 +169,7 @@ public class GuiView extends AbstractView {
      * @return The chosen nickname
      */
     @Override
-    public String chooseNickname() {
+    public String askNickname() {
         Platform.runLater(() -> SceneController.switchScreen("/assets/scenes/EnterInGame.fxml"));
         synchronized (SceneController.waitObject) {
             try {
@@ -247,6 +269,16 @@ public class GuiView extends AbstractView {
      */
     @Override
     public void showTable() {
+
+    }
+
+    /**
+     * Method used to show where mother nature can go
+     *
+     * @param assistant the assistant to know how many steps can mother nature take
+     */
+    @Override
+    public void showPossibleIslandDestination(Assistant assistant) {
 
     }
 
