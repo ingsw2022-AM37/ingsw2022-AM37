@@ -87,12 +87,14 @@ public class CliView extends AbstractView {
      * @param character the character to draw
      */
     protected static void drawCharacter(Character character) {
-        System.out.print(
-                "\t" + character.getEffectType().name().toLowerCase() + ":\tPrice " + character.getCurrentPrice() + (character.getCurrentPrice() == 1 ? " coin" : " coins"));
-        if (character.getState().getContainer() != null) System.out.print(
-                "\tStudents on the card: " + ansi().render(character.getState().getContainer().getStudentsAsString()));
-        else if (character.getState().getNoEntryTiles() != EffectHandler.DEFAULT_NOENTRYTILES)
-            System.out.print("\t No Entry tiles on the card: " + character.getState().getNoEntryTiles());
+        String format = "\t%-17s%-17s%s";
+        String optional = "";
+        if (character.getState().getContainer() != null)
+            optional = "Students on the card: " + ansi().render(character.getState().getContainer().getStudentsAsString());
+        else if (character.getState().getNoEntryTiles() != EffectHandler.DEFAULT_NOENTRYTILES) {
+            optional = "No Entry tiles on the card: " + character.getState().getNoEntryTiles();
+        }
+        System.out.printf(format, character.getEffectType().getCharacterName() + ":", "Price " + character.getCurrentPrice() + (character.getCurrentPrice() == 1 ? " coin" : " coins"), optional);
     }
 
     /**
@@ -543,23 +545,23 @@ public class CliView extends AbstractView {
      */
     @Override
     public void showPlayerStatus(Player player, boolean advancedRules) {
-        System.out.println(player.getPlayerId() + " status:");
+        displayImportant(player.getPlayerId() + " status:");
         if (player.getLastAssistantPlayed() != null) {
-            System.out.println("\t");
+            System.out.print("\t");
             drawAssistant(player.getLastAssistantPlayed());
             System.out.println();
         } else {
             System.out.println(ansi().fgCyan().a("\tNo assistant has been played yet").reset());
         }
         if (player.getBoard() != null) drawBoard(player.getBoard());
-        if (advancedRules) System.out.println("Coins: " + player.getNumberOfCoins());
+        if (advancedRules) System.out.println("\tCoins: " + player.getNumberOfCoins());
     }
 
     /**
      * Method used to show players in game
      */
     public void showPlayersNicknames() {
-        System.out.println("Players in this game are: ");
+        displayImportant("Players in this game are: ");
         for (String nickname : getReducedModel().getPlayers().keySet())
             System.out.println(nickname);
     }
@@ -570,9 +572,7 @@ public class CliView extends AbstractView {
      * @param client the client to display info about
      */
     public void showConnection(Client client) {
-
-        System.out.println("Your are current connected to: " + client.getAddress() + ":" + client.getPort());
-
+        displayImportant("Currently you are connected to: " + client.getAddress() + ":" + client.getPort());
     }
 
     /**
@@ -595,7 +595,7 @@ public class CliView extends AbstractView {
      */
     @Override
     public void showDeck(Player player) {
-        System.out.println("Your deck is: [");
+        System.out.println("Your deck is:");
         List<Assistant> assistants = player.getAssistantsDeck().values().stream().toList();
         for (int i = 0; i < assistants.size(); i++) {
             if (i % 2 == 0) System.out.print("\t");
@@ -603,7 +603,6 @@ public class CliView extends AbstractView {
             if (i != assistants.size() - 1) System.out.print(", ");
             if (i % 2 == 1 || i == assistants.size() - 1) System.out.println();
         }
-        System.out.println("]");
     }
 
     /**
@@ -713,7 +712,7 @@ public class CliView extends AbstractView {
      * @param nick nickname of player who has to play the current turn
      */
     public void hisTurn(String nick) {
-        System.out.println("\nIt's " + nick + "'s turn");
+        displayImportant("\nIt's " + nick + "'s turn");
     }
 
     /**
