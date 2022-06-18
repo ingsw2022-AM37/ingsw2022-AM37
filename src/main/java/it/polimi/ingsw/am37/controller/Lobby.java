@@ -164,9 +164,10 @@ public class Lobby implements Runnable, MessageReceiver {
      * resets the variables needed
      */
     private void reset() {
-        for (int i = 0; i < gameManager.getCharacters().length - 1; i++) {
-            gameManager.getCharacters()[i].setPlayedInThisTurn(false);
-        }
+        if (advancedMode)
+            for (int i = 0; i < gameManager.getCharacters().length - 1; i++) {
+                gameManager.getCharacters()[i].setPlayedInThisTurn(false);
+            }
         numberOfStudentsMoved = 0;
     }
 
