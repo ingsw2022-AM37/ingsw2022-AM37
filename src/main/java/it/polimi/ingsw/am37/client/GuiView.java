@@ -398,6 +398,10 @@ public class GuiView extends AbstractView {
                 List<Assistant> assistants = player.getAssistantsDeck().values().stream().toList();
                 Platform.runLater(() -> ((GameSceneController) SceneController.getActiveController()).drawDeck(assistants));
 
+                //Write number of coins
+                if(client.getSettings().advancedRulesEnabled())
+                    Platform.runLater(() -> ((GameSceneController) SceneController.getActiveController()).changeCoins(player.getNumberOfCoins()));
+
                 //Start update my board -----------------------------
                 HashMap<FactionColor, Integer> entrance = new HashMap<>();
                 HashMap<FactionColor, Integer> dining = new HashMap<>();

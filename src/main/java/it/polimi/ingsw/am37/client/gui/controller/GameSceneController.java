@@ -2,6 +2,7 @@ package it.polimi.ingsw.am37.client.gui.controller;
 
 import it.polimi.ingsw.am37.model.*;
 import it.polimi.ingsw.am37.model.character.Character;
+import it.polimi.ingsw.am37.model.character.Effect;
 import javafx.event.ActionEvent;
 import javafx.scene.Group;
 import javafx.scene.control.Label;
@@ -24,7 +25,10 @@ public class GameSceneController extends GenericController {
 
     public Pane wallpaperPane;
     public GridPane assistantsGrid;
+    public Label charactersLabel;
+    public HBox charactersHBox;
     public HBox assistantsHBox;
+    public Label numOfCoins;
 
     //-------------------------------------------------------------------------------
     //Position and dimensions information
@@ -45,6 +49,8 @@ public class GameSceneController extends GenericController {
     private final List<Coordinate> cloudsCoordinate = Arrays.asList(new Coordinate(680, 340), new Coordinate(880, 340), new Coordinate(780, 540));
     private final Coordinate shiftNoEntryTile = new Coordinate(29, 90);
     private final Coordinate shiftMotherNature = new Coordinate(18, 0);
+    private final List<Coordinate> additionalPriceCharacters = Arrays.asList(new Coordinate(1460, 800), new Coordinate(1604, 800), new Coordinate(1748, 800));
+    private final Coordinate coinCoordinate = new Coordinate(1172, 869);
 
     private final Dimension towerDimension = new Dimension(50, 28);
     private final Dimension studentAndProfDimension = new Dimension(40, 40);
@@ -52,7 +58,8 @@ public class GameSceneController extends GenericController {
     private final Dimension islandDimension = new Dimension(166.6, 166.6);
     private final Dimension motherNatureDimension = new Dimension(60, 50);
     private final Dimension noEntryDimension = new Dimension(30, 30);
-    private final Dimension assistantDimension = new Dimension(166.66, 113.33);
+    private final Dimension assistantAndCharacterDimension = new Dimension(166.66, 113.33);
+    private final Dimension coinDimension = new Dimension(105, 95);
     private final int maxRadiusIslands = 350;
 
 
@@ -62,9 +69,40 @@ public class GameSceneController extends GenericController {
     private final List<Image> islandImage = Arrays.asList(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/assets/images/Island1.png"))), new Image(Objects.requireNonNull(getClass().getResourceAsStream("/assets/images/Island2.png"))), new Image(Objects.requireNonNull(getClass().getResourceAsStream("/assets/images/Island3.png"))));
     private final Image motherNatureImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/assets/images/MotherNature.png")));
     private final Image noEntryTileImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/assets/images/NoEntryTile.png")));
+    private final Image coinImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/assets/images/Coin.png")));
 
     //-------------------------------------------------------------------------------
-    //Link between factions and other info
+    //Link between info and images or coordinates
+
+
+    private final Map<String, Image> characterImageFromName = Map.ofEntries(
+            entry(Effect.MONK.getCharacterName(), new Image(Objects.requireNonNull(getClass().getResourceAsStream("/assets/images/characters/MONK.jpg")))),
+            entry(Effect.GRANDMA.getCharacterName(), new Image(Objects.requireNonNull(getClass().getResourceAsStream("/assets/images/characters/GRANDMA.jpg")))),
+            entry(Effect.JESTER.getCharacterName(), new Image(Objects.requireNonNull(getClass().getResourceAsStream("/assets/images/characters/JESTER.jpg")))),
+            entry(Effect.PRINCESS.getCharacterName(), new Image(Objects.requireNonNull(getClass().getResourceAsStream("/assets/images/characters/PRINCESS.jpg")))),
+            entry(Effect.FARMER.getCharacterName(), new Image(Objects.requireNonNull(getClass().getResourceAsStream("/assets/images/characters/FARMER.jpg")))),
+            entry(Effect.HERALD.getCharacterName(), new Image(Objects.requireNonNull(getClass().getResourceAsStream("/assets/images/characters/HERALD.jpg")))),
+            entry(Effect.MAGIC_POSTMAN.getCharacterName(), new Image(Objects.requireNonNull(getClass().getResourceAsStream("/assets/images/characters/MAGIC_POSTMAN.jpg")))),
+            entry(Effect.CENTAUR.getCharacterName(), new Image(Objects.requireNonNull(getClass().getResourceAsStream("/assets/images/characters/CENTAUR.jpg")))),
+            entry(Effect.KNIGHT.getCharacterName(), new Image(Objects.requireNonNull(getClass().getResourceAsStream("/assets/images/characters/KNIGHT.jpg")))),
+            entry(Effect.MUSHROOM_MAN.getCharacterName(), new Image(Objects.requireNonNull(getClass().getResourceAsStream("/assets/images/characters/MUSHROOM_MAN.jpg")))),
+            entry(Effect.MINSTREL.getCharacterName(), new Image(Objects.requireNonNull(getClass().getResourceAsStream("/assets/images/characters/MINSTREL.jpg")))),
+            entry(Effect.THIEF.getCharacterName(), new Image(Objects.requireNonNull(getClass().getResourceAsStream("/assets/images/characters/THIEF.jpg"))))
+            );
+
+    private final Map<Integer, Image> assistantImageFromValue = Map.ofEntries(
+            entry(1, new Image(Objects.requireNonNull(getClass().getResourceAsStream("/assets/images/assistants/Assistant1.png")))),
+            entry(2, new Image(Objects.requireNonNull(getClass().getResourceAsStream("/assets/images/assistants/Assistant2.png")))),
+            entry(3, new Image(Objects.requireNonNull(getClass().getResourceAsStream("/assets/images/assistants/Assistant3.png")))),
+            entry(4, new Image(Objects.requireNonNull(getClass().getResourceAsStream("/assets/images/assistants/Assistant4.png")))),
+            entry(5, new Image(Objects.requireNonNull(getClass().getResourceAsStream("/assets/images/assistants/Assistant5.png")))),
+            entry(6, new Image(Objects.requireNonNull(getClass().getResourceAsStream("/assets/images/assistants/Assistant6.png")))),
+            entry(7, new Image(Objects.requireNonNull(getClass().getResourceAsStream("/assets/images/assistants/Assistant7.png")))),
+            entry(8, new Image(Objects.requireNonNull(getClass().getResourceAsStream("/assets/images/assistants/Assistant8.png")))),
+            entry(9, new Image(Objects.requireNonNull(getClass().getResourceAsStream("/assets/images/assistants/Assistant9.png")))),
+            entry(10, new Image(Objects.requireNonNull(getClass().getResourceAsStream("/assets/images/assistants/Assistant10.png"))))
+    );
+
 
     private final Map<FactionColor, Image> profImageFromColor = Map.ofEntries(
             entry(FactionColor.BLUE, new Image(Objects.requireNonNull(getClass().getResourceAsStream("/assets/images/BlueTeacher.png")))),
@@ -126,8 +164,14 @@ public class GameSceneController extends GenericController {
     private ArrayList<Label> totalLabelsOnIslandsView = new ArrayList<>();
     private ArrayList<Label> totalLabelsOnCloudsView = new ArrayList<>();
     private ArrayList<ImageView> noEntryView = new ArrayList<>();
+    private ArrayList<ImageView> deckAssistantsView = new ArrayList<>();
+    private ArrayList<ImageView> charactersView = new ArrayList<>();
+    private ArrayList<Label> totalCharactersLabelsView = new ArrayList<>();
+    private ArrayList<ImageView> assistantPlayedView = new ArrayList<>();
+    private ArrayList<Label> totalLabelsAssistantsView = new ArrayList<>();
 
     private final ImageView motherNature = new ImageView(motherNatureImage);
+    private final ImageView coin = new ImageView(coinImage);
 
     private void cancelVisibleViewWallpaperPane(ArrayList<ImageView> view){
         for(int i=0; i<view.size();i++){
@@ -144,21 +188,52 @@ public class GameSceneController extends GenericController {
     //-------------------------------------------------------------------------------
 
     public void drawCharacters(List<Character> characters) {
-        /*for (Character c :
+
+        charactersLabel.setVisible(true);
+        charactersHBox.getChildren().clear();
+        cancelLabelsFromPane(totalCharactersLabelsView);
+        charactersView = new ArrayList<>();
+        totalCharactersLabelsView = new ArrayList<>();
+        int i = 0;
+
+        for (Character c :
                 characters) {
-            ImageView imageView = new ImageView(getClass().getResource(
-                            "/assets/images/" + c.getEffectType().name() + ".jpg")
-                    .toString());
-            imageView.setFitWidth(assistantDimension.width);
-            imageView.setFitHeight(assistantDimension.height);
-            imageView.setId("character_" + c.getEffectType().name());
-            assistantsHBox.getChildren().add(imageView);
+            ImageView imageView = new ImageView();
+            imageView.setImage(characterImageFromName.get(c.getEffectType().getCharacterName()));
+            drawWithDimension(assistantAndCharacterDimension, imageView);
+            charactersHBox.getChildren().add(imageView);
+            charactersView.add(imageView);
+
+
+            int temp= c.getCurrentPrice()-c.getEffectType().getInitialPrice();
+            Label labelPriceAdditional = new Label("+" + temp);
+            labelPriceAdditional.setTextFill(Paint.valueOf("#ffffff"));
+            labelPriceAdditional.setFont(labelFont);
+            totalCharactersLabelsView.add(labelPriceAdditional);
+            labelPriceAdditional.setLayoutX(additionalPriceCharacters.get(i).x);
+            labelPriceAdditional.setLayoutY(additionalPriceCharacters.get(i).y);
+            wallpaperPane.getChildren().add(labelPriceAdditional);
+
             Label label = new Label(c.getEffectType().name());
             label.setFont(labelFont);
             label.setRotate(270);
-            assistantsHBox.getChildren().add(new Group(label));
-        }*/
+            charactersHBox.getChildren().add(new Group(label));
+            totalCharactersLabelsView.add(label);
+
+            i++;
+        }
+
+        drawWithDimension(coinDimension, coin);
+        drawWithCoordinateDisablingAnimation(coinCoordinate, coin);
+        wallpaperPane.getChildren().add(coin);
+
     }
+
+    public void changeCoins(int num){
+        numOfCoins.setText(Integer.toString(num));
+        numOfCoins.setVisible(true);
+    }
+
 
     private List<Coordinate> drawCircle(Coordinate center, Dimension dimension, int numberOfElements, int radius) {
         List<Coordinate> result = new ArrayList<>(numberOfElements);
@@ -223,22 +298,18 @@ public class GameSceneController extends GenericController {
     }
 
     public void drawDeck(List<Assistant> assistants) {
-        /*final Pattern deckAssistantPattern = Pattern.compile("deck_assistant_.*");
-        if (wallpaperPane.getChildren().stream().anyMatch(n -> deckAssistantPattern.matcher(n.getId()).matches())) {
-            wallpaperPane.getChildren()
-                    .stream()
-                    .filter(n -> deckAssistantPattern.matcher(n.getId()).matches())
-                    .forEach(n -> wallpaperPane.getChildren().remove(n));
-        }
+
+        assistantsGrid.getChildren().clear();
+        deckAssistantsView = new ArrayList<>();
+
         for (int currentAssistant = 0; currentAssistant < assistants.size(); currentAssistant++) {
-            ImageView imageView = new ImageView(getClass().getResource(
-                            "/assets/images/assistants/Assistant" + assistants.get(currentAssistant).getCardValue() + ".png")
-                    .toString());
-            imageView.setFitHeight(assistantDimension.height);
-            imageView.setFitWidth(assistantDimension.width);
-            imageView.setId("deck_assistant_" + assistants.get(currentAssistant).getCardValue());
+
+            ImageView imageView = new ImageView();
+            imageView.setImage(assistantImageFromValue.get(assistants.get(currentAssistant).getCardValue()));
+            drawWithDimension(assistantAndCharacterDimension, imageView);
             assistantsGrid.add(imageView, currentAssistant % 4, currentAssistant / 4);
-        }*/
+            deckAssistantsView.add(imageView);
+        }
     }
 
     public void drawIslands(List<Island> islands) {
@@ -335,23 +406,25 @@ public class GameSceneController extends GenericController {
 
 
     public void drawPlayedAssistants(List<Player> players) {
-        /*assistantsHBox.getChildren().clear();
+
+        totalLabelsAssistantsView = new ArrayList<>();
+        assistantPlayedView = new ArrayList<>();
+        assistantsHBox.getChildren().clear();
+
         for (Player p : players) {
             if (p.getLastAssistantPlayed() != null) {
-                ImageView imageView = new ImageView(getClass().getResource(
-                                "/assets/images/assistants/Assistant" + p.getLastAssistantPlayed().getCardValue() +
-                                        ".png")
-                        .toString());
-                imageView.setFitWidth(assistantDimension.width);
-                imageView.setFitHeight(assistantDimension.height);
-                imageView.setId("last_assistant_by_" + p.getPlayerId());
+                ImageView imageView = new ImageView();
+                imageView.setImage(assistantImageFromValue.get(p.getLastAssistantPlayed().getCardValue()));
+                drawWithDimension(assistantAndCharacterDimension, imageView);
                 assistantsHBox.getChildren().add(imageView);
+                assistantPlayedView.add(imageView);
                 Label label = new Label(p.getPlayerId());
                 label.setFont(labelFont);
                 label.setRotate(270);
                 assistantsHBox.getChildren().add(new Group(label));
+                totalLabelsAssistantsView.add(label);
             }
-        }*/
+        }
     }
 
 
