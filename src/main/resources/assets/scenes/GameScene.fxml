@@ -134,5 +134,10 @@
             <Font name="System Bold Italic" size="25.0" />
          </font>
       </Label>
+      <ImageView fitHeight="90.0" fitWidth="85.0" layoutX="447.0" layoutY="56.0">
+         <image>
+            <Image url="@../images/Bag.png" />
+         </image>
+      </ImageView>
     </children>
 </Pane>

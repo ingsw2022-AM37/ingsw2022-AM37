@@ -4,6 +4,7 @@ import it.polimi.ingsw.am37.model.*;
 import it.polimi.ingsw.am37.model.character.Character;
 import it.polimi.ingsw.am37.model.character.Effect;
 import javafx.event.ActionEvent;
+import javafx.geometry.Bounds;
 import javafx.scene.Group;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -51,6 +52,7 @@ public class GameSceneController extends GenericController {
     private final Coordinate shiftMotherNature = new Coordinate(18, 0);
     private final List<Coordinate> additionalPriceCharacters = Arrays.asList(new Coordinate(1460, 800), new Coordinate(1604, 800), new Coordinate(1748, 800));
     private final Coordinate coinCoordinate = new Coordinate(1172, 869);
+    private final int distanceCharactersCards = 144;
 
     private final Dimension towerDimension = new Dimension(50, 28);
     private final Dimension studentAndProfDimension = new Dimension(40, 40);
@@ -118,6 +120,15 @@ public class GameSceneController extends GenericController {
             entry(FactionColor.YELLOW, new Coordinate(175, 117)),
             entry(FactionColor.RED, new Coordinate(235, 117))
     );
+
+    private final Map<FactionColor, Coordinate> studentShiftsForCharacter = Map.ofEntries(
+            entry(FactionColor.BLUE, new Coordinate(98, 31)),
+            entry(FactionColor.PINK, new Coordinate(15, 101)),
+            entry(FactionColor.GREEN, new Coordinate(98, 101)),
+            entry(FactionColor.YELLOW, new Coordinate(15, 31)),
+            entry(FactionColor.RED, new Coordinate(57, 136))
+    );
+
     private final Map<FactionColor, Image> studentImageFromColor = Map.ofEntries(
             entry(FactionColor.BLUE, new Image(Objects.requireNonNull(getClass().getResourceAsStream("/assets/images/BlueStudent.png")))),
             entry(FactionColor.PINK, new Image(Objects.requireNonNull(getClass().getResourceAsStream("/assets/images/PinkStudent.png")))),
@@ -166,6 +177,7 @@ public class GameSceneController extends GenericController {
     private ArrayList<ImageView> noEntryView = new ArrayList<>();
     private ArrayList<ImageView> deckAssistantsView = new ArrayList<>();
     private ArrayList<ImageView> charactersView = new ArrayList<>();
+    private ArrayList<ImageView> charactersInfoView = new ArrayList<>();
     private ArrayList<Label> totalCharactersLabelsView = new ArrayList<>();
     private ArrayList<ImageView> assistantPlayedView = new ArrayList<>();
     private ArrayList<Label> totalLabelsAssistantsView = new ArrayList<>();
@@ -189,12 +201,16 @@ public class GameSceneController extends GenericController {
 
     public void drawCharacters(List<Character> characters) {
 
+        cancelVisibleViewWallpaperPane(charactersInfoView);
+        charactersInfoView = new ArrayList<>();
         charactersLabel.setVisible(true);
-        charactersHBox.getChildren().clear();
         cancelLabelsFromPane(totalCharactersLabelsView);
-        charactersView = new ArrayList<>();
         totalCharactersLabelsView = new ArrayList<>();
+        charactersView = new ArrayList<>();
+        charactersHBox.getChildren().clear();
+
         int i = 0;
+        int var = 0;
 
         for (Character c :
                 characters) {
@@ -220,6 +236,54 @@ public class GameSceneController extends GenericController {
             charactersHBox.getChildren().add(new Group(label));
             totalCharactersLabelsView.add(label);
 
+            //Here starts images over characters with special specs
+
+            if(c.getEffectType().getCharacterName().equals(Effect.MONK.getCharacterName()) || c.getEffectType().getCharacterName().equals(Effect.JESTER.getCharacterName()) || c.getEffectType().getCharacterName().equals(Effect.PRINCESS.getCharacterName()) || c.getEffectType().getCharacterName().equals(Effect.MUSHROOM_MAN.getCharacterName()) ||  c.getEffectType().getCharacterName().equals(Effect.THIEF.getCharacterName())   ){
+
+                Bounds bounds = imageView.localToScene(imageView.getBoundsInLocal());
+                for(FactionColor color: FactionColor.values()){
+                    ImageView student = new ImageView();
+                    student.setImage(studentImageFromColor.get(color));
+                    drawWithDimension(studentAndProfDimension, student);
+                    drawWithCoordinateDisablingAnimation(new Coordinate(bounds.getMinX() + var + studentShiftsForCharacter.get(color).x, bounds.getMinY() + studentShiftsForCharacter.get(color).y), student);
+                    wallpaperPane.getChildren().add(student);
+                    charactersInfoView.add(student);
+
+                    if(c.getEffectType().getCharacterName().equals(Effect.MONK.getCharacterName()) || c.getEffectType().getCharacterName().equals(Effect.JESTER.getCharacterName()) || c.getEffectType().getCharacterName().equals(Effect.PRINCESS.getCharacterName())) {
+                        Label numStudents = new Label(Integer.toString(c.getState().getContainer().getByColor(color)));
+                        numStudents.setFont(labelFont);
+                        numStudents.setTextFill(Paint.valueOf("#ffffff"));
+                        numStudents.setLayoutX(bounds.getMinX() + var + studentShiftsForCharacter.get(color).x);
+                        numStudents.setLayoutY(bounds.getMinY() + studentShiftsForCharacter.get(color).y);
+                        numStudents.setMouseTransparent(true);
+                        wallpaperPane.getChildren().add(numStudents);
+                        totalCharactersLabelsView.add(numStudents);
+                    }
+                }
+            }
+
+            else if(c.getEffectType().getCharacterName().equals(Effect.GRANDMA.getCharacterName())){
+
+                Bounds bounds = imageView.localToScene(imageView.getBoundsInLocal());
+                ImageView noEntryTile = new ImageView();
+                noEntryTile.setImage(noEntryTileImage);
+                drawWithDimension(noEntryDimension, noEntryTile);
+                drawWithCoordinateDisablingAnimation( new Coordinate(bounds.getMinX() + var + 25, bounds.getMaxY() - 20) , noEntryTile);
+                wallpaperPane.getChildren().add(noEntryTile);
+                charactersInfoView.add(noEntryTile);
+                noEntryTile.setMouseTransparent(true);
+
+                Label numNoEntry = new Label(Integer.toString(c.getState().getNoEntryTiles()));
+                numNoEntry.setFont(labelFont);
+                numNoEntry.setTextFill(Paint.valueOf("#ffffff"));
+                numNoEntry.setLayoutX(bounds.getMinX()+var + 25);
+                numNoEntry.setLayoutY(bounds.getMaxY() - 20);
+                numNoEntry.setMouseTransparent(true);
+                wallpaperPane.getChildren().add(numNoEntry);
+                totalCharactersLabelsView.add(numNoEntry);
+            }
+
+            var = var + distanceCharactersCards;
             i++;
         }
 
@@ -299,8 +363,9 @@ public class GameSceneController extends GenericController {
 
     public void drawDeck(List<Assistant> assistants) {
 
-        assistantsGrid.getChildren().clear();
         deckAssistantsView = new ArrayList<>();
+        assistantsGrid.getChildren().clear();
+
 
         for (int currentAssistant = 0; currentAssistant < assistants.size(); currentAssistant++) {
 
