@@ -49,7 +49,8 @@ public class GameSceneController extends GenericController {
     private final Coordinate islandCircleCenter = new Coordinate(850, 340);
     private final List<Coordinate> cloudsCoordinate = Arrays.asList(new Coordinate(680, 340), new Coordinate(880, 340), new Coordinate(780, 540));
     private final Coordinate shiftNoEntryTile = new Coordinate(29, 90);
-    private final Coordinate shiftMotherNature = new Coordinate(18, 0);
+    private final Coordinate shiftMotherNature = new Coordinate(50, 0);
+    private final Coordinate shiftTowerIsland = new Coordinate(2, 0);
     private final List<Coordinate> additionalPriceCharacters = Arrays.asList(new Coordinate(1460, 800), new Coordinate(1604, 800), new Coordinate(1748, 800));
     private final Coordinate coinCoordinate = new Coordinate(1172, 869);
     private final int distanceCharactersCards = 144;
@@ -166,7 +167,7 @@ public class GameSceneController extends GenericController {
     //ImageView of everything
     private ArrayList<ImageView> studentsEntranceView = new ArrayList<>();
     private ArrayList<ImageView> studentsDiningView = new ArrayList<>();
-    private ArrayList<ImageView> towersView = new ArrayList<>();
+    private ArrayList<ImageView> towersBoardView = new ArrayList<>();
     private ArrayList<ImageView> professorsView = new ArrayList<>();
     private ArrayList<ImageView> cloudsView = new ArrayList<>();
     private ArrayList<ImageView> islandsView = new ArrayList<>();
@@ -181,6 +182,7 @@ public class GameSceneController extends GenericController {
     private ArrayList<Label> totalCharactersLabelsView = new ArrayList<>();
     private ArrayList<ImageView> assistantPlayedView = new ArrayList<>();
     private ArrayList<Label> totalLabelsAssistantsView = new ArrayList<>();
+    private ArrayList<ImageView> towerIslandView = new ArrayList<>();
 
     private final ImageView motherNature = new ImageView(motherNatureImage);
     private final ImageView coin = new ImageView(coinImage);
@@ -381,6 +383,10 @@ public class GameSceneController extends GenericController {
 
         int numIslandImage = 0;
 
+
+        cancelVisibleViewWallpaperPane(towerIslandView);
+        towerIslandView = new ArrayList<>();
+
         cancelVisibleViewWallpaperPane(noEntryView);
         noEntryView = new ArrayList<>();
 
@@ -441,6 +447,30 @@ public class GameSceneController extends GenericController {
                 drawWithCoordinateDisablingAnimation(centreIsland, motherNature);
                 motherNature.setMouseTransparent(true);
             }
+
+            if(islands.get(i).getCurrentTower()!=TowerColor.NONE){
+
+                ImageView towerTemp = new ImageView();
+                towerTemp.setMouseTransparent(true);
+                towerTemp.setImage(towerImageFromColor.get(islands.get(i).getCurrentTower()));
+                drawWithDimension(towerDimension, towerTemp);
+                Coordinate centreIsland = getCentreImageNoAnimation(islandsView.get(i));
+                centreIsland = centreIsland.addCoordinate(shiftTowerIsland);
+                drawWithCoordinateDisablingAnimation(centreIsland, towerTemp);
+                wallpaperPane.getChildren().add(towerTemp);
+                towerIslandView.add(towerTemp);
+
+                Label numTowers = new Label(Integer.toString(islands.get(i).getNumIslands()));
+                numTowers.setMouseTransparent(true);
+                numTowers.setFont(labelFont);
+                numTowers.setTextFill(Paint.valueOf("#ffffff"));
+                wallpaperPane.getChildren().add(numTowers);
+                totalLabelsOnIslandsView.add(numTowers);
+                numTowers.setLayoutX(towerTemp.getLayoutX()+9);
+                numTowers.setLayoutY(towerTemp.getLayoutY()+48);
+            }
+
+
 
             if(islands.get(i).getNoEntryTile()!=0) {
                 temp = new ImageView();
@@ -573,9 +603,9 @@ public class GameSceneController extends GenericController {
 
     private void drawTowers(LimitedTowerContainer towers) {
 
-        cancelVisibleViewWallpaperPane(towersView);
+        cancelVisibleViewWallpaperPane(towersBoardView);
 
-        towersView = new ArrayList<>();
+        towersBoardView = new ArrayList<>();
 
         int posInLine = 0;
         double additionalX = 0;
@@ -589,7 +619,7 @@ public class GameSceneController extends GenericController {
             wallpaperPane.getChildren().add(temp);
             drawWithDimension(towerDimension, temp);
             drawWithCoordinateDisablingAnimation(new Coordinate(firstTowerCoordinate.x + additionalX, firstTowerCoordinate.y + additionalY), temp);
-            towersView.add(temp);
+            towersBoardView.add(temp);
             posInLine = posInLine + 1;
             additionalX = additionalX + xSpaceTowers;
             if (posInLine == firstLineEntranceAndTowersSize) {
