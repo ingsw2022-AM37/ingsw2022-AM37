@@ -374,7 +374,7 @@ public class Lobby implements Runnable, MessageReceiver {
         Message response;
         boolean characterPlayable = false;
         int characterIndex;
-        for (characterIndex = 0; characterIndex < gameManager.getCharacters().length - 1; characterIndex++) {
+        for (characterIndex = 0; characterIndex < gameManager.getCharacters().length; characterIndex++) {
             if (gameManager.getCharacters()[characterIndex].getEffectType() == ((PlayCharacterMessage) message).getChosenCharacter()) {
                 if (!gameManager.getCharacters()[characterIndex].isPlayedInThisTurn()) {
                     characterPlayable = true;
@@ -403,8 +403,10 @@ public class Lobby implements Runnable, MessageReceiver {
                             .getClassName());
             sendMessage(response);
             gameManager.getCharacters()[characterIndex].setPlayedInThisTurn(true);
-        } else
-            ch.disconnect();
+        } else {
+            response = new ErrorMessage(message.getUUID(), "Character not playable, already played in this turn");
+            sendMessage(response);
+        }
     }
 
     /**

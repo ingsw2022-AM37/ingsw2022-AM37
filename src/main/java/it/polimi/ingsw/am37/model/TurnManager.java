@@ -393,7 +393,6 @@ public class TurnManager {
      * Player
      */
     public void nextTurn() {
-        resetFlags();
         orderPlayed.clear();
         this.orderPlayed.addAll(this.assistantPlayed.keySet().stream().sorted(new Comparator<>() {
             /**

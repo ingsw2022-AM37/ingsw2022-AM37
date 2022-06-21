@@ -403,6 +403,9 @@ public class Client {
         view.displayImportant("You have " + currentPlayer.getNumberOfCoins() + (currentPlayer.getNumberOfCoins() == 1 ? " coin" : " coins"));
         view.showCharacters();
         Effect effect = view.askCharacter();
+        if (effect == null) {
+            return true;
+        }
         Character character = view.getReducedModel()
                 .getCharacters()
                 .stream()

@@ -259,7 +259,13 @@ public class CliView extends AbstractView {
         displayImportant("Which character do you want to play? ");
         Scanner scanner = new Scanner(System.in);
         int response = scanner.nextInt();
-        return ((Character) reducedModel.getCharacters().toArray()[response]).getEffectType();
+        if (response <= reducedModel.getCharacters().size())
+            return ((Character) reducedModel.getCharacters().toArray()[response]).getEffectType();
+        displayError("You have to choose a valid character");
+        displayImportant("do you want to play again? Y/N");
+        if (scanner.nextLine().equalsIgnoreCase("y"))
+            return askCharacter();
+        else return null;
     }
 
     @Override

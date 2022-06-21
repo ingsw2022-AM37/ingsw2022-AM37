@@ -252,7 +252,7 @@ public class GameManager {
     public void playCharacter(Character character, Option option) throws CharacterImpossibleToPlay {
         synchronized (lock) {
             if (turnManager.getCurrentPlayer().getNumberOfCoins() >= character.getCurrentPrice()) {
-                character.useEffect(option);
+                turnManager.getCurrentPlayer().useCharacter(character, option);
             } else throw new CharacterImpossibleToPlay("Can't play Character, not enough coins");
         }
     }
@@ -275,6 +275,8 @@ public class GameManager {
      */
     public void nextTurn() {
         synchronized (lock) {
+            islandsManager.resetFlags();
+            turnManager.resetFlags();
             turnManager.nextTurn();
             turnManager.setCurrentPlayer(turnManager.getOrderPlayed().get(0));
             islandsManager.setCurrentPlayer(turnManager.getCurrentPlayer());
