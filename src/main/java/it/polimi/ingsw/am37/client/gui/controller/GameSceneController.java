@@ -19,6 +19,7 @@ import javafx.scene.text.Font;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.*;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static it.polimi.ingsw.am37.client.gui.observer.GuiObserver.ClickableObjectType.*;
@@ -252,13 +253,16 @@ public class GameSceneController extends GenericController {
 
     public void assistantDeckClicked(MouseEvent mouseEvent) {
         String jfxId = mouseEvent.getPickResult().getIntersectedNode().getId();
-        String id = Pattern.compile(DECK_PREFIX + ".+").matcher(jfxId).group();
-        changeSupport.firePropertyChange(CO_ASSISTANT.name(), null, id);
+        Matcher m = Pattern.compile(DECK_PREFIX + "(\\d+)").matcher(jfxId);
+        if (m.find()) {
+            String id = m.group(1);
+            changeSupport.firePropertyChange(CO_ASSISTANT.name(), null, id);
+        }
     }
 
     private void cancelLabelsFromPane(ArrayList<Label> label) {
-        for (int i = 0; i < label.size(); i++) {
-            wallpaperPane.getChildren().remove(label.get(i));
+        for (Label value : label) {
+            wallpaperPane.getChildren().remove(value);
         }
     }
 
@@ -350,6 +354,7 @@ public class GameSceneController extends GenericController {
                 for (FactionColor color : FactionColor.values()) {
                     ImageView student = new ImageView();
                     student.setImage(studentImageFromColor.get(color));
+                    student.setMouseTransparent(true);
                     drawWithDimension(studentAndProfDimension, student);
                     drawWithCoordinateDisablingAnimation(new Coordinate(
                             bounds.getMinX() + var + studentShiftsForCharacter.get(color).x,
@@ -396,9 +401,11 @@ public class GameSceneController extends GenericController {
             i++;
         }
 
-        drawWithDimension(coinDimension, coin);
-        drawWithCoordinateDisablingAnimation(coinCoordinate, coin);
-        wallpaperPane.getChildren().add(coin);
+        if (!wallpaperPane.getChildren().contains(coin)) {
+            drawWithDimension(coinDimension, coin);
+            drawWithCoordinateDisablingAnimation(coinCoordinate, coin);
+            wallpaperPane.getChildren().add(coin);
+        }
 
     }
 
@@ -504,6 +511,7 @@ public class GameSceneController extends GenericController {
             for (int i = 0; i < dining.get(color); i++) {
 
                 temp = new ImageView();
+                temp.setMouseTransparent(true);
                 temp.setImage(studentImageFromColor.get(color));
                 wallpaperPane.getChildren().add(temp);
                 drawWithDimension(studentAndProfDimension, temp);
@@ -531,6 +539,7 @@ public class GameSceneController extends GenericController {
             for (int i = 0; i < entrance.get(color); i++) {
 
                 temp = new ImageView();
+                temp.setMouseTransparent(true);
                 temp.setImage(studentImageFromColor.get(color));
                 wallpaperPane.getChildren().add(temp);
                 drawWithDimension(studentAndProfDimension, temp);
@@ -788,9 +797,6 @@ public class GameSceneController extends GenericController {
         changeSupport.firePropertyChange(CO_MOTHER_NATURE.name(), null, null);
     }
 
-    public void profPlaceClicked(MouseEvent mouseEvent) {
-        //FIXME non credo serva, può essere eliminato
-    }
 
     //-------------------------------------------------------------------------------
     //Not-graphics related functions
@@ -800,10 +806,6 @@ public class GameSceneController extends GenericController {
 
     public void showBoards(ActionEvent actionEvent) {
         //TODO pop the windows
-    }
-
-    public void towerPlaceClicked(MouseEvent mouseEvent) {
-        //FIXME non credo serva, può essere eliminato
     }
 
     private record Dimension(double height, double width) {

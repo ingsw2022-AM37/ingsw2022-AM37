@@ -8,16 +8,23 @@ import java.util.concurrent.LinkedTransferQueue;
 import java.util.concurrent.TransferQueue;
 
 public class GuiObserver implements PropertyChangeListener {
-
     /**
      * A blocking FIFO queue that contains the list of clicked objects not yet processed by the game controller
      */
-    private final TransferQueue<ClickableObjectType> clickedObjectsQueue = new LinkedTransferQueue<>();
-
+    private final TransferQueue<ClickableObjectType> clickedObjectsQueue;
     /**
      * A regular queue that contains the id of
      */
-    private final Queue<String> idsQueue = new LinkedList<>();
+    private final Queue<String> idsQueue;
+
+    /**
+     * Default builder of gui observer initializing the queues with needed values
+     */
+    public GuiObserver() {
+        clickedObjectsQueue = new LinkedTransferQueue<>();
+        idsQueue = new LinkedList<>();
+        idsQueue.add(null);
+    }
 
     /**
      * this function provides the id of the last retrieved object, could be null if the object doesn't have a valid id

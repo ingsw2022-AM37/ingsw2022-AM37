@@ -33,7 +33,7 @@ public class GuiView extends AbstractView {
      */
     @Override
     public int askAssistant(Client client) {
-        return 0;
+        return Integer.parseInt(observer.getLastRetrievedObjectId());
     }
 
     public GuiView() {
@@ -49,7 +49,7 @@ public class GuiView extends AbstractView {
      */
     @Override
     public Effect askCharacter() {
-        return null;
+        return Effect.valueOf(observer.getLastRetrievedObjectId());
     }
 
     /**
@@ -57,7 +57,7 @@ public class GuiView extends AbstractView {
      */
     @Override
     public String askCloud() {
-        return null;
+        return observer.getLastRetrievedObjectId();
     }
 
     /**
@@ -111,13 +111,12 @@ public class GuiView extends AbstractView {
 
     @Override
     public Client.LobbyParameters askLobbyParameters() {
-
         return ((EnterInGameController) SceneController.getActiveController()).getLobbyParameters();
     }
 
     @Override
     public int askIsland() {
-        return 0;
+        return Integer.parseInt(observer.getLastRetrievedObjectId());
     }
 
     /**
@@ -294,8 +293,7 @@ public class GuiView extends AbstractView {
      */
     @Override
     public ActionType takeInput(Client client) {
-        List<ActionType> availableActions = ActionType.getActionByStatus(client.getStatus(), client.getSettings()
-                .advancedRulesEnabled());
+        List<ActionType> availableActions = ActionType.getActions();
         ActionType value;
         while (true) {
             try {
@@ -360,7 +358,7 @@ public class GuiView extends AbstractView {
      */
     @Override
     public void yourTurn() {
-
+        displayImportant("It's your turn");
     }
 
     @Override
@@ -387,38 +385,36 @@ public class GuiView extends AbstractView {
                 .toList());
         if (updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.ISLAND) != null &&
                 updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.ISLAND).size() != 0) {
-            Platform.runLater(() -> ((GameSceneController) SceneController.getActiveController()).drawIslands(updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.ISLAND)
-                    .stream()
-                    .map(o -> (Island) o)
-                    .toList()));
+            Platform.runLater(() -> ((GameSceneController) SceneController.getActiveController()).drawIslands(reducedModel.getIslands()));
         }
         if (updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.CLOUD) != null &&
                 updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.CLOUD).size() != 0) {
-            Platform.runLater(() -> ((GameSceneController) SceneController.getActiveController()).drawClouds(updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.CLOUD)
+            Platform.runLater(() -> ((GameSceneController) SceneController.getActiveController()).drawClouds(reducedModel.getClouds()
+                    .values()
                     .stream()
-                    .map(o -> (Cloud) o)
                     .toList()));
         }
         if (updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.PLAYER) != null &&
                 updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.PLAYER).size() != 0) {
-            Platform.runLater(() -> ((GameSceneController) SceneController.getActiveController()).drawPlayedAssistants(updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.PLAYER)
+            Platform.runLater(() -> ((GameSceneController) SceneController.getActiveController()).drawPlayedAssistants(reducedModel.getPlayers()
+                    .values()
                     .stream()
-                    .map(o -> (Player) o)
                     .toList()));
             if (updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.PLAYER)
                     .stream()
                     .anyMatch(p -> Objects.equals(((Player) p).getPlayerId(), client.getNickname()))) {
-                Player player = (Player) updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.PLAYER)
+                Platform.runLater(() -> ((GameSceneController) SceneController.getActiveController()).drawDeck(reducedModel.getPlayers()
+                        .get(client.getNickname())
+                        .getAssistantsDeck()
+                        .values()
                         .stream()
-                        .filter(p -> Objects.equals(((Player) p).getPlayerId(), client.getNickname()))
-                        .findFirst()
-                        .get();
-                List<Assistant> assistants = player.getAssistantsDeck().values().stream().toList();
-                Platform.runLater(() -> ((GameSceneController) SceneController.getActiveController()).drawDeck(assistants));
+                        .toList()));
 
                 //Write number of coins
                 if (client.getSettings().advancedRulesEnabled())
-                    Platform.runLater(() -> ((GameSceneController) SceneController.getActiveController()).changeCoins(player.getNumberOfCoins()));
+                    Platform.runLater(() -> ((GameSceneController) SceneController.getActiveController()).changeCoins(reducedModel.getPlayers()
+                            .get(client.getNickname())
+                            .getNumberOfCoins()));
 
                 //Start update my board -----------------------------
                 HashMap<FactionColor, Integer> entrance = new HashMap<>();
@@ -427,17 +423,17 @@ public class GuiView extends AbstractView {
                 LimitedTowerContainer towers;
 
                 for (FactionColor color : FactionColor.values()) {
-                    entrance.put(color, getReducedModel().getBoards()
+                    entrance.put(color, reducedModel.getBoards()
                             .get(client.getNickname())
                             .getEntrance()
                             .getByColor(color));
-                    dining.put(color, getReducedModel().getBoards()
+                    dining.put(color, reducedModel.getBoards()
                             .get(client.getNickname())
                             .getDiningRoom()
                             .getByColor(color));
                 }
-                professors = getReducedModel().getBoards().get(client.getNickname()).getProfTable();
-                towers = getReducedModel().getBoards().get(client.getNickname()).getTowers();
+                professors = reducedModel.getBoards().get(client.getNickname()).getProfTable();
+                towers = reducedModel.getBoards().get(client.getNickname()).getTowers();
 
                 Platform.runLater(() -> ((GameSceneController) SceneController.getActiveController()).drawBoard(entrance, dining, professors, towers));
                 //My board drawn ------------------------------
