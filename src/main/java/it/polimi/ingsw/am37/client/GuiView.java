@@ -5,23 +5,25 @@ import it.polimi.ingsw.am37.client.gui.SceneController;
 import it.polimi.ingsw.am37.client.gui.controller.ConnectionController;
 import it.polimi.ingsw.am37.client.gui.controller.EnterInGameController;
 import it.polimi.ingsw.am37.client.gui.controller.GameSceneController;
+import it.polimi.ingsw.am37.client.gui.observer.GuiObserver;
 import it.polimi.ingsw.am37.message.UpdateMessage;
 import it.polimi.ingsw.am37.model.*;
 import it.polimi.ingsw.am37.model.character.Character;
 import it.polimi.ingsw.am37.model.character.Effect;
-import it.polimi.ingsw.am37.model.student_container.LimitedStudentsContainer;
 import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
 import javafx.application.Application;
 import javafx.application.Platform;
 
-import java.util.HashMap;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
 @SuppressWarnings("ALL")
 public class GuiView extends AbstractView {
     private final GuiApp app;
+
+    private final GuiObserver observer;
 
     /**
      * Method used to ask which assistant player want to use
@@ -35,6 +37,7 @@ public class GuiView extends AbstractView {
     }
 
     public GuiView() {
+        observer = new GuiObserver();
         new Thread(() -> Application.launch(GuiApp.class)).start();
         app = GuiApp.waitForStartUp();
     }
@@ -186,7 +189,10 @@ public class GuiView extends AbstractView {
      */
     @Override
     public void gameStarted() {
-        Platform.runLater(() -> SceneController.switchScreen("/assets/scenes/GameScene.fxml"));
+        Platform.runLater(() -> {
+            SceneController.switchScreen("/assets/scenes/GameScene.fxml");
+            ((GameSceneController) SceneController.getActiveController()).registerListener(observer);
+        });
     }
 
     /**
@@ -288,14 +294,26 @@ public class GuiView extends AbstractView {
      */
     @Override
     public ActionType takeInput(Client client) {
-        synchronized (SceneController.waitObject) {
+        List<ActionType> availableActions = ActionType.getActionByStatus(client.getStatus(), client.getSettings()
+                .advancedRulesEnabled());
+        ActionType value;
+        while (true) {
             try {
-                SceneController.waitObject.wait();
+                GuiObserver.ClickableObjectType objectType = observer.takeClickedObjectEnum();
+                value = switch (objectType) {
+                    case CO_ENTRANCE -> ActionType.MOVE_STUDENTS_UNDEFINED;
+                    case CO_ASSISTANT -> ActionType.PLAY_ASSISTANT;
+                    case CO_MOTHER_NATURE -> ActionType.MOVE_MOTHER_NATURE;
+                    case CO_CHARACTER -> ActionType.PLAY_CHARACTER;
+                    case CO_CLOUD -> ActionType.CHOOSE_CLOUD;
+                    default -> null;
+                };
+                if (value != null && availableActions.contains(value)) break;
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
         }
-        return null;
+        return value;
     }
 
     /**
@@ -399,7 +417,7 @@ public class GuiView extends AbstractView {
                 Platform.runLater(() -> ((GameSceneController) SceneController.getActiveController()).drawDeck(assistants));
 
                 //Write number of coins
-                if(client.getSettings().advancedRulesEnabled())
+                if (client.getSettings().advancedRulesEnabled())
                     Platform.runLater(() -> ((GameSceneController) SceneController.getActiveController()).changeCoins(player.getNumberOfCoins()));
 
                 //Start update my board -----------------------------
@@ -409,8 +427,14 @@ public class GuiView extends AbstractView {
                 LimitedTowerContainer towers;
 
                 for (FactionColor color : FactionColor.values()) {
-                    entrance.put(color, getReducedModel().getBoards().get(client.getNickname()).getEntrance().getByColor(color));
-                    dining.put(color, getReducedModel().getBoards().get(client.getNickname()).getDiningRoom().getByColor(color));
+                    entrance.put(color, getReducedModel().getBoards()
+                            .get(client.getNickname())
+                            .getEntrance()
+                            .getByColor(color));
+                    dining.put(color, getReducedModel().getBoards()
+                            .get(client.getNickname())
+                            .getDiningRoom()
+                            .getByColor(color));
                 }
                 professors = getReducedModel().getBoards().get(client.getNickname()).getProfTable();
                 towers = getReducedModel().getBoards().get(client.getNickname()).getTowers();
