@@ -300,6 +300,7 @@ public class Client {
      */
     public void setStatus(ClientStatus action) {
         status = action;
+        ActionType.updateAvailableAction(status, settings.advancedRulesEnabled);
     }
 
     /**
@@ -388,7 +389,6 @@ public class Client {
         int val = view.askAssistant(this);
         Message message = new PlayAssistantMessage(UUID, val);
         socket.sendMessage(message);
-
         return !hasReceivedError();
     }
 
@@ -509,7 +509,7 @@ public class Client {
 
         view.gameStarted();
 
-        status = ClientStatus.WAITINGFORTURN;
+        setStatus(ClientStatus.WAITINGFORTURN);
         while (socket.isConnectedToServer()) {
             currentAction = view.takeInput(this);
 
@@ -528,29 +528,29 @@ public class Client {
                 case MOVE_STUDENTS_ISLAND -> {
                     boolean actionOk = moveStudentsRegular(true);
                     if (actionOk && totalStudentsInTurn == 3) {
-                        status = ClientStatus.MOVINGMOTHERNATURE;
+                        setStatus(ClientStatus.MOVINGMOTHERNATURE);
                         totalStudentsInTurn = 0;
                     } else if (!actionOk) view.displayError("e.impossibleStudents");
                 }
                 case MOVE_STUDENTS_DINING -> {
                     boolean actionOk = moveStudentsRegular(false);
                     if (actionOk && totalStudentsInTurn == 3) {
-                        status = ClientStatus.MOVINGMOTHERNATURE;
+                        setStatus(ClientStatus.MOVINGMOTHERNATURE);
                         totalStudentsInTurn = 0;
                     } else if (!actionOk) view.displayError("e.impossibleStudents");
                 }
                 case MOVE_MOTHER_NATURE -> {
-                    if (moveMotherNature()) status = ClientStatus.CHOOSINGCLOUD;
+                    if (moveMotherNature()) setStatus(ClientStatus.CHOOSINGCLOUD);
                     else view.displayError("e.impossibleMotherNature");
                 }
                 case CHOOSE_CLOUD -> {
                     if (chooseCloud()) {
                         view.displayImportant("You have finished your turn");
-                        status = ClientStatus.WAITINGFORTURN;
+                        setStatus(ClientStatus.WAITINGFORTURN);
                     } else view.displayError("e.impossibleCloud");
                 }
                 case PLAY_ASSISTANT -> {
-                    if (playAssistant()) status = ClientStatus.WAITINGFORTURN;
+                    if (playAssistant()) setStatus(ClientStatus.WAITINGFORTURN);
                     else view.displayError(messagesConstants.getProperty("e.impossibleAssistant"));
                 }
                 case PLAY_CHARACTER -> {

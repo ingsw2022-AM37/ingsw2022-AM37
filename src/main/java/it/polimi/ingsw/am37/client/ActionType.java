@@ -3,6 +3,10 @@ package it.polimi.ingsw.am37.client;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents all the available actions that a player can take with a short string description that is used by CLI to
+ * describe the action. Note that not all actions are performable
+ */
 public enum ActionType {
     SHOW_MENU("Show this menu again"),
     SHOW_TABLE("Show the table"),
@@ -25,7 +29,18 @@ public enum ActionType {
         this.description = description;
     }
 
-    public static List<ActionType> getActionByStatus(ClientStatus status, boolean advancedRules) {
+    private final static List<ActionType> availableActions = new ArrayList<>();
+
+    public static List<ActionType> getActions() {
+        return availableActions;
+    }
+
+    public static void updateAvailableAction(ClientStatus status, boolean advancedRules) {
+        availableActions.clear();
+        availableActions.addAll(getActionByStatus(status, advancedRules));
+    }
+
+    private static List<ActionType> getActionByStatus(ClientStatus status, boolean advancedRules) {
         List<ActionType> list = new ArrayList<>(List.of(
                 SHOW_MENU,
                 SHOW_TABLE,
@@ -41,6 +56,7 @@ public enum ActionType {
                 case MOVINGSTUDENTS -> {
                     list.add(MOVE_STUDENTS_ISLAND);
                     list.add(MOVE_STUDENTS_DINING);
+                    list.add(MOVE_STUDENTS_UNDEFINED);
                 }
                 case MOVINGMOTHERNATURE -> list.add(MOVE_MOTHER_NATURE);
                 case CHOOSINGCLOUD -> list.add(CHOOSE_CLOUD);

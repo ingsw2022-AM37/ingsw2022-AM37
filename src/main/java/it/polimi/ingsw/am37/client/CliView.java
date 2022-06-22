@@ -661,11 +661,11 @@ public class CliView extends AbstractView {
      * @return Player's command at any time
      */
     public ActionType takeInput(Client client) {
-        List<ActionType> actions = ActionType.getActionByStatus(client.getStatus(), client.getSettings()
-                .advancedRulesEnabled());
+        List<ActionType> actions = ActionType.getActions();
         System.out.flush();
         System.out.println("Current available actions:");
         for (int i = 0; i < actions.size(); i++) {
+            if (actions.get(i).description.isBlank()) continue;
             System.out.println(ansi().a("\t").bold().a(i).reset().a(":\t" + actions.get(i).description));
         }
         System.out.print("Please insert the number of the desired action: ");
