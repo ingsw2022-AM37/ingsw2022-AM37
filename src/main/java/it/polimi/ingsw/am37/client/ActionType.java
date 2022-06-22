@@ -13,6 +13,7 @@ public enum ActionType {
     CLOSE_GAME("Close the game"),
     MOVE_STUDENTS_ISLAND("Move some students to island"),
     MOVE_STUDENTS_DINING("Move some students to dining room of your board"),
+    MOVE_STUDENTS_UNDEFINED(""),
     MOVE_MOTHER_NATURE("Move mother nature"),
     CHOOSE_CLOUD("Choose a cloud to pick students from"),
     PLAY_ASSISTANT("Play an assistant"),
