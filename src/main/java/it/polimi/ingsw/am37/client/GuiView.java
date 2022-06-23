@@ -60,23 +60,17 @@ public class GuiView extends AbstractView {
         return observer.getLastRetrievedObjectId();
     }
 
-    /**
-     * @return the reduced model of the view
-     */
     @Override
-    public ReducedModel getReducedModel() {
-        return super.getReducedModel();
-    }
-
-    /**
-     * Method used to display the last Assistant played except the client's one
-     *
-     * @param players      the players to show the last assistant played
-     * @param playerToSkip the player to skip
-     */
-    @Override
-    public void showLastAssistantPlayed(Collection<Player> players, Player playerToSkip) {
-
+    public boolean askDestination() {
+        while (true) {
+            try {
+                GuiObserver.ClickableObjectType objectType = observer.takeClickedObjectEnum();
+                if (objectType == GuiObserver.ClickableObjectType.CO_ISLAND) return true;
+                else if (objectType == GuiObserver.ClickableObjectType.CO_DINING) return false;
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     /**
@@ -109,6 +103,15 @@ public class GuiView extends AbstractView {
         return ((ConnectionController) SceneController.getActiveController()).getConnectionParameters();
     }
 
+    /**
+     * @param assistant the assistant chosen by the players
+     * @return Where mother nature has to go
+     */
+    @Override
+    public int askMotherNature(Assistant assistant) {
+        return askIsland();
+    }
+
     @Override
     public Client.LobbyParameters askLobbyParameters() {
         return ((EnterInGameController) SceneController.getActiveController()).getLobbyParameters();
@@ -120,22 +123,21 @@ public class GuiView extends AbstractView {
     }
 
     /**
-     * @param assistant the assistant chosen by the players
-     * @return Where mother nature has to go
-     */
-    @Override
-    public int askMotherNature(Assistant assistant) {
-        return 0;
-    }
-
-    /**
      * Method used to ask which player you want to look at
      *
      * @return chosen player
      */
     @Override
     public Player askPlayer() {
-        return null;
+        throw new IllegalStateException("Only CLI method called in GUI");
+    }
+
+    /**
+     * Show all the character of this match
+     */
+    @Override
+    public void showCharacters() {
+        throw new IllegalStateException("Only CLI method called in GUI");
     }
 
     @Override
@@ -205,39 +207,13 @@ public class GuiView extends AbstractView {
     }
 
     /**
-     * Method to notify if client or server has lost the connection
-     */
-    @Override
-    public void notifyInternetCrash() {
-
-    }
-
-    /**
-     * Show the winner of the match
-     *
-     * @param nick the winner player
-     */
-    @Override
-    public void printWinner(String nick) {
-
-    }
-
-    /**
-     * Show all the character of this match
-     */
-    @Override
-    public void showCharacters() {
-
-    }
-
-    /**
      * Method used to display connection info
      *
      * @param client the client to show info about
      */
     @Override
     public void showConnection(Client client) {
-
+        throw new IllegalStateException("Only CLI method called in GUI");
     }
 
     /**
@@ -247,7 +223,18 @@ public class GuiView extends AbstractView {
      */
     @Override
     public void showDeck(Player player) {
+        throw new IllegalStateException("Only CLI method called in GUI");
+    }
 
+    /**
+     * Method used to display the last Assistant played except the client's one
+     *
+     * @param players      the players to show the last assistant played
+     * @param playerToSkip the player to skip
+     */
+    @Override
+    public void showLastAssistantPlayed(Collection<Player> players, Player playerToSkip) {
+        throw new IllegalStateException("Only CLI method called in GUI");
     }
 
     /**
@@ -258,7 +245,7 @@ public class GuiView extends AbstractView {
      */
     @Override
     public void showPlayerStatus(Player player, boolean advancedRules) {
-
+        throw new IllegalStateException("Only CLI method called in GUI");
     }
 
     /**
@@ -266,7 +253,7 @@ public class GuiView extends AbstractView {
      */
     @Override
     public void showPlayersNicknames() {
-
+        throw new IllegalStateException("Only CLI method called in GUI");
     }
 
     /**
@@ -274,7 +261,7 @@ public class GuiView extends AbstractView {
      */
     @Override
     public void showTable() {
-
+        throw new IllegalStateException("Only CLI method called in GUI");
     }
 
     /**
@@ -284,7 +271,7 @@ public class GuiView extends AbstractView {
      */
     @Override
     public void showPossibleIslandDestination(Assistant assistant) {
-
+        throw new IllegalStateException("Only CLI method called in GUI");
     }
 
     /**
@@ -315,27 +302,11 @@ public class GuiView extends AbstractView {
     }
 
     /**
-     * Method used to tell the player he is waiting for the match
-     */
-    @Override
-    public void waitingMatch() {
-
-    }
-
-    /**
      * Generic notification of an input error
      */
     @Override
     public void wrongInsert() {
-
-    }
-
-    /**
-     * Notify when a string between "cli" or "gui" was expected but another string was given
-     */
-    @Override
-    public void wrongInsertGraphics() {
-
+        throw new IllegalStateException("Only CLI method called in GUI");
     }
 
     /**
@@ -344,13 +315,6 @@ public class GuiView extends AbstractView {
     @Override
     public void wrongInsertPort() {
         displayError("You haven't written a number as server's port");
-    }
-
-    /**
-     * Notify when requested server is unreachable
-     */
-    public void wrongServer() {
-        displayError("This server is unreachable");
     }
 
     /**

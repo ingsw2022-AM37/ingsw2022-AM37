@@ -119,20 +119,6 @@ public class CliView extends AbstractView {
     }
 
     /**
-     * Notify when a string between "cli" or "gui" was expected but another string was given
-     */
-    public void wrongInsertGraphics() {
-        displayError("You had to choose between \"cli\" or \"gui\"");
-    }
-
-    /**
-     * Notify when requested server is unreachable
-     */
-    public void wrongServer() {
-        displayError("This server is unreachable");
-    }
-
-    /**
      * Method used to ask if player wants to use default parameters for connection
      *
      * @return Client's response
@@ -189,13 +175,19 @@ public class CliView extends AbstractView {
     }
 
     @Override
+    public boolean askDestination() {
+        throw new IllegalStateException("Only GUI method called in CLI mode");
+    }
+
+    @Override
     public Client.LobbyParameters askLobbyParameters() {
         Boolean advancedRules = askConfirm(
                 "Do you want to play with advanced rules?");
         if (advancedRules == null) return null;
         int numPlayers = 0;
         while (numPlayers != 2 && numPlayers != 3) {
-            System.out.print(ansi().render("Enter whether you want to play with @|bold,italic two|@ or @|bold,italic three|@ players or write @|bold,italic exit|@: "));
+            System.out.print(ansi().render("Enter whether you want to play with @|bold,italic two|@ or @|bold,italic " +
+                    "three|@ players or write @|bold,italic exit|@: "));
             String input = new Scanner(System.in).nextLine().trim().replaceAll(" +", " ");
             switch (input.toLowerCase()) {
                 case "two", "2" -> numPlayers = 2;
@@ -716,32 +708,11 @@ public class CliView extends AbstractView {
     }
 
     /**
-     * Method used to tell the player he is waiting for the match
-     */
-    public void waitingMatch() {
-        System.out.println("You are now waiting for the start of the game");
-    }
-
-    /**
      * Method to tell the player the game has begun
      */
     public void gameStarted() {
         displayImportant(messagesConstants.getProperty("i.gameStart"));
     }
 
-    /**
-     * @param nick the winner player
-     */
-    public void printWinner(String nick) {
-        System.out.println(nick.toUpperCase() + " has won the game!!!");
 
-    }
-
-    /**
-     * @return the reduced model of the view
-     */
-    @Override
-    public ReducedModel getReducedModel() {
-        return super.getReducedModel();
-    }
 }

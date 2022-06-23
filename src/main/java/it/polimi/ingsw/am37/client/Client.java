@@ -340,13 +340,16 @@ public class Client {
      * @return if action has accepted or reject by the server
      * @see ActionType
      */
-    private boolean moveStudentsRegular(boolean isToIsland) {
+    private boolean moveStudentsRegular(Boolean isToIsland) {
         StudentsContainer container = view.askStudentsFromEntrance(this, 0);
         if (container == null) {
             view.displayError("Students error");
             return false;
         } else {
             Message message;
+            if (isToIsland == null) {
+                isToIsland = view.askDestination();
+            }
             if (isToIsland) {
                 message = new StudentsToIslandMessage(UUID, container, view.askIsland());
             } else {
