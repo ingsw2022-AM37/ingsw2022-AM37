@@ -168,7 +168,7 @@ public class Client {
         this.port = Integer.parseInt(port);
         ActiveLobbiesMessage activeLobbiesMessage;
         try {
-            activeLobbiesMessage = (ActiveLobbiesMessage) socket.getMessageBuffer().take();
+            activeLobbiesMessage = (ActiveLobbiesMessage) socket.getResponseBuffer().take();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -379,9 +379,9 @@ public class Client {
         boolean isError = false;
         try {
             do {
-                message = socket.getMessageBuffer().take();
+                message = socket.getResponseBuffer().take();
                 isError = message.getMessageType() == MessageType.ERROR || isError;
-            } while (socket.getMessageBuffer().size() > 0);
+            } while (socket.getResponseBuffer().size() > 0);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
