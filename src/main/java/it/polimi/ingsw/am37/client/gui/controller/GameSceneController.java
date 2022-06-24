@@ -176,9 +176,9 @@ public class GameSceneController extends GenericController {
             new Image(Objects.requireNonNull(getClass().getResourceAsStream(
                     "/assets/images" + "/RedTeacher.png")))));
     private final Map<FactionColor, Coordinate> profCoordinateFromColor = Map.ofEntries(entry(FactionColor.BLUE,
-            new Coordinate(55, 636)), entry(FactionColor.PINK, new Coordinate(115, 117)), entry(FactionColor.GREEN,
-            new Coordinate(295, 117)), entry(FactionColor.YELLOW, new Coordinate(175, 117)), entry(FactionColor.RED,
-            new Coordinate(235, 117)));
+            new Coordinate(55, 636)), entry(FactionColor.PINK, new Coordinate(115, 636)), entry(FactionColor.GREEN,
+            new Coordinate(295, 636)), entry(FactionColor.YELLOW, new Coordinate(175, 636)), entry(FactionColor.RED,
+            new Coordinate(235, 636)));
 
     private final Map<FactionColor, Coordinate> studentShiftsForCharacter = Map.ofEntries(entry(FactionColor.BLUE,
             new Coordinate(98, 31)), entry(FactionColor.PINK, new Coordinate(15, 101)), entry(FactionColor.GREEN,
@@ -202,10 +202,10 @@ public class GameSceneController extends GenericController {
                     "/assets/images" + "/RedStudent.png")))));
 
     private final Map<FactionColor, Coordinate> studentDiningFirstCoordinatesFromColor =
-            Map.ofEntries(entry(FactionColor.BLUE, new Coordinate(57, 117)), entry(FactionColor.PINK,
-                            new Coordinate(116, 117)), entry(FactionColor.GREEN, new Coordinate(293, 117)),
-                    entry(FactionColor.YELLOW, new Coordinate(175, 117)), entry(FactionColor.RED, new Coordinate(234,
-                            117)));
+            Map.ofEntries(entry(FactionColor.BLUE, new Coordinate(57, 177)), entry(FactionColor.PINK,
+                            new Coordinate(116, 177)), entry(FactionColor.GREEN, new Coordinate(293, 177)),
+                    entry(FactionColor.YELLOW, new Coordinate(175, 177)), entry(FactionColor.RED, new Coordinate(234,
+                            177)));
 
     private final Map<TowerColor, Image> towerImageFromColor = Map.ofEntries(entry(TowerColor.BLACK,
             new Image(Objects.requireNonNull(getClass().getResourceAsStream(
