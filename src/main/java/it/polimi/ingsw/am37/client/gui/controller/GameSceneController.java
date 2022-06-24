@@ -5,6 +5,7 @@ import it.polimi.ingsw.am37.model.character.Character;
 import it.polimi.ingsw.am37.model.character.Effect;
 import javafx.event.ActionEvent;
 import javafx.geometry.Bounds;
+import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -252,6 +253,7 @@ public class GameSceneController extends GenericController {
 
     public GameSceneController() {
         motherNature.setOnMouseClicked(this::motherNatureClicked);
+        motherNature.setCursor(Cursor.HAND);
     }
 
     public void assistantDeckClicked(MouseEvent mouseEvent) {
@@ -330,6 +332,7 @@ public class GameSceneController extends GenericController {
             ImageView imageView = new ImageView();
             imageView.setId(CHARACTER_PREFIX + c.getEffectType());
             imageView.setOnMouseClicked(this::characterClicked);
+            imageView.setCursor(Cursor.HAND);
             imageView.setImage(characterImageFromName.get(c.getEffectType().getCharacterName()));
             drawWithDimension(assistantAndCharacterDimension, imageView);
             charactersHBox.getChildren().add(imageView);
@@ -454,6 +457,7 @@ public class GameSceneController extends GenericController {
             temp.setImage(cloudImage);
             temp.setId(CLOUD_PREFIX + clouds.get(i).getCloudId());
             temp.setOnMouseClicked(this::cloudClicked);
+            temp.setCursor(Cursor.HAND);
             drawWithDimension(cloudDimension, temp);
             drawWithCoordinateDisablingAnimation(cloudsCoordinate.get(i), temp);
             wallpaperPane.getChildren().add(temp);
@@ -498,6 +502,7 @@ public class GameSceneController extends GenericController {
             ImageView imageView = new ImageView();
             imageView.setId(DECK_PREFIX + assistants.get(currentAssistant).getCardValue());
             imageView.setOnMouseClicked(this::assistantDeckClicked);
+            imageView.setCursor(Cursor.HAND);
             imageView.setImage(assistantImageFromValue.get(assistants.get(currentAssistant).getCardValue()));
             drawWithDimension(assistantAndCharacterDimension, imageView);
             assistantsGrid.add(imageView, currentAssistant % 4, currentAssistant / 4);
@@ -600,6 +605,7 @@ public class GameSceneController extends GenericController {
             ImageView temp = new ImageView();
             temp.setId(ISLAND_PREFIX + islands.get(i).getIslandId());
             temp.setOnMouseClicked(this::islandClicked);
+            temp.setCursor(Cursor.HAND);
             temp.setImage(islandImage.get(numIslandImage));
             numIslandImage++;
             if (numIslandImage == islandImage.size()) numIslandImage = 0;
