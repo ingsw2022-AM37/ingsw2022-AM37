@@ -2,6 +2,7 @@ package it.polimi.ingsw.am37.client;
 
 import it.polimi.ingsw.am37.message.*;
 import it.polimi.ingsw.am37.model.FactionColor;
+import it.polimi.ingsw.am37.model.GameManager;
 import it.polimi.ingsw.am37.model.Island;
 import it.polimi.ingsw.am37.model.Player;
 import it.polimi.ingsw.am37.model.character.Character;
@@ -100,8 +101,8 @@ public class Client {
      */
     private ClientSocket socket;
     /**
-     * This is used by internal {@link Client#hasReceivedError()} to store the read message for further processing by some
-     * other functions.
+     * This is used by internal {@link Client#hasReceivedError()} to store the read message for further processing by
+     * some other functions.
      */
     private Message lastReadMessage;
     /**
@@ -341,24 +342,30 @@ public class Client {
      * @see ActionType
      */
     private boolean moveStudentsRegular(Boolean isToIsland) {
-        StudentsContainer container = view.askStudentsFromEntrance(this, 0);
-        if (container == null) {
-            view.displayError("Students error");
-            return false;
-        } else {
-            Message message;
-            if (isToIsland == null) {
-                isToIsland = view.askDestination();
-            }
-            if (isToIsland) {
-                message = new StudentsToIslandMessage(UUID, container, view.askIsland());
+        StudentsContainer container = null;
+        while (true) {
+            container = view.askStudentsFromEntrance(this, 0);
+            if (container == null ||
+                    !view.getReducedModel().getBoards().get(nickname).getEntrance().contains(container)) {
+                view.displayError("Students error");
             } else {
-                message = new StudentsToDiningMessage(UUID, container);
+                break;
             }
-            socket.sendMessage(message);
-            return !hasReceivedError();
         }
+        Message message;
+        if (isToIsland == null) {
+            isToIsland = view.askDestination();
+        }
+        if (isToIsland) {
+            message = new StudentsToIslandMessage(UUID, container, view.askIsland());
+        } else {
+            message = new StudentsToDiningMessage(UUID, container);
+        }
+        socket.sendMessage(message);
+        return !hasReceivedError();
+
     }
+
 
     /**
      * Method used to check if the last action performed have been successful or not. More formally returns {@code true}
@@ -403,7 +410,8 @@ public class Client {
      */
     private boolean playCharacter() {
         Player currentPlayer = view.getReducedModel().getPlayers().get(nickname);
-        view.displayImportant("You have " + currentPlayer.getNumberOfCoins() + (currentPlayer.getNumberOfCoins() == 1 ? " coin" : " coins"));
+        view.displayImportant("You have " + currentPlayer.getNumberOfCoins() +
+                (currentPlayer.getNumberOfCoins() == 1 ? " coin" : " coins"));
         view.showCharacters();
         Effect effect = view.askCharacter();
         Character character = view.getReducedModel()
@@ -440,7 +448,8 @@ public class Client {
                 final int JESTER_STUDENTS = 3;
                 LimitedStudentsContainer container1 =
                         (LimitedStudentsContainer) view.askStudentsFromCharacter(character, JESTER_STUDENTS, this);
-                LimitedStudentsContainer container2 = (LimitedStudentsContainer) view.askStudentsFromEntrance(this, JESTER_STUDENTS);
+                LimitedStudentsContainer container2 = (LimitedStudentsContainer) view.askStudentsFromEntrance(this,
+                        JESTER_STUDENTS);
                 if (container1 == null || container2 == null) return false;
                 else oBuilder.primaryContainer(container1).secondaryContainer(container2);
                 oBuilder.intPar(JESTER_STUDENTS);
@@ -452,8 +461,10 @@ public class Client {
             }
             case MINSTREL -> {
                 final int MINSTREL_STUDENTS = 2;
-                LimitedStudentsContainer container1 = (LimitedStudentsContainer) view.askStudentsFromEntrance(this, MINSTREL_STUDENTS);
-                LimitedStudentsContainer container2 = (LimitedStudentsContainer) view.askStudentFromDining(this, MINSTREL_STUDENTS);
+                LimitedStudentsContainer container1 = (LimitedStudentsContainer) view.askStudentsFromEntrance(this,
+                        MINSTREL_STUDENTS);
+                LimitedStudentsContainer container2 = (LimitedStudentsContainer) view.askStudentFromDining(this,
+                        MINSTREL_STUDENTS);
                 if (container1 == null || container2 == null) return false;
                 else oBuilder.primaryContainer(container1).secondaryContainer(container2);
                 oBuilder.intPar(MINSTREL_STUDENTS);
@@ -530,14 +541,21 @@ public class Client {
                 }
                 case MOVE_STUDENTS_ISLAND -> {
                     boolean actionOk = moveStudentsRegular(true);
-                    if (actionOk && totalStudentsInTurn == 3) {
+                    if (actionOk && totalStudentsInTurn == GameManager.MAX_FOR_MOVEMENTS) {
                         setStatus(ClientStatus.MOVINGMOTHERNATURE);
                         totalStudentsInTurn = 0;
                     } else if (!actionOk) view.displayError("e.impossibleStudents");
                 }
                 case MOVE_STUDENTS_DINING -> {
                     boolean actionOk = moveStudentsRegular(false);
-                    if (actionOk && totalStudentsInTurn == 3) {
+                    if (actionOk && totalStudentsInTurn == GameManager.MAX_FOR_MOVEMENTS) {
+                        setStatus(ClientStatus.MOVINGMOTHERNATURE);
+                        totalStudentsInTurn = 0;
+                    } else if (!actionOk) view.displayError("e.impossibleStudents");
+                }
+                case MOVE_STUDENTS_UNDEFINED -> {
+                    boolean actionOk = moveStudentsRegular(null);
+                    if (actionOk && totalStudentsInTurn == GameManager.MAX_FOR_MOVEMENTS) {
                         setStatus(ClientStatus.MOVINGMOTHERNATURE);
                         totalStudentsInTurn = 0;
                     } else if (!actionOk) view.displayError("e.impossibleStudents");

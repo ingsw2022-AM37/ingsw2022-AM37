@@ -2,6 +2,7 @@ package it.polimi.ingsw.am37.client;
 
 import it.polimi.ingsw.am37.client.gui.GuiApp;
 import it.polimi.ingsw.am37.client.gui.SceneController;
+import it.polimi.ingsw.am37.client.gui.controller.ChooseNumStudentsController;
 import it.polimi.ingsw.am37.client.gui.controller.ConnectionController;
 import it.polimi.ingsw.am37.client.gui.controller.EnterInGameController;
 import it.polimi.ingsw.am37.client.gui.controller.GameSceneController;
@@ -10,14 +11,22 @@ import it.polimi.ingsw.am37.message.UpdateMessage;
 import it.polimi.ingsw.am37.model.*;
 import it.polimi.ingsw.am37.model.character.Character;
 import it.polimi.ingsw.am37.model.character.Effect;
+import it.polimi.ingsw.am37.model.student_container.FixedUnlimitedStudentsContainer;
 import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReference;
 
 @SuppressWarnings("ALL")
 public class GuiView extends AbstractView {
@@ -33,6 +42,14 @@ public class GuiView extends AbstractView {
      */
     @Override
     public int askAssistant(Client client) {
+        while (observer.getLastClickedObject() != GuiObserver.ClickableObjectType.CO_ASSISTANT) {
+            System.err.println("Unexpected object clicked: " + observer.getLastClickedObject());
+            try {
+                observer.nextClickedObjectType();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
         return Integer.parseInt(observer.getLastRetrievedObjectId());
     }
 
@@ -49,6 +66,14 @@ public class GuiView extends AbstractView {
      */
     @Override
     public Effect askCharacter() {
+        while (observer.getLastClickedObject() != GuiObserver.ClickableObjectType.CO_CHARACTER) {
+            System.err.println("Unexpected object clicked: " + observer.getLastClickedObject());
+            try {
+                observer.nextClickedObjectType();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
         return Effect.valueOf(observer.getLastRetrievedObjectId());
     }
 
@@ -57,20 +82,32 @@ public class GuiView extends AbstractView {
      */
     @Override
     public String askCloud() {
+        while (observer.getLastClickedObject() != GuiObserver.ClickableObjectType.CO_CLOUD) {
+            System.err.println("Unexpected object clicked: " + observer.getLastClickedObject());
+            try {
+                observer.nextClickedObjectType();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
         return observer.getLastRetrievedObjectId();
     }
 
     @Override
     public boolean askDestination() {
-        while (true) {
-            try {
-                GuiObserver.ClickableObjectType objectType = observer.takeClickedObjectEnum();
-                if (objectType == GuiObserver.ClickableObjectType.CO_ISLAND) return true;
-                else if (objectType == GuiObserver.ClickableObjectType.CO_DINING) return false;
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+        GuiObserver.ClickableObjectType objectType = null;
+        try {
+            objectType = observer.nextClickedObjectType();
+            while (objectType != GuiObserver.ClickableObjectType.CO_ISLAND &&
+                    objectType != GuiObserver.ClickableObjectType.CO_DINING) {
+                objectType = observer.nextClickedObjectType();
             }
+            if (objectType == GuiObserver.ClickableObjectType.CO_ISLAND) return true;
+            else if (objectType == GuiObserver.ClickableObjectType.CO_DINING) return false;
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
+        throw new IllegalStateException("Should not reach this point");
     }
 
     /**
@@ -109,7 +146,14 @@ public class GuiView extends AbstractView {
      */
     @Override
     public int askMotherNature(Assistant assistant) {
-        return askIsland();
+        while (true) {
+            try {
+                if (observer.nextClickedObjectType() == GuiObserver.ClickableObjectType.CO_ISLAND) break;
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return Integer.parseInt(observer.getLastRetrievedObjectId());
     }
 
     @Override
@@ -137,7 +181,6 @@ public class GuiView extends AbstractView {
      */
     @Override
     public void showCharacters() {
-        throw new IllegalStateException("Only CLI method called in GUI");
     }
 
     @Override
@@ -164,7 +207,48 @@ public class GuiView extends AbstractView {
      */
     @Override
     public StudentsContainer askStudentsFromEntrance(Client client, int num) {
-        return null;
+        StudentsContainer container;
+        while (true) {
+            int studentsToMove = (num == 0 ? (GameManager.MAX_FOR_MOVEMENTS - client.getTotalStudentsInTurn()) : num);
+            container = askStudents(studentsToMove, reducedModel.getBoards().get(client.getNickname()).getEntrance());
+            if (num == 0 ? container.size() > studentsToMove : container.size() != num) {
+                displayError(client.getMessageString("e.toManyStudents"));
+                continue;
+            }
+            if (num == 0) {
+                client.addTotalStudentsInTurn(container.size());
+                if (client.getTotalStudentsInTurn() == GameManager.MAX_FOR_MOVEMENTS ||
+                        !askConfirm("Do you want to move more students?")) break;
+            } else if (container.size() == num) break;
+        }
+        return container;
+    }
+
+    /**
+     * @param client the client to get the status of the current player
+     * @return Player's command at any time
+     */
+    @Override
+    public ActionType takeInput(Client client) {
+        List<ActionType> availableActions = ActionType.getActions();
+        ActionType value;
+        while (true) {
+            try {
+                GuiObserver.ClickableObjectType objectType = observer.nextClickedObjectType();
+                value = switch (objectType) {
+                    case CO_ENTRANCE -> ActionType.MOVE_STUDENTS_UNDEFINED;
+                    case CO_ASSISTANT -> ActionType.PLAY_ASSISTANT;
+                    case CO_MOTHER_NATURE -> ActionType.MOVE_MOTHER_NATURE;
+                    case CO_CHARACTER -> ActionType.PLAY_CHARACTER;
+                    case CO_CLOUD -> ActionType.CHOOSE_CLOUD;
+                    default -> null;
+                };
+                if (value != null && availableActions.contains(value)) break;
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return value;
     }
 
     /**
@@ -274,79 +358,9 @@ public class GuiView extends AbstractView {
         throw new IllegalStateException("Only CLI method called in GUI");
     }
 
-    /**
-     * @param client the client to get the status of the current player
-     * @return Player's command at any time
-     */
-    @Override
-    public ActionType takeInput(Client client) {
-        List<ActionType> availableActions = ActionType.getActions();
-        ActionType value;
-        while (true) {
-            try {
-                GuiObserver.ClickableObjectType objectType = observer.takeClickedObjectEnum();
-                value = switch (objectType) {
-                    case CO_ENTRANCE -> ActionType.MOVE_STUDENTS_UNDEFINED;
-                    case CO_ASSISTANT -> ActionType.PLAY_ASSISTANT;
-                    case CO_MOTHER_NATURE -> ActionType.MOVE_MOTHER_NATURE;
-                    case CO_CHARACTER -> ActionType.PLAY_CHARACTER;
-                    case CO_CLOUD -> ActionType.CHOOSE_CLOUD;
-                    default -> null;
-                };
-                if (value != null && availableActions.contains(value)) break;
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        return value;
-    }
-
-    /**
-     * Generic notification of an input error
-     */
-    @Override
-    public void wrongInsert() {
-        throw new IllegalStateException("Only CLI method called in GUI");
-    }
-
-    /**
-     * Notify when a number port is expected but another input was given
-     */
-    @Override
-    public void wrongInsertPort() {
-        displayError("You haven't written a number as server's port");
-    }
-
-    /**
-     * Tell the player it's his turn
-     */
-    @Override
-    public void yourTurn() {
-        displayImportant("It's your turn");
-    }
-
-    @Override
-    public void displayInfo(String message) {
-        Platform.runLater(() -> SceneController.getActiveController().showInfo(message));
-    }
-
-    @Override
-    public void displayImportant(String message) {
-        Platform.runLater(() -> SceneController.getActiveController().showImportant(message));
-    }
-
-    @Override
-    public void displayError(String message) {
-        Platform.runLater(() -> SceneController.getActiveController().showError(message));
-    }
-
     @Override
     public void updateView(UpdateMessage updateMessage, Client client) {
-        reducedModel.update(updateMessage.getUpdatedObjects()
-                .values()
-                .stream()
-                .flatMap(List::stream)
-                .toList());
+        reducedModel.update(updateMessage.getUpdatedObjects().values().stream().flatMap(List::stream).toList());
         if (updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.ISLAND) != null &&
                 updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.ISLAND).size() != 0) {
             Platform.runLater(() -> ((GameSceneController) SceneController.getActiveController()).drawIslands(reducedModel.getIslands()));
@@ -403,14 +417,87 @@ public class GuiView extends AbstractView {
                 //My board drawn ------------------------------
             }
         }
-        if (client.getSettings().advancedRulesEnabled() && updateMessage.getUpdatedObjects(UpdatableObject
-                .UpdatableType.CHARACTER) != null &&
+        if (client.getSettings().advancedRulesEnabled() &&
+                updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.CHARACTER) != null &&
                 updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.CHARACTER).size() != 0) {
-            Platform.runLater(() -> ((GameSceneController) SceneController.getActiveController()).drawCharacters
-                    (updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.CHARACTER)
-                            .stream()
-                            .map(o -> (Character) o)
-                            .toList()));
+            Platform.runLater(() -> ((GameSceneController) SceneController.getActiveController()).drawCharacters(updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.CHARACTER)
+                    .stream()
+                    .map(o -> (Character) o)
+                    .toList()));
         }
+    }
+
+    /**
+     * Generic notification of an input error
+     */
+    @Override
+    public void wrongInsert() {
+        throw new IllegalStateException("Only CLI method called in GUI");
+    }
+
+    /**
+     * Notify when a number port is expected but another input was given
+     */
+    @Override
+    public void wrongInsertPort() {
+        displayError("You haven't written a number as server's port");
+    }
+
+    /**
+     * Tell the player it's his turn
+     */
+    @Override
+    public void yourTurn() {
+        displayImportant("It's your turn");
+    }
+
+    @Override
+    public void displayInfo(String message) {
+        Platform.runLater(() -> SceneController.getActiveController().showInfo(message));
+    }
+
+    @Override
+    public void displayImportant(String message) {
+        Platform.runLater(() -> SceneController.getActiveController().showImportant(message));
+    }
+
+    @Override
+    public void displayError(String message) {
+        Platform.runLater(() -> SceneController.getActiveController().showError(message));
+    }
+
+    /**
+     * This function pop up a container
+     *
+     * @param container
+     * @param studentsToMove
+     */
+    private StudentsContainer askStudents(int studentsToMove, StudentsContainer sourceContainer) {
+        AtomicReference<StudentsContainer> atomicContainer =
+                new AtomicReference<>(new FixedUnlimitedStudentsContainer());
+        displayInfo("You have to move " + studentsToMove + (studentsToMove == 1 ? " student" : " students") +
+                " in this turn");
+        CountDownLatch latch = new CountDownLatch(1);
+        Platform.runLater(() -> {
+            Stage studentsDialog = new Stage();
+            studentsDialog.initModality(Modality.APPLICATION_MODAL);
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/assets/scenes/ChooseNumStudents.fxml"));
+            try {
+                studentsDialog.setScene(new Scene(loader.load()));
+                ChooseNumStudentsController controller = loader.getController();
+                controller.setSourceContainer(sourceContainer);
+                studentsDialog.showAndWait();
+                atomicContainer.set(controller.getStudents());
+                latch.countDown();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        return atomicContainer.get();
     }
 }

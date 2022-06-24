@@ -4,26 +4,29 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.concurrent.LinkedTransferQueue;
-import java.util.concurrent.TransferQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class GuiObserver implements PropertyChangeListener {
     /**
      * A blocking FIFO queue that contains the list of clicked objects not yet processed by the game controller
      */
-    private final TransferQueue<ClickableObjectType> clickedObjectsQueue;
+    private final BlockingQueue<ClickableObjectType> clickedObjectsQueue;
     /**
      * A regular queue that contains the id of
      */
     private final Queue<String> idsQueue;
 
+    private ClickableObjectType lastClickedObject;
+
     /**
      * Default builder of gui observer initializing the queues with needed values
      */
     public GuiObserver() {
-        clickedObjectsQueue = new LinkedTransferQueue<>();
+        clickedObjectsQueue = new LinkedBlockingQueue<>();
         idsQueue = new LinkedList<>();
         idsQueue.add(null);
+        lastClickedObject = null;
     }
 
     /**
@@ -33,6 +36,13 @@ public class GuiObserver implements PropertyChangeListener {
      */
     public String getLastRetrievedObjectId() {
         return idsQueue.peek();
+    }
+
+    /**
+     * @return the last clicked object if is present, or null when none has been clicked
+     */
+    public ClickableObjectType getLastClickedObject() {
+        return lastClickedObject;
     }
 
     /**
@@ -58,10 +68,10 @@ public class GuiObserver implements PropertyChangeListener {
      * @return the first clicked object that needs to be processed
      * @throws InterruptedException if interrupted while waiting
      */
-    public ClickableObjectType takeClickedObjectEnum() throws InterruptedException {
-        ClickableObjectType object = clickedObjectsQueue.take();
+    public ClickableObjectType nextClickedObjectType() throws InterruptedException {
+        lastClickedObject = clickedObjectsQueue.take();
         idsQueue.remove();
-        return object;
+        return lastClickedObject;
     }
 
     /**
