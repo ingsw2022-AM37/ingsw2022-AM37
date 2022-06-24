@@ -75,6 +75,23 @@ public abstract class StudentsContainer {
     public abstract StudentsContainer copy();
 
     /**
+     * Utility method to check if an external container is a subset or equal of this container; more formally, return
+     * {@code false} if the provided container is bigger or has more students of at leas one color, otherwise return
+     * {@code true}
+     *
+     * @param container the student container to check if is a subset or equal
+     * @return true of false if the provided container is a subset or equal of this container
+     */
+    public boolean contains(StudentsContainer container) {
+        if (this.size() < container.size()) return false;
+        for (FactionColor color :
+                FactionColor.values()) {
+            if (this.student[color.getIndex()] < container.student[color.getIndex()]) return false;
+        }
+        return true;
+    }
+
+    /**
      * This method prepare and return a string with a visual representation of the this. {@link FactionColor} are
      * identified by their first letter of color name in english
      *
@@ -85,7 +102,8 @@ public abstract class StudentsContainer {
         String[] studentsString = new String[FactionColor.values().length];
         for (FactionColor color :
                 FactionColor.values()) {
-            studentsString[color.getIndex()] = "@|" + color.color + " "+ student[color.getIndex()] + color.name().charAt(0) + "|@";
+            studentsString[color.getIndex()] =
+                    "@|" + color.color + " " + student[color.getIndex()] + color.name().charAt(0) + "|@";
         }
         stringBuilder.append(String.join(", ", studentsString));
         stringBuilder.append("]");
