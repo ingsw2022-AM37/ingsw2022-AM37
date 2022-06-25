@@ -7,6 +7,7 @@ import it.polimi.ingsw.am37.model.student_container.UnlimitedStudentsContainer;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class ChooseNumStudentsController {
@@ -18,6 +19,7 @@ public class ChooseNumStudentsController {
     public Spinner<Integer> spinner_pink;
     public JFXButton confirm_button;
 
+    public Text label;
     private StudentsContainer container;
 
     public void confirmStudents(ActionEvent actionEvent) {
@@ -34,7 +36,8 @@ public class ChooseNumStudentsController {
         return container;
     }
 
-    public void setSourceContainer(StudentsContainer sourceContainer) {
+    public void setSourceContainer(StudentsContainer sourceContainer, int num) {
+        label.setText(label.getText() + " (Remaining students movements are " + num + "!)");
         try {
             for (FactionColor color : FactionColor.values()) {
                 Spinner<Integer> spinner = (Spinner<Integer>) getClass().getField(

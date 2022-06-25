@@ -417,6 +417,7 @@ public class GameSceneController extends GenericController {
         double additionalX = 0;
         double additionalY = 0;
         ImageView temp = null;
+        boolean firstLine = true;
 
         for (FactionColor color : FactionColor.values()) {
 
@@ -432,10 +433,11 @@ public class GameSceneController extends GenericController {
                 studentsEntranceView.add(temp);
                 posInLine = posInLine + 1;
                 additionalX = additionalX + xSpaceStudents;
-                if (posInLine == firstLineEntranceAndTowersSize) {
+                if (posInLine == firstLineEntranceAndTowersSize && firstLine) {
                     additionalX = 0;
                     posInLine = 0;
                     additionalY = ySpaceStudentsEntrance;
+                    firstLine = false;
                 }
             }
         }
