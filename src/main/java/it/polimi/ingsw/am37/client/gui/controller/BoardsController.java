@@ -57,75 +57,110 @@ public class BoardsController extends GenericController {
     }
 
     private void drawDining(LimitedStudentsContainer diningRoom, int shift) {
-        ImageView imageView;
+
+
+        ImageView temp = null;
+
         for (FactionColor color : FactionColor.values()) {
-            Coordinate firstCoordinate = studentDiningFirstCoordinatesFromColor.get(color);
+
+            double additionalY = 0;
+
             for (int i = 0; i < diningRoom.getByColor(color); i++) {
-                imageView = new ImageView(studentImageFromColor.get(color));
-                imageView.setMouseTransparent(true);
-                drawWithDimension(studentAndProfDimension, imageView);
-                placeObjectNoAnimation(new Coordinate(
-                        firstCoordinate.x() + shift * leftShift,
-                        firstCoordinate.y() + i * ySpaceStudentsDining), imageView);
-                boardsPane.getChildren().add(imageView);
-                diningStudentImageViews.add(imageView);
+
+                temp = new ImageView();
+                temp.setMouseTransparent(true);
+                temp.setImage(studentImageFromColor.get(color));
+                boardsPane.getChildren().add(temp);
+                drawWithDimension(studentAndProfDimension, temp);
+                placeObjectNoAnimation(new Coordinate(studentDiningFirstCoordinatesFromColor.get(color).x() + shift*leftShift,
+                        studentDiningFirstCoordinatesFromColor.get(color).y() + additionalY), temp);
+                diningStudentImageViews.add(temp);
+                additionalY = additionalY + ySpaceStudentsDining;
             }
         }
+
+
+
     }
 
     private void drawEntrance(LimitedStudentsContainer entrance, int shift) {
-        ImageView imageView;
-        int generalIndex = 0;
+
+        int posInLine = 0;
+        double additionalX = 0;
+        double additionalY = 0;
+        ImageView temp = null;
+        boolean firstLine = true;
+
         for (FactionColor color : FactionColor.values()) {
+
             for (int i = 0; i < entrance.getByColor(color); i++) {
-                imageView = new ImageView(studentImageFromColor.get(color));
-                imageView.setMouseTransparent(true);
-                drawWithDimension(studentAndProfDimension, imageView);
+
+                temp = new ImageView();
+                temp.setMouseTransparent(true);
+                temp.setImage(studentImageFromColor.get(color));
+                boardsPane.getChildren().add(temp);
+                drawWithDimension(studentAndProfDimension, temp);
                 placeObjectNoAnimation(new Coordinate(
-                        firstEntranceCoordinate.x() + (generalIndex %
-                                (firstLineEntranceAndTowersSize + (playersNickname.size() > 1 ? 1 : 0))) *
-                                xSpaceStudents +
-                                shift * leftShift,
-                        firstEntranceCoordinate.y() +
-                                (generalIndex < firstLineEntranceAndTowersSize ? 0 : 1) *
-                                        ySpaceStudentsEntrance), imageView);
-                boardsPane.getChildren().add(imageView);
-                entranceStudentImageViews.add(imageView);
-                generalIndex++;
+                        firstEntranceCoordinate.x() + additionalX + shift*leftShift, firstEntranceCoordinate.y() + additionalY), temp);
+                entranceStudentImageViews.add(temp);
+                posInLine = posInLine + 1;
+                additionalX = additionalX + xSpaceStudents;
+                if (posInLine == firstLineEntranceAndTowersSize && firstLine) {
+                    additionalX = 0;
+                    posInLine = 0;
+                    additionalY = ySpaceStudentsEntrance;
+                    firstLine = false;
+                }
             }
         }
+
+
     }
 
     private void drawProfessors(boolean[] profTable, int shift) {
-        ImageView imageView;
-        for (FactionColor color : FactionColor.values()) {
+
+        for (FactionColor color : FactionColor.values())
             if (profTable[color.getIndex()]) {
-                imageView = new ImageView(studentImageFromColor.get(color));
-                imageView.setMouseTransparent(true);
-                drawWithDimension(studentAndProfDimension, imageView);
-                placeObjectNoAnimation(new Coordinate(
-                        profCoordinateFromColor.get(color).x() + shift * leftShift,
-                        profCoordinateFromColor.get(color).y()), imageView);
-                boardsPane.getChildren().add(imageView);
-                professorImageViews.add(imageView);
+                ImageView temp = new ImageView();
+                temp.setImage(profImageFromColor.get(color));
+                boardsPane.getChildren().add(temp);
+                drawWithDimension(studentAndProfDimension, temp);
+                placeObjectNoAnimation(new Coordinate(profCoordinateFromColor.get(color).x()+shift*leftShift,
+                        profCoordinateFromColor.get(color).y()), temp);
+                professorImageViews.add(temp);
             }
-        }
+
+
     }
 
     private void drawTowers(LimitedTowerContainer towers, int shift) {
-        ImageView imageView;
-        TowerColor color = towers.getCurrentTower();
-        for (int i = 0; i < towers.getCurrentSize(); i++) {
-            imageView = new ImageView(towerImageFromColor.get(color));
-            imageView.setMouseTransparent(true);
-            drawWithDimension(towerDimension, imageView);
-            placeObjectNoAnimation(new Coordinate(
-                    firstTowerCoordinate.x() + (i % firstLineEntranceAndTowersSize) * xSpaceTowers + shift * leftShift,
-                    firstTowerCoordinate.y() + (i / firstLineEntranceAndTowersSize) * ySpaceTowers), imageView);
-            boardsPane.getChildren().add(imageView);
-            towerImageViews.add(imageView);
 
+        int posInLine = 0;
+        double additionalX = 0;
+        double additionalY = 0;
+        ImageView temp = null;
+
+
+        for (int i = 0; i < towers.getCurrentSize(); i++) {
+            temp = new ImageView();
+            temp.setImage(towerImageFromColor.get(towers.getCurrentTower()));
+            boardsPane.getChildren().add(temp);
+            drawWithDimension(towerDimension, temp);
+            placeObjectNoAnimation(new Coordinate(
+                    firstTowerCoordinate.x() + additionalX + shift*leftShift, firstTowerCoordinate.y() + additionalY), temp);
+            towerImageViews.add(temp);
+            posInLine = posInLine + 1;
+            additionalX = additionalX + xSpaceTowers;
+            if (posInLine == firstLineEntranceAndTowersSize) {
+                additionalX = 0;
+                posInLine = 0;
+                additionalY = ySpaceTowers;
+            }
         }
+
+
+
+
     }
 
 }
