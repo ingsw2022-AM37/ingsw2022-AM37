@@ -70,6 +70,8 @@ public abstract class AbstractView {
      */
     public abstract Client.ConnectionParameters askConnectionParameters();
 
+    public abstract boolean askDestination();
+
     public abstract Client.LobbyParameters askLobbyParameters();
 
     public abstract int askIsland();
@@ -131,14 +133,16 @@ public abstract class AbstractView {
     /**
      * Method to notify if client or server has lost the connection
      */
-    public abstract void notifyInternetCrash();
+    public void notifyInternetCrash() {
+        displayError("Game has lost the connection, it tried to reconnect but it failed. Game is now closing");
+    }
 
     /**
-     * Show the winner of the match
-     *
      * @param nick the winner player
      */
-    public abstract void printWinner(String nick);
+    public void printWinner(String nick) {
+        displayImportant(nick.toUpperCase() + " has won the game!!!");
+    }
 
     /**
      * Show all the character of this match
@@ -199,19 +203,9 @@ public abstract class AbstractView {
     public abstract ActionType takeInput(Client client);
 
     /**
-     * Method used to tell the player he is waiting for the match
-     */
-    public abstract void waitingMatch();
-
-    /**
      * Generic notification of an input error
      */
     public abstract void wrongInsert();
-
-    /**
-     * Notify when a string between "cli" or "gui" was expected but another string was given
-     */
-    public abstract void wrongInsertGraphics();
 
     /**
      * Notify when a number port is expected but another input was given
@@ -221,7 +215,9 @@ public abstract class AbstractView {
     /**
      * Notify when requested server is unreachable
      */
-    public abstract void wrongServer();
+    public void wrongServer() {
+        displayError("This server is unreachable");
+    }
 
     /**
      * Tell the player it's his turn

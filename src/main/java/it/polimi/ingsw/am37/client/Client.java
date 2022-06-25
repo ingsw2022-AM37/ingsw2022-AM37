@@ -2,6 +2,7 @@ package it.polimi.ingsw.am37.client;
 
 import it.polimi.ingsw.am37.message.*;
 import it.polimi.ingsw.am37.model.FactionColor;
+import it.polimi.ingsw.am37.model.GameManager;
 import it.polimi.ingsw.am37.model.Island;
 import it.polimi.ingsw.am37.model.Player;
 import it.polimi.ingsw.am37.model.character.Character;
@@ -100,8 +101,8 @@ public class Client {
      */
     private ClientSocket socket;
     /**
-     * This is used by internal {@link Client#hasReceivedError()} to store the read message for further processing by some
-     * other functions.
+     * This is used by internal {@link Client#hasReceivedError()} to store the read message for further processing by
+     * some other functions.
      */
     private Message lastReadMessage;
     /**
@@ -130,10 +131,10 @@ public class Client {
                 if (savedProperties.containsKey(P_UUID_KEY) && savedProperties.containsKey(P_LOBBYSIZE_KEY) &&
                         savedProperties.containsKey(P_ADVANCEDRULES_KEY) && savedProperties.containsKey(P_LOBBY_KEY) &&
                         savedProperties.containsKey(P_NICKNAME_KEY)) resilienceUsable = true;
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (NullPointerException e) {
+            } catch (NullPointerException | FileNotFoundException e) {
                 System.err.println("Persistence disabled because file not found");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
         }
         if (resilienceUsable) UUID = savedProperties.getProperty(P_UUID_KEY);
@@ -167,7 +168,7 @@ public class Client {
         this.port = Integer.parseInt(port);
         ActiveLobbiesMessage activeLobbiesMessage;
         try {
-            activeLobbiesMessage = (ActiveLobbiesMessage) socket.getMessageBuffer().take();
+            activeLobbiesMessage = (ActiveLobbiesMessage) socket.getResponseBuffer().take();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -194,12 +195,16 @@ public class Client {
         }
         view.displayImportant(messagesConstants.getProperty("i.waitingStart"));
         if (!debug_disabledResilience) {
-            try (OutputStream stream = new FileOutputStream(resilienceFilePath)) {
-                savedProperties.store(stream,
-                        "This file is for resilience only. DO NOT MODIFY ANY OF THE FOLLOWING " + "LINES\n");
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+            File file = new File(resilienceFilePath);
+            if (file.getParentFile().mkdirs()) {
+                try (OutputStream stream = new FileOutputStream(resilienceFilePath)) {
+                    savedProperties.store(stream,
+                            "This file is for resilience only. DO NOT MODIFY ANY OF THE FOLLOWING " + "LINES\n");
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
+
         }
     }
 
@@ -300,6 +305,7 @@ public class Client {
      */
     public void setStatus(ClientStatus action) {
         status = action;
+        ActionType.updateAvailableAction(status, settings.advancedRulesEnabled);
     }
 
     /**
@@ -339,22 +345,31 @@ public class Client {
      * @return if action has accepted or reject by the server
      * @see ActionType
      */
-    private boolean moveStudentsRegular(boolean isToIsland) {
-        StudentsContainer container = view.askStudentsFromEntrance(this, 0);
-        if (container == null) {
-            view.displayError("Students error");
-            return false;
-        } else {
-            Message message;
-            if (isToIsland) {
-                message = new StudentsToIslandMessage(UUID, container, view.askIsland());
+    private boolean moveStudentsRegular(Boolean isToIsland) {
+        StudentsContainer container = null;
+        while (true) {
+            container = view.askStudentsFromEntrance(this, 0);
+            if (container == null ||
+                    !view.getReducedModel().getBoards().get(nickname).getEntrance().contains(container)) {
+                view.displayError("Students error");
             } else {
-                message = new StudentsToDiningMessage(UUID, container);
+                break;
             }
-            socket.sendMessage(message);
-            return !hasReceivedError();
         }
+        Message message;
+        if (isToIsland == null) {
+            isToIsland = view.askDestination();
+        }
+        if (isToIsland) {
+            message = new StudentsToIslandMessage(UUID, container, view.askIsland());
+        } else {
+            message = new StudentsToDiningMessage(UUID, container);
+        }
+        socket.sendMessage(message);
+        return !hasReceivedError();
+
     }
+
 
     /**
      * Method used to check if the last action performed have been successful or not. More formally returns {@code true}
@@ -368,9 +383,9 @@ public class Client {
         boolean isError = false;
         try {
             do {
-                message = socket.getMessageBuffer().take();
+                message = socket.getResponseBuffer().take();
                 isError = message.getMessageType() == MessageType.ERROR || isError;
-            } while (socket.getMessageBuffer().size() > 0);
+            } while (socket.getResponseBuffer().size() > 0);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -388,7 +403,6 @@ public class Client {
         int val = view.askAssistant(this);
         Message message = new PlayAssistantMessage(UUID, val);
         socket.sendMessage(message);
-
         return !hasReceivedError();
     }
 
@@ -400,7 +414,8 @@ public class Client {
      */
     private boolean playCharacter() {
         Player currentPlayer = view.getReducedModel().getPlayers().get(nickname);
-        view.displayImportant("You have " + currentPlayer.getNumberOfCoins() + (currentPlayer.getNumberOfCoins() == 1 ? " coin" : " coins"));
+        view.displayImportant("You have " + currentPlayer.getNumberOfCoins() +
+                (currentPlayer.getNumberOfCoins() == 1 ? " coin" : " coins"));
         view.showCharacters();
         Effect effect = view.askCharacter();
         if (effect == null) {
@@ -440,7 +455,8 @@ public class Client {
                 final int JESTER_STUDENTS = 3;
                 LimitedStudentsContainer container1 =
                         (LimitedStudentsContainer) view.askStudentsFromCharacter(character, JESTER_STUDENTS, this);
-                LimitedStudentsContainer container2 = (LimitedStudentsContainer) view.askStudentsFromEntrance(this, JESTER_STUDENTS);
+                LimitedStudentsContainer container2 = (LimitedStudentsContainer) view.askStudentsFromEntrance(this,
+                        JESTER_STUDENTS);
                 if (container1 == null || container2 == null) return false;
                 else oBuilder.primaryContainer(container1).secondaryContainer(container2);
                 oBuilder.intPar(JESTER_STUDENTS);
@@ -452,8 +468,10 @@ public class Client {
             }
             case MINSTREL -> {
                 final int MINSTREL_STUDENTS = 2;
-                LimitedStudentsContainer container1 = (LimitedStudentsContainer) view.askStudentsFromEntrance(this, MINSTREL_STUDENTS);
-                LimitedStudentsContainer container2 = (LimitedStudentsContainer) view.askStudentFromDining(this, MINSTREL_STUDENTS);
+                LimitedStudentsContainer container1 = (LimitedStudentsContainer) view.askStudentsFromEntrance(this,
+                        MINSTREL_STUDENTS);
+                LimitedStudentsContainer container2 = (LimitedStudentsContainer) view.askStudentFromDining(this,
+                        MINSTREL_STUDENTS);
                 if (container1 == null || container2 == null) return false;
                 else oBuilder.primaryContainer(container1).secondaryContainer(container2);
                 oBuilder.intPar(MINSTREL_STUDENTS);
@@ -512,7 +530,7 @@ public class Client {
 
         view.gameStarted();
 
-        status = ClientStatus.WAITINGFORTURN;
+        setStatus(ClientStatus.WAITINGFORTURN);
         while (socket.isConnectedToServer()) {
             currentAction = view.takeInput(this);
 
@@ -530,30 +548,37 @@ public class Client {
                 }
                 case MOVE_STUDENTS_ISLAND -> {
                     boolean actionOk = moveStudentsRegular(true);
-                    if (actionOk && totalStudentsInTurn == 3) {
-                        status = ClientStatus.MOVINGMOTHERNATURE;
+                    if (actionOk && totalStudentsInTurn == GameManager.MAX_FOR_MOVEMENTS) {
+                        setStatus(ClientStatus.MOVINGMOTHERNATURE);
                         totalStudentsInTurn = 0;
                     } else if (!actionOk) view.displayError("e.impossibleStudents");
                 }
                 case MOVE_STUDENTS_DINING -> {
                     boolean actionOk = moveStudentsRegular(false);
-                    if (actionOk && totalStudentsInTurn == 3) {
-                        status = ClientStatus.MOVINGMOTHERNATURE;
+                    if (actionOk && totalStudentsInTurn == GameManager.MAX_FOR_MOVEMENTS) {
+                        setStatus(ClientStatus.MOVINGMOTHERNATURE);
+                        totalStudentsInTurn = 0;
+                    } else if (!actionOk) view.displayError("e.impossibleStudents");
+                }
+                case MOVE_STUDENTS_UNDEFINED -> {
+                    boolean actionOk = moveStudentsRegular(null);
+                    if (actionOk && totalStudentsInTurn == GameManager.MAX_FOR_MOVEMENTS) {
+                        setStatus(ClientStatus.MOVINGMOTHERNATURE);
                         totalStudentsInTurn = 0;
                     } else if (!actionOk) view.displayError("e.impossibleStudents");
                 }
                 case MOVE_MOTHER_NATURE -> {
-                    if (moveMotherNature()) status = ClientStatus.CHOOSINGCLOUD;
+                    if (moveMotherNature()) setStatus(ClientStatus.CHOOSINGCLOUD);
                     else view.displayError("e.impossibleMotherNature");
                 }
                 case CHOOSE_CLOUD -> {
                     if (chooseCloud()) {
                         view.displayImportant("You have finished your turn");
-                        status = ClientStatus.WAITINGFORTURN;
+                        setStatus(ClientStatus.WAITINGFORTURN);
                     } else view.displayError("e.impossibleCloud");
                 }
                 case PLAY_ASSISTANT -> {
-                    if (playAssistant()) status = ClientStatus.WAITINGFORTURN;
+                    if (playAssistant()) setStatus(ClientStatus.WAITINGFORTURN);
                     else view.displayError(messagesConstants.getProperty("e.impossibleAssistant"));
                 }
                 case PLAY_CHARACTER -> {

@@ -30,9 +30,11 @@ public class ClientSocket implements Runnable {
     private final Socket socket;
     private final Client client;
     /**
-     * Last received message (different from ping)
+     * This blocking queue contains the response or the status message sent by server after each action; contains only
+     * messages of type {@link ConfirmMessage},{@link ErrorMessage},{@link UpdateMessage} or
+     * {@link ActiveLobbiesMessage}
      */
-    private final BlockingQueue<Message> messageBuffer;
+    private final BlockingQueue<Message> responseBuffer;
     /**
      * Boolean which represents the current state of client's connection
      */
@@ -65,7 +67,7 @@ public class ClientSocket implements Runnable {
         socket = new Socket(address, port);
         connectedToServer = true;
         this.client = client;
-        this.messageBuffer = new LinkedBlockingQueue<>();
+        this.responseBuffer = new LinkedBlockingQueue<>();
         setInputAndOutput();
     }
 
@@ -104,8 +106,8 @@ public class ClientSocket implements Runnable {
         return connectedToServer;
     }
 
-    public BlockingQueue<Message> getMessageBuffer() {
-        return messageBuffer;
+    public BlockingQueue<Message> getResponseBuffer() {
+        return responseBuffer;
     }
 
     /**
@@ -184,7 +186,6 @@ public class ClientSocket implements Runnable {
                     .fromJson(json, Message.class);
             timer.cancel();
             if (message.getMessageType() != MessageType.PING) {
-                messageBuffer.add(message);
                 switch (message.getMessageType()) {
                     case START_GAME -> {
                         synchronized (client) {
@@ -197,6 +198,7 @@ public class ClientSocket implements Runnable {
                         client.getView().yourTurn();
                     }
                     case UPDATE -> {
+                        responseBuffer.add(message);
                         UpdateMessage updateMessage = (UpdateMessage) message;
                         client.getView()
                                 .updateView(updateMessage, client);
@@ -213,6 +215,7 @@ public class ClientSocket implements Runnable {
                         }
                     }
                     case END_GAME -> client.getView().printWinner(((EndGameMessage) message).getWinnerNickname());
+                    case CONFIRM, ERROR, ACTIVE_LOBBIES -> responseBuffer.add(message);
                 }
             }
         } catch (IOException e) {
@@ -231,11 +234,12 @@ public class ClientSocket implements Runnable {
     }
 
     /**
-     * Send a message to the server; if any error occur disconnect the socket
+     * Send a message to the server and clear the queue of read message; if any error occur disconnect the socket
      *
      * @param message the message to be sent
      */
     public void sendMessage(Message message) {
+        responseBuffer.clear();
         if (connectedToServer) {
             String json = defaultMessageSerializer.toJson(message);
             Timer timer = new Timer();

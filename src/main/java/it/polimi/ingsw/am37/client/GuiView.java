@@ -2,6 +2,7 @@ package it.polimi.ingsw.am37.client;
 
 import it.polimi.ingsw.am37.client.gui.GuiApp;
 import it.polimi.ingsw.am37.client.gui.SceneController;
+import it.polimi.ingsw.am37.client.gui.controller.ChooseNumStudentsController;
 import it.polimi.ingsw.am37.client.gui.controller.ConnectionController;
 import it.polimi.ingsw.am37.client.gui.controller.EnterInGameController;
 import it.polimi.ingsw.am37.client.gui.controller.GameSceneController;
@@ -10,14 +11,22 @@ import it.polimi.ingsw.am37.message.UpdateMessage;
 import it.polimi.ingsw.am37.model.*;
 import it.polimi.ingsw.am37.model.character.Character;
 import it.polimi.ingsw.am37.model.character.Effect;
+import it.polimi.ingsw.am37.model.student_container.FixedUnlimitedStudentsContainer;
 import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReference;
 
 @SuppressWarnings("ALL")
 public class GuiView extends AbstractView {
@@ -33,7 +42,15 @@ public class GuiView extends AbstractView {
      */
     @Override
     public int askAssistant(Client client) {
-        return 0;
+        while (observer.getLastClickedObject() != GuiObserver.ClickableObjectType.CO_ASSISTANT) {
+            System.err.println("Unexpected object clicked: " + observer.getLastClickedObject());
+            try {
+                observer.nextClickedObjectType();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return Integer.parseInt(observer.getLastRetrievedObjectId());
     }
 
     public GuiView() {
@@ -49,7 +66,15 @@ public class GuiView extends AbstractView {
      */
     @Override
     public Effect askCharacter() {
-        return null;
+        while (observer.getLastClickedObject() != GuiObserver.ClickableObjectType.CO_CHARACTER) {
+            System.err.println("Unexpected object clicked: " + observer.getLastClickedObject());
+            try {
+                observer.nextClickedObjectType();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return Effect.valueOf(observer.getLastRetrievedObjectId());
     }
 
     /**
@@ -57,26 +82,32 @@ public class GuiView extends AbstractView {
      */
     @Override
     public String askCloud() {
-        return null;
+        while (observer.getLastClickedObject() != GuiObserver.ClickableObjectType.CO_CLOUD) {
+            System.err.println("Unexpected object clicked: " + observer.getLastClickedObject());
+            try {
+                observer.nextClickedObjectType();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return observer.getLastRetrievedObjectId();
     }
 
-    /**
-     * @return the reduced model of the view
-     */
     @Override
-    public ReducedModel getReducedModel() {
-        return super.getReducedModel();
-    }
-
-    /**
-     * Method used to display the last Assistant played except the client's one
-     *
-     * @param players      the players to show the last assistant played
-     * @param playerToSkip the player to skip
-     */
-    @Override
-    public void showLastAssistantPlayed(Collection<Player> players, Player playerToSkip) {
-
+    public boolean askDestination() {
+        GuiObserver.ClickableObjectType objectType = null;
+        try {
+            objectType = observer.nextClickedObjectType();
+            while (objectType != GuiObserver.ClickableObjectType.CO_ISLAND &&
+                    objectType != GuiObserver.ClickableObjectType.CO_DINING) {
+                objectType = observer.nextClickedObjectType();
+            }
+            if (objectType == GuiObserver.ClickableObjectType.CO_ISLAND) return true;
+            else if (objectType == GuiObserver.ClickableObjectType.CO_DINING) return false;
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        throw new IllegalStateException("Should not reach this point");
     }
 
     /**
@@ -109,24 +140,30 @@ public class GuiView extends AbstractView {
         return ((ConnectionController) SceneController.getActiveController()).getConnectionParameters();
     }
 
-    @Override
-    public Client.LobbyParameters askLobbyParameters() {
-
-        return ((EnterInGameController) SceneController.getActiveController()).getLobbyParameters();
-    }
-
-    @Override
-    public int askIsland() {
-        return 0;
-    }
-
     /**
      * @param assistant the assistant chosen by the players
      * @return Where mother nature has to go
      */
     @Override
     public int askMotherNature(Assistant assistant) {
-        return 0;
+        while (true) {
+            try {
+                if (observer.nextClickedObjectType() == GuiObserver.ClickableObjectType.CO_ISLAND) break;
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return Integer.parseInt(observer.getLastRetrievedObjectId());
+    }
+
+    @Override
+    public Client.LobbyParameters askLobbyParameters() {
+        return ((EnterInGameController) SceneController.getActiveController()).getLobbyParameters();
+    }
+
+    @Override
+    public int askIsland() {
+        return Integer.parseInt(observer.getLastRetrievedObjectId());
     }
 
     /**
@@ -136,7 +173,14 @@ public class GuiView extends AbstractView {
      */
     @Override
     public Player askPlayer() {
-        return null;
+        throw new IllegalStateException("Only CLI method called in GUI");
+    }
+
+    /**
+     * Show all the character of this match
+     */
+    @Override
+    public void showCharacters() {
     }
 
     @Override
@@ -163,7 +207,48 @@ public class GuiView extends AbstractView {
      */
     @Override
     public StudentsContainer askStudentsFromEntrance(Client client, int num) {
-        return null;
+        StudentsContainer container;
+        while (true) {
+            int studentsToMove = (num == 0 ? (GameManager.MAX_FOR_MOVEMENTS - client.getTotalStudentsInTurn()) : num);
+            container = askStudents(studentsToMove, reducedModel.getBoards().get(client.getNickname()).getEntrance());
+            if (num == 0 ? container.size() > studentsToMove : container.size() != num) {
+                displayError(client.getMessageString("e.toManyStudents"));
+                continue;
+            }
+            if (num == 0) {
+                client.addTotalStudentsInTurn(container.size());
+                if (client.getTotalStudentsInTurn() == GameManager.MAX_FOR_MOVEMENTS ||
+                        !askConfirm("Do you want to move more students?")) break;
+            } else if (container.size() == num) break;
+        }
+        return container;
+    }
+
+    /**
+     * @param client the client to get the status of the current player
+     * @return Player's command at any time
+     */
+    @Override
+    public ActionType takeInput(Client client) {
+        List<ActionType> availableActions = ActionType.getActions();
+        ActionType value;
+        while (true) {
+            try {
+                GuiObserver.ClickableObjectType objectType = observer.nextClickedObjectType();
+                value = switch (objectType) {
+                    case CO_ENTRANCE -> ActionType.MOVE_STUDENTS_UNDEFINED;
+                    case CO_ASSISTANT -> ActionType.PLAY_ASSISTANT;
+                    case CO_MOTHER_NATURE -> ActionType.MOVE_MOTHER_NATURE;
+                    case CO_CHARACTER -> ActionType.PLAY_CHARACTER;
+                    case CO_CLOUD -> ActionType.CHOOSE_CLOUD;
+                    default -> null;
+                };
+                if (value != null && availableActions.contains(value)) break;
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return value;
     }
 
     /**
@@ -206,39 +291,13 @@ public class GuiView extends AbstractView {
     }
 
     /**
-     * Method to notify if client or server has lost the connection
-     */
-    @Override
-    public void notifyInternetCrash() {
-
-    }
-
-    /**
-     * Show the winner of the match
-     *
-     * @param nick the winner player
-     */
-    @Override
-    public void printWinner(String nick) {
-
-    }
-
-    /**
-     * Show all the character of this match
-     */
-    @Override
-    public void showCharacters() {
-
-    }
-
-    /**
      * Method used to display connection info
      *
      * @param client the client to show info about
      */
     @Override
     public void showConnection(Client client) {
-
+        throw new IllegalStateException("Only CLI method called in GUI");
     }
 
     /**
@@ -248,7 +307,18 @@ public class GuiView extends AbstractView {
      */
     @Override
     public void showDeck(Player player) {
+        throw new IllegalStateException("Only CLI method called in GUI");
+    }
 
+    /**
+     * Method used to display the last Assistant played except the client's one
+     *
+     * @param players      the players to show the last assistant played
+     * @param playerToSkip the player to skip
+     */
+    @Override
+    public void showLastAssistantPlayed(Collection<Player> players, Player playerToSkip) {
+        throw new IllegalStateException("Only CLI method called in GUI");
     }
 
     /**
@@ -259,7 +329,7 @@ public class GuiView extends AbstractView {
      */
     @Override
     public void showPlayerStatus(Player player, boolean advancedRules) {
-
+        throw new IllegalStateException("Only CLI method called in GUI");
     }
 
     /**
@@ -267,7 +337,7 @@ public class GuiView extends AbstractView {
      */
     @Override
     public void showPlayersNicknames() {
-
+        throw new IllegalStateException("Only CLI method called in GUI");
     }
 
     /**
@@ -275,7 +345,7 @@ public class GuiView extends AbstractView {
      */
     @Override
     public void showTable() {
-
+        throw new IllegalStateException("Only CLI method called in GUI");
     }
 
     /**
@@ -285,43 +355,76 @@ public class GuiView extends AbstractView {
      */
     @Override
     public void showPossibleIslandDestination(Assistant assistant) {
-
+        throw new IllegalStateException("Only CLI method called in GUI");
     }
 
-    /**
-     * @param client the client to get the status of the current player
-     * @return Player's command at any time
-     */
     @Override
-    public ActionType takeInput(Client client) {
-        List<ActionType> availableActions = ActionType.getActionByStatus(client.getStatus(), client.getSettings()
-                .advancedRulesEnabled());
-        ActionType value;
-        while (true) {
-            try {
-                GuiObserver.ClickableObjectType objectType = observer.takeClickedObjectEnum();
-                value = switch (objectType) {
-                    case CO_ENTRANCE -> ActionType.MOVE_STUDENTS_UNDEFINED;
-                    case CO_ASSISTANT -> ActionType.PLAY_ASSISTANT;
-                    case CO_MOTHER_NATURE -> ActionType.MOVE_MOTHER_NATURE;
-                    case CO_CHARACTER -> ActionType.PLAY_CHARACTER;
-                    case CO_CLOUD -> ActionType.CHOOSE_CLOUD;
-                    default -> null;
-                };
-                if (value != null && availableActions.contains(value)) break;
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+    public void updateView(UpdateMessage updateMessage, Client client) {
+        reducedModel.update(updateMessage.getUpdatedObjects().values().stream().flatMap(List::stream).toList());
+        if (updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.ISLAND) != null &&
+                updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.ISLAND).size() != 0) {
+            Platform.runLater(() -> ((GameSceneController) SceneController.getActiveController()).drawIslands(reducedModel.getIslands()));
+        }
+        if (updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.CLOUD) != null &&
+                updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.CLOUD).size() != 0) {
+            Platform.runLater(() -> ((GameSceneController) SceneController.getActiveController()).drawClouds(reducedModel.getClouds()
+                    .values()
+                    .stream()
+                    .toList()));
+        }
+        if (updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.PLAYER) != null &&
+                updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.PLAYER).size() != 0) {
+            Platform.runLater(() -> ((GameSceneController) SceneController.getActiveController()).drawPlayedAssistants(reducedModel.getPlayers()
+                    .values()
+                    .stream()
+                    .toList()));
+            if (updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.PLAYER)
+                    .stream()
+                    .anyMatch(p -> Objects.equals(((Player) p).getPlayerId(), client.getNickname()))) {
+                Platform.runLater(() -> ((GameSceneController) SceneController.getActiveController()).drawDeck(reducedModel.getPlayers()
+                        .get(client.getNickname())
+                        .getAssistantsDeck()
+                        .values()
+                        .stream()
+                        .toList()));
+
+                //Write number of coins
+                if (client.getSettings().advancedRulesEnabled())
+                    Platform.runLater(() -> ((GameSceneController) SceneController.getActiveController()).changeCoins(reducedModel.getPlayers()
+                            .get(client.getNickname())
+                            .getNumberOfCoins()));
+
+                //Start update my board -----------------------------
+                HashMap<FactionColor, Integer> entrance = new HashMap<>();
+                HashMap<FactionColor, Integer> dining = new HashMap<>();
+                boolean[] professors;
+                LimitedTowerContainer towers;
+
+                for (FactionColor color : FactionColor.values()) {
+                    entrance.put(color, reducedModel.getBoards()
+                            .get(client.getNickname())
+                            .getEntrance()
+                            .getByColor(color));
+                    dining.put(color, reducedModel.getBoards()
+                            .get(client.getNickname())
+                            .getDiningRoom()
+                            .getByColor(color));
+                }
+                professors = reducedModel.getBoards().get(client.getNickname()).getProfTable();
+                towers = reducedModel.getBoards().get(client.getNickname()).getTowers();
+
+                Platform.runLater(() -> ((GameSceneController) SceneController.getActiveController()).drawBoard(entrance, dining, professors, towers));
+                //My board drawn ------------------------------
             }
         }
-        return value;
-    }
-
-    /**
-     * Method used to tell the player he is waiting for the match
-     */
-    @Override
-    public void waitingMatch() {
-
+        if (client.getSettings().advancedRulesEnabled() &&
+                updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.CHARACTER) != null &&
+                updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.CHARACTER).size() != 0) {
+            Platform.runLater(() -> ((GameSceneController) SceneController.getActiveController()).drawCharacters(updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.CHARACTER)
+                    .stream()
+                    .map(o -> (Character) o)
+                    .toList()));
+        }
     }
 
     /**
@@ -329,15 +432,7 @@ public class GuiView extends AbstractView {
      */
     @Override
     public void wrongInsert() {
-
-    }
-
-    /**
-     * Notify when a string between "cli" or "gui" was expected but another string was given
-     */
-    @Override
-    public void wrongInsertGraphics() {
-
+        throw new IllegalStateException("Only CLI method called in GUI");
     }
 
     /**
@@ -349,18 +444,11 @@ public class GuiView extends AbstractView {
     }
 
     /**
-     * Notify when requested server is unreachable
-     */
-    public void wrongServer() {
-        displayError("This server is unreachable");
-    }
-
-    /**
      * Tell the player it's his turn
      */
     @Override
     public void yourTurn() {
-
+        displayImportant("It's your turn");
     }
 
     @Override
@@ -378,79 +466,38 @@ public class GuiView extends AbstractView {
         Platform.runLater(() -> SceneController.getActiveController().showError(message));
     }
 
-    @Override
-    public void updateView(UpdateMessage updateMessage, Client client) {
-        reducedModel.update(updateMessage.getUpdatedObjects()
-                .values()
-                .stream()
-                .flatMap(List::stream)
-                .toList());
-        if (updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.ISLAND) != null &&
-                updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.ISLAND).size() != 0) {
-            Platform.runLater(() -> ((GameSceneController) SceneController.getActiveController()).drawIslands(updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.ISLAND)
-                    .stream()
-                    .map(o -> (Island) o)
-                    .toList()));
-        }
-        if (updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.CLOUD) != null &&
-                updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.CLOUD).size() != 0) {
-            Platform.runLater(() -> ((GameSceneController) SceneController.getActiveController()).drawClouds(updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.CLOUD)
-                    .stream()
-                    .map(o -> (Cloud) o)
-                    .toList()));
-        }
-        if (updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.PLAYER) != null &&
-                updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.PLAYER).size() != 0) {
-            Platform.runLater(() -> ((GameSceneController) SceneController.getActiveController()).drawPlayedAssistants(updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.PLAYER)
-                    .stream()
-                    .map(o -> (Player) o)
-                    .toList()));
-            if (updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.PLAYER)
-                    .stream()
-                    .anyMatch(p -> Objects.equals(((Player) p).getPlayerId(), client.getNickname()))) {
-                Player player = (Player) updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.PLAYER)
-                        .stream()
-                        .filter(p -> Objects.equals(((Player) p).getPlayerId(), client.getNickname()))
-                        .findFirst()
-                        .get();
-                List<Assistant> assistants = player.getAssistantsDeck().values().stream().toList();
-                Platform.runLater(() -> ((GameSceneController) SceneController.getActiveController()).drawDeck(assistants));
-
-                //Write number of coins
-                if (client.getSettings().advancedRulesEnabled())
-                    Platform.runLater(() -> ((GameSceneController) SceneController.getActiveController()).changeCoins(player.getNumberOfCoins()));
-
-                //Start update my board -----------------------------
-                HashMap<FactionColor, Integer> entrance = new HashMap<>();
-                HashMap<FactionColor, Integer> dining = new HashMap<>();
-                boolean[] professors;
-                LimitedTowerContainer towers;
-
-                for (FactionColor color : FactionColor.values()) {
-                    entrance.put(color, getReducedModel().getBoards()
-                            .get(client.getNickname())
-                            .getEntrance()
-                            .getByColor(color));
-                    dining.put(color, getReducedModel().getBoards()
-                            .get(client.getNickname())
-                            .getDiningRoom()
-                            .getByColor(color));
-                }
-                professors = getReducedModel().getBoards().get(client.getNickname()).getProfTable();
-                towers = getReducedModel().getBoards().get(client.getNickname()).getTowers();
-
-                Platform.runLater(() -> ((GameSceneController) SceneController.getActiveController()).drawBoard(entrance, dining, professors, towers));
-                //My board drawn ------------------------------
+    /**
+     * This function pop up a container
+     *
+     * @param container
+     * @param studentsToMove
+     */
+    private StudentsContainer askStudents(int studentsToMove, StudentsContainer sourceContainer) {
+        AtomicReference<StudentsContainer> atomicContainer =
+                new AtomicReference<>(new FixedUnlimitedStudentsContainer());
+        displayInfo("You have to move " + studentsToMove + (studentsToMove == 1 ? " student" : " students") +
+                " in this turn");
+        CountDownLatch latch = new CountDownLatch(1);
+        Platform.runLater(() -> {
+            Stage studentsDialog = new Stage();
+            studentsDialog.initModality(Modality.APPLICATION_MODAL);
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/assets/scenes/ChooseNumStudents.fxml"));
+            try {
+                studentsDialog.setScene(new Scene(loader.load()));
+                ChooseNumStudentsController controller = loader.getController();
+                controller.setSourceContainer(sourceContainer);
+                studentsDialog.showAndWait();
+                atomicContainer.set(controller.getStudents());
+                latch.countDown();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
+        });
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
-        if (client.getSettings().advancedRulesEnabled() && updateMessage.getUpdatedObjects(UpdatableObject
-                .UpdatableType.CHARACTER) != null &&
-                updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.CHARACTER).size() != 0) {
-            Platform.runLater(() -> ((GameSceneController) SceneController.getActiveController()).drawCharacters
-                    (updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.CHARACTER)
-                            .stream()
-                            .map(o -> (Character) o)
-                            .toList()));
-        }
+        return atomicContainer.get();
     }
 }

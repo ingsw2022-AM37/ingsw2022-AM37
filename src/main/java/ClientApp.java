@@ -1,6 +1,8 @@
 import it.polimi.ingsw.am37.client.Client;
 import it.polimi.ingsw.am37.client.PlayerAbortException;
 
+import java.util.Locale;
+
 public class ClientApp {
 
     final static String addressOptionName = "address";
@@ -9,6 +11,7 @@ public class ClientApp {
 
     public static void main(String[] args) {
         Client client;
+        Locale.setDefault(Locale.ENGLISH);
         try {
             client = parseArgs(args);
             if (client != null) client.start();

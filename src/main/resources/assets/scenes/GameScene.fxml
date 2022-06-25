@@ -1,28 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import com.jfoenix.controls.JFXButton?>
-<?import javafx.scene.Group?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Pane?>
-<?import javafx.scene.layout.RowConstraints?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
-
-<Pane fx:id="wallpaperPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="980.0" prefWidth="1880.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.am37.client.gui.controller.GameSceneController">
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.Group?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<Pane xmlns:fx="http://javafx.com/fxml/1" fx:id="wallpaperPane" maxHeight="-Infinity" maxWidth="-Infinity"
+      minHeight="-Infinity" minWidth="-Infinity" prefHeight="980.0" prefWidth="1880.0"
+      xmlns="http://javafx.com/javafx/16"
+      fx:controller="it.polimi.ingsw.am37.client.gui.controller.GameSceneController">
     <children>
         <ImageView fitHeight="980.0" fitWidth="1880.0">
             <image>
-                <Image url="@../images/GameWallpaper.jpg" />
+                <Image url="@../images/GameWallpaper.jpg"/>
             </image>
         </ImageView>
         <ImageView fitHeight="367.4" fitWidth="880.0" layoutX="-245.0" layoutY="270.0" rotate="90.0">
             <image>
-                <Image url="@../images/Board.png" />
+                <Image url="@../images/Board.png"/>
             </image>
         </ImageView>
         <!--
@@ -76,30 +73,40 @@
                 <Image url="@../images/Assistant10.png" />
             </image>
         </ImageView> -->
-        <JFXButton fx:id="allBoards" layoutX="48.0" layoutY="901.0" onAction="#showBoards" prefHeight="65.0" prefWidth="293.0" text="OTHERS' BOARDS" textFill="#00a7fa">
+        <JFXButton fx:id="allBoards" layoutX="48.0" layoutY="901.0" onAction="#showBoards" prefHeight="65.0"
+                   prefWidth="293.0" text="OTHERS' BOARDS" textFill="#00a7fa">
             <font>
-                <Font name="System Bold Italic" size="30.0" />
+                <Font name="System Bold Italic" size="30.0"/>
             </font>
         </JFXButton>
         <Label layoutX="1260.0" layoutY="16.0" text="MY DECK" textFill="WHITE">
             <font>
-                <Font name="System Bold Italic" size="25.0" />
+                <Font name="System Bold Italic" size="25.0"/>
             </font>
         </Label>
-        <ImageView fx:id="entrance" fitHeight="132.0" fitWidth="367.0" layoutX="11.0" layoutY="14.0" onMouseClicked="#entranceClicked" pickOnBounds="true" preserveRatio="true" />
-        <ImageView fx:id="dining" fitHeight="447.0" fitWidth="367.0" layoutX="11.0" layoutY="158.0" onMouseClicked="#diningClicked" pickOnBounds="true" preserveRatio="true" />
-        <ImageView fx:id="profPlace" fitHeight="78.0" fitWidth="367.0" layoutX="14.0" layoutY="617.0" onMouseClicked="#profPlaceClicked" pickOnBounds="true" preserveRatio="true" />
-        <ImageView fx:id="towerPlace" fitHeight="185.0" fitWidth="367.0" layoutX="11.0" layoutY="708.0" onMouseClicked="#towerPlaceClicked" pickOnBounds="true" preserveRatio="true" />
-        <Group />
-        <GridPane fx:id="assistantsGrid" alignment="CENTER" layoutX="1400.0" layoutY="10.0" nodeOrientation="LEFT_TO_RIGHT">
+        <ImageView fx:id="entrance" fitHeight="132.0" fitWidth="367.0" layoutX="11.0" layoutY="14.0"
+                   onMouseClicked="#entranceClicked" pickOnBounds="true" preserveRatio="true">
+            <cursor>
+                <Cursor fx:constant="HAND"/>
+            </cursor>
+        </ImageView>
+        <ImageView fx:id="dining" fitHeight="447.0" fitWidth="367.0" layoutX="11.0" layoutY="158.0"
+                   onMouseClicked="#diningClicked" pickOnBounds="true" preserveRatio="true">
+            <cursor>
+                <Cursor fx:constant="HAND"/>
+            </cursor>
+        </ImageView>
+        <Group/>
+        <GridPane fx:id="assistantsGrid" alignment="CENTER" layoutX="1400.0" layoutY="10.0"
+                  nodeOrientation="LEFT_TO_RIGHT">
             <columnConstraints>
-                <ColumnConstraints />
-                <ColumnConstraints />
-                <ColumnConstraints />
-                <ColumnConstraints />
+                <ColumnConstraints/>
+                <ColumnConstraints/>
+                <ColumnConstraints/>
+                <ColumnConstraints/>
             </columnConstraints>
             <rowConstraints>
-                <RowConstraints />
+                <RowConstraints/>
                 <RowConstraints />
                 <RowConstraints />
             </rowConstraints>
