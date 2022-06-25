@@ -3,20 +3,16 @@ package it.polimi.ingsw.am37.client.gui.controller;
 import it.polimi.ingsw.am37.model.*;
 import it.polimi.ingsw.am37.model.student_container.LimitedStudentsContainer;
 import javafx.scene.control.Label;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import static it.polimi.ingsw.am37.client.gui.controller.GameSceneController.*;
 
 public class BoardsController extends GenericController {
     private final static int leftShift = 590;
-    private final static Coordinate shiftedBoardCoordinates = new Coordinate(345, 270);
-    private final static Dimension boardDimension = new Dimension(880, 367);
     private final List<String> playersNickname = new ArrayList<>();
     private final List<ImageView> entranceStudentImageViews = new ArrayList<>();
     private final List<ImageView> diningStudentImageViews = new ArrayList<>();
@@ -24,6 +20,7 @@ public class BoardsController extends GenericController {
     private final List<ImageView> towerImageViews = new ArrayList<>();
     public Label nickname2;
     public Label nickname3;
+    public ImageView board_3;
     public Pane boardsPane;
 
     public void draw(List<Player> players) {
@@ -32,17 +29,23 @@ public class BoardsController extends GenericController {
             nickname2.setText(playersNickname.get(0));
             if (playersNickname.size() == 1) {
                 nickname3.setVisible(false);
+                board_3.setVisible(false);
             } else {
                 nickname3.setText(playersNickname.get(1));
-                ImageView board = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream(
-                        "/assets/images/Board.png"))));
-                drawWithDimension(boardDimension, board);
-                placeObjectNoAnimation(shiftedBoardCoordinates, board);
-                boardsPane.getChildren().add(board);
             }
         }
-        for (Player player : players) {
-            drawBoard(player.getBoard(), playersNickname.indexOf(player.getPlayerId()));
+        if (players.size() > 0) {
+            diningStudentImageViews.forEach(iV -> boardsPane.getChildren().remove(iV));
+            diningStudentImageViews.clear();
+            entranceStudentImageViews.forEach(iV -> boardsPane.getChildren().remove(iV));
+            entranceStudentImageViews.clear();
+            professorImageViews.forEach(iV -> boardsPane.getChildren().remove(iV));
+            professorImageViews.clear();
+            towerImageViews.forEach(iV -> boardsPane.getChildren().remove(iV));
+            towerImageViews.clear();
+            for (Player player : players) {
+                drawBoard(player.getBoard(), playersNickname.indexOf(player.getPlayerId()));
+            }
         }
     }
 
@@ -55,8 +58,6 @@ public class BoardsController extends GenericController {
 
     private void drawDining(LimitedStudentsContainer diningRoom, int shift) {
         ImageView imageView;
-        diningStudentImageViews.forEach(iV -> boardsPane.getChildren().remove(iV));
-        diningStudentImageViews.clear();
         for (FactionColor color : FactionColor.values()) {
             Coordinate firstCoordinate = studentDiningFirstCoordinatesFromColor.get(color);
             for (int i = 0; i < diningRoom.getByColor(color); i++) {
@@ -74,8 +75,6 @@ public class BoardsController extends GenericController {
 
     private void drawEntrance(LimitedStudentsContainer entrance, int shift) {
         ImageView imageView;
-        entranceStudentImageViews.forEach(iV -> boardsPane.getChildren().remove(iV));
-        entranceStudentImageViews.clear();
         int generalIndex = 0;
         for (FactionColor color : FactionColor.values()) {
             for (int i = 0; i < entrance.getByColor(color); i++) {
@@ -83,10 +82,13 @@ public class BoardsController extends GenericController {
                 imageView.setMouseTransparent(true);
                 drawWithDimension(studentAndProfDimension, imageView);
                 placeObjectNoAnimation(new Coordinate(
-                        firstEntranceCoordinate.x() + (generalIndex % firstLineEntranceAndTowersSize) * xSpaceStudents +
+                        firstEntranceCoordinate.x() + (generalIndex %
+                                (firstLineEntranceAndTowersSize + (playersNickname.size() > 1 ? 1 : 0))) *
+                                xSpaceStudents +
                                 shift * leftShift,
                         firstEntranceCoordinate.y() +
-                                (generalIndex / firstLineEntranceAndTowersSize) * ySpaceStudentsEntrance), imageView);
+                                (generalIndex < firstLineEntranceAndTowersSize ? 0 : 1) *
+                                        ySpaceStudentsEntrance), imageView);
                 boardsPane.getChildren().add(imageView);
                 entranceStudentImageViews.add(imageView);
                 generalIndex++;
@@ -96,8 +98,6 @@ public class BoardsController extends GenericController {
 
     private void drawProfessors(boolean[] profTable, int shift) {
         ImageView imageView;
-        professorImageViews.forEach(iV -> boardsPane.getChildren().remove(iV));
-        professorImageViews.clear();
         for (FactionColor color : FactionColor.values()) {
             if (profTable[color.getIndex()]) {
                 imageView = new ImageView(studentImageFromColor.get(color));
@@ -115,15 +115,13 @@ public class BoardsController extends GenericController {
     private void drawTowers(LimitedTowerContainer towers, int shift) {
         ImageView imageView;
         TowerColor color = towers.getCurrentTower();
-        towerImageViews.forEach(iV -> boardsPane.getChildren().remove(iV));
-        towerImageViews.clear();
         for (int i = 0; i < towers.getCurrentSize(); i++) {
             imageView = new ImageView(towerImageFromColor.get(color));
             imageView.setMouseTransparent(true);
             drawWithDimension(towerDimension, imageView);
             placeObjectNoAnimation(new Coordinate(
                     firstTowerCoordinate.x() + (i % firstLineEntranceAndTowersSize) * xSpaceTowers + shift * leftShift,
-                    firstTowerCoordinate.y() + (i < firstLineEntranceAndTowersSize ? 0 : 1) * ySpaceTowers), imageView);
+                    firstTowerCoordinate.y() + (i / firstLineEntranceAndTowersSize) * ySpaceTowers), imageView);
             boardsPane.getChildren().add(imageView);
             towerImageViews.add(imageView);
 

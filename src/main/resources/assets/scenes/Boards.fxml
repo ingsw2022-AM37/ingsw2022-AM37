@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.text.Font?>
 <Pane xmlns:fx="http://javafx.com/fxml/1" fx:id="boardsPane" maxHeight="-Infinity" maxWidth="-Infinity"
@@ -29,5 +28,10 @@
                 <Font name="System Bold Italic" size="40.0"/>
             </font>
         </Label>
+        <ImageView fx:id="board_3" fitHeight="367.4" fitWidth="880.0" layoutX="345.0" layoutY="270.0" rotate="90.0">
+            <image>
+                <Image url="@../images/Board.png"/>
+            </image>
+        </ImageView>
     </children>
 </Pane>
