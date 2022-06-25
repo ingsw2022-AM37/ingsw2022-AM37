@@ -193,7 +193,6 @@ public class ClientSocket implements Runnable {
                         }
                     }
                     case PLANNING_PHASE -> {
-                        PlanningPhaseMessage planningPhaseMessage = (PlanningPhaseMessage) message;
                         client.setStatus(ClientStatus.PLAYINGASSISTANT);
                         client.getView().yourTurn();
                     }
@@ -206,8 +205,8 @@ public class ClientSocket implements Runnable {
                     case NEXT_TURN -> {
                         NextTurnMessage nextTurnMessage = (NextTurnMessage) message;
                         if (Objects.equals(nextTurnMessage.getNextPlayerNickname(), client.getNickname())) {
-                            client.setStatus(ClientStatus.MOVINGSTUDENTS);
                             client.getView().yourTurn();
+                            client.setStatus(ClientStatus.MOVINGSTUDENTS);
 
                         } else {
                             client.getView().hisTurn(nextTurnMessage.getNextPlayerNickname());
@@ -219,7 +218,7 @@ public class ClientSocket implements Runnable {
                 }
             }
         } catch (IOException e) {
-            onDisconnect();
+            //onDisconnect();
         }
 
     }

@@ -78,6 +78,7 @@ public class CliView extends AbstractView {
                 "@|" + island.getCurrentTower().color + " " + island.getCurrentTower().name() + "|@"));
         else System.out.print("❌");
         if (island.getMotherNatureHere()) System.out.print(ansi().a(" ⬅ Mother Nature"));
+        if (island.getNoEntryTile() > 0) System.out.print(ansi().a(" ❌ NoEntry Tile Here ❌"));
         System.out.println();
     }
 
@@ -116,6 +117,13 @@ public class CliView extends AbstractView {
      */
     public void wrongInsertPort() {
         displayError("You haven't written a number as server's port");
+    }
+
+    /**
+     * Notify when requested server is unreachable
+     */
+    public void wrongServer() {
+        displayError("This server is unreachable");
     }
 
     /**
@@ -250,11 +258,18 @@ public class CliView extends AbstractView {
     public Effect askCharacter() {
         displayImportant("Which character do you want to play? ");
         Scanner scanner = new Scanner(System.in);
-        int response = scanner.nextInt();
-        if (response <= reducedModel.getCharacters().size())
-            return ((Character) reducedModel.getCharacters().toArray()[response]).getEffectType();
-        displayError("You have to choose a valid character");
-        displayImportant("do you want to play again? Y/N");
+        int numResponse = -1;
+        String response = scanner.nextLine().trim().replaceAll(" +", " ");
+        try {
+            numResponse = Integer.parseInt(response);
+        } catch (NumberFormatException e) {
+            displayError("You have to choose a valid character");
+        }
+
+        if (numResponse >= 0 && numResponse < reducedModel.getCharacters().size())
+            return ((Character) reducedModel.getCharacters().toArray()[numResponse]).getEffectType();
+        else displayError("You have to choose a valid character");
+        displayImportant("do you want to try again? Y/N");
         if (scanner.nextLine().equalsIgnoreCase("y"))
             return askCharacter();
         else return null;
@@ -264,6 +279,7 @@ public class CliView extends AbstractView {
     public int askIsland() {
         Scanner scanner = new Scanner(System.in);
         int input;
+        String response;
         displayInfo("Available islands are:");
         for (Island island :
                 reducedModel.getIslands()) {
@@ -271,7 +287,15 @@ public class CliView extends AbstractView {
         }
         while (true) {
             displayImportant("Which island do you want? Please insert its index");
-            input = scanner.nextInt();
+            response = scanner.nextLine().trim().replaceAll(" +", " ");
+
+            try {
+                input = Integer.parseInt(response);
+            } catch (NumberFormatException e) {
+                wrongInsert();
+                continue;
+
+            }
             int finalInput = input;
             if (reducedModel.getIslands().stream().filter(i -> i.getIslandId() == finalInput).findFirst().isEmpty()) {
                 displayError("The island with the provided id is not present");
@@ -312,13 +336,15 @@ public class CliView extends AbstractView {
                 .advancedRulesEnabled());
 
         while (true) {
-            displayInfo("You have to move " + (num - container.size()) + " students");
+            displayInfo("You have to move " + (num - container.size()) + " students @|bold from the dining|@");
             displayInfo("Select the color of students you want to move, write @|red,bold R|@ or @|blue,bold B|@ or " +
                     "@|yellow,bold Y|@ or @|green,bold G|@ or @|magenta,bold P|@");
             input = scanner.nextLine().trim().replaceAll(" +", " ");
             String finalInput = input;
-            Optional<FactionColor> color = Arrays.stream(FactionColor.values()).filter(c -> c.name().charAt(0) ==
-                    finalInput.toUpperCase().charAt(0)).findFirst();
+            Optional<FactionColor> color = Optional.empty();
+            if (!finalInput.isBlank())
+                color = Arrays.stream(FactionColor.values()).filter(c -> c.name().charAt(0) ==
+                        finalInput.toUpperCase().charAt(0)).findFirst();
             if (color.isEmpty()) {
                 displayError(client.getMessageString("e.wrongColor"));
                 if (!askConfirm("Do you want to try again to move some students?"))
@@ -333,7 +359,7 @@ public class CliView extends AbstractView {
                             .getBoard()
                             .getDiningRoom()
                             .getByColor(color.get())) {
-                        displayError("You have tried to move to much students");
+                        displayError("You have tried to move too many students");
                         if (!askConfirm("Do you want to try again to move some students?"))
                             return null;
                         continue;
@@ -364,13 +390,15 @@ public class CliView extends AbstractView {
                     "Students on the card: " + ansi().render(character.getState().getContainer().getStudentsAsString()));
             else if (character.getState().getNoEntryTiles() != EffectHandler.DEFAULT_NOENTRYTILES)
                 System.out.println("\t No Entry tiles on the card: " + character.getState().getNoEntryTiles());
-            displayInfo("You have to move " + (num - container.size()) + " students");
+            displayInfo("You have to move " + (num - container.size()) + " students @|bold from the character card|@");
             displayInfo("Select the color of students you want to move, write @|red,bold R|@ or @|blue,bold B|@ or " +
                     "@|yellow,bold Y|@ or @|green,bold G|@ or @|magenta,bold P|@");
             input = scanner.nextLine().trim().replaceAll(" +", " ");
             String finalInput = input;
-            Optional<FactionColor> color = Arrays.stream(FactionColor.values()).filter(c -> c.name().charAt(0) ==
-                    finalInput.toUpperCase().charAt(0)).findFirst();
+            Optional<FactionColor> color = Optional.empty();
+            if (!finalInput.isBlank())
+                color = Arrays.stream(FactionColor.values()).filter(c -> c.name().charAt(0) ==
+                        finalInput.toUpperCase().charAt(0)).findFirst();
             if (color.isEmpty()) {
                 displayError(client.getMessageString("e.wrongColor"));
                 if (!askConfirm("Do you want to try again to move some students?"))
@@ -381,7 +409,7 @@ public class CliView extends AbstractView {
                 try {
                     students = Integer.parseInt(scanner.nextLine().trim().replaceAll(" +", " "));
                     if (students > num || students > character.getState().getContainer().getByColor(color.get())) {
-                        displayError("You have tried to move to much students");
+                        displayError("You have tried to move too many students");
                         if (!askConfirm("Do you want to try again to move some students?"))
                             return null;
                         continue;
@@ -416,14 +444,15 @@ public class CliView extends AbstractView {
 
         while (true) {
             int studentsToMove = (num == 0 ? (GameManager.MAX_FOR_MOVEMENTS - client.getTotalStudentsInTurn()) : num);
-            displayInfo("You have to move " + studentsToMove + (studentsToMove == 1 ? " student" : " students") + " in this turn");
+            displayInfo("You have to move " + studentsToMove + (studentsToMove == 1 ? " student" : " students") + " @|bold from the entrance|@ in this turn");
 
             displayInfo("Select the color of students you want to move, write @|red,bold R|@ or @|blue,bold B|@ or " +
                     "@|yellow,bold Y|@ or @|green,bold G|@ or @|magenta,bold P|@");
             input = scanner.nextLine().trim().replaceAll(" +", " ");
             String finalInput = input;
-            Optional<FactionColor> color = Arrays.stream(FactionColor.values()).filter(c -> c.name().charAt(0) ==
-                    finalInput.toUpperCase().charAt(0)).findFirst();
+            Optional<FactionColor> color = Optional.empty();
+            if (!finalInput.isBlank())
+                color = Arrays.stream(FactionColor.values()).filter(c -> c.name().charAt(0) == finalInput.toUpperCase().charAt(0)).findFirst();
             if (color.isEmpty()) {
                 displayError(client.getMessageString("e.wrongColor"));
                 if (!askConfirm("Do you want to try again to move some students?"))
@@ -434,13 +463,12 @@ public class CliView extends AbstractView {
                 try {
                     students = Integer.parseInt(scanner.nextLine().trim().replaceAll(" +", " "));
                     if (students > (num == 0 ? GameManager.MAX_FOR_MOVEMENTS - client.getTotalStudentsInTurn() : num) ||
-                            students >
-                                    reducedModel.getPlayers()
-                                            .get(client.getNickname())
-                                            .getBoard()
-                                            .getEntrance()
-                                            .getByColor(color.get())) {
-                        displayError("You have tried to move to much students");
+                            students > reducedModel.getPlayers()
+                                    .get(client.getNickname())
+                                    .getBoard()
+                                    .getEntrance()
+                                    .getByColor(color.get())) {
+                        displayError("You have tried to move too many students");
                         if (!askConfirm("Do you want to try again to move some students?"))
                             return null;
                         continue;
@@ -484,10 +512,28 @@ public class CliView extends AbstractView {
                 wrongInsert();
                 continue;
             }
-            for (Island island : getReducedModel().getIslands())
-                if (island.getIslandId() == numResponse) return numResponse;
 
-            displayError("You have written an invalid Island, please try again:");
+            Island islandWithMN = null;
+            ArrayList<Island> possibleIslands = new ArrayList<>();
+            for (Island island : getReducedModel().getIslands())
+                if (island.getMotherNatureHere()) {
+                    islandWithMN = island;
+                    break;
+                }
+            int indexMN = getReducedModel().getIslands().indexOf(islandWithMN);
+            for (int i = indexMN + 1, cont = 0; cont < assistant.getMNMovement(); cont++, i++) {
+                possibleIslands.add(getReducedModel().getIslands().get(i % getReducedModel().getIslands().size()));
+            }
+
+            int maxIslandID = getReducedModel().getIslands().get(0).getIslandId();
+            for (Island island : getReducedModel().getIslands()) {
+                maxIslandID = Math.max(island.getIslandId(), maxIslandID);
+            }
+
+            if (numResponse >= 0 && numResponse <= maxIslandID && possibleIslands.contains(getReducedModel().getIslands().get(numResponse)))
+                return numResponse;
+            else
+                displayError("You have written an invalid Island, please try again:");
         }
     }
 
@@ -720,5 +766,19 @@ public class CliView extends AbstractView {
         displayImportant(messagesConstants.getProperty("i.gameStart"));
     }
 
+    /**
+     * @param nick the winner player
+     */
+    public void printWinner(String nick) {
+        System.out.println(nick.toUpperCase() + " has won the game!!!");
 
+    }
+
+    /**
+     * @return the reduced model of the view
+     */
+    @Override
+    public ReducedModel getReducedModel() {
+        return super.getReducedModel();
+    }
 }

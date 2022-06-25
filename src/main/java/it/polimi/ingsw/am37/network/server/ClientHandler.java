@@ -96,6 +96,7 @@ public class ClientHandler implements Runnable {
      * @param message To be sent to its client
      * @throws InternetException Thrown when connection is failed
      */
+    @SuppressWarnings({"Convert2Lambda", "unchecked", "rawtypes"})
     public void sendMessageToClient(Message message) throws InternetException {
         message.setUUID(UUID);
         String json = new MessageGsonBuilder().registerMessageAdapter().registerStudentContainerAdapter().registerUpdatableObjectAdapter().getGsonBuilder().create().toJson(message);
@@ -221,6 +222,7 @@ public class ClientHandler implements Runnable {
      * @return Message received from client
      * @throws InternetException If connection is failed
      */
+    @SuppressWarnings({"Convert2Lambda", "unchecked", "rawtypes"})
     private Message readMessage() throws InternetException {
         ExecutorService service = Executors.newSingleThreadExecutor();
         try {
@@ -240,7 +242,7 @@ public class ClientHandler implements Runnable {
                 }
             };
             Future<Message> messageFuture = service.submit(r);
-            messageFuture.get(2000, TimeUnit.MILLISECONDS);
+            messageFuture.get(5, TimeUnit.SECONDS);
             return messageFuture.get();
         } catch (final InterruptedException | ExecutionException | TimeoutException e) {
             if (!debug_disableTimers) disconnect();
