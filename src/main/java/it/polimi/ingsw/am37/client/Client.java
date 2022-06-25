@@ -131,10 +131,10 @@ public class Client {
                 if (savedProperties.containsKey(P_UUID_KEY) && savedProperties.containsKey(P_LOBBYSIZE_KEY) &&
                         savedProperties.containsKey(P_ADVANCEDRULES_KEY) && savedProperties.containsKey(P_LOBBY_KEY) &&
                         savedProperties.containsKey(P_NICKNAME_KEY)) resilienceUsable = true;
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (NullPointerException e) {
+            } catch (NullPointerException | FileNotFoundException e) {
                 System.err.println("Persistence disabled because file not found");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
         }
         if (resilienceUsable) UUID = savedProperties.getProperty(P_UUID_KEY);
@@ -195,12 +195,16 @@ public class Client {
         }
         view.displayImportant(messagesConstants.getProperty("i.waitingStart"));
         if (!debug_disabledResilience) {
-            try (OutputStream stream = new FileOutputStream(resilienceFilePath)) {
-                savedProperties.store(stream,
-                        "This file is for resilience only. DO NOT MODIFY ANY OF THE FOLLOWING " + "LINES\n");
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+            File file = new File(resilienceFilePath);
+            if (file.getParentFile().mkdirs()) {
+                try (OutputStream stream = new FileOutputStream(resilienceFilePath)) {
+                    savedProperties.store(stream,
+                            "This file is for resilience only. DO NOT MODIFY ANY OF THE FOLLOWING " + "LINES\n");
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
+
         }
     }
 

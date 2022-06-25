@@ -469,8 +469,13 @@ public class Lobby implements Runnable, MessageReceiver {
     public void onReconnect(String clientUUID) {
         //Forces the addition of the player who has reconnected to the list orderPlayed in GM
         Message message;
-        Player playerToAdd = gameManager.getTurnManager().getPlayers().stream()
-                .filter(player -> findUUIDByUsername(player.getPlayerId()).equals(clientUUID)).findFirst().get();
+        Player playerToAdd = gameManager.getTurnManager()
+                .getPlayers()
+                .stream()
+                .filter(player -> findUUIDByUsername(player.getPlayerId()).equals(clientUUID))
+                .findFirst()
+                .orElseThrow();
+        //TODO catch exception
         gameManager.getTurnManager().getOrderPlayed().add(playerToAdd);
 
         ClientHandler clientToReconnect = disconnectedPlayers.get(clientUUID);
