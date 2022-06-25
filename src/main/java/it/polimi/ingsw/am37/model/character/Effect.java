@@ -10,12 +10,12 @@ public enum Effect {
     MAGIC_POSTMAN("Magic Postman", new int[]{7}, 1),
     GRANDMA("Grandma", new int[]{8, 9}, 2),
     CENTAUR("Centaur", new int[]{10}, 3),
-    JESTER("Jester", new int[]{18, 0, 11, 19, 12, 1}, 1),
+    JESTER("Jester", new int[]{18, 0, 19, 12, 18, 11, 19, 1}, 1),
     KNIGHT("Knight", new int[]{15}, 2),
     MUSHROOM_MAN("Mushroom Man", new int[]{16}, 3),
-    MINSTREL("Minstrel", new int[]{18, 12, 13, 19, 14, 11}, 1),
-    PRINCESS("Princess", new int[]{18, 0, 11, 2, 1}, 2),
-    THIEF("Thief", new int[]{14, 3}, 3);
+    MINSTREL("Minstrel", new int[]{18, 12, 19, 14, 18, 13, 19, 11}, 1),
+    PRINCESS("Princess", new int[]{18, 0, 13, 2, 1}, 2),
+    THIEF("Thief", new int[]{17, 3}, 3);
 
     /**
      * Character name

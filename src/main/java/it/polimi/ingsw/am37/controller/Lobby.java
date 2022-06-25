@@ -163,11 +163,14 @@ public class Lobby implements Runnable, MessageReceiver {
     /**
      * resets the variables needed
      */
-    private void reset() {
-        if (advancedMode)
-            for (int i = 0; i < gameManager.getCharacters().length - 1; i++) {
-                gameManager.getCharacters()[i].setPlayedInThisTurn(false);
-            }
+    private void reset(boolean resetEverything) {
+        if (resetEverything) {
+            gameManager.getTurnManager().getPlayers().forEach(player -> player.setLastAssistantPlayed(null));
+            if (advancedMode)
+                for (int i = 0; i < gameManager.getCharacters().length; i++) {
+                    gameManager.getCharacters()[i].setPlayedInThisTurn(false);
+                }
+        }
         numberOfStudentsMoved = 0;
     }
 
@@ -207,7 +210,7 @@ public class Lobby implements Runnable, MessageReceiver {
         LOGGER.info("[Lobby " + matchID + "] Everything is ready, game is about to start");
         Timer timer = new Timer();
         gameManager.prepareGame();
-        reset();
+        reset(true);
         gameManager.registerListener(updateController);
         int i = 0;
         for (String nickname : playerNicknames.values()) {
@@ -425,11 +428,11 @@ public class Lobby implements Runnable, MessageReceiver {
         Message response;
         try {
             gameManager.chooseCloud(((ChooseCloudMessage) message).getCloudId());
-            reset();
+            reset(false);
             if (isLastPlayerInOrder(message.getUUID())) {
                 gameManager.nextTurn();
-                //Resets the last assistant played when a turn ends.
-                gameManager.getTurnManager().getPlayers().forEach(player -> player.setLastAssistantPlayed(null));
+                //Resets the last assistant played when a turn ends and the characters played.
+                reset(true);
                 response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(), message.getMessageType().getClassName());
             } else {
                 gameManager.getTurnManager().nextPlayer();

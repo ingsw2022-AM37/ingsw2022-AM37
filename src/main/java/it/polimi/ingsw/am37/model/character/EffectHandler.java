@@ -32,16 +32,16 @@ public class EffectHandler {
      * @param effect the effect type to handle
      */
     public EffectHandler(Effect effect, Bag bag) {
-        baseEffects = new ArrayList<>(EffectDatabase.getEffects(effect));
+        baseEffects = EffectDatabase.getEffects(effect);
         switch (effect) {
             case MONK, PRINCESS -> {
                 state = new State(new LimitedStudentsContainer(MONK_PRINCESS_CONTAINER_DIM), DEFAULT_NOENTRYTILES);
-                state.setContainer(bag.extractStudents(MONK_PRINCESS_CONTAINER_DIM));
+                state.getContainer().uniteContainers(bag.extractStudents(MONK_PRINCESS_CONTAINER_DIM));
             }
             case GRANDMA -> state = new State(null, GRANDMA_NOENTRYTILES);
             case JESTER -> {
                 state = new State(new LimitedStudentsContainer(JESTER_CONTAINERD_DIM), DEFAULT_NOENTRYTILES);
-                state.setContainer(bag.extractStudents(JESTER_CONTAINERD_DIM));
+                state.getContainer().uniteContainers(bag.extractStudents(JESTER_CONTAINERD_DIM));
             }
             default -> state = new State(null, DEFAULT_NOENTRYTILES);
         }
