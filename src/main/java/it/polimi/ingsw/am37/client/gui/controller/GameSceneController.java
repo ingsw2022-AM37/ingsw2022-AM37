@@ -4,9 +4,11 @@ import it.polimi.ingsw.am37.model.*;
 import it.polimi.ingsw.am37.model.character.Character;
 import it.polimi.ingsw.am37.model.character.Effect;
 import javafx.event.ActionEvent;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Bounds;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -16,9 +18,12 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.io.IOException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -41,63 +46,104 @@ public class GameSceneController extends GenericController {
     private final static String CLOUD_PREFIX = "cloud_";
     private final static String DECK_PREFIX = "deck_";
     private final PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
-    private final boolean isOtherBoardVisible = false;
+    protected final static double xSpaceStudents = 59;
+    protected final static double ySpaceStudentsEntrance = 50;
 
 
     //-------------------------------------------------------------------------------
     //Position and dimensions information
 
     private final static Font labelFont = new Font("System Bold", 20);
+    protected final static double ySpaceStudentsDining = 42;
+    protected final static double xSpaceTowers = 50;
+    protected final static double ySpaceTowers = 65;
+    protected final static Coordinate firstEntranceCoordinate = new Coordinate(57, 42);
+    protected final static Coordinate firstTowerCoordinate = new Coordinate(107, 740);
+    protected final static int firstLineEntranceAndTowersSize = 4;
+    protected static final Dimension towerDimension = new Dimension(50, 28);
+    protected static final Dimension studentAndProfDimension = new Dimension(40, 40);
+    protected final static Map<FactionColor, Image> profImageFromColor = Map.ofEntries(entry(FactionColor.BLUE,
+            new Image(Objects.requireNonNull(GameSceneController.class.getResourceAsStream(
+                    "/assets/images" +
+                            "/BlueTeacher.png")))), entry(FactionColor.PINK,
+            new Image(Objects.requireNonNull(GameSceneController.class.getResourceAsStream(
+                    "/assets/images" +
+                            "/PinkTeacher.png")))), entry(FactionColor.GREEN,
+            new Image(Objects.requireNonNull(GameSceneController.class.getResourceAsStream(
+                    "/assets/images" +
+                            "/GreenTeacher.png")))), entry(FactionColor.YELLOW,
+            new Image(Objects.requireNonNull(GameSceneController.class.getResourceAsStream(
+                    "/assets" +
+                            "/images/YellowTeacher.png")))), entry(FactionColor.RED,
+            new Image(Objects.requireNonNull(GameSceneController.class.getResourceAsStream(
+                    "/assets/images" + "/RedTeacher.png")))));
+    protected final static Map<FactionColor, Coordinate> profCoordinateFromColor =
+            Map.ofEntries(entry(FactionColor.BLUE,
+                    new Coordinate(55, 636)), entry(FactionColor.PINK, new Coordinate(115, 636)),
+                    entry(FactionColor.GREEN,
+                    new Coordinate(295, 636)), entry(FactionColor.YELLOW, new Coordinate(175, 636)),
+                    entry(FactionColor.RED,
+                    new Coordinate(235, 636)));
+    protected final static Map<FactionColor, Coordinate> studentShiftsForCharacter =
+            Map.ofEntries(entry(FactionColor.BLUE,
+                    new Coordinate(98, 31)), entry(FactionColor.PINK, new Coordinate(15, 101)),
+                    entry(FactionColor.GREEN,
+                    new Coordinate(98, 101)), entry(FactionColor.YELLOW, new Coordinate(15, 31)),
+                    entry(FactionColor.RED,
+                    new Coordinate(57, 136)));
+    protected final static Map<FactionColor, Image> studentImageFromColor = Map.ofEntries(entry(FactionColor.BLUE,
+            new Image(Objects.requireNonNull(GameSceneController.class.getResourceAsStream(
+                    "/assets/images" +
+                            "/BlueStudent.png")))), entry(FactionColor.PINK,
+            new Image(Objects.requireNonNull(GameSceneController.class.getResourceAsStream(
+                    "/assets/images" +
+                            "/PinkStudent.png")))), entry(FactionColor.GREEN,
+            new Image(Objects.requireNonNull(GameSceneController.class.getResourceAsStream(
+                    "/assets/images" +
+                            "/GreenStudent.png")))), entry(FactionColor.YELLOW,
+            new Image(Objects.requireNonNull(GameSceneController.class.getResourceAsStream(
+                    "/assets" +
+                            "/images/YellowStudent.png")))), entry(FactionColor.RED,
+            new Image(Objects.requireNonNull(GameSceneController.class.getResourceAsStream(
+                    "/assets/images" + "/RedStudent.png")))));
+    protected final static Map<FactionColor, Coordinate> studentDiningFirstCoordinatesFromColor =
+            Map.ofEntries(entry(FactionColor.BLUE, new Coordinate(57, 177)), entry(FactionColor.PINK,
+                            new Coordinate(116, 177)), entry(FactionColor.GREEN, new Coordinate(293, 177)),
+                    entry(FactionColor.YELLOW, new Coordinate(175, 177)), entry(FactionColor.RED, new Coordinate(234,
+                            177)));
+    protected final static Map<TowerColor, Image> towerImageFromColor = Map.ofEntries(entry(TowerColor.BLACK,
+            new Image(Objects.requireNonNull(GameSceneController.class.getResourceAsStream(
+                    "/assets/images" +
+                            "/BlackTower.png")))), entry(TowerColor.GRAY,
+            new Image(Objects.requireNonNull(GameSceneController.class.getResourceAsStream(
+                    "/assets/images" +
+                            "/GrayTower.png")))), entry(TowerColor.WHITE,
+            new Image(Objects.requireNonNull(GameSceneController.class.getResourceAsStream(
+                    "/assets/images" + "/WhiteTower.png"))))
 
-    private final static double xSpaceStudents = 59;
-    private final static double ySpaceStudentsEntrance = 50;
-    private final static double ySpaceStudentsDining = 42;
-
-    private final static double xSpaceTowers = 50;
-    private final static double ySpaceTowers = 65;
-
-    private final static Coordinate firstEntranceCoordinate = new Coordinate(57, 42);
-    private final static Coordinate firstTowerCoordinate = new Coordinate(107, 740);
-    private final int firstLineEntranceAndTowersSize = 4;
-    private final Coordinate islandCircleCenter = new Coordinate(850, 340);
-    private final List<Coordinate> cloudsCoordinate = Arrays.asList(new Coordinate(680, 340), new Coordinate(880,
-            340), new Coordinate(780, 540));
-    private final Coordinate shiftNoEntryTile = new Coordinate(29, 90);
-    private final Coordinate shiftMotherNature = new Coordinate(50, 0);
-    private final Coordinate shiftTowerIsland = new Coordinate(2, 0);
-    private final List<Coordinate> additionalPriceCharacters = Arrays.asList(new Coordinate(1460, 800),
+    );
+    private final static Coordinate islandCircleCenter = new Coordinate(850, 340);
+    private final static List<Coordinate> cloudsCoordinate = Arrays.asList(new Coordinate(680, 340),
+            new Coordinate(880, 340), new Coordinate(780, 540));
+    private final static Coordinate shiftNoEntryTile = new Coordinate(29, 90);
+    private final static Coordinate shiftMotherNature = new Coordinate(50, 0);
+    private final static Coordinate shiftTowerIsland = new Coordinate(2, 0);
+    private final static List<Coordinate> additionalPriceCharacters = Arrays.asList(new Coordinate(1460, 800),
             new Coordinate(1604, 800), new Coordinate(1748, 800));
-    private final Coordinate coinCoordinate = new Coordinate(1172, 869);
-    private final int distanceCharactersCards = 144;
-
-    private final Dimension towerDimension = new Dimension(50, 28);
-    private final Dimension studentAndProfDimension = new Dimension(40, 40);
-    private final Dimension cloudDimension = new Dimension(150, 150);
-    private final Dimension islandDimension = new Dimension(166.6, 166.6);
-    private final Dimension motherNatureDimension = new Dimension(60, 50);
-    private final Dimension noEntryDimension = new Dimension(30, 30);
-    private final Dimension assistantAndCharacterDimension = new Dimension(166.66, 113.33);
-    private final Dimension coinDimension = new Dimension(105, 95);
-    private final int maxRadiusIslands = 350;
-
-
+    private final static Coordinate coinCoordinate = new Coordinate(1172, 869);
+    private final static int distanceCharactersCards = 144;
+    private static final Dimension cloudDimension = new Dimension(150, 150);
+    private static final Dimension islandDimension = new Dimension(166.6, 166.6);
+    private static final Dimension motherNatureDimension = new Dimension(60, 50);
+    private static final Dimension noEntryDimension = new Dimension(30, 30);
+    private static final Dimension assistantAndCharacterDimension = new Dimension(166.66, 113.33);
+    private static final Dimension coinDimension = new Dimension(105, 95);
+    private static final int maxRadiusIslands = 350;
     //-------------------------------------------------------------------------------
     //Stand alone images
-    private final Image cloudImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream(
-            "/assets/images" + "/Cloud.png")));
-    private final List<Image> islandImage =
-            Arrays.asList(new Image(Objects.requireNonNull(getClass().getResourceAsStream(
-                    "/assets/images/Island1" +
-                            ".png"))), new Image(Objects.requireNonNull(getClass().getResourceAsStream(
-                    "/assets/images" +
-                            "/Island2.png"))), new Image(Objects.requireNonNull(getClass().getResourceAsStream(
-                    "/assets" + "/images/Island3.png"))));
-    private final Image motherNatureImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream(
-            "/assets" + "/images/MotherNature.png")));
-    private final Image noEntryTileImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream(
-            "/assets" + "/images/NoEntryTile.png")));
-    private final Image coinImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream(
-            "/assets/images" + "/Coin.png")));
+    private final static Image cloudImage =
+            new Image(Objects.requireNonNull(GameSceneController.class.getResourceAsStream(
+                    "/assets/images" + "/Cloud.png")));
 
     //-------------------------------------------------------------------------------
     //Link between info and images or coordinates
@@ -159,72 +205,31 @@ public class GameSceneController extends GenericController {
             "/assets/images/assistants" +
                     "/Assistant9.png")))), entry(10, new Image(Objects.requireNonNull(getClass().getResourceAsStream(
             "/assets/images/assistants" + "/Assistant10.png")))));
-
-
-    private final Map<FactionColor, Image> profImageFromColor = Map.ofEntries(entry(FactionColor.BLUE,
-            new Image(Objects.requireNonNull(getClass().getResourceAsStream(
-                    "/assets/images" +
-                            "/BlueTeacher.png")))), entry(FactionColor.PINK,
-            new Image(Objects.requireNonNull(getClass().getResourceAsStream(
-                    "/assets/images" +
-                            "/PinkTeacher.png")))), entry(FactionColor.GREEN,
-            new Image(Objects.requireNonNull(getClass().getResourceAsStream(
-                    "/assets/images" +
-                            "/GreenTeacher.png")))), entry(FactionColor.YELLOW,
-            new Image(Objects.requireNonNull(getClass().getResourceAsStream(
-                    "/assets" +
-                            "/images/YellowTeacher.png")))), entry(FactionColor.RED,
-            new Image(Objects.requireNonNull(getClass().getResourceAsStream(
-                    "/assets/images" + "/RedTeacher.png")))));
-    private final Map<FactionColor, Coordinate> profCoordinateFromColor = Map.ofEntries(entry(FactionColor.BLUE,
-            new Coordinate(55, 636)), entry(FactionColor.PINK, new Coordinate(115, 636)), entry(FactionColor.GREEN,
-            new Coordinate(295, 636)), entry(FactionColor.YELLOW, new Coordinate(175, 636)), entry(FactionColor.RED,
-            new Coordinate(235, 636)));
-
-    private final Map<FactionColor, Coordinate> studentShiftsForCharacter = Map.ofEntries(entry(FactionColor.BLUE,
-            new Coordinate(98, 31)), entry(FactionColor.PINK, new Coordinate(15, 101)), entry(FactionColor.GREEN,
-            new Coordinate(98, 101)), entry(FactionColor.YELLOW, new Coordinate(15, 31)), entry(FactionColor.RED,
-            new Coordinate(57, 136)));
-
-    private final Map<FactionColor, Image> studentImageFromColor = Map.ofEntries(entry(FactionColor.BLUE,
-            new Image(Objects.requireNonNull(getClass().getResourceAsStream(
-                    "/assets/images" +
-                            "/BlueStudent.png")))), entry(FactionColor.PINK,
-            new Image(Objects.requireNonNull(getClass().getResourceAsStream(
-                    "/assets/images" +
-                            "/PinkStudent.png")))), entry(FactionColor.GREEN,
-            new Image(Objects.requireNonNull(getClass().getResourceAsStream(
-                    "/assets/images" +
-                            "/GreenStudent.png")))), entry(FactionColor.YELLOW,
-            new Image(Objects.requireNonNull(getClass().getResourceAsStream(
-                    "/assets" +
-                            "/images/YellowStudent.png")))), entry(FactionColor.RED,
-            new Image(Objects.requireNonNull(getClass().getResourceAsStream(
-                    "/assets/images" + "/RedStudent.png")))));
-
-    private final Map<FactionColor, Coordinate> studentDiningFirstCoordinatesFromColor =
-            Map.ofEntries(entry(FactionColor.BLUE, new Coordinate(57, 177)), entry(FactionColor.PINK,
-                            new Coordinate(116, 177)), entry(FactionColor.GREEN, new Coordinate(293, 177)),
-                    entry(FactionColor.YELLOW, new Coordinate(175, 177)), entry(FactionColor.RED, new Coordinate(234,
-                            177)));
-
-    private final Map<TowerColor, Image> towerImageFromColor = Map.ofEntries(entry(TowerColor.BLACK,
-            new Image(Objects.requireNonNull(getClass().getResourceAsStream(
-                    "/assets/images" +
-                            "/BlackTower.png")))), entry(TowerColor.GRAY,
-            new Image(Objects.requireNonNull(getClass().getResourceAsStream(
-                    "/assets/images" +
-                            "/GrayTower.png")))), entry(TowerColor.WHITE,
-            new Image(Objects.requireNonNull(getClass().getResourceAsStream(
-                    "/assets/images" + "/WhiteTower.png"))))
-
-    );
-
-    private final Map<FactionColor, Coordinate> studentsShiftPositionsOnIslandsAndClouds =
+    private final static List<Image> islandImage =
+            Arrays.asList(new Image(Objects.requireNonNull(GameSceneController.class.getResourceAsStream(
+                            "/assets/images/Island1" +
+                                    ".png"))),
+                    new Image(Objects.requireNonNull(GameSceneController.class.getResourceAsStream(
+                            "/assets/images" +
+                                    "/Island2.png"))),
+                    new Image(Objects.requireNonNull(GameSceneController.class.getResourceAsStream(
+                            "/assets" + "/images/Island3.png"))));
+    private final static Image motherNatureImage =
+            new Image(Objects.requireNonNull(GameSceneController.class.getResourceAsStream(
+                    "/assets" + "/images/MotherNature.png")));
+    private final static Image noEntryTileImage =
+            new Image(Objects.requireNonNull(GameSceneController.class.getResourceAsStream(
+                    "/assets" + "/images/NoEntryTile.png")));
+    private final static Image coinImage =
+            new Image(Objects.requireNonNull(GameSceneController.class.getResourceAsStream(
+                    "/assets/images" + "/Coin.png")));
+    private final static Map<FactionColor, Coordinate> studentsShiftPositionsOnIslandsAndClouds =
             Map.ofEntries(entry(FactionColor.BLUE, new Coordinate(140, 41)), entry(FactionColor.PINK,
                             new Coordinate(16, 116)), entry(FactionColor.GREEN, new Coordinate(114, 116)),
                     entry(FactionColor.YELLOW, new Coordinate(-10, 41)), entry(FactionColor.RED, new Coordinate(63,
                             -9)));
+    private final static ImageView motherNature = new ImageView(motherNatureImage);
+    private final static ImageView coin = new ImageView(coinImage);
 
 
     //-------------------------------------------------------------------------------
@@ -247,13 +252,25 @@ public class GameSceneController extends GenericController {
     private ArrayList<ImageView> assistantPlayedView = new ArrayList<>();
     private ArrayList<Label> totalLabelsAssistantsView = new ArrayList<>();
     private ArrayList<ImageView> towerIslandView = new ArrayList<>();
-
-    private final ImageView motherNature = new ImageView(motherNatureImage);
-    private final ImageView coin = new ImageView(coinImage);
+    private final BoardsController boardsController;
+    private boolean isOtherBoardVisible = false;
 
     public GameSceneController() {
         motherNature.setOnMouseClicked(this::motherNatureClicked);
         motherNature.setCursor(Cursor.HAND);
+        Stage othersWindows = new Stage();
+        othersWindows.initModality(Modality.NONE);
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/assets/scenes/Boards.fxml"));
+        try {
+            othersWindows.setScene(new Scene(loader.load()));
+            this.boardsController = loader.getController();
+            othersWindows.setOnCloseRequest((event) -> {
+                isOtherBoardVisible = false;
+                othersWindows.hide();
+            });
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void assistantDeckClicked(MouseEvent mouseEvent) {
@@ -308,117 +325,16 @@ public class GameSceneController extends GenericController {
 
     public void drawBoard(HashMap<FactionColor, Integer> entrance, HashMap<FactionColor, Integer> dining,
                           boolean[] professors, LimitedTowerContainer towers) {
-
         drawEntrance(entrance);
         drawDining(dining);
         drawProfessors(professors);
         drawTowers(towers);
     }
 
-    public void drawCharacters(List<Character> characters) {
+    protected static void placeObjectNoAnimation(Coordinate coordinate, ImageView temp) {
 
-        cancelVisibleViewWallpaperPane(charactersInfoView);
-        charactersInfoView = new ArrayList<>();
-        charactersLabel.setVisible(true);
-        cancelLabelsFromPane(totalCharactersLabelsView);
-        totalCharactersLabelsView = new ArrayList<>();
-        charactersView = new ArrayList<>();
-        charactersHBox.getChildren().clear();
-
-        int i = 0;
-        int var = 0;
-
-        for (Character c : characters) {
-            ImageView imageView = new ImageView();
-            imageView.setId(CHARACTER_PREFIX + c.getEffectType());
-            imageView.setOnMouseClicked(this::characterClicked);
-            imageView.setCursor(Cursor.HAND);
-            imageView.setImage(characterImageFromName.get(c.getEffectType().getCharacterName()));
-            drawWithDimension(assistantAndCharacterDimension, imageView);
-            charactersHBox.getChildren().add(imageView);
-            charactersView.add(imageView);
-
-
-            int temp = c.getCurrentPrice() - c.getEffectType().getInitialPrice();
-            Label labelPriceAdditional = new Label("+" + temp);
-            labelPriceAdditional.setTextFill(Paint.valueOf("#ffffff"));
-            labelPriceAdditional.setFont(labelFont);
-            totalCharactersLabelsView.add(labelPriceAdditional);
-            labelPriceAdditional.setLayoutX(additionalPriceCharacters.get(i).x);
-            labelPriceAdditional.setLayoutY(additionalPriceCharacters.get(i).y);
-            wallpaperPane.getChildren().add(labelPriceAdditional);
-
-            Label label = new Label(c.getEffectType().name());
-            label.setFont(labelFont);
-            label.setRotate(270);
-            charactersHBox.getChildren().add(new Group(label));
-            totalCharactersLabelsView.add(label);
-
-            //Here starts images over characters with special specs
-
-            if (c.getEffectType().getCharacterName().equals(Effect.MONK.getCharacterName()) ||
-                    c.getEffectType().getCharacterName().equals(Effect.JESTER.getCharacterName()) ||
-                    c.getEffectType().getCharacterName().equals(Effect.PRINCESS.getCharacterName()) ||
-                    c.getEffectType().getCharacterName().equals(Effect.MUSHROOM_MAN.getCharacterName()) ||
-                    c.getEffectType().getCharacterName().equals(Effect.THIEF.getCharacterName())) {
-
-                Bounds bounds = imageView.localToScene(imageView.getBoundsInLocal());
-                for (FactionColor color : FactionColor.values()) {
-                    ImageView student = new ImageView();
-                    student.setImage(studentImageFromColor.get(color));
-                    student.setMouseTransparent(true);
-                    drawWithDimension(studentAndProfDimension, student);
-                    drawWithCoordinateDisablingAnimation(new Coordinate(
-                            bounds.getMinX() + var + studentShiftsForCharacter.get(color).x,
-                            bounds.getMinY() + studentShiftsForCharacter.get(color).y), student);
-                    wallpaperPane.getChildren().add(student);
-                    charactersInfoView.add(student);
-
-                    if (c.getEffectType().getCharacterName().equals(Effect.MONK.getCharacterName()) ||
-                            c.getEffectType().getCharacterName().equals(Effect.JESTER.getCharacterName()) ||
-                            c.getEffectType().getCharacterName().equals(Effect.PRINCESS.getCharacterName())) {
-                        Label numStudents = new Label(Integer.toString(c.getState().getContainer().getByColor(color)));
-                        numStudents.setFont(labelFont);
-                        numStudents.setTextFill(Paint.valueOf("#ffffff"));
-                        numStudents.setLayoutX(bounds.getMinX() + var + studentShiftsForCharacter.get(color).x);
-                        numStudents.setLayoutY(bounds.getMinY() + studentShiftsForCharacter.get(color).y);
-                        numStudents.setMouseTransparent(true);
-                        wallpaperPane.getChildren().add(numStudents);
-                        totalCharactersLabelsView.add(numStudents);
-                    }
-                }
-            } else if (c.getEffectType().getCharacterName().equals(Effect.GRANDMA.getCharacterName())) {
-
-                Bounds bounds = imageView.localToScene(imageView.getBoundsInLocal());
-                ImageView noEntryTile = new ImageView();
-                noEntryTile.setImage(noEntryTileImage);
-                drawWithDimension(noEntryDimension, noEntryTile);
-                drawWithCoordinateDisablingAnimation(new Coordinate(
-                        bounds.getMinX() + var + 25, bounds.getMaxY() - 20), noEntryTile);
-                wallpaperPane.getChildren().add(noEntryTile);
-                charactersInfoView.add(noEntryTile);
-                noEntryTile.setMouseTransparent(true);
-
-                Label numNoEntry = new Label(Integer.toString(c.getState().getNoEntryTiles()));
-                numNoEntry.setFont(labelFont);
-                numNoEntry.setTextFill(Paint.valueOf("#ffffff"));
-                numNoEntry.setLayoutX(bounds.getMinX() + var + 25);
-                numNoEntry.setLayoutY(bounds.getMaxY() - 20);
-                numNoEntry.setMouseTransparent(true);
-                wallpaperPane.getChildren().add(numNoEntry);
-                totalCharactersLabelsView.add(numNoEntry);
-            }
-
-            var = var + distanceCharactersCards;
-            i++;
-        }
-
-        if (!wallpaperPane.getChildren().contains(coin)) {
-            drawWithDimension(coinDimension, coin);
-            drawWithCoordinateDisablingAnimation(coinCoordinate, coin);
-            wallpaperPane.getChildren().add(coin);
-        }
-
+        temp.setLayoutX(coordinate.x);
+        temp.setLayoutY(coordinate.y);
     }
 
 
@@ -440,55 +356,9 @@ public class GameSceneController extends GenericController {
         return result;
     }
 
-    public void drawClouds(List<Cloud> clouds) {
-
-        cancelVisibleViewWallpaperPane(totalStudentsOnCloudsView);
-        totalStudentsOnCloudsView = new ArrayList<>();
-
-        cancelLabelsFromPane(totalLabelsOnCloudsView);
-        totalLabelsOnCloudsView = new ArrayList<>();
-
-        cancelVisibleViewWallpaperPane(cloudsView);
-        cloudsView = new ArrayList<>();
-
-        for (int i = 0; i < clouds.size(); i++) {
-
-            ImageView temp = new ImageView();
-            temp.setImage(cloudImage);
-            temp.setId(CLOUD_PREFIX + clouds.get(i).getCloudId());
-            temp.setOnMouseClicked(this::cloudClicked);
-            temp.setCursor(Cursor.HAND);
-            drawWithDimension(cloudDimension, temp);
-            drawWithCoordinateDisablingAnimation(cloudsCoordinate.get(i), temp);
-            wallpaperPane.getChildren().add(temp);
-            cloudsView.add(temp);
-
-            for (FactionColor color : FactionColor.values()) {
-
-                ImageView tempColor = new ImageView();
-                tempColor.setImage(studentImageFromColor.get(color));
-                Coordinate tempCoordinate = cloudsCoordinate.get(i)
-                        .addCoordinate(studentsShiftPositionsOnIslandsAndClouds.get(color));
-                drawWithCoordinateDisablingAnimation(tempCoordinate, tempColor);
-                drawWithDimension(studentAndProfDimension, temp);
-                wallpaperPane.getChildren().add(tempColor);
-                totalStudentsOnCloudsView.add(tempColor);
-                tempColor.setMouseTransparent(true);
-
-                Label label = new Label(String.valueOf(clouds.get(i).getByColor(color)));
-                label.setFont(labelFont);
-                label.setTextFill(Paint.valueOf("#ffffff"));
-                wallpaperPane.getChildren().add(label);
-                label.setLayoutX(tempCoordinate.x);
-                label.setLayoutY(tempCoordinate.y);
-                label.setMouseTransparent(true);
-                totalLabelsOnCloudsView.add(label);
-
-            }
-        }
-
-        for (ImageView imageView : cloudsView)
-            drawWithDimension(cloudDimension, imageView);
+    protected static void drawWithDimension(Dimension dimension, ImageView temp) {
+        temp.setFitWidth(dimension.width);
+        temp.setFitHeight(dimension.height);
     }
 
     public void drawDeck(List<Assistant> assistants) {
@@ -575,6 +445,185 @@ public class GameSceneController extends GenericController {
     //-------------------------------------------------------------------------------
     //Methods for drawing coordinates and dimensions
 
+    public void drawCharacters(List<Character> characters) {
+
+        cancelVisibleViewWallpaperPane(charactersInfoView);
+        charactersInfoView = new ArrayList<>();
+        charactersLabel.setVisible(true);
+        cancelLabelsFromPane(totalCharactersLabelsView);
+        totalCharactersLabelsView = new ArrayList<>();
+        charactersView = new ArrayList<>();
+        charactersHBox.getChildren().clear();
+
+        int i = 0;
+        int var = 0;
+
+        for (Character c : characters) {
+            ImageView imageView = new ImageView();
+            imageView.setId(CHARACTER_PREFIX + c.getEffectType());
+            imageView.setOnMouseClicked(this::characterClicked);
+            imageView.setCursor(Cursor.HAND);
+            imageView.setImage(characterImageFromName.get(c.getEffectType().getCharacterName()));
+            drawWithDimension(assistantAndCharacterDimension, imageView);
+            charactersHBox.getChildren().add(imageView);
+            charactersView.add(imageView);
+
+
+            int temp = c.getCurrentPrice() - c.getEffectType().getInitialPrice();
+            Label labelPriceAdditional = new Label("+" + temp);
+            labelPriceAdditional.setTextFill(Paint.valueOf("#ffffff"));
+            labelPriceAdditional.setFont(labelFont);
+            totalCharactersLabelsView.add(labelPriceAdditional);
+            labelPriceAdditional.setLayoutX(additionalPriceCharacters.get(i).x);
+            labelPriceAdditional.setLayoutY(additionalPriceCharacters.get(i).y);
+            wallpaperPane.getChildren().add(labelPriceAdditional);
+
+            Label label = new Label(c.getEffectType().name());
+            label.setFont(labelFont);
+            label.setRotate(270);
+            charactersHBox.getChildren().add(new Group(label));
+            totalCharactersLabelsView.add(label);
+
+            //Here starts images over characters with special specs
+
+            if (c.getEffectType().getCharacterName().equals(Effect.MONK.getCharacterName()) ||
+                    c.getEffectType().getCharacterName().equals(Effect.JESTER.getCharacterName()) ||
+                    c.getEffectType().getCharacterName().equals(Effect.PRINCESS.getCharacterName()) ||
+                    c.getEffectType().getCharacterName().equals(Effect.MUSHROOM_MAN.getCharacterName()) ||
+                    c.getEffectType().getCharacterName().equals(Effect.THIEF.getCharacterName())) {
+
+                Bounds bounds = imageView.localToScene(imageView.getBoundsInLocal());
+                for (FactionColor color : FactionColor.values()) {
+                    ImageView student = new ImageView();
+                    student.setImage(studentImageFromColor.get(color));
+                    student.setMouseTransparent(true);
+                    drawWithDimension(studentAndProfDimension, student);
+                    placeObjectNoAnimation(new Coordinate(
+                            bounds.getMinX() + var + studentShiftsForCharacter.get(color).x,
+                            bounds.getMinY() + studentShiftsForCharacter.get(color).y), student);
+                    wallpaperPane.getChildren().add(student);
+                    charactersInfoView.add(student);
+
+                    if (c.getEffectType().getCharacterName().equals(Effect.MONK.getCharacterName()) ||
+                            c.getEffectType().getCharacterName().equals(Effect.JESTER.getCharacterName()) ||
+                            c.getEffectType().getCharacterName().equals(Effect.PRINCESS.getCharacterName())) {
+                        Label numStudents = new Label(Integer.toString(c.getState().getContainer().getByColor(color)));
+                        numStudents.setFont(labelFont);
+                        numStudents.setTextFill(Paint.valueOf("#ffffff"));
+                        numStudents.setLayoutX(bounds.getMinX() + var + studentShiftsForCharacter.get(color).x);
+                        numStudents.setLayoutY(bounds.getMinY() + studentShiftsForCharacter.get(color).y);
+                        numStudents.setMouseTransparent(true);
+                        wallpaperPane.getChildren().add(numStudents);
+                        totalCharactersLabelsView.add(numStudents);
+                    }
+                }
+            } else if (c.getEffectType().getCharacterName().equals(Effect.GRANDMA.getCharacterName())) {
+
+                Bounds bounds = imageView.localToScene(imageView.getBoundsInLocal());
+                ImageView noEntryTile = new ImageView();
+                noEntryTile.setImage(noEntryTileImage);
+                drawWithDimension(noEntryDimension, noEntryTile);
+                placeObjectNoAnimation(new Coordinate(
+                        bounds.getMinX() + var + 25, bounds.getMaxY() - 20), noEntryTile);
+                wallpaperPane.getChildren().add(noEntryTile);
+                charactersInfoView.add(noEntryTile);
+                noEntryTile.setMouseTransparent(true);
+
+                Label numNoEntry = new Label(Integer.toString(c.getState().getNoEntryTiles()));
+                numNoEntry.setFont(labelFont);
+                numNoEntry.setTextFill(Paint.valueOf("#ffffff"));
+                numNoEntry.setLayoutX(bounds.getMinX() + var + 25);
+                numNoEntry.setLayoutY(bounds.getMaxY() - 20);
+                numNoEntry.setMouseTransparent(true);
+                wallpaperPane.getChildren().add(numNoEntry);
+                totalCharactersLabelsView.add(numNoEntry);
+            }
+
+            var = var + distanceCharactersCards;
+            i++;
+        }
+
+        if (!wallpaperPane.getChildren().contains(coin)) {
+            drawWithDimension(coinDimension, coin);
+            placeObjectNoAnimation(coinCoordinate, coin);
+            wallpaperPane.getChildren().add(coin);
+        }
+
+    }
+
+    public void drawClouds(List<Cloud> clouds) {
+
+        cancelVisibleViewWallpaperPane(totalStudentsOnCloudsView);
+        totalStudentsOnCloudsView = new ArrayList<>();
+
+        cancelLabelsFromPane(totalLabelsOnCloudsView);
+        totalLabelsOnCloudsView = new ArrayList<>();
+
+        cancelVisibleViewWallpaperPane(cloudsView);
+        cloudsView = new ArrayList<>();
+
+        for (int i = 0; i < clouds.size(); i++) {
+
+            ImageView temp = new ImageView();
+            temp.setImage(cloudImage);
+            temp.setId(CLOUD_PREFIX + clouds.get(i).getCloudId());
+            temp.setOnMouseClicked(this::cloudClicked);
+            temp.setCursor(Cursor.HAND);
+            drawWithDimension(cloudDimension, temp);
+            placeObjectNoAnimation(cloudsCoordinate.get(i), temp);
+            wallpaperPane.getChildren().add(temp);
+            cloudsView.add(temp);
+
+            for (FactionColor color : FactionColor.values()) {
+
+                ImageView tempColor = new ImageView();
+                tempColor.setImage(studentImageFromColor.get(color));
+                Coordinate tempCoordinate = cloudsCoordinate.get(i)
+                        .addCoordinate(studentsShiftPositionsOnIslandsAndClouds.get(color));
+                placeObjectNoAnimation(tempCoordinate, tempColor);
+                drawWithDimension(studentAndProfDimension, temp);
+                wallpaperPane.getChildren().add(tempColor);
+                totalStudentsOnCloudsView.add(tempColor);
+                tempColor.setMouseTransparent(true);
+
+                Label label = new Label(String.valueOf(clouds.get(i).getByColor(color)));
+                label.setFont(labelFont);
+                label.setTextFill(Paint.valueOf("#ffffff"));
+                wallpaperPane.getChildren().add(label);
+                label.setLayoutX(tempCoordinate.x);
+                label.setLayoutY(tempCoordinate.y);
+                label.setMouseTransparent(true);
+                totalLabelsOnCloudsView.add(label);
+
+            }
+        }
+
+        for (ImageView imageView : cloudsView)
+            drawWithDimension(cloudDimension, imageView);
+    }
+
+    public void drawPlayedAssistants(List<Player> players) {
+
+        totalLabelsAssistantsView = new ArrayList<>();
+        assistantPlayedView = new ArrayList<>();
+        assistantsHBox.getChildren().clear();
+
+        for (Player p : players) {
+            if (p.getLastAssistantPlayed() != null) {
+                ImageView imageView = new ImageView();
+                imageView.setImage(assistantImageFromValue.get(p.getLastAssistantPlayed().getCardValue()));
+                drawWithDimension(assistantAndCharacterDimension, imageView);
+                assistantsHBox.getChildren().add(imageView);
+                assistantPlayedView.add(imageView);
+                Label label = new Label(p.getPlayerId());
+                label.setFont(labelFont);
+                label.setRotate(270);
+                assistantsHBox.getChildren().add(new Group(label));
+                totalLabelsAssistantsView.add(label);
+            }
+        }
+    }
+
     public void drawIslands(List<Island> islands) {
 
         int numIslandImage = 0;
@@ -610,7 +659,7 @@ public class GameSceneController extends GenericController {
             numIslandImage++;
             if (numIslandImage == islandImage.size()) numIslandImage = 0;
             drawWithDimension(islandDimension, temp);
-            drawWithCoordinateDisablingAnimation(islandsCoordinates.get(i), temp);
+            placeObjectNoAnimation(islandsCoordinates.get(i), temp);
             wallpaperPane.getChildren().add(temp);
             islandsView.add(temp);
 
@@ -621,7 +670,7 @@ public class GameSceneController extends GenericController {
                 tempColor.setImage(studentImageFromColor.get(color));
                 Coordinate tempCoordinate = islandsCoordinates.get(i)
                         .addCoordinate(studentsShiftPositionsOnIslandsAndClouds.get(color));
-                drawWithCoordinateDisablingAnimation(tempCoordinate, tempColor);
+                placeObjectNoAnimation(tempCoordinate, tempColor);
                 drawWithDimension(studentAndProfDimension, temp);
                 wallpaperPane.getChildren().add(tempColor);
                 totalStudentsOnIslandsView.add(tempColor);
@@ -643,7 +692,7 @@ public class GameSceneController extends GenericController {
                 drawWithDimension(motherNatureDimension, motherNature);
                 Coordinate centreIsland = getCentreImageNoAnimation(islandsView.get(i));
                 centreIsland = centreIsland.addCoordinate(shiftMotherNature);
-                drawWithCoordinateDisablingAnimation(centreIsland, motherNature);
+                placeObjectNoAnimation(centreIsland, motherNature);
                 motherNature.toFront();
                 motherNature.setMouseTransparent(false);
             }
@@ -656,7 +705,7 @@ public class GameSceneController extends GenericController {
                 drawWithDimension(towerDimension, towerTemp);
                 Coordinate centreIsland = getCentreImageNoAnimation(islandsView.get(i));
                 centreIsland = centreIsland.addCoordinate(shiftTowerIsland);
-                drawWithCoordinateDisablingAnimation(centreIsland, towerTemp);
+                placeObjectNoAnimation(centreIsland, towerTemp);
                 wallpaperPane.getChildren().add(towerTemp);
                 towerIslandView.add(towerTemp);
 
@@ -680,7 +729,7 @@ public class GameSceneController extends GenericController {
                 temp.setMouseTransparent(true);
                 Coordinate centreIsland = getCentreImageNoAnimation(islandsView.get(i));
                 centreIsland = centreIsland.addCoordinate(shiftNoEntryTile);
-                drawWithCoordinateDisablingAnimation(centreIsland, temp);
+                placeObjectNoAnimation(centreIsland, temp);
 
                 Label label = new Label(String.valueOf(islands.get(i).getNoEntryTile()));
                 label.setFont(labelFont);
@@ -698,25 +747,9 @@ public class GameSceneController extends GenericController {
             drawWithDimension(islandDimension, imageView);
     }
 
-    public void drawPlayedAssistants(List<Player> players) {
-
-        totalLabelsAssistantsView = new ArrayList<>();
-        assistantPlayedView = new ArrayList<>();
-        assistantsHBox.getChildren().clear();
-
-        for (Player p : players) {
-            if (p.getLastAssistantPlayed() != null) {
-                ImageView imageView = new ImageView();
-                imageView.setImage(assistantImageFromValue.get(p.getLastAssistantPlayed().getCardValue()));
-                drawWithDimension(assistantAndCharacterDimension, imageView);
-                assistantsHBox.getChildren().add(imageView);
-                assistantPlayedView.add(imageView);
-                Label label = new Label(p.getPlayerId());
-                label.setFont(labelFont);
-                label.setRotate(270);
-                assistantsHBox.getChildren().add(new Group(label));
-                totalLabelsAssistantsView.add(label);
-            }
+    public void drawOthersBoard(List<Player> updatedPlayer) {
+        if (boardsController != null) {
+            boardsController.draw(updatedPlayer);
         }
     }
 
@@ -732,7 +765,7 @@ public class GameSceneController extends GenericController {
                 temp.setImage(profImageFromColor.get(color));
                 wallpaperPane.getChildren().add(temp);
                 drawWithDimension(studentAndProfDimension, temp);
-                drawWithCoordinateDisablingAnimation(new Coordinate(profCoordinateFromColor.get(color).x,
+                placeObjectNoAnimation(new Coordinate(profCoordinateFromColor.get(color).x,
                         profCoordinateFromColor.get(color).y), temp);
                 professorsView.add(temp);
             }
@@ -755,7 +788,7 @@ public class GameSceneController extends GenericController {
             temp.setImage(towerImageFromColor.get(towers.getCurrentTower()));
             wallpaperPane.getChildren().add(temp);
             drawWithDimension(towerDimension, temp);
-            drawWithCoordinateDisablingAnimation(new Coordinate(
+            placeObjectNoAnimation(new Coordinate(
                     firstTowerCoordinate.x + additionalX, firstTowerCoordinate.y + additionalY), temp);
             towersBoardView.add(temp);
             posInLine = posInLine + 1;
@@ -768,23 +801,12 @@ public class GameSceneController extends GenericController {
         }
     }
 
-    private void drawWithCoordinateDisablingAnimation(Coordinate coordinate, ImageView temp) {
-
-        temp.setLayoutX(coordinate.x);
-        temp.setLayoutY(coordinate.y);
-    }
-
     private void drawWithCoordinateEnablingAnimation(Coordinate coordinate, ImageView temp) {
 
-        drawWithCoordinateDisablingAnimation(new Coordinate(0, 0), temp);
+        placeObjectNoAnimation(new Coordinate(0, 0), temp);
 
         temp.setTranslateX(coordinate.x);
         temp.setTranslateY(coordinate.y);
-    }
-
-    private void drawWithDimension(Dimension dimension, ImageView temp) {
-        temp.setFitWidth(dimension.width);
-        temp.setFitHeight(dimension.height);
     }
 
 
@@ -824,17 +846,20 @@ public class GameSceneController extends GenericController {
     }
 
     public void showBoards(ActionEvent actionEvent) {
-        //TODO pop the windows
+        if (!isOtherBoardVisible) {
+            isOtherBoardVisible = true;
+            ((Stage) boardsController.boardsPane.getScene().getWindow()).show();
+        }
     }
 
-    private record Dimension(double height, double width) {
+    protected record Dimension(double height, double width) {
 
         private Coordinate getCenter() {
             return new Coordinate(width / 2, height / 2);
         }
     }
 
-    private record Coordinate(double x, double y) {
+    protected record Coordinate(double x, double y) {
 
         private Coordinate addCoordinate(Coordinate temp) {
             return new Coordinate(x + temp.x, y + temp.y);

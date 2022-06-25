@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import com.jfoenix.controls.JFXButton?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
@@ -8,7 +7,7 @@
 <?import javafx.scene.text.Font?>
 <Pane xmlns:fx="http://javafx.com/fxml/1" fx:id="boardsPane" maxHeight="-Infinity" maxWidth="-Infinity"
       minHeight="-Infinity" minWidth="-Infinity" prefHeight="980.0" prefWidth="980.0"
-      xmlns="http://javafx.com/javafx/18">
+      xmlns="http://javafx.com/javafx/18" fx:controller="it.polimi.ingsw.am37.client.gui.controller.BoardsController">
     <children>
         <ImageView fitHeight="980.0" fitWidth="980.0">
             <image>
@@ -20,7 +19,7 @@
                 <Image url="@../images/Board.png"/>
             </image>
         </ImageView>
-        <Label fx:id="nickname2" layoutX="66.0" layoutY="898.0" text="NICKNAME2">
+        <Label fx:id="nickname2" layoutX="66.0" layoutY="898.0" text="NICKNAME2" textAlignment="CENTER">
             <font>
                 <Font name="System Bold Italic" size="40.0"/>
             </font>
@@ -30,11 +29,5 @@
                 <Font name="System Bold Italic" size="40.0"/>
             </font>
         </Label>
-        <JFXButton fx:id="closeButton" alignment="CENTER" layoutX="381.0" layoutY="885.0" onAction="#returnToGame"
-                   text="BUTTON">
-            <font>
-                <Font name="System Bold Italic" size="40.0"/>
-            </font>
-        </JFXButton>
     </children>
 </Pane>

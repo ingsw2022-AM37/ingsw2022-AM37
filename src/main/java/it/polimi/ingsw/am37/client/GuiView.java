@@ -412,9 +412,18 @@ public class GuiView extends AbstractView {
                 }
                 professors = reducedModel.getBoards().get(client.getNickname()).getProfTable();
                 towers = reducedModel.getBoards().get(client.getNickname()).getTowers();
-
                 Platform.runLater(() -> ((GameSceneController) SceneController.getActiveController()).drawBoard(entrance, dining, professors, towers));
                 //My board drawn ------------------------------
+                Platform.runLater(() -> ((GameSceneController) SceneController.getActiveController()).drawOthersBoard(updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.PLAYER)
+                        .stream()
+                        .filter(p -> !Objects.equals(((Player) p).getPlayerId(), client.getNickname()))
+                        .map(p -> (Player) p)
+                        .toList()));
+            } else {
+                Platform.runLater(() -> ((GameSceneController) SceneController.getActiveController()).drawOthersBoard(updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.PLAYER)
+                        .stream()
+                        .map(p -> (Player) p)
+                        .toList()));
             }
         }
         if (client.getSettings().advancedRulesEnabled() &&
