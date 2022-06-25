@@ -134,9 +134,9 @@ public class IslandsManager {
         int islandId = islands.indexOf(island);
         boolean UnitedDx = false;
 
-        if (island.getCurrentTower() != TowerColor.NONE && islands.size() > 1) {
+        if (island.getCurrentTower() != TowerColor.NONE) {
 
-            if (islandId == 0) {
+            if (islandId == 0 && islands.size() > 1) {
                 if (island.getCurrentTower() == islands.get(islands.size() - 1).getCurrentTower()) {
                     island.setNumIslands(island.getNumIslands() + islands.get(islands.size() - 1).getNumIslands());
                     island.getStudentsOnIsland().uniteContainers(islands.get(islands.size() - 1).getStudentsOnIsland());
@@ -147,7 +147,7 @@ public class IslandsManager {
                 }
             }
 
-            if (islandId + 1 < islands.size()) {
+            if (islandId + 1 < islands.size() && islands.size() > 1) {
                 if (island.getCurrentTower() == islands.get(islandId + 1).getCurrentTower()) {
                     island.setNumIslands(island.getNumIslands() + islands.get(islandId + 1).getNumIslands());
                     island.getStudentsOnIsland().uniteContainers(islands.get(islandId + 1).getStudentsOnIsland());
@@ -162,7 +162,7 @@ public class IslandsManager {
                 }
             }
 
-            if (islandId - 1 >= 0) {
+            if (islandId - 1 >= 0 && islands.size() > 1) {
                 if (island.getCurrentTower() == islands.get(islandId - 1).getCurrentTower()) {
                     island.setNumIslands(island.getNumIslands() + islands.get(islandId - 1).getNumIslands());
                     island.getStudentsOnIsland().uniteContainers(islands.get(islandId - 1).getStudentsOnIsland());
@@ -176,7 +176,7 @@ public class IslandsManager {
                 }
             }
 
-            if (islandId == islands.size() - 1 && !UnitedDx) {
+            if (islandId == islands.size() - 1 && !UnitedDx && islands.size() > 1) {
                 if (island.getCurrentTower() == islands.get(0).getCurrentTower()) {
                     island.setNumIslands(island.getNumIslands() + islands.get(0).getNumIslands());
                     island.getStudentsOnIsland().uniteContainers(islands.get(0).getStudentsOnIsland());

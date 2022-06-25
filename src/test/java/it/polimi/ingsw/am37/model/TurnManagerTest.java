@@ -549,7 +549,7 @@ class TurnManagerTest {
         try {
             privateField = Player.class.getDeclaredField("numberOfCoins");
             privateField.setAccessible(true);
-            assertEquals(0, privateField.get(player));
+            assertEquals(1, privateField.get(player));
             privateField = Board.class.getDeclaredField("coinsArray");
             privateField.setAccessible(true);
             assertArrayEquals(new boolean[]{true, true, true}, ((boolean[][]) privateField.get(board))[FactionColor.BLUE.getIndex()]);
@@ -579,7 +579,7 @@ class TurnManagerTest {
         try {
             privateField = Player.class.getDeclaredField("numberOfCoins");
             privateField.setAccessible(true);
-            assertEquals(1, privateField.get(player));
+            assertEquals(2, privateField.get(player));
             privateField = Board.class.getDeclaredField("coinsArray");
             privateField.setAccessible(true);
             assertArrayEquals(new boolean[]{false, true, true}, ((boolean[][]) privateField.get(board))[FactionColor.BLUE.getIndex()]);
@@ -609,7 +609,7 @@ class TurnManagerTest {
         try {
             privateField = Player.class.getDeclaredField("numberOfCoins");
             privateField.setAccessible(true);
-            assertEquals(1, privateField.get(player));
+            assertEquals(2, privateField.get(player));
             privateField = Board.class.getDeclaredField("coinsArray");
             privateField.setAccessible(true);
             assertArrayEquals(new boolean[]{false, true, true}, ((boolean[][]) privateField.get(board))[FactionColor.BLUE.getIndex()]);
@@ -641,7 +641,7 @@ class TurnManagerTest {
         try {
             privateField = Player.class.getDeclaredField("numberOfCoins");
             privateField.setAccessible(true);
-            assertEquals(1, privateField.get(player));
+            assertEquals(2, privateField.get(player));
             privateField = Board.class.getDeclaredField("coinsArray");
             privateField.setAccessible(true);
             assertArrayEquals(new boolean[]{true, true, true}, ((boolean[][]) privateField.get(board))[FactionColor.BLUE.getIndex()]);
@@ -652,7 +652,7 @@ class TurnManagerTest {
         try {
             privateField = Player.class.getDeclaredField("numberOfCoins");
             privateField.setAccessible(true);
-            assertEquals(2, privateField.get(player));
+            assertEquals(3, privateField.get(player));
             privateField = Board.class.getDeclaredField("coinsArray");
             privateField.setAccessible(true);
             assertArrayEquals(new boolean[]{false, true, true}, ((boolean[][]) privateField.get(board))[FactionColor.BLUE.getIndex()]);
