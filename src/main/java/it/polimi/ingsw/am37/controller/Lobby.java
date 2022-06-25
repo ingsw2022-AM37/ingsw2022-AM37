@@ -278,7 +278,8 @@ public class Lobby implements Runnable, MessageReceiver {
         } catch (AssistantImpossibleToPlay | IllegalArgumentException e) {
             LOGGER.error("[Lobby " + matchID + "] Assistant impossible to play");
             LOGGER.error("[Lobby " + matchID + "]\n" + e.getMessage());
-            response = new ErrorMessage(message.getUUID(), e.getMessage());
+            response = new ErrorMessage(message.getUUID(), e.getMessage().substring(e.getMessage().indexOf(" ") + 1));
+            LOGGER.error(e.getMessage().substring(e.getMessage().indexOf(" ") + 1));
             sendMessage(response);
             response = new PlanningPhaseMessage(findUUIDByUsername(gameManager.getTurnManager().getCurrentPlayer().getPlayerId()));
             sendMessage(response);
@@ -300,7 +301,8 @@ public class Lobby implements Runnable, MessageReceiver {
             try {
                 gameManager.moveStudentsToDining(((StudentsToDiningMessage) message).getContainer());
             } catch (IllegalArgumentException e) {
-                response = new ErrorMessage(message.getUUID(), e.getMessage());
+                response = new ErrorMessage(message.getUUID(), e.getMessage().substring(e.getMessage().indexOf(" ") + 1));
+                LOGGER.error(e.getMessage().substring(e.getMessage().indexOf(" ") + 1));
                 sendMessage(response);
             }
             numberOfStudentsMoved += students;
@@ -326,7 +328,8 @@ public class Lobby implements Runnable, MessageReceiver {
                 gameManager.moveStudentsToIsland(((StudentsToIslandMessage) message).getContainer(),
                         ((StudentsToIslandMessage) message).getIslandId());
             } catch (IllegalArgumentException e) {
-                response = new ErrorMessage(message.getUUID(), e.getMessage());
+                response = new ErrorMessage(message.getUUID(), e.getMessage().substring(e.getMessage().indexOf(" ") + 1));
+                LOGGER.error(e.getMessage().substring(e.getMessage().indexOf(" ") + 1));
                 sendMessage(response);
             }
             numberOfStudentsMoved += students;
@@ -357,7 +360,8 @@ public class Lobby implements Runnable, MessageReceiver {
                 response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(), message.getMessageType().getClassName());
                 sendMessage(response);
             } catch (MNmovementWrongException e) {
-                response = new ErrorMessage(message.getUUID(), e.getMessage());
+                response = new ErrorMessage(message.getUUID(), e.getMessage().substring(e.getMessage().indexOf(" ") + 1));
+                LOGGER.error(e.getMessage().substring(e.getMessage().indexOf(" ") + 1));
                 sendMessage(response);
             }
         } else
@@ -392,7 +396,8 @@ public class Lobby implements Runnable, MessageReceiver {
                 if (optionNeeded == null || characterToBePlayed == null) throw new IllegalStateException();
                 gameManager.playCharacter(characterToBePlayed, optionNeeded);
             } catch (CharacterImpossibleToPlay e) {
-                response = new ErrorMessage(message.getUUID(), e.getMessage());
+                response = new ErrorMessage(message.getUUID(), e.getMessage().substring(e.getMessage().indexOf(" ") + 1));
+                LOGGER.error(e.getMessage().substring(e.getMessage().indexOf(" ") + 1));
                 sendMessage(response);
             } catch (IllegalStateException e) {
                 ch.disconnect();
@@ -405,6 +410,7 @@ public class Lobby implements Runnable, MessageReceiver {
             gameManager.getCharacters()[characterIndex].setPlayedInThisTurn(true);
         } else {
             response = new ErrorMessage(message.getUUID(), "Character not playable, already played in this turn");
+            LOGGER.error("Character not playable, already played in this turn");
             sendMessage(response);
         }
     }
@@ -431,7 +437,8 @@ public class Lobby implements Runnable, MessageReceiver {
             }
             sendMessage(response);
         } catch (IllegalArgumentException | StudentSpaceException e) {
-            response = new ErrorMessage(message.getUUID(), e.getMessage());
+            response = new ErrorMessage(message.getUUID(), e.getMessage().substring(e.getMessage().indexOf(" ") + 1));
+            LOGGER.error(e.getMessage().substring(e.getMessage().indexOf(" ") + 1));
             sendMessage(response);
         }
 

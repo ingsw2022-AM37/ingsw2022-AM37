@@ -161,6 +161,20 @@ public class GameManager {
                 EffectDatabase.setUp();
                 List<Effect> temp = new ArrayList<>(Arrays.stream(Effect.values()).toList());
                 Collections.shuffle(temp);
+                //Character Testing
+                // -----CHARACTER--------------TEST DIFFICULTY---------------HINTS------------------
+                // -    Monk:                      EASY                      DONE        //No hints
+                // -    Magic Postman:             EASY                      DONE        //In order to function correctly it must be played before moving mother nature
+                // -    Knight:                    EASY                      DONE        //No hints
+                // -    Mushroom Man:              EASY                      DONE        //In order to function correctly it must be played before moving mother nature
+                // -    Princess:                  EASY                      DONE        //No hints
+                // -    Farmer:                    MEDIUM                    DONE        //In order to function correctly it must be played before moving students in the dining
+                // -    Centaur:                   MEDIUM                    DONE        //In order to function correctly it must be played before moving mother nature
+                // -    Jester:                    MEDIUM                    DONE        //No hints
+                // -    Minstrel:                  MEDIUM                    DONE        //In order to function correctly you must have at least two students in the dining
+                // -    Herald:                    MEDIUM                    DONE
+                // -    Grandma:                   MEDIUM                    DONE        //In order to function correctly it must be played before moving mother nature
+                // -    Thief:                     HARD                      DONE        //No hints
                 for (int i = 0; i < NUMBER_OF_CHARACTERS; i++) {
                     Effect effect = temp.get(i);
                     characters[i] = new Character(effect.getInitialPrice(), effect, bag);
