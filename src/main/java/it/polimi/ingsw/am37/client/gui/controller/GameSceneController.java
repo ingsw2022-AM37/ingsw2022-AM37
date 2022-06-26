@@ -555,6 +555,8 @@ public class GameSceneController extends GenericController {
 
     public void drawClouds(List<Cloud> clouds) {
 
+        boolean unClickable = true;
+
         cancelVisibleViewWallpaperPane(totalStudentsOnCloudsView);
         totalStudentsOnCloudsView = new ArrayList<>();
 
@@ -569,8 +571,20 @@ public class GameSceneController extends GenericController {
             ImageView temp = new ImageView();
             temp.setImage(cloudImage);
             temp.setId(CLOUD_PREFIX + clouds.get(i).getCloudId());
-            temp.setOnMouseClicked(this::cloudClicked);
-            temp.setCursor(Cursor.HAND);
+
+            for(FactionColor color:FactionColor.values())
+                if(clouds.get(i).getByColor(color)>0) {
+                    unClickable = false;
+                    break;
+                }
+
+            if(!unClickable) {
+                temp.setOnMouseClicked(this::cloudClicked);
+                temp.setCursor(Cursor.HAND);
+            }
+            else
+                temp.setMouseTransparent(true);
+
             drawWithDimension(cloudDimension, temp);
             placeObjectNoAnimation(cloudsCoordinate.get(i), temp);
             wallpaperPane.getChildren().add(temp);
