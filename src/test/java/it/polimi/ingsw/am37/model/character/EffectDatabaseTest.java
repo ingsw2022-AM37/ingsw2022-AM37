@@ -340,7 +340,7 @@ class EffectDatabaseTest {
         when(board.getDiningRoom()).thenReturn(mockContainer);
         manager.getTurnManager().getPlayers().replaceAll(Mockito::spy);
         manager.getTurnManager().getPlayers().forEach(player -> when(player.getBoard()).thenReturn(board));
-        singleEffect.accept(option, null);
+        singleEffect.accept(option, new State(mockContainer, 0));
         verify(mockContainer, times(manager.getTurnManager().getPlayers().size())).removeContainer(isNotNull());
 
     }

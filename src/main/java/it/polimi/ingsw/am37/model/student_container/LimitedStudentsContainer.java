@@ -78,7 +78,7 @@ public class LimitedStudentsContainer extends StudentsContainer {
      */
     public void removeStudents(int num, FactionColor color) throws IllegalArgumentException, StudentSpaceException {
         if (num < 0) throw new IllegalArgumentException("num parameter must be strictly positive");
-        if (color == null) throw new IllegalArgumentException("Colors couldn't be null");
+        if (color == null) throw new IllegalArgumentException("Colors can't be null");
         if (student[color.getIndex()] >= num) student[color.getIndex()] -= num;
         else {
             throw new StudentSpaceException("General space error (curr, num, limit): (" + Arrays.stream(student)

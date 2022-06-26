@@ -15,6 +15,7 @@ import it.polimi.ingsw.am37.network.ClientSocket;
 import java.io.*;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.Scanner;
 
 /**
  * This class represent the user interface of the game. Construct it providing initial arguments for connections and
@@ -204,7 +205,6 @@ public class Client {
                     throw new RuntimeException(e);
                 }
             }
-
         }
     }
 
@@ -251,9 +251,6 @@ public class Client {
                         this.nickname = tempNick;
                         savedProperties.setProperty(P_NICKNAME_KEY, this.nickname);
                     }
-                } else {
-                    ErrorMessage mes = (ErrorMessage) lastReadMessage;
-                    view.displayError(mes.getMessage());
                 }
             }
         }
@@ -342,11 +339,12 @@ public class Client {
     /**
      * Main method to perform student actions
      *
+     * @param isToIsland true if the player is moving to an island, false otherwise
      * @return if action has accepted or reject by the server
      * @see ActionType
      */
     private boolean moveStudentsRegular(Boolean isToIsland) {
-        StudentsContainer container = null;
+        StudentsContainer container;
         while (true) {
             container = view.askStudentsFromEntrance(this, 0);
             if (container == null ||
@@ -370,7 +368,6 @@ public class Client {
 
     }
 
-
     /**
      * Method used to check if the last action performed have been successful or not. More formally returns {@code true}
      * if server responds with an {@link UpdateMessage} or {@code false} if the server responds with an
@@ -384,7 +381,11 @@ public class Client {
         try {
             do {
                 message = socket.getResponseBuffer().take();
-                isError = message.getMessageType() == MessageType.ERROR || isError;
+                if (message.getMessageType() == MessageType.ERROR) {
+                    isError = true;
+                    view.displayError(((ErrorMessage) message).getMessage());
+                }
+
             } while (socket.getResponseBuffer().size() > 0);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
@@ -414,10 +415,12 @@ public class Client {
      */
     private boolean playCharacter() {
         Player currentPlayer = view.getReducedModel().getPlayers().get(nickname);
-        view.displayImportant("You have " + currentPlayer.getNumberOfCoins() +
-                (currentPlayer.getNumberOfCoins() == 1 ? " coin" : " coins"));
+        view.displayImportant("You have " + currentPlayer.getNumberOfCoins() + (currentPlayer.getNumberOfCoins() == 1 ? " coin" : " coins"));
         view.showCharacters();
         Effect effect = view.askCharacter();
+        if (effect == null) {
+            return false;
+        }
         Character character = view.getReducedModel()
                 .getCharacters()
                 .stream()
@@ -428,7 +431,7 @@ public class Client {
         PlayCharacterMessage message;
         if (currentPlayer.getNumberOfCoins() < character.getCurrentPrice()) {
             view.displayError("You don't have enough coins to play this character");
-            return true;
+            return false;
         }
         switch (effect) {
             case MONK -> {
@@ -450,28 +453,48 @@ public class Client {
             }
             case JESTER -> {
                 final int JESTER_STUDENTS = 3;
-                LimitedStudentsContainer container1 =
-                        (LimitedStudentsContainer) view.askStudentsFromCharacter(character, JESTER_STUDENTS, this);
-                LimitedStudentsContainer container2 = (LimitedStudentsContainer) view.askStudentsFromEntrance(this,
-                        JESTER_STUDENTS);
+                view.displayImportant("Please select the students you want from the @|bold card|@:");
+                LimitedStudentsContainer container1 = (LimitedStudentsContainer) view.askStudentsFromCharacter(character, JESTER_STUDENTS, this);
+                LimitedStudentsContainer container2 = (LimitedStudentsContainer) view.askStudentsFromEntrance(this, JESTER_STUDENTS);
                 if (container1 == null || container2 == null) return false;
-                else oBuilder.primaryContainer(container1).secondaryContainer(container2);
+                else {
+                    oBuilder.primaryContainer(container1);
+                    oBuilder.secondaryContainer(container2);
+                }
                 oBuilder.intPar(JESTER_STUDENTS);
             }
             case MUSHROOM_MAN, THIEF -> {
                 FactionColor color = view.askColor(this);
                 if (color == null) return false;
                 else oBuilder.color(color);
+                if (effect == Effect.THIEF)
+                    oBuilder.intPar(3);
             }
             case MINSTREL -> {
-                final int MINSTREL_STUDENTS = 2;
-                LimitedStudentsContainer container1 = (LimitedStudentsContainer) view.askStudentsFromEntrance(this,
-                        MINSTREL_STUDENTS);
-                LimitedStudentsContainer container2 = (LimitedStudentsContainer) view.askStudentFromDining(this,
-                        MINSTREL_STUDENTS);
-                if (container1 == null || container2 == null) return false;
-                else oBuilder.primaryContainer(container1).secondaryContainer(container2);
-                oBuilder.intPar(MINSTREL_STUDENTS);
+                int MINSTREL_STUDENTS = 2;
+                view.displayImportant("Would you like to move 1 or 2 students? (Default: 2)");
+                Scanner scanner = new Scanner(System.in);
+
+                try {
+                    MINSTREL_STUDENTS = Integer.parseInt(scanner.nextLine());
+                } catch (NumberFormatException e) {
+                    view.displayError("Invalid number of students");
+                }
+
+                if (MINSTREL_STUDENTS == 1 || MINSTREL_STUDENTS == 2) {
+                    LimitedStudentsContainer container1 = (LimitedStudentsContainer) view.askStudentsFromEntrance(this, MINSTREL_STUDENTS);
+                    LimitedStudentsContainer container2 = (LimitedStudentsContainer) view.askStudentFromDining(this, MINSTREL_STUDENTS);
+                    if (container1 == null || container2 == null)
+                        return false;
+                    else {
+                        oBuilder.primaryContainer(container1);
+                        oBuilder.secondaryContainer(container2);
+                    }
+                    oBuilder.intPar(MINSTREL_STUDENTS);
+                } else {
+                    view.displayError("Invalid number of students");
+                    return false;
+                }
             }
             case PRINCESS -> {
                 final int PRINCESS_STUDENTS = 1;
@@ -480,6 +503,19 @@ public class Client {
                 oBuilder.primaryContainer(container);
                 oBuilder.intPar(PRINCESS_STUDENTS);
             }
+            case MAGIC_POSTMAN -> {
+                final int MAGIC_POSTMAN_MN_ADDITIONAL_MOVEMENTS = 2;
+                if (currentPlayer.getLastAssistantPlayed() == null) {
+                    view.displayError("You have to play an assistant before playing this character");
+                    return false;
+                }
+                oBuilder.intPar(MAGIC_POSTMAN_MN_ADDITIONAL_MOVEMENTS);
+            }
+            case KNIGHT -> {
+                final int KNIGHT_ADDITIONAL_INFLUENCE_POINTS = 2;
+                oBuilder.intPar(KNIGHT_ADDITIONAL_INFLUENCE_POINTS);
+            }
+
             default -> {
             }
         }
@@ -548,40 +584,36 @@ public class Client {
                     if (actionOk && totalStudentsInTurn == GameManager.MAX_FOR_MOVEMENTS) {
                         setStatus(ClientStatus.MOVINGMOTHERNATURE);
                         totalStudentsInTurn = 0;
-                    } else if (!actionOk) view.displayError("e.impossibleStudents");
+                    }
                 }
                 case MOVE_STUDENTS_DINING -> {
                     boolean actionOk = moveStudentsRegular(false);
                     if (actionOk && totalStudentsInTurn == GameManager.MAX_FOR_MOVEMENTS) {
                         setStatus(ClientStatus.MOVINGMOTHERNATURE);
                         totalStudentsInTurn = 0;
-                    } else if (!actionOk) view.displayError("e.impossibleStudents");
+                    }
                 }
                 case MOVE_STUDENTS_UNDEFINED -> {
                     boolean actionOk = moveStudentsRegular(null);
                     if (actionOk && totalStudentsInTurn == GameManager.MAX_FOR_MOVEMENTS) {
                         setStatus(ClientStatus.MOVINGMOTHERNATURE);
                         totalStudentsInTurn = 0;
-                    } else if (!actionOk) view.displayError("e.impossibleStudents");
+                    }
                 }
                 case MOVE_MOTHER_NATURE -> {
                     if (moveMotherNature()) setStatus(ClientStatus.CHOOSINGCLOUD);
-                    else view.displayError("e.impossibleMotherNature");
                 }
                 case CHOOSE_CLOUD -> {
                     if (chooseCloud()) {
                         view.displayImportant("You have finished your turn");
                         setStatus(ClientStatus.WAITINGFORTURN);
-                    } else view.displayError("e.impossibleCloud");
+                    }
                 }
                 case PLAY_ASSISTANT -> {
                     if (playAssistant()) setStatus(ClientStatus.WAITINGFORTURN);
-                    else view.displayError(messagesConstants.getProperty("e.impossibleAssistant"));
                 }
                 case PLAY_CHARACTER -> {
-                    if (!playCharacter()) {
-                        view.displayError(messagesConstants.getProperty("e.impossibleCharacter"));
-                    }
+                    if (playCharacter()) view.displayImportant("Character played");
                 }
                 default -> {
                     view.displayError("e.impossibleAction");

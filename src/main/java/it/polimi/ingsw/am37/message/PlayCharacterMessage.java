@@ -119,7 +119,7 @@ public class PlayCharacterMessage extends Message {
                     .stream()
                     .filter(i -> i.getIslandId() == islandId)
                     .findFirst()
-                    .orElseThrow());
+                    .orElse(null));
             optionBuilder.color(color);
             optionBuilder.intPar(intPar);
             optionBuilder.primaryContainer(primaryContainer);

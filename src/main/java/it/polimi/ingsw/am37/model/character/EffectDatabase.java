@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am37.model.character;
 
+import it.polimi.ingsw.am37.model.Player;
 import it.polimi.ingsw.am37.model.student_container.LimitedStudentsContainer;
 import it.polimi.ingsw.am37.model.student_container.UnlimitedStudentsContainer;
 
@@ -103,12 +104,22 @@ public final class EffectDatabase {
         baseEffects.add(16,
                 (option, state) -> option.getController().getIslandsManager().setDisabledColorFlag(option.getColor())
         );
-        //17 - remove from all player some student of a color
+        //17 - for all player remove some student of a color and adds them to the service container
         baseEffects.add(17,
                 (option, state) -> {
-                    LimitedStudentsContainer temp = new LimitedStudentsContainer(option.getIntPar());
-                    temp.addStudents(option.getIntPar(), option.getColor());
-                    option.getController().getTurnManager().getPlayers().forEach(player -> player.getBoard().getDiningRoom().removeContainer(temp));
+                    UnlimitedStudentsContainer temp2;
+                    int studentsToRemove;
+                    int sum = 0;
+                    for (Player player : option.getController().getTurnManager().getPlayers()) {
+                        LimitedStudentsContainer temp = new LimitedStudentsContainer(option.getIntPar());
+                        studentsToRemove = Math.min(player.getBoard().getDiningRoom().getByColor(option.getColor()), option.getIntPar());
+                        temp.addStudents(studentsToRemove, option.getColor());
+                        player.getBoard().getDiningRoom().removeContainer(temp);
+                        sum += studentsToRemove;
+                    }
+                    temp2 = new UnlimitedStudentsContainer();
+                    temp2.addStudents(sum, option.getColor());
+                    state.setServiceContainer(temp2);
                 }
         );
         //18 - copy primaryContainer into serviceContainer
@@ -127,7 +138,6 @@ public final class EffectDatabase {
                     state.setServiceContainer(temp);
                 }
         );
-
     }
 
     /**
@@ -136,10 +146,8 @@ public final class EffectDatabase {
      * @param effect The card effect
      */
     public static ArrayList<BiConsumer<Option, State>> getEffects(Effect effect) {
-        return baseEffects.stream()
-                .filter(
-                        obj -> effect.getBaseEffects().contains(baseEffects.indexOf(obj))
-                )
+        return effect.getBaseEffects().stream()
+                .map(baseEffects::get)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 }

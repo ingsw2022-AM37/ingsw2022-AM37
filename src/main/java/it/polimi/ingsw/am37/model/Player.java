@@ -2,6 +2,7 @@ package it.polimi.ingsw.am37.model;
 
 import it.polimi.ingsw.am37.model.character.Character;
 import it.polimi.ingsw.am37.model.character.Option;
+import it.polimi.ingsw.am37.model.exceptions.CharacterImpossibleToPlay;
 
 import javax.management.InstanceAlreadyExistsException;
 import java.security.InvalidParameterException;
@@ -93,9 +94,9 @@ public class Player extends UpdatableObject {
      * @param option    The parameters that are needed in order to play the Character.
      * @throws IllegalArgumentException if there aren't enough coins to play the Character.
      */
-    public void useCharacter(Character character, Option option) throws IllegalArgumentException {
+    public void useCharacter(Character character, Option option) throws CharacterImpossibleToPlay {
         if (this.numberOfCoins < character.getCurrentPrice())
-            throw new IllegalArgumentException("Can't play the character, you don't have enough coins");
+            throw new CharacterImpossibleToPlay("Can't play the character, not enough coins");
         this.numberOfCoins -= character.getCurrentPrice();
         character.useEffect(option);
         this.support.firePropertyChange(P_PLAYER_CHARACTERUSED.toString(), null, character);
