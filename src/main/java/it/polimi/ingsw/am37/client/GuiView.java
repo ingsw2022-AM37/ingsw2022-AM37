@@ -2,10 +2,7 @@ package it.polimi.ingsw.am37.client;
 
 import it.polimi.ingsw.am37.client.gui.GuiApp;
 import it.polimi.ingsw.am37.client.gui.SceneController;
-import it.polimi.ingsw.am37.client.gui.controller.ChooseNumStudentsController;
-import it.polimi.ingsw.am37.client.gui.controller.ConnectionController;
-import it.polimi.ingsw.am37.client.gui.controller.EnterInGameController;
-import it.polimi.ingsw.am37.client.gui.controller.GameSceneController;
+import it.polimi.ingsw.am37.client.gui.controller.*;
 import it.polimi.ingsw.am37.client.gui.observer.GuiObserver;
 import it.polimi.ingsw.am37.message.UpdateMessage;
 import it.polimi.ingsw.am37.model.*;
@@ -176,26 +173,56 @@ public class GuiView extends AbstractView {
         throw new IllegalStateException("Only CLI method called in GUI");
     }
 
-    /**
-     * Show all the character of this match
-     */
-    @Override
-    public void showCharacters() {
-    }
-
     @Override
     public FactionColor askColor(Client client) {
-        return null;
+        AtomicReference<FactionColor> color = new AtomicReference<>();
+        CountDownLatch latch = new CountDownLatch(1);
+        Platform.runLater(() -> {
+            Stage colorDialog = new Stage();
+            colorDialog.initModality(Modality.APPLICATION_MODAL);
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/assets/scenes/ChooseColor.fxml"));
+            try {
+                colorDialog.setScene(new Scene(loader.load()));
+                ChooseColorController controller = loader.getController();
+                colorDialog.showAndWait();
+                color.set(controller.getColor());
+                latch.countDown();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        return color.get();
     }
 
     @Override
     public StudentsContainer askStudentFromDining(Client client, int num) {
-        return null;
+        StudentsContainer container;
+        while (true) {
+            container = askStudents(num, reducedModel.getBoards().get(client.getNickname()).getDiningRoom());
+            if (container.size() != num) {
+                displayError(client.getMessageString("e.toManyStudents"));
+                continue;
+            } else break;
+        }
+        return container;
     }
 
     @Override
     public StudentsContainer askStudentsFromCharacter(Character character, int num, Client client) {
-        return null;
+        StudentsContainer container;
+        while (true) {
+            container = askStudents(num, character.getState().getContainer());
+            if (container.size() != num) {
+                displayError(client.getMessageString("e.toManyStudents"));
+                continue;
+            } else break;
+        }
+        return container;
     }
 
     /**
@@ -209,7 +236,8 @@ public class GuiView extends AbstractView {
     public StudentsContainer askStudentsFromEntrance(Client client, int num) {
         StudentsContainer container;
         while (true) {
-            int studentsToMove = (num == 0 ? (GameManager.MAX_FOR_MOVEMENTS - client.getTotalStudentsInTurn()) : num);
+            int studentsToMove = (num == 0 ? (GameManager.MAX_FOR_MOVEMENTS[client.getSettings().lobbySize() % 2] -
+                    client.getTotalStudentsInTurn()) : num);
             container = askStudents(studentsToMove, reducedModel.getBoards().get(client.getNickname()).getEntrance());
             if (num == 0 ? container.size() > studentsToMove : container.size() != num) {
                 displayError(client.getMessageString("e.toManyStudents"));
@@ -217,11 +245,20 @@ public class GuiView extends AbstractView {
             }
             if (num == 0) {
                 client.addTotalStudentsInTurn(container.size());
-                if (client.getTotalStudentsInTurn() == GameManager.MAX_FOR_MOVEMENTS ||
+                if (client.getTotalStudentsInTurn() ==
+                        GameManager.MAX_FOR_MOVEMENTS[client.getSettings().lobbySize() % 2] ||
                         !askConfirm("Do you want to move more students?")) break;
             } else if (container.size() == num) break;
         }
         return container;
+    }
+
+    /**
+     * Show all the character of this match
+     */
+    @Override
+    public void showCharacters() {
+
     }
 
     /**
@@ -476,7 +513,8 @@ public class GuiView extends AbstractView {
     }
 
     /**
-     * This function pop up a container
+     * This functions display a modal window to let the user input some students with spinner field. The spinners are
+     * limited with the student contained in the provided container
      *
      * @param container
      * @param studentsToMove
@@ -484,8 +522,6 @@ public class GuiView extends AbstractView {
     private StudentsContainer askStudents(int studentsToMove, StudentsContainer sourceContainer) {
         AtomicReference<StudentsContainer> atomicContainer =
                 new AtomicReference<>(new FixedUnlimitedStudentsContainer());
-        displayInfo("You have to move " + studentsToMove + (studentsToMove == 1 ? " student" : " students") +
-                " in this turn");
         CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
             Stage studentsDialog = new Stage();
@@ -494,7 +530,7 @@ public class GuiView extends AbstractView {
             try {
                 studentsDialog.setScene(new Scene(loader.load()));
                 ChooseNumStudentsController controller = loader.getController();
-                controller.setSourceContainer(sourceContainer);
+                controller.setSourceContainer(sourceContainer, studentsToMove);
                 studentsDialog.showAndWait();
                 atomicContainer.set(controller.getStudents());
                 latch.countDown();

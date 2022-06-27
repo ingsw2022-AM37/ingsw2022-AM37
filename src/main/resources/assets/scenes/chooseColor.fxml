@@ -1,46 +1,81 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import com.jfoenix.controls.JFXCheckBox?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.Pane?>
-
-<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="300.0" prefWidth="200.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1">
+<?import javafx.geometry.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+<Pane xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="it.polimi.ingsw.am37.client.gui.controller.ChooseColorController" maxHeight="-Infinity"
+      maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="300.0" prefWidth="550.0"
+      xmlns="http://javafx.com/javafx/16">
    <children>
-      <ImageView fitHeight="300.0" fitWidth="200.0">
+      <ImageView fitHeight="300.0" fitWidth="550.0">
          <image>
-            <Image url="@../images/GameWallpaper.jpg" />
+            <Image url="@../images/GameWallpaper.jpg"/>
          </image>
       </ImageView>
-      <ImageView layoutX="14.0" layoutY="130.0">
-         <image>
-            <Image url="@../images/GreenStudent.png" />
-         </image>
-      </ImageView>
-      <ImageView layoutX="14.0" layoutY="70.0">
-         <image>
-            <Image url="@../images/PinkStudent.png" />
-         </image>
-      </ImageView>
-      <ImageView layoutX="14.0" layoutY="250.0">
-         <image>
-            <Image url="@../images/RedStudent.png" />
-         </image>
-      </ImageView>
-      <ImageView layoutX="14.0" layoutY="190.0">
-         <image>
-            <Image url="@../images/YellowStudent.png" />
-         </image>
-      </ImageView>
-      <ImageView layoutX="14.0" layoutY="10.0">
-         <image>
-            <Image url="@../images/BlueStudent.png" />
-         </image>
-      </ImageView>
-      <JFXCheckBox fx:id="blueChosen" layoutX="106.0" layoutY="21.0" prefHeight="18.0" prefWidth="0.0" text=" " />
-      <JFXCheckBox fx:id="pinkChosen" layoutX="106.0" layoutY="81.0" text=" " />
-      <JFXCheckBox fx:id="greenChosen" layoutX="106.0" layoutY="141.0" text=" " />
-      <JFXCheckBox fx:id="yellowChosen" layoutX="106.0" layoutY="201.0" text=" " />
-      <JFXCheckBox fx:id="redChosen" layoutX="106.0" layoutY="261.0" text=" " />
+      <VBox alignment="CENTER" prefHeight="300.0" prefWidth="550.0">
+         <children>
+            <Text fx:id="label" fill="WHITE" fontSmoothingType="LCD" mouseTransparent="true" strokeType="OUTSIDE"
+                  strokeWidth="0.0" text="Click on any image to select the corrisponding color" wrappingWidth="480.0">
+               <font>
+                  <Font size="20.0"/>
+               </font>
+               <VBox.margin>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="30.0"/>
+               </VBox.margin>
+            </Text>
+            <HBox alignment="CENTER" prefHeight="300.0" prefWidth="550.0">
+               <children>
+                  <ImageView fx:id="blue" fitWidth="90.0" onMouseClicked="#colorClicked" pickOnBounds="true"
+                             preserveRatio="true">
+                     <image>
+                        <Image url="@../images/BlueTeacher.png"/>
+                     </image>
+                     <HBox.margin>
+                        <Insets left="5.0" right="5.0"/>
+                     </HBox.margin>
+                  </ImageView>
+                  <ImageView fx:id="red" fitWidth="90.0" onMouseClicked="#colorClicked" pickOnBounds="true"
+                             preserveRatio="true">
+                     <image>
+                        <Image url="@../images/RedTeacher.png"/>
+                     </image>
+                     <HBox.margin>
+                        <Insets left="5.0" right="5.0"/>
+                     </HBox.margin>
+                  </ImageView>
+                  <ImageView fx:id="green" fitWidth="90.0" onMouseClicked="#colorClicked" pickOnBounds="true"
+                             preserveRatio="true">
+                     <image>
+                        <Image url="@../images/GreenTeacher.png"/>
+                     </image>
+                     <HBox.margin>
+                        <Insets left="5.0" right="5.0"/>
+                     </HBox.margin>
+                  </ImageView>
+                  <ImageView fx:id="yellow" fitWidth="90.0" onMouseClicked="#colorClicked" pickOnBounds="true"
+                             preserveRatio="true">
+                     <image>
+                        <Image url="@../images/YellowTeacher.png"/>
+                     </image>
+                     <HBox.margin>
+                        <Insets left="5.0" right="5.0"/>
+                     </HBox.margin>
+                  </ImageView>
+                  <ImageView fx:id="pink" fitWidth="90.0" onMouseClicked="#colorClicked" pickOnBounds="true"
+                             preserveRatio="true">
+                     <image>
+                        <Image url="@../images/PinkTeacher.png"/>
+                     </image>
+                     <HBox.margin>
+                        <Insets left="5.0" right="5.0"/>
+                     </HBox.margin>
+                  </ImageView>
+               </children>
+            </HBox>
+         </children>
+      </VBox>
    </children>
 </Pane>
