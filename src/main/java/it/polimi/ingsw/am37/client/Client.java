@@ -261,7 +261,11 @@ public class Client {
      */
     private boolean chooseCloud() {
         String cloudId;
-        cloudId = view.askCloud();
+        while (true) {
+            cloudId = view.askCloud();
+            if (view.getReducedModel().getClouds().get(cloudId).size() != 0) break;
+            else view.displayError(messagesConstants.getProperty("e.impossibleCloud"));
+        }
         Message message = new ChooseCloudMessage(UUID, cloudId);
         socket.sendMessage(message);
         return !hasReceivedError();
