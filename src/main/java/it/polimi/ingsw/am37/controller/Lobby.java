@@ -316,63 +316,6 @@ public class Lobby implements Runnable, MessageReceiver {
      * @param message the Message received.
      * @param ch      the ClientHandler that called the method.
      */
-    private void studentsToDiningCase(Message message, ClientHandler ch) {
-        Message response;
-        int students;
-        int movableStudents = 3;
-        students = ((StudentsToDiningMessage) message).getContainer().size();
-        if (numberOfStudentsMoved + students <= movableStudents) {
-            try {
-                gameManager.moveStudentsToDining(((StudentsToDiningMessage) message).getContainer());
-            } catch (IllegalArgumentException e) {
-                response = new ErrorMessage(message.getUUID(), e.getMessage().substring(e.getMessage().indexOf(" ") + 1));
-                LOGGER.error(e.getMessage().substring(e.getMessage().indexOf(" ") + 1));
-                sendMessage(response);
-            }
-            numberOfStudentsMoved += students;
-            if(numberOfStudentsMoved == 3)
-                clientStatus = ClientStatus.MOVINGMOTHERNATURE;
-            response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(), message.getMessageType().getClassName());
-            sendMessage(response);
-        } else
-            ch.disconnect();
-    }
-
-    /**
-     * When a message is received perform a specific action based on the Message type.
-     *
-     * @param message the Message received.
-     * @param ch      the ClientHandler that called the method.
-     */
-    private void studentsToIslandCase(Message message, ClientHandler ch) {
-        Message response;
-        int students;
-        int movableStudents = 3;
-        students = ((StudentsToIslandMessage) message).getContainer().size();
-        if (numberOfStudentsMoved + students <= movableStudents) {
-            try {
-                gameManager.moveStudentsToIsland(((StudentsToIslandMessage) message).getContainer(),
-                        ((StudentsToIslandMessage) message).getIslandId());
-            } catch (IllegalArgumentException e) {
-                response = new ErrorMessage(message.getUUID(), e.getMessage().substring(e.getMessage().indexOf(" ") + 1));
-                LOGGER.error(e.getMessage().substring(e.getMessage().indexOf(" ") + 1));
-                sendMessage(response);
-            }
-            numberOfStudentsMoved += students;
-            if(numberOfStudentsMoved == 3)
-                clientStatus = ClientStatus.MOVINGMOTHERNATURE;
-            response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(), message.getMessageType().getClassName());
-            sendMessage(response);
-        } else
-            ch.disconnect();
-    }
-
-    /**
-     * When a message is received perform a specific action based on the Message type.
-     *
-     * @param message the Message received.
-     * @param ch      the ClientHandler that called the method.
-     */
     private void moveMotherNatureCase(Message message, ClientHandler ch) {
         Message response;
         boolean exists = false;
@@ -385,7 +328,9 @@ public class Lobby implements Runnable, MessageReceiver {
         if (exists) {
             try {
                 gameManager.moveMotherNature(((MoveMotherNatureMessage) message).getIslandId());
-                response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(), message.getMessageType().getClassName());
+                response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(),
+                        message.getMessageType()
+                        .getClassName());
                 sendMessage(response);
                 clientStatus = ClientStatus.CHOOSINGCLOUD;
             } catch (MNmovementWrongException e) {
@@ -393,8 +338,10 @@ public class Lobby implements Runnable, MessageReceiver {
                 LOGGER.error(e.getMessage().substring(e.getMessage().indexOf(" ")));
                 sendMessage(response);
             }
-        } else
+        } else {
+            LOGGER.error("Forbidden mother nature movements of " + playerNicknames.get(message.getUUID()));
             ch.disconnect();
+        }
     }
 
     /**
@@ -429,6 +376,8 @@ public class Lobby implements Runnable, MessageReceiver {
                 LOGGER.error(e.getMessage().substring(e.getMessage().indexOf(" ") + 1));
                 sendMessage(response);
             } catch (IllegalStateException e) {
+                LOGGER.error(
+                        "Bad data loading while trying to play character of " + playerNicknames.get(message.getUUID()));
                 ch.disconnect();
                 onDisconnect(ch.getUUID());
             }
@@ -441,6 +390,73 @@ public class Lobby implements Runnable, MessageReceiver {
             response = new ErrorMessage(message.getUUID(), "Character not playable, already played in this turn");
             LOGGER.error("Character not playable, already played in this turn");
             sendMessage(response);
+        }
+    }
+
+    /**
+     * When a message is received perform a specific action based on the Message type.
+     *
+     * @param message the Message received.
+     * @param ch      the ClientHandler that called the method.
+     */
+    private void studentsToDiningCase(Message message, ClientHandler ch) {
+        Message response;
+        int students;
+        int movableStudents = GameManager.MAX_FOR_MOVEMENTS[lobbySize % 2];
+        students = ((StudentsToDiningMessage) message).getContainer().size();
+        if (numberOfStudentsMoved + students <= movableStudents) {
+            try {
+                gameManager.moveStudentsToDining(((StudentsToDiningMessage) message).getContainer());
+            } catch (IllegalArgumentException e) {
+                response = new ErrorMessage(message.getUUID(), e.getMessage()
+                        .substring(e.getMessage().indexOf(" ") + 1));
+                LOGGER.error(e.getMessage().substring(e.getMessage().indexOf(" ") + 1));
+                sendMessage(response);
+            }
+            numberOfStudentsMoved += students;
+            if (numberOfStudentsMoved == movableStudents)
+                clientStatus = ClientStatus.MOVINGMOTHERNATURE;
+            response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(),
+                    message.getMessageType()
+                    .getClassName());
+            sendMessage(response);
+        } else {
+            LOGGER.error("Forbidden students movements of " + playerNicknames.get(message.getUUID()));
+            ch.disconnect();
+        }
+    }
+
+    /**
+     * When a message is received perform a specific action based on the Message type.
+     *
+     * @param message the Message received.
+     * @param ch      the ClientHandler that called the method.
+     */
+    private void studentsToIslandCase(Message message, ClientHandler ch) {
+        Message response;
+        int students;
+        int movableStudents = GameManager.MAX_FOR_MOVEMENTS[lobbySize % 2];
+        students = ((StudentsToIslandMessage) message).getContainer().size();
+        if (numberOfStudentsMoved + students <= movableStudents) {
+            try {
+                gameManager.moveStudentsToIsland(((StudentsToIslandMessage) message).getContainer(),
+                        ((StudentsToIslandMessage) message).getIslandId());
+            } catch (IllegalArgumentException e) {
+                response = new ErrorMessage(message.getUUID(), e.getMessage()
+                        .substring(e.getMessage().indexOf(" ") + 1));
+                LOGGER.error(e.getMessage().substring(e.getMessage().indexOf(" ") + 1));
+                sendMessage(response);
+            }
+            numberOfStudentsMoved += students;
+            if (numberOfStudentsMoved == movableStudents)
+                clientStatus = ClientStatus.MOVINGMOTHERNATURE;
+            response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(),
+                    message.getMessageType()
+                    .getClassName());
+            sendMessage(response);
+        } else {
+            LOGGER.error("Forbidden students movements of " + playerNicknames.get(message.getUUID()));
+            ch.disconnect();
         }
     }
 
@@ -469,8 +485,7 @@ public class Lobby implements Runnable, MessageReceiver {
             if(chosenClouds == lobbySize) {
                 clientStatus = ClientStatus.PLAYINGASSISTANT;
                 chosenClouds = 0;
-            }
-            else
+            } else
                 clientStatus = ClientStatus.MOVINGSTUDENTS;
         } catch (IllegalArgumentException | StudentSpaceException e) {
             response = new ErrorMessage(message.getUUID(), e.getMessage().substring(e.getMessage().indexOf(" ") + 1));
