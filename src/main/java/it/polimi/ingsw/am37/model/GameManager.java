@@ -26,7 +26,7 @@ public class GameManager {
     /**
      *
      */
-    public static final int MAX_FOR_MOVEMENTS = 3;
+    public static final int[] MAX_FOR_MOVEMENTS = new int[]{3, 4};
     /**
      * Number of player in the game handled by this manager
      */
@@ -185,6 +185,23 @@ public class GameManager {
     }
 
     /**
+     * Move the students to the dining room of the current player
+     *
+     * @param container The students to move inside the dining room
+     * @throws IllegalArgumentException When the container is null
+     */
+    public void moveStudentsToDining(StudentsContainer container) throws IllegalArgumentException {
+        synchronized (lock) {
+            if (container == null) {
+                throw new IllegalArgumentException("container of moveStudentsToDining can't be null");
+            }
+            if (container.size() > MAX_FOR_MOVEMENTS[playersNumber % 2]) throw new RuntimeException();
+            turnManager.getCurrentPlayer().getBoard().getEntrance().removeContainer(container);
+            turnManager.addStudentsToDining(container);
+        }
+    }
+
+    /**
      * Move the students inside the container into an island provided
      *
      * @param container The students to move
@@ -196,7 +213,7 @@ public class GameManager {
             if (container == null) {
                 throw new IllegalArgumentException("container of moveStudentsToIsland can't be null");
             }
-            if (container.size() > MAX_FOR_MOVEMENTS) throw new RuntimeException();
+            if (container.size() > MAX_FOR_MOVEMENTS[playersNumber % 2]) throw new RuntimeException();
             Island island = islandsManager.getIslands()
                     .stream()
                     .filter(island1 -> island1.getIslandId() == islandId)
@@ -204,23 +221,6 @@ public class GameManager {
                     .orElseThrow();
             turnManager.getCurrentPlayer().getBoard().getEntrance().removeContainer(container);
             island.addStudents(container);
-        }
-    }
-
-    /**
-     * Move the students to the dining room of the current player
-     *
-     * @param container The students to move inside the dining room
-     * @throws IllegalArgumentException When the container is null
-     */
-    public void moveStudentsToDining(StudentsContainer container) throws IllegalArgumentException {
-        synchronized (lock) {
-            if (container == null) {
-                throw new IllegalArgumentException("container of moveStudentsToDining can't be null");
-            }
-            if (container.size() > MAX_FOR_MOVEMENTS) throw new RuntimeException();
-            turnManager.getCurrentPlayer().getBoard().getEntrance().removeContainer(container);
-            turnManager.addStudentsToDining(container);
         }
     }
 

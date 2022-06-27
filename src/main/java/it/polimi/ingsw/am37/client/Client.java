@@ -419,7 +419,8 @@ public class Client {
      */
     private boolean playCharacter() {
         Player currentPlayer = view.getReducedModel().getPlayers().get(nickname);
-        view.displayImportant("You have " + currentPlayer.getNumberOfCoins() + (currentPlayer.getNumberOfCoins() == 1 ? " coin" : " coins"));
+        view.displayImportant("You have " + currentPlayer.getNumberOfCoins() +
+                (currentPlayer.getNumberOfCoins() == 1 ? " coin" : " coins"));
         view.showCharacters();
         Effect effect = view.askCharacter();
         if (effect == null) {
@@ -458,8 +459,10 @@ public class Client {
             case JESTER -> {
                 final int JESTER_STUDENTS = 3;
                 view.displayImportant("Please select the students you want from the @|bold card|@:");
-                LimitedStudentsContainer container1 = (LimitedStudentsContainer) view.askStudentsFromCharacter(character, JESTER_STUDENTS, this);
-                LimitedStudentsContainer container2 = (LimitedStudentsContainer) view.askStudentsFromEntrance(this, JESTER_STUDENTS);
+                LimitedStudentsContainer container1 =
+                        (LimitedStudentsContainer) view.askStudentsFromCharacter(character, JESTER_STUDENTS, this);
+                LimitedStudentsContainer container2 = (LimitedStudentsContainer) view.askStudentsFromEntrance(this,
+                        JESTER_STUDENTS);
                 if (container1 == null || container2 == null) return false;
                 else {
                     oBuilder.primaryContainer(container1);
@@ -486,8 +489,10 @@ public class Client {
                 }
 
                 if (MINSTREL_STUDENTS == 1 || MINSTREL_STUDENTS == 2) {
-                    LimitedStudentsContainer container1 = (LimitedStudentsContainer) view.askStudentsFromEntrance(this, MINSTREL_STUDENTS);
-                    LimitedStudentsContainer container2 = (LimitedStudentsContainer) view.askStudentFromDining(this, MINSTREL_STUDENTS);
+                    LimitedStudentsContainer container1 =
+                            (LimitedStudentsContainer) view.askStudentsFromEntrance(this, MINSTREL_STUDENTS);
+                    LimitedStudentsContainer container2 = (LimitedStudentsContainer) view.askStudentFromDining(this,
+                            MINSTREL_STUDENTS);
                     if (container1 == null || container2 == null)
                         return false;
                     else {
@@ -585,21 +590,21 @@ public class Client {
                 }
                 case MOVE_STUDENTS_ISLAND -> {
                     boolean actionOk = moveStudentsRegular(true);
-                    if (actionOk && totalStudentsInTurn == GameManager.MAX_FOR_MOVEMENTS) {
+                    if (actionOk && totalStudentsInTurn == GameManager.MAX_FOR_MOVEMENTS[settings.lobbySize() % 2]) {
                         setStatus(ClientStatus.MOVINGMOTHERNATURE);
                         totalStudentsInTurn = 0;
                     }
                 }
                 case MOVE_STUDENTS_DINING -> {
                     boolean actionOk = moveStudentsRegular(false);
-                    if (actionOk && totalStudentsInTurn == GameManager.MAX_FOR_MOVEMENTS) {
+                    if (actionOk && totalStudentsInTurn == GameManager.MAX_FOR_MOVEMENTS[settings.lobbySize() % 2]) {
                         setStatus(ClientStatus.MOVINGMOTHERNATURE);
                         totalStudentsInTurn = 0;
                     }
                 }
                 case MOVE_STUDENTS_UNDEFINED -> {
                     boolean actionOk = moveStudentsRegular(null);
-                    if (actionOk && totalStudentsInTurn == GameManager.MAX_FOR_MOVEMENTS) {
+                    if (actionOk && totalStudentsInTurn == GameManager.MAX_FOR_MOVEMENTS[settings.lobbySize() % 2]) {
                         setStatus(ClientStatus.MOVINGMOTHERNATURE);
                         totalStudentsInTurn = 0;
                     }

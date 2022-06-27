@@ -437,13 +437,16 @@ public class CliView extends AbstractView {
         int students;
         String input;
         Scanner scanner = new Scanner(System.in);
-        StudentsContainer container = new LimitedStudentsContainer(num == 0 ?
-                GameManager.MAX_FOR_MOVEMENTS - client.getTotalStudentsInTurn() : num);
+        StudentsContainer container = new LimitedStudentsContainer(num == 0
+                ?
+                GameManager.MAX_FOR_MOVEMENTS[client.getSettings().lobbySize() % 2] - client.getTotalStudentsInTurn()
+                : num);
         showPlayerStatus(getReducedModel().getPlayers().get(client.getNickname()), client.getSettings()
                 .advancedRulesEnabled());
 
         while (true) {
-            int studentsToMove = (num == 0 ? (GameManager.MAX_FOR_MOVEMENTS - client.getTotalStudentsInTurn()) : num);
+            int studentsToMove = (num == 0 ? (GameManager.MAX_FOR_MOVEMENTS[client.getSettings().lobbySize() % 2] -
+                    client.getTotalStudentsInTurn()) : num);
             displayInfo("You have to move " + studentsToMove + (studentsToMove == 1 ? " student" : " students") + " @|bold from the entrance|@ in this turn");
 
             displayInfo("Select the color of students you want to move, write @|red,bold R|@ or @|blue,bold B|@ or " +
@@ -462,7 +465,8 @@ public class CliView extends AbstractView {
                 displayInfo("Write the number of students you want to move of color " + color.get());
                 try {
                     students = Integer.parseInt(scanner.nextLine().trim().replaceAll(" +", " "));
-                    if (students > (num == 0 ? GameManager.MAX_FOR_MOVEMENTS - client.getTotalStudentsInTurn() : num) ||
+                    if (students > (num == 0 ? GameManager.MAX_FOR_MOVEMENTS[client.getSettings().lobbySize() % 2] -
+                            client.getTotalStudentsInTurn() : num) ||
                             students > reducedModel.getPlayers()
                                     .get(client.getNickname())
                                     .getBoard()
@@ -484,7 +488,8 @@ public class CliView extends AbstractView {
 
             if (num == 0) {
                 client.addTotalStudentsInTurn(students);
-                if (client.getTotalStudentsInTurn() == GameManager.MAX_FOR_MOVEMENTS ||
+                if (client.getTotalStudentsInTurn() ==
+                        GameManager.MAX_FOR_MOVEMENTS[client.getSettings().lobbySize() % 2] ||
                         !askConfirm("Do you want to move more students?"))
                     break;
             } else if (container.size() == num)
