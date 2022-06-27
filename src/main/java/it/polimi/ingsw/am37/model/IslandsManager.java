@@ -331,7 +331,7 @@ public class IslandsManager {
         int destinationMotherNature = islands.indexOf(this.motherNaturePosition);
 
         if (moveForward > currentPlayer.getLastAssistantPlayed().getMNMovement() + this.additionalMNFlag || moveForward == 0)
-            throw new MNmovementWrongException();
+            throw new MNmovementWrongException("Cannot move Mother Nature here");
 
         for (int contMovement = 0; contMovement < moveForward; contMovement++) {
             destinationMotherNature = destinationMotherNature + 1;

@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am37.controller;
 
+import it.polimi.ingsw.am37.client.ClientStatus;
 import it.polimi.ingsw.am37.message.*;
 import it.polimi.ingsw.am37.model.*;
 import it.polimi.ingsw.am37.model.character.Character;
@@ -29,6 +30,21 @@ public class Lobby implements Runnable, MessageReceiver {
      * A Logger.
      */
     private static Logger LOGGER;
+
+    /**
+     * Expected action from client
+     */
+    private ClientStatus clientStatus = ClientStatus.PLAYINGASSISTANT;
+
+    /**
+     * Used for deciding when change first time client status
+     */
+    private int playedAssistantInRound = 0;
+
+    /**
+     * Used for deciding when change client status
+     */
+    private int chosenClouds = 0;
 
     /**
      * The unique ID of the match.
@@ -278,6 +294,11 @@ public class Lobby implements Runnable, MessageReceiver {
                 response = new PlanningPhaseMessage(findUUIDByUsername(gameManager.getTurnManager().getCurrentPlayer().getPlayerId()));
             }
             sendMessage(response);
+            playedAssistantInRound = playedAssistantInRound + 1;
+            if(playedAssistantInRound == lobbySize) {
+                clientStatus = ClientStatus.MOVINGSTUDENTS;
+                playedAssistantInRound = 0;
+            }
         } catch (AssistantImpossibleToPlay | IllegalArgumentException e) {
             LOGGER.error("[Lobby " + matchID + "] Assistant impossible to play");
             LOGGER.error("[Lobby " + matchID + "]\n" + e.getMessage());
@@ -309,6 +330,8 @@ public class Lobby implements Runnable, MessageReceiver {
                 sendMessage(response);
             }
             numberOfStudentsMoved += students;
+            if(numberOfStudentsMoved == 3)
+                clientStatus = ClientStatus.MOVINGMOTHERNATURE;
             response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(), message.getMessageType().getClassName());
             sendMessage(response);
         } else
@@ -336,6 +359,8 @@ public class Lobby implements Runnable, MessageReceiver {
                 sendMessage(response);
             }
             numberOfStudentsMoved += students;
+            if(numberOfStudentsMoved == 3)
+                clientStatus = ClientStatus.MOVINGMOTHERNATURE;
             response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(), message.getMessageType().getClassName());
             sendMessage(response);
         } else
@@ -362,9 +387,10 @@ public class Lobby implements Runnable, MessageReceiver {
                 gameManager.moveMotherNature(((MoveMotherNatureMessage) message).getIslandId());
                 response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(), message.getMessageType().getClassName());
                 sendMessage(response);
+                clientStatus = ClientStatus.CHOOSINGCLOUD;
             } catch (MNmovementWrongException e) {
-                response = new ErrorMessage(message.getUUID(), e.getMessage().substring(e.getMessage().indexOf(" ") + 1));
-                LOGGER.error(e.getMessage().substring(e.getMessage().indexOf(" ") + 1));
+                response = new ErrorMessage(message.getUUID(), e.getMessage().substring(e.getMessage().indexOf(" ")));
+                LOGGER.error(e.getMessage().substring(e.getMessage().indexOf(" ")));
                 sendMessage(response);
             }
         } else
@@ -439,6 +465,13 @@ public class Lobby implements Runnable, MessageReceiver {
                 response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(), message.getMessageType().getClassName());
             }
             sendMessage(response);
+            chosenClouds = chosenClouds + 1;
+            if(chosenClouds == lobbySize) {
+                clientStatus = ClientStatus.PLAYINGASSISTANT;
+                chosenClouds = 0;
+            }
+            else
+                clientStatus = ClientStatus.MOVINGSTUDENTS;
         } catch (IllegalArgumentException | StudentSpaceException e) {
             response = new ErrorMessage(message.getUUID(), e.getMessage().substring(e.getMessage().indexOf(" ") + 1));
             LOGGER.error(e.getMessage().substring(e.getMessage().indexOf(" ") + 1));
@@ -516,31 +549,51 @@ public class Lobby implements Runnable, MessageReceiver {
     public void onMessageReceived(Message message, ClientHandler ch) throws InternetException {
         switch (message.getMessageType()) {
             case PLAY_ASSISTANT -> {
-                LOGGER.info("[Lobby " + matchID + "] PlayAssistant Message received from: " + playerNicknames.get(message.getUUID()));
-                playAssistantCase(message);
+                if(clientStatus == ClientStatus.PLAYINGASSISTANT) {
+                    LOGGER.info("[Lobby " + matchID + "] PlayAssistant Message received from: " + playerNicknames.get(message.getUUID()));
+                    playAssistantCase(message);
+                }else
+                    ch.disconnect();
             }
             case STUDENTS_TO_DINING -> {
-                LOGGER.info("[Lobby " + matchID + "] StudentsToDining Message received from: " + playerNicknames.get(message.getUUID()));
-                studentsToDiningCase(message, ch);
+
+                if(clientStatus == ClientStatus.MOVINGSTUDENTS) {
+                    LOGGER.info("[Lobby " + matchID + "] StudentsToDining Message received from: " + playerNicknames.get(message.getUUID()));
+                    studentsToDiningCase(message, ch);
+                }else
+                    ch.disconnect();
             }
             case STUDENTS_TO_ISLAND -> {
-                LOGGER.info("[Lobby " + matchID + "] StudentsToIsland Message received from: " + playerNicknames.get(message.getUUID()));
-                studentsToIslandCase(message, ch);
+
+                if(clientStatus == ClientStatus.MOVINGSTUDENTS) {
+                    LOGGER.info("[Lobby " + matchID + "] StudentsToIsland Message received from: " + playerNicknames.get(message.getUUID()));
+                    studentsToIslandCase(message, ch);
+                }else
+                    ch.disconnect();
             }
             case MOVE_MOTHER_NATURE -> {
-                LOGGER.info("[Lobby " + matchID + "] MoveMotherNature Message received from: " + playerNicknames.get(message.getUUID()));
-                moveMotherNatureCase(message, ch);
+
+                if (clientStatus == ClientStatus.MOVINGMOTHERNATURE){
+                    LOGGER.info("[Lobby " + matchID + "] MoveMotherNature Message received from: " + playerNicknames.get(message.getUUID()));
+                    moveMotherNatureCase(message, ch);
+                }else
+                    ch.disconnect();
             }
             case PLAY_CHARACTER -> {
                 LOGGER.info("[Lobby " + matchID + "] PlayCharacter Message received from: " + playerNicknames.get(message.getUUID()));
                 playCharacterCase(message, ch);
             }
             case CHOOSE_CLOUD -> {
-                LOGGER.info("[Lobby " + matchID + "] ChooseCloud Message received from: " + playerNicknames.get(message.getUUID()));
-                chooseCloudCase(message, ch);
+
+                if(clientStatus == ClientStatus.CHOOSINGCLOUD) {
+                    LOGGER.info("[Lobby " + matchID + "] ChooseCloud Message received from: " + playerNicknames.get(message.getUUID()));
+                    chooseCloudCase(message, ch);
+                }else
+                    ch.disconnect();
             }
             default -> {
                 LOGGER.error("[Lobby " + matchID + "] Unexpected value: " + message.getMessageType());
+                ch.disconnect();
                 throw new IllegalStateException("Unexpected value: " + message.getMessageType());
             }
         }
