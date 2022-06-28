@@ -2,8 +2,10 @@ package it.polimi.ingsw.am37.client.gui;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 
 public class GuiApp extends Application {
@@ -45,6 +47,9 @@ public class GuiApp extends Application {
         SceneController.createScene("/assets/scenes/Connection.fxml");
         primaryStage.setScene(SceneController.getActiveScene());
         primaryStage.setTitle("Welcome to Eryantis game!");
+        primaryStage.setResizable(false);
+        primaryStage.getIcons()
+                .add(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/assets/images/cranio_logo.jpg"))));
         primaryStage.show();
     }
 
