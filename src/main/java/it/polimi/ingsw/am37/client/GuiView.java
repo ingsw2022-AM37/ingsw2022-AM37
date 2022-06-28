@@ -25,7 +25,6 @@ import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 
-@SuppressWarnings("ALL")
 public class GuiView extends AbstractView {
     private final GuiApp app;
 
@@ -39,8 +38,8 @@ public class GuiView extends AbstractView {
      */
     @Override
     public int askAssistant(Client client) {
-        while (observer.getLastClickedObject() != GuiObserver.ClickableObjectType.CO_ASSISTANT) {
-            System.err.println("Unexpected object clicked: " + observer.getLastClickedObject());
+        while (observer.getLastClickedObjectType() != GuiObserver.ClickableObjectType.CO_ASSISTANT) {
+            System.err.println("Unexpected object clicked: " + observer.getLastClickedObjectType());
             try {
                 observer.nextClickedObjectType();
             } catch (InterruptedException e) {
@@ -63,8 +62,8 @@ public class GuiView extends AbstractView {
      */
     @Override
     public Effect askCharacter() {
-        while (observer.getLastClickedObject() != GuiObserver.ClickableObjectType.CO_CHARACTER) {
-            System.err.println("Unexpected object clicked: " + observer.getLastClickedObject());
+        while (observer.getLastClickedObjectType() != GuiObserver.ClickableObjectType.CO_CHARACTER) {
+            System.err.println("Unexpected object clicked: " + observer.getLastClickedObjectType());
             try {
                 observer.nextClickedObjectType();
             } catch (InterruptedException e) {
@@ -79,8 +78,8 @@ public class GuiView extends AbstractView {
      */
     @Override
     public String askCloud() {
-        while (observer.getLastClickedObject() != GuiObserver.ClickableObjectType.CO_CLOUD) {
-            System.err.println("Unexpected object clicked: " + observer.getLastClickedObject());
+        while (observer.getLastClickedObjectType() != GuiObserver.ClickableObjectType.CO_CLOUD) {
+            System.err.println("Unexpected object clicked: " + observer.getLastClickedObjectType());
             try {
                 observer.nextClickedObjectType();
             } catch (InterruptedException e) {
@@ -160,6 +159,13 @@ public class GuiView extends AbstractView {
 
     @Override
     public int askIsland() {
+        while (observer.getLastClickedObjectType() != GuiObserver.ClickableObjectType.CO_ISLAND) {
+            try {
+                observer.nextClickedObjectType();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
         return Integer.parseInt(observer.getLastRetrievedObjectId());
     }
 

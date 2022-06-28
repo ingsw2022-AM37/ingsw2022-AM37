@@ -41,7 +41,7 @@ public class GuiObserver implements PropertyChangeListener {
     /**
      * @return the last clicked object if is present, or null when none has been clicked
      */
-    public ClickableObjectType getLastClickedObject() {
+    public ClickableObjectType getLastClickedObjectType() {
         return lastClickedObject;
     }
 

@@ -9,7 +9,7 @@ public class ChooseColorController {
     private FactionColor color = null;
 
     public void colorClicked(MouseEvent mouseEvent) {
-        color = FactionColor.valueOf(((Node) mouseEvent.getSource()).getId());
+        color = FactionColor.valueOf(((Node) mouseEvent.getSource()).getId().toUpperCase());
         ((Stage) ((Node) mouseEvent.getSource()).getScene().getWindow()).close();
     }
 
