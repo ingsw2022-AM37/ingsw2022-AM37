@@ -20,6 +20,7 @@ class ViewTest {
         container1.addStudents(2, FactionColor.GREEN);
         Island island1 = new Island(container1, 1);
         island1.setMotherNatureHere(true);
+        island1.addNoEntryTile(1);
         AbstractView view = new CliView();
         view.getReducedModel().update(List.of(island, island1));
         view.showTable();
