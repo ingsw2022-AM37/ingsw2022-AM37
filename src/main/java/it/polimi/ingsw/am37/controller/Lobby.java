@@ -5,10 +5,7 @@ import it.polimi.ingsw.am37.message.*;
 import it.polimi.ingsw.am37.model.*;
 import it.polimi.ingsw.am37.model.character.Character;
 import it.polimi.ingsw.am37.model.character.Option;
-import it.polimi.ingsw.am37.model.exceptions.AssistantImpossibleToPlay;
-import it.polimi.ingsw.am37.model.exceptions.CharacterImpossibleToPlay;
-import it.polimi.ingsw.am37.model.exceptions.MNmovementWrongException;
-import it.polimi.ingsw.am37.model.exceptions.StudentSpaceException;
+import it.polimi.ingsw.am37.model.exceptions.*;
 import it.polimi.ingsw.am37.network.MessageReceiver;
 import it.polimi.ingsw.am37.network.exceptions.InternetException;
 import it.polimi.ingsw.am37.network.server.ClientHandler;
@@ -101,6 +98,11 @@ public class Lobby implements Runnable, MessageReceiver {
      */
     private final Timer endGameTimer;
 
+    /**
+     * Keeps track if the lobby is closing or not
+     */
+    private boolean isClosing;
+
 
     /**
      * Default constructor.
@@ -117,6 +119,7 @@ public class Lobby implements Runnable, MessageReceiver {
         this.updateController = new UpdateController();
         this.disconnectedPlayers = new HashMap<>();
         this.endGameTimer = new Timer();
+        this.isClosing = false;
         numberOfStudentsMoved = 0;
     }
 
@@ -275,10 +278,16 @@ public class Lobby implements Runnable, MessageReceiver {
         //Refill clouds if is the first player of the round
         if (Objects.equals(findUUIDByUsername(gameManager.getTurnManager().getOrderPlayed().get(0).getPlayerId()), message.getUUID())) {
             for (Cloud c : gameManager.getClouds()) {
-                c.addStudents(gameManager.getBag()
-                        .extractStudents(c.getIsFor2()
-                                ? c.getStudentsPerCloud2Players()
-                                : c.getStudentsPerCloud3Players()));
+                if (!gameManager.getBag().isEmpty()) {
+                    c.addStudents(gameManager.getBag()
+                            .extractStudents(c.getIsFor2()
+                                    ? c.getStudentsPerCloud2Players()
+                                    : c.getStudentsPerCloud3Players()));
+                }
+                if (gameManager.getBag().isEmpty()) {
+                    gameManager.getTurnManager().setLastRound(true);
+                    LOGGER.debug("[Lobby " + matchID + "] Bag is empty, The game must end at the end of the round");
+                }
             }
             LOGGER.debug("[Lobby " + matchID + "] Clouds Refilled! (he's the first player of the round)");
         }
@@ -287,6 +296,10 @@ public class Lobby implements Runnable, MessageReceiver {
             gameManager.playAssistant(deck.get(((PlayAssistantMessage) message).getCardValue()));
             response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(), message.getMessageType().getClassName());
             sendMessage(response);
+            if (gameManager.getTurnManager().getCurrentPlayer().getAssistantsDeck().size() == 0) {
+                gameManager.getTurnManager().setLastRound(true);
+                LOGGER.debug("[Lobby " + matchID + "] Assistant deck of " + gameManager.getTurnManager().getCurrentPlayer().getPlayerId() + " is empty, The game must end at the end of the round");
+            }
             if (isLastPlayerInOrder(message.getUUID())) {
                 gameManager.nextTurn();
                 response = new NextTurnMessage(findUUIDByUsername(gameManager.getTurnManager().getCurrentPlayer().getPlayerId()), gameManager.getTurnManager().getCurrentPlayer().getPlayerId());
@@ -295,7 +308,7 @@ public class Lobby implements Runnable, MessageReceiver {
             }
             sendMessage(response);
             playedAssistantInRound = playedAssistantInRound + 1;
-            if(playedAssistantInRound == lobbySize) {
+            if (playedAssistantInRound == lobbySize) {
                 clientStatus = ClientStatus.MOVINGSTUDENTS;
                 playedAssistantInRound = 0;
             }
@@ -328,14 +341,16 @@ public class Lobby implements Runnable, MessageReceiver {
         if (exists) {
             try {
                 gameManager.moveMotherNature(((MoveMotherNatureMessage) message).getIslandId());
-                response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(),
-                        message.getMessageType()
-                        .getClassName());
+                response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(), message.getMessageType().getClassName());
                 sendMessage(response);
                 clientStatus = ClientStatus.CHOOSINGCLOUD;
             } catch (MNmovementWrongException e) {
                 response = new ErrorMessage(message.getUUID(), e.getMessage().substring(e.getMessage().indexOf(" ")));
                 LOGGER.error(e.getMessage().substring(e.getMessage().indexOf(" ")));
+                sendMessage(response);
+            } catch (WinningException winner) {
+                LOGGER.debug("[Lobby " + matchID + "] WinningException caught: The game should be over");
+                response = new EndGameMessage(findUUIDByUsername(winner.getWinner().getPlayerId()), winner.getWinner().getPlayerId());
                 sendMessage(response);
             }
         } else {
@@ -376,10 +391,8 @@ public class Lobby implements Runnable, MessageReceiver {
                 LOGGER.error(e.getMessage().substring(e.getMessage().indexOf(" ") + 1));
                 sendMessage(response);
             } catch (IllegalStateException e) {
-                LOGGER.error(
-                        "Bad data loading while trying to play character of " + playerNicknames.get(message.getUUID()));
+                LOGGER.error("Bad data loading while trying to play character of " + playerNicknames.get(message.getUUID()));
                 ch.disconnect();
-                onDisconnect(ch.getUUID());
             }
             response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(),
                     message.getMessageType()
@@ -469,20 +482,28 @@ public class Lobby implements Runnable, MessageReceiver {
     private void chooseCloudCase(Message message, ClientHandler ch) {
         Message response;
         try {
-            gameManager.chooseCloud(((ChooseCloudMessage) message).getCloudId());
+            if (((ChooseCloudMessage) message).getCloudId() != null)
+                gameManager.chooseCloud(((ChooseCloudMessage) message).getCloudId());
+            else
+                gameManager.getTurnManager().setLastRound(true);
             reset(false);
             if (isLastPlayerInOrder(message.getUUID())) {
                 gameManager.nextTurn();
                 //Resets the last assistant played when a turn ends and the characters played.
                 reset(true);
                 response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(), message.getMessageType().getClassName());
+                if (gameManager.getTurnManager().isLastRound()) {
+                    response = new EndGameMessage(findUUIDByUsername(gameManager.calculateWinningPlayer().getPlayerId()),
+                            gameManager.calculateWinningPlayer().getPlayerId());
+                    sendMessage(response);
+                }
             } else {
                 gameManager.getTurnManager().nextPlayer();
                 response = new UpdateMessage(updateController.getUpdatedObjects(), message.getMessageType(), message.getMessageType().getClassName());
             }
             sendMessage(response);
             chosenClouds = chosenClouds + 1;
-            if(chosenClouds == lobbySize) {
+            if (chosenClouds == lobbySize) {
                 clientStatus = ClientStatus.PLAYINGASSISTANT;
                 chosenClouds = 0;
             } else
@@ -529,13 +550,18 @@ public class Lobby implements Runnable, MessageReceiver {
     public void onReconnect(String clientUUID) {
         //Forces the addition of the player who has reconnected to the list orderPlayed in GM
         Message message;
-        Player playerToAdd = gameManager.getTurnManager()
-                .getPlayers()
-                .stream()
-                .filter(player -> findUUIDByUsername(player.getPlayerId()).equals(clientUUID))
-                .findFirst()
-                .orElseThrow();
-        //TODO catch exception
+        Player playerToAdd;
+        try {
+            playerToAdd = gameManager.getTurnManager()
+                    .getPlayers()
+                    .stream()
+                    .filter(player -> findUUIDByUsername(player.getPlayerId()).equals(clientUUID))
+                    .findFirst()
+                    .orElseThrow();
+        } catch (NoSuchElementException e) {
+            LOGGER.error("[Lobby " + matchID + "] " + "Player not found in the list of players");
+            return;
+        }
         gameManager.getTurnManager().getOrderPlayed().add(playerToAdd);
 
         ClientHandler clientToReconnect = disconnectedPlayers.get(clientUUID);
@@ -562,54 +588,52 @@ public class Lobby implements Runnable, MessageReceiver {
      */
     @Override
     public void onMessageReceived(Message message, ClientHandler ch) throws InternetException {
-        switch (message.getMessageType()) {
-            case PLAY_ASSISTANT -> {
-                if(clientStatus == ClientStatus.PLAYINGASSISTANT) {
-                    LOGGER.info("[Lobby " + matchID + "] PlayAssistant Message received from: " + playerNicknames.get(message.getUUID()));
-                    playAssistantCase(message);
-                }else
+        if (ch != null && ch.isConnectedToClient()) {
+            switch (message.getMessageType()) {
+                case PLAY_ASSISTANT -> {
+                    if (clientStatus == ClientStatus.PLAYINGASSISTANT) {
+                        LOGGER.info("[Lobby " + matchID + "] PlayAssistant Message received from: " + playerNicknames.get(message.getUUID()));
+                        playAssistantCase(message);
+                    } else
+                        ch.disconnect();
+                }
+                case STUDENTS_TO_DINING -> {
+                    if (clientStatus == ClientStatus.MOVINGSTUDENTS) {
+                        LOGGER.info("[Lobby " + matchID + "] StudentsToDining Message received from: " + playerNicknames.get(message.getUUID()));
+                        studentsToDiningCase(message, ch);
+                    } else
+                        ch.disconnect();
+                }
+                case STUDENTS_TO_ISLAND -> {
+                    if (clientStatus == ClientStatus.MOVINGSTUDENTS) {
+                        LOGGER.info("[Lobby " + matchID + "] StudentsToIsland Message received from: " + playerNicknames.get(message.getUUID()));
+                        studentsToIslandCase(message, ch);
+                    } else
+                        ch.disconnect();
+                }
+                case MOVE_MOTHER_NATURE -> {
+                    if (clientStatus == ClientStatus.MOVINGMOTHERNATURE) {
+                        LOGGER.info("[Lobby " + matchID + "] MoveMotherNature Message received from: " + playerNicknames.get(message.getUUID()));
+                        moveMotherNatureCase(message, ch);
+                    } else
+                        ch.disconnect();
+                }
+                case PLAY_CHARACTER -> {
+                    LOGGER.info("[Lobby " + matchID + "] PlayCharacter Message received from: " + playerNicknames.get(message.getUUID()));
+                    playCharacterCase(message, ch);
+                }
+                case CHOOSE_CLOUD -> {
+                    if (clientStatus == ClientStatus.CHOOSINGCLOUD) {
+                        LOGGER.info("[Lobby " + matchID + "] ChooseCloud Message received from: " + playerNicknames.get(message.getUUID()));
+                        chooseCloudCase(message, ch);
+                    } else
+                        ch.disconnect();
+                }
+                default -> {
+                    LOGGER.error("[Lobby " + matchID + "] Unexpected value: " + message.getMessageType());
                     ch.disconnect();
-            }
-            case STUDENTS_TO_DINING -> {
-
-                if(clientStatus == ClientStatus.MOVINGSTUDENTS) {
-                    LOGGER.info("[Lobby " + matchID + "] StudentsToDining Message received from: " + playerNicknames.get(message.getUUID()));
-                    studentsToDiningCase(message, ch);
-                }else
-                    ch.disconnect();
-            }
-            case STUDENTS_TO_ISLAND -> {
-
-                if(clientStatus == ClientStatus.MOVINGSTUDENTS) {
-                    LOGGER.info("[Lobby " + matchID + "] StudentsToIsland Message received from: " + playerNicknames.get(message.getUUID()));
-                    studentsToIslandCase(message, ch);
-                }else
-                    ch.disconnect();
-            }
-            case MOVE_MOTHER_NATURE -> {
-
-                if (clientStatus == ClientStatus.MOVINGMOTHERNATURE){
-                    LOGGER.info("[Lobby " + matchID + "] MoveMotherNature Message received from: " + playerNicknames.get(message.getUUID()));
-                    moveMotherNatureCase(message, ch);
-                }else
-                    ch.disconnect();
-            }
-            case PLAY_CHARACTER -> {
-                LOGGER.info("[Lobby " + matchID + "] PlayCharacter Message received from: " + playerNicknames.get(message.getUUID()));
-                playCharacterCase(message, ch);
-            }
-            case CHOOSE_CLOUD -> {
-
-                if(clientStatus == ClientStatus.CHOOSINGCLOUD) {
-                    LOGGER.info("[Lobby " + matchID + "] ChooseCloud Message received from: " + playerNicknames.get(message.getUUID()));
-                    chooseCloudCase(message, ch);
-                }else
-                    ch.disconnect();
-            }
-            default -> {
-                LOGGER.error("[Lobby " + matchID + "] Unexpected value: " + message.getMessageType());
-                ch.disconnect();
-                throw new IllegalStateException("Unexpected value: " + message.getMessageType());
+                    throw new IllegalStateException("Unexpected value: " + message.getMessageType());
+                }
             }
         }
     }
@@ -622,33 +646,37 @@ public class Lobby implements Runnable, MessageReceiver {
         switch (message.getMessageType()) {
             case NEXT_TURN, START_GAME, RESILIENCE, UPDATE -> {
                 for (ClientHandler ch : players.values()) {
-                    ch.sendMessageToClient(message);
-                    if (message.getMessageType() == MessageType.NEXT_TURN)
-                        LOGGER.info("[Lobby " + matchID + "] Sent " + message.getMessageType().getClassName() + "[nextPlayer: " + ((NextTurnMessage) message).getNextPlayerNickname() + "] to " + playerNicknames.get(ch.getUUID()));
-                    else
-                        LOGGER.info("[Lobby " + matchID + "] Sent " + message.getMessageType().getClassName() + " to " + playerNicknames.get(ch.getUUID()));
+                    if (ch != null && ch.isConnectedToClient()) {
+                        ch.sendMessageToClient(message);
+                        if (message.getMessageType() == MessageType.NEXT_TURN)
+                            LOGGER.info("[Lobby " + matchID + "] Sent " + message.getMessageType().getClassName() + "[nextPlayer: " + ((NextTurnMessage) message).getNextPlayerNickname() + "] to " + playerNicknames.get(ch.getUUID()));
+                        else
+                            LOGGER.info("[Lobby " + matchID + "] Sent " + message.getMessageType().getClassName() + " to " + playerNicknames.get(ch.getUUID()));
+                    }
                 }
             }
             case END_GAME -> {
-                Timer timer = new Timer();
-                Lobby thisLobby = this;
                 for (ClientHandler ch : players.values()) {
-                    ch.sendMessageToClient(message);
-                    LOGGER.info("[Lobby " + matchID + "] Sent " + message.getMessageType().getClassName() + " to " + playerNicknames.get(ch.getUUID()));
-                }
-                LOGGER.info("[Lobby " + matchID + "] closing in 10 seconds...");
-                timer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        Server.server.closeLobby(thisLobby);
+                    if (ch != null && ch.isConnectedToClient()) {
+                        ch.sendMessageToClient(message);
+                        LOGGER.info("[Lobby " + matchID + "] Sent " + message.getMessageType().getClassName() + " to " + playerNicknames.get(ch.getUUID()));
                     }
-                }, 10000);
-
+                }
+                LOGGER.info("[Lobby " + matchID + "] closing in 30 seconds...");
+                isClosing = true;
+                try {
+                    Thread.sleep(30000);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                Server.server.closeLobby(this);
             }
             case ERROR, PLANNING_PHASE -> {
                 ClientHandler ch = players.get(message.getUUID());
-                ch.sendMessageToClient(message);
-                LOGGER.info("[Lobby " + matchID + "] Sent " + message.getMessageType().getClassName() + " to " + playerNicknames.get(ch.getUUID()));
+                if (ch != null && ch.isConnectedToClient()) {
+                    ch.sendMessageToClient(message);
+                    LOGGER.info("[Lobby " + matchID + "] Sent " + message.getMessageType().getClassName() + " to " + playerNicknames.get(ch.getUUID()));
+                }
             }
             default ->
                     LOGGER.error("[Lobby " + matchID + "] The lobby doesn't know where to send this message: " + message.getMessageType().getClassName());
@@ -663,27 +691,31 @@ public class Lobby implements Runnable, MessageReceiver {
     @Override
     public void onDisconnect(String clientUUID) {
         ClientHandler clientToDisconnect = players.get(clientUUID);
+        Lobby lobby = this;
         disconnectedPlayers.put(clientUUID, clientToDisconnect);
         players.remove(clientUUID);
         LOGGER.info("[Lobby " + matchID + "] Disconnected " + playerNicknames.get(clientUUID) + " from the lobby");
         LOGGER.debug("[Lobby " + matchID + "] Remaining players in the lobby are: " + playerNicknames.keySet().stream().filter(el -> !disconnectedPlayers.containsKey(el)).map(playerNicknames::get).toList());
+        if (isClosing)
+            return;
         Server.server.onDisconnect(clientUUID);
-        Lobby lobby = this;
         if (players.size() == 0) {
             Server.server.closeLobby(lobby);
             LOGGER.debug("[Lobby " + matchID + "] The game is over because there aren't any players in the lobby");
         }
         if (players.size() == 1) {
-            endGameTimer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss z");
-                    ZonedDateTime date = ZonedDateTime.now().plusMinutes(5);
-                    String expiring = date.format(formatter);
-                    Message message = new ResilienceMessage(false, playerNicknames.get(clientUUID), expiring);
-                    sendMessage(message);
-                }
-            }, 500);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss z");
+            ZonedDateTime date = ZonedDateTime.now().plusMinutes(5);
+            String expiring = date.format(formatter);
+            Message message = new ResilienceMessage(false, playerNicknames.get(clientUUID), expiring);
+            sendMessage(message);
+
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
             LOGGER.debug("[Lobby " + matchID + "] The 10-minutes timer has started");
             endGameTimer.schedule(new TimerTask() {
                 @Override
@@ -698,7 +730,7 @@ public class Lobby implements Runnable, MessageReceiver {
                         LOGGER.debug("[Lobby " + matchID + "] The game is over because the timer has expired");
                     }
                 }
-            }, 600500);
+            }, 600000);
         }
     }
 }

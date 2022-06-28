@@ -4,10 +4,7 @@ import it.polimi.ingsw.am37.model.character.Character;
 import it.polimi.ingsw.am37.model.character.Effect;
 import it.polimi.ingsw.am37.model.character.EffectDatabase;
 import it.polimi.ingsw.am37.model.character.Option;
-import it.polimi.ingsw.am37.model.exceptions.AssistantImpossibleToPlay;
-import it.polimi.ingsw.am37.model.exceptions.CharacterImpossibleToPlay;
-import it.polimi.ingsw.am37.model.exceptions.MNmovementWrongException;
-import it.polimi.ingsw.am37.model.exceptions.StudentSpaceException;
+import it.polimi.ingsw.am37.model.exceptions.*;
 import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
 
 import java.beans.PropertyChangeListener;
@@ -161,20 +158,21 @@ public class GameManager {
                 EffectDatabase.setUp();
                 List<Effect> temp = new ArrayList<>(Arrays.stream(Effect.values()).toList());
                 Collections.shuffle(temp);
-                //Character Testing
-                // -----CHARACTER--------------TEST DIFFICULTY---------------HINTS------------------
-                // -    Monk:                      EASY                      DONE        //No hints
-                // -    Magic Postman:             EASY                      DONE        //In order to function correctly it must be played before moving mother nature
-                // -    Knight:                    EASY                      DONE        //No hints
-                // -    Mushroom Man:              EASY                      DONE        //In order to function correctly it must be played before moving mother nature
-                // -    Princess:                  EASY                      DONE        //No hints
-                // -    Farmer:                    MEDIUM                    DONE        //In order to function correctly it must be played before moving students in the dining
-                // -    Centaur:                   MEDIUM                    DONE        //In order to function correctly it must be played before moving mother nature
-                // -    Jester:                    MEDIUM                    DONE        //No hints
-                // -    Minstrel:                  MEDIUM                    DONE        //In order to function correctly you must have at least two students in the dining
-                // -    Herald:                    MEDIUM                    DONE
-                // -    Grandma:                   MEDIUM                    DONE        //In order to function correctly it must be played before moving mother nature
-                // -    Thief:                     HARD                      DONE        //No hints
+                /*                           Character Testing
+                 * -----CHARACTER--------------TEST DIFFICULTY---------------HINT------------------
+                 * -    Monk:                      EASY                      DONE        //No hints
+                 * -    Magic Postman:             EASY                      DONE        //In order to function correctly it must be played before moving mother nature
+                 * -    Knight:                    EASY                      DONE        //No hints
+                 * -    Mushroom Man:              EASY                      DONE        //In order to function correctly it must be played before moving mother nature
+                 * -    Princess:                  EASY                      DONE        //No hints
+                 * -    Farmer:                    MEDIUM                    DONE        //In order to function correctly it must be played before moving students in the dining
+                 * -    Centaur:                   MEDIUM                    DONE        //In order to function correctly it must be played before moving mother nature
+                 * -    Jester:                    MEDIUM                    DONE        //No hints
+                 * -    Minstrel:                  MEDIUM                    DONE        //In order to function correctly you must have at least two students in the dining
+                 * -    Herald:                    MEDIUM                    DONE
+                 * -    Grandma:                   MEDIUM                    DONE        //In order to function correctly it must be played before moving mother nature
+                 * -    Thief:                     HARD                      DONE        //No hints
+                 */
                 for (int i = 0; i < NUMBER_OF_CHARACTERS; i++) {
                     Effect effect = temp.get(i);
                     characters[i] = new Character(effect.getInitialPrice(), effect, bag);
@@ -251,11 +249,27 @@ public class GameManager {
      *
      * @param islandId The num of forward island movement of mother nature
      */
-    public void moveMotherNature(int islandId) throws MNmovementWrongException {
+    public void moveMotherNature(int islandId) throws MNmovementWrongException, WinningException {
         synchronized (lock) {
             islandsManager.setCurrentPlayer(turnManager.getCurrentPlayer());
             islandsManager.motherNatureActionMovement(islandId, turnManager.getPlayers());
+            if (islandsManager.getIslands().size() <= 3) {
+                throw new WinningException(calculateWinningPlayer());
+            }
         }
+    }
+
+    /**
+     * returns the player which has fewer towers in the board
+     */
+    public Player calculateWinningPlayer() {
+        Player winnerPlayer = turnManager.getCurrentPlayer();
+        for (Player player : turnManager.getPlayers()) {
+            if (player.getBoard().getTowers().getCurrentSize() < winnerPlayer.getBoard().getTowers().getCurrentSize())
+                if (player.getBoard().getPossessedProf() > player.getBoard().getPossessedProf())
+                    winnerPlayer = player;
+        }
+        return winnerPlayer;
     }
 
     /**
@@ -266,8 +280,13 @@ public class GameManager {
     public void playCharacter(Character character, Option option) throws CharacterImpossibleToPlay {
         synchronized (lock) {
             if (turnManager.getCurrentPlayer().getNumberOfCoins() >= character.getCurrentPrice()) {
+                if (character.getEffectType() == Effect.MONK || character.getEffectType() == Effect.PRINCESS)
+                    if (bag.isEmpty()) {
+                        turnManager.setLastRound(true);
+                        throw new CharacterImpossibleToPlay("Bag is empty, you can't play this character");
+                    }
                 turnManager.getCurrentPlayer().useCharacter(character, option);
-            } else throw new CharacterImpossibleToPlay("Can't play Character, not enough coins");
+            } else throw new CharacterImpossibleToPlay("You can't play Character, not enough coins");
         }
     }
 
@@ -300,7 +319,7 @@ public class GameManager {
     /**
      * This method register the given listeners to all the updatable objects in the model
      *
-     * @param listener  the listener to register inside the model
+     * @param listener the listener to register inside the model
      */
     public void registerListener(PropertyChangeListener listener) {
         for (Island island : islandsManager.getIslands()) {
