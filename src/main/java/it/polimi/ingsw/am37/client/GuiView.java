@@ -204,6 +204,7 @@ public class GuiView extends AbstractView {
         StudentsContainer container;
         while (true) {
             container = askStudents(num, reducedModel.getBoards().get(client.getNickname()).getDiningRoom());
+            if (container == null) return null;
             if (container.size() != num) {
                 displayError(client.getMessageString("e.toManyStudents"));
                 continue;
@@ -217,6 +218,7 @@ public class GuiView extends AbstractView {
         StudentsContainer container;
         while (true) {
             container = askStudents(num, character.getState().getContainer());
+            if (container == null) return null;
             if (container.size() != num) {
                 displayError(client.getMessageString("e.toManyStudents"));
                 continue;
@@ -239,6 +241,7 @@ public class GuiView extends AbstractView {
             int studentsToMove = (num == 0 ? (GameManager.MAX_FOR_MOVEMENTS[client.getSettings().lobbySize() % 2] -
                     client.getTotalStudentsInTurn()) : num);
             container = askStudents(studentsToMove, reducedModel.getBoards().get(client.getNickname()).getEntrance());
+            if (container == null) return null;
             if (num == 0 ? container.size() > studentsToMove : container.size() != num) {
                 displayError(client.getMessageString("e.toManyStudents"));
                 continue;

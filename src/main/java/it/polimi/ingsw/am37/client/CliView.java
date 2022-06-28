@@ -46,7 +46,8 @@ public class CliView extends AbstractView {
         String[] professors = new String[FactionColor.values().length];
         for (FactionColor color :
                 FactionColor.values()) {
-            professors[color.getIndex()] = "@|" + color.color + " " + (board.getProfTable()[color.getIndex()] ? "Yes" : "No") + "|@";
+            professors[color.getIndex()] =
+                    "@|" + color.color + " " + (board.getProfTable()[color.getIndex()] ? "Yes" : "No") + "|@";
         }
         System.out.println("\tProfessors: " + ansi().render(Arrays.toString(professors)));
         System.out.println("\tTowers: " + ansi().render(board.getTowers().getTowersAsString()));
@@ -91,11 +92,14 @@ public class CliView extends AbstractView {
         String format = "\t%-17s%-17s%s";
         String optional = "";
         if (character.getState().getContainer() != null)
-            optional = "Students on the card: " + ansi().render(character.getState().getContainer().getStudentsAsString());
+            optional =
+                    "Students on the card: " + ansi().render(character.getState().getContainer().getStudentsAsString());
         else if (character.getState().getNoEntryTiles() != EffectHandler.DEFAULT_NOENTRYTILES) {
             optional = "No Entry tiles on the card: " + character.getState().getNoEntryTiles();
         }
-        System.out.printf(format, character.getEffectType().getCharacterName() + ":", "Price " + character.getCurrentPrice() + (character.getCurrentPrice() == 1 ? " coin" : " coins"), optional);
+        System.out.printf(format,
+                character.getEffectType().getCharacterName() + ":", "Price " + character.getCurrentPrice() +
+                        (character.getCurrentPrice() == 1 ? " coin" : " coins"), optional);
     }
 
     /**
@@ -230,7 +234,10 @@ public class CliView extends AbstractView {
         String s;
         int num;
         showDeck(client.getView().getReducedModel().getPlayers().get(client.getNickname()));
-        showLastAssistantPlayed(client.getView().getReducedModel().getPlayers().values(), client.getView().getReducedModel().getPlayers().get(client.getNickname()));
+        showLastAssistantPlayed(client.getView().getReducedModel().getPlayers().values(), client.getView()
+                .getReducedModel()
+                .getPlayers()
+                .get(client.getNickname()));
 
         while (true) {
             System.out.print("Please insert the value of your chosen assistant: ");
@@ -378,6 +385,51 @@ public class CliView extends AbstractView {
         return container;
     }
 
+    /**
+     * @return Where mother nature has to go
+     */
+    public int askMotherNature(Assistant assistant) {
+        Scanner scanner = new Scanner(System.in);
+        String response;
+        int numResponse;
+
+        displayImportant("Now choose your destination, available islands are:");
+        showPossibleIslandDestination(assistant);
+
+        while (true) {
+            response = scanner.nextLine().trim().replaceAll(" +", " ");
+            try {
+                numResponse = Integer.parseInt(response);
+            } catch (NumberFormatException e) {
+                wrongInsert();
+                continue;
+            }
+
+            Island islandWithMN = null;
+            ArrayList<Island> possibleIslands = new ArrayList<>();
+            for (Island island : getReducedModel().getIslands())
+                if (island.getMotherNatureHere()) {
+                    islandWithMN = island;
+                    break;
+                }
+            int indexMN = getReducedModel().getIslands().indexOf(islandWithMN);
+            for (int i = indexMN + 1, cont = 0; cont < assistant.getMNMovement(); cont++, i++) {
+                possibleIslands.add(getReducedModel().getIslands().get(i % getReducedModel().getIslands().size()));
+            }
+
+            int maxIslandID = getReducedModel().getIslands().get(0).getIslandId();
+            for (Island island : getReducedModel().getIslands()) {
+                maxIslandID = Math.max(island.getIslandId(), maxIslandID);
+            }
+
+            if (numResponse >= 0 && numResponse <= maxIslandID &&
+                    possibleIslands.contains(getReducedModel().getIslands().get(numResponse)))
+                return numResponse;
+            else
+                displayError("You have written an invalid Island, please try again:");
+        }
+    }
+
     @Override
     public StudentsContainer askStudentsFromCharacter(Character character, int num, Client client) {
         int students;
@@ -387,7 +439,8 @@ public class CliView extends AbstractView {
 
         while (true) {
             if (character.getState().getContainer() != null) System.out.println(
-                    "Students on the card: " + ansi().render(character.getState().getContainer().getStudentsAsString()));
+                    "Students on the card: " +
+                            ansi().render(character.getState().getContainer().getStudentsAsString()));
             else if (character.getState().getNoEntryTiles() != EffectHandler.DEFAULT_NOENTRYTILES)
                 System.out.println("\t No Entry tiles on the card: " + character.getState().getNoEntryTiles());
             displayInfo("You have to move " + (num - container.size()) + " students @|bold from the character card|@");
@@ -447,7 +500,8 @@ public class CliView extends AbstractView {
         while (true) {
             int studentsToMove = (num == 0 ? (GameManager.MAX_FOR_MOVEMENTS[client.getSettings().lobbySize() % 2] -
                     client.getTotalStudentsInTurn()) : num);
-            displayInfo("You have to move " + studentsToMove + (studentsToMove == 1 ? " student" : " students") + " @|bold from the entrance|@ in this turn");
+            displayInfo("You have to move " + studentsToMove + (studentsToMove == 1 ? " student" : " students") +
+                    " @|bold from the entrance|@ in this turn");
 
             displayInfo("Select the color of students you want to move, write @|red,bold R|@ or @|blue,bold B|@ or " +
                     "@|yellow,bold Y|@ or @|green,bold G|@ or @|magenta,bold P|@");
@@ -455,16 +509,20 @@ public class CliView extends AbstractView {
             String finalInput = input;
             Optional<FactionColor> color = Optional.empty();
             if (!finalInput.isBlank())
-                color = Arrays.stream(FactionColor.values()).filter(c -> c.name().charAt(0) == finalInput.toUpperCase().charAt(0)).findFirst();
+                color = Arrays.stream(FactionColor.values())
+                        .filter(c -> c.name().charAt(0) == finalInput.toUpperCase().charAt(0))
+                        .findFirst();
             if (color.isEmpty()) {
                 displayError(client.getMessageString("e.wrongColor"));
                 if (!askConfirm("Do you want to try again to move some students?"))
                     return null;
                 continue;
             } else {
-                displayInfo("Write the number of students you want to move of color " + color.get());
+                displayInfo("Write the number of students you want to move of color " + color.get() +
+                        ", non positive numbers are considered as exit values");
                 try {
                     students = Integer.parseInt(scanner.nextLine().trim().replaceAll(" +", " "));
+                    if (students <= 0) return null;
                     if (students > (num == 0 ? GameManager.MAX_FOR_MOVEMENTS[client.getSettings().lobbySize() % 2] -
                             client.getTotalStudentsInTurn() : num) ||
                             students > reducedModel.getPlayers()
@@ -496,50 +554,6 @@ public class CliView extends AbstractView {
                 break;
         }
         return container;
-    }
-
-    /**
-     * @return Where mother nature has to go
-     */
-    public int askMotherNature(Assistant assistant) {
-        Scanner scanner = new Scanner(System.in);
-        String response;
-        int numResponse;
-
-        displayImportant("Now choose your destination, available islands are:");
-        showPossibleIslandDestination(assistant);
-
-        while (true) {
-            response = scanner.nextLine().trim().replaceAll(" +", " ");
-            try {
-                numResponse = Integer.parseInt(response);
-            } catch (NumberFormatException e) {
-                wrongInsert();
-                continue;
-            }
-
-            Island islandWithMN = null;
-            ArrayList<Island> possibleIslands = new ArrayList<>();
-            for (Island island : getReducedModel().getIslands())
-                if (island.getMotherNatureHere()) {
-                    islandWithMN = island;
-                    break;
-                }
-            int indexMN = getReducedModel().getIslands().indexOf(islandWithMN);
-            for (int i = indexMN + 1, cont = 0; cont < assistant.getMNMovement(); cont++, i++) {
-                possibleIslands.add(getReducedModel().getIslands().get(i % getReducedModel().getIslands().size()));
-            }
-
-            int maxIslandID = getReducedModel().getIslands().get(0).getIslandId();
-            for (Island island : getReducedModel().getIslands()) {
-                maxIslandID = Math.max(island.getIslandId(), maxIslandID);
-            }
-
-            if (numResponse >= 0 && numResponse <= maxIslandID && possibleIslands.contains(getReducedModel().getIslands().get(numResponse)))
-                return numResponse;
-            else
-                displayError("You have written an invalid Island, please try again:");
-        }
     }
 
     /**

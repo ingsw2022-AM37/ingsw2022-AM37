@@ -341,40 +341,8 @@ public class Client {
     }
 
     /**
-     * Main method to perform student actions
-     *
-     * @param isToIsland true if the player is moving to an island, false otherwise
-     * @return if action has accepted or reject by the server
-     * @see ActionType
-     */
-    private boolean moveStudentsRegular(Boolean isToIsland) {
-        StudentsContainer container;
-        while (true) {
-            container = view.askStudentsFromEntrance(this, 0);
-            if (container == null ||
-                    !view.getReducedModel().getBoards().get(nickname).getEntrance().contains(container)) {
-                view.displayError("Students error");
-            } else {
-                break;
-            }
-        }
-        Message message;
-        if (isToIsland == null) {
-            isToIsland = view.askDestination();
-        }
-        if (isToIsland) {
-            message = new StudentsToIslandMessage(UUID, container, view.askIsland());
-        } else {
-            message = new StudentsToDiningMessage(UUID, container);
-        }
-        socket.sendMessage(message);
-        return !hasReceivedError();
-
-    }
-
-    /**
-     * Method used to check if the last action performed have been successful or not. More formally returns {@code true}
-     * if server responds with an {@link UpdateMessage} or {@code false} if the server responds with an
+     * Method used to check if the last action performed have been successful or not. More formally returns
+     * {@code false} if server responds with an {@link UpdateMessage} or {@code true} if the server responds with an
      * {@link ErrorMessage}
      *
      * @return if last action was accepted by the server or rejected
@@ -396,6 +364,39 @@ public class Client {
         }
         lastReadMessage = message;
         return isError;
+    }
+
+    /**
+     * Main method to perform student actions
+     *
+     * @param isToIsland true if the player is moving to an island, false otherwise
+     * @return if action has accepted or reject by the server
+     * @see ActionType
+     */
+    private boolean moveStudentsRegular(Boolean isToIsland) {
+        StudentsContainer container;
+        while (true) {
+            container = view.askStudentsFromEntrance(this, 0);
+            if (container == null ||
+                    !view.getReducedModel().getBoards().get(nickname).getEntrance().contains(container)) {
+                view.displayError("Students error");
+                if (container == null) return false;
+            } else {
+                break;
+            }
+        }
+        Message message;
+        if (isToIsland == null) {
+            isToIsland = view.askDestination();
+        }
+        if (isToIsland) {
+            message = new StudentsToIslandMessage(UUID, container, view.askIsland());
+        } else {
+            message = new StudentsToDiningMessage(UUID, container);
+        }
+        socket.sendMessage(message);
+        return !hasReceivedError();
+
     }
 
     /**
