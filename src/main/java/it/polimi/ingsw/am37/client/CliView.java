@@ -351,7 +351,7 @@ public class CliView extends AbstractView {
             if (color.isEmpty()) {
                 displayError(client.getMessageString("e.wrongColor"));
                 if (!askConfirm("Do you want to try again to move some students?"))
-                    return null;
+                    return container;
                 continue;
             } else {
                 displayInfo("Write the number of students you want to move of color " + color.get());
@@ -364,14 +364,14 @@ public class CliView extends AbstractView {
                             .getByColor(color.get())) {
                         displayError("You have tried to move too many students");
                         if (!askConfirm("Do you want to try again to move some students?"))
-                            return null;
+                            return container;
                         continue;
                     }
                     container.addStudents(students, color.get());
                 } catch (NumberFormatException e) {
                     displayError(client.getMessageString("e.wrongNumber"));
                     if (!askConfirm("Do you want to try again to move some students?"))
-                        return null;
+                        return container;
                     continue;
                 }
             }
@@ -451,7 +451,7 @@ public class CliView extends AbstractView {
             if (color.isEmpty()) {
                 displayError(client.getMessageString("e.wrongColor"));
                 if (!askConfirm("Do you want to try again to move some students?"))
-                    return null;
+                    return container;
                 continue;
             } else {
                 displayInfo("Write the number of students you want to move of color " + color.get());
@@ -460,14 +460,14 @@ public class CliView extends AbstractView {
                     if (students > num || students > character.getState().getContainer().getByColor(color.get())) {
                         displayError("You have tried to move too many students");
                         if (!askConfirm("Do you want to try again to move some students?"))
-                            return null;
+                            return container;
                         continue;
                     }
                     container.addStudents(students, color.get());
                 } catch (NumberFormatException e) {
                     displayError(client.getMessageString("e.wrongNumber"));
                     if (!askConfirm("Do you want to try again to move some students?"))
-                        return null;
+                        return container;
                     continue;
                 }
             }
@@ -510,8 +510,9 @@ public class CliView extends AbstractView {
                         .findFirst();
             if (color.isEmpty()) {
                 displayError(client.getMessageString("e.wrongColor"));
-                if (!askConfirm("Do you want to try again to move some students?"))
-                    return null;
+                if (!askConfirm("Do you want to try again to move some students?")) {
+                    return container;
+                }
                 continue;
             } else {
                 displayInfo("Write the number of students you want to move of color " + color.get() +
@@ -527,15 +528,17 @@ public class CliView extends AbstractView {
                                     .getEntrance()
                                     .getByColor(color.get())) {
                         displayError("You have tried to move too many students");
-                        if (!askConfirm("Do you want to try again to move some students?"))
-                            return null;
+                        if (!askConfirm("Do you want to try again to move some students?")) {
+                            return container;
+                        }
                         continue;
                     }
                     container.addStudents(students, color.get());
                 } catch (NumberFormatException e) {
                     displayError(client.getMessageString("e.wrongNumber"));
-                    if (!askConfirm("Do you want to try again to move some students?"))
-                        return null;
+                    if (!askConfirm("Do you want to try again to move some students?")) {
+                        return container;
+                    }
                     continue;
                 }
             }
