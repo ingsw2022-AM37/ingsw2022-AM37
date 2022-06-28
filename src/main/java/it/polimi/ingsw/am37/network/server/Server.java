@@ -150,7 +150,7 @@ public class Server implements MessageReceiver {
                     ch.disconnect();
                 }
                 for (Lobby lobby : activeLobbies) {
-                    //Da testare questo if
+                    //TODO: THIS METHOD IS INVOLVED IN RESILIANCE, MUST BE TESTED
                     if (lobby.isPlayerInLobby(message.getUUID())) {
                         onReconnect(message.getUUID());
                         lobby.onReconnect(message.getUUID());
@@ -194,9 +194,10 @@ public class Server implements MessageReceiver {
      * @param lobby the Lobby to be closed.
      */
     public void closeLobby(Lobby lobby) {
-        for (String uuid : lobby.getPlayers().keySet()) {
-            clientHandlerMap.get(uuid).disconnect();
-            onDisconnect(uuid);
+        while (lobby.getPlayers().size() > 0) {
+            String uuidToRemove = lobby.getPlayers().keySet().iterator().next();
+            clientHandlerMap.get(uuidToRemove).disconnect();
+            onDisconnect(uuidToRemove);
         }
         nicknames.keySet().removeAll(lobby.getPlayerNicknames().keySet());
         activeLobbies.remove(lobby);
@@ -246,7 +247,6 @@ public class Server implements MessageReceiver {
         if (!found)
             nicknames.remove(clientUUID);
 
-        //clientToDisconnect.disconnect();
         if (nicknames.get(clientUUID) != null)
             LOGGER.info("Disconnected " + nicknames.get(clientUUID) + " from the Server");
         else

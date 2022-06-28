@@ -218,7 +218,7 @@ public class ClientSocket implements Runnable {
                 }
             }
         } catch (IOException e) {
-            //onDisconnect();
+            onDisconnect();
         }
 
     }

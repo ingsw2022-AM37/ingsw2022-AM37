@@ -73,8 +73,7 @@ public class Board {
         switch (numOfPlayer) {
             case 2 -> towerArea = new LimitedTowerContainer(maxTowerSizeFor2, maxTowerSizeFor2, color);
             case 3 -> towerArea = new LimitedTowerContainer(maxTowerSizeFor3, maxTowerSizeFor3, color);
-            case 4 -> towerArea = new LimitedTowerContainer(maxTowerSizeFor2, 0, color);
-            default -> throw new IllegalArgumentException("number of player must be between 2 and 4");
+            default -> throw new IllegalArgumentException("number of player must be between 2 and 3");
         }
         entranceArea = new LimitedStudentsContainer(numOfPlayer == 3 ? maxEntranceSizeFor3 : maxEntranceSizeFor2);
         int[] temp = new int[FactionColor.values().length];
