@@ -261,14 +261,15 @@ public class Client {
      */
     private boolean chooseCloud() {
         String cloudId;
-        while (true) {
-            cloudId = view.askCloud();
-            if (view.getReducedModel().getClouds().get(cloudId).size() != 0) break;
-            else view.displayError(messagesConstants.getProperty("e.impossibleCloud"));
+        cloudId = view.askCloud();
+        if (view.getReducedModel().getClouds().get(cloudId).size() != 0) {
+            Message message = new ChooseCloudMessage(UUID, cloudId);
+            socket.sendMessage(message);
+            return !hasReceivedError();
+        } else {
+            view.displayError(messagesConstants.getProperty("e.impossibleCloud"));
+            return false;
         }
-        Message message = new ChooseCloudMessage(UUID, cloudId);
-        socket.sendMessage(message);
-        return !hasReceivedError();
     }
 
     /**

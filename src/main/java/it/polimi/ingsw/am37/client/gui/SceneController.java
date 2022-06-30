@@ -11,8 +11,7 @@ import java.io.IOException;
 public class SceneController {
 
     public static final Object waitObject = new Object();
-    private static Scene activeScene;
-    private static GenericController activeController;
+    private static SceneData sceneData;
 
 
     private SceneController() {
@@ -28,21 +27,30 @@ public class SceneController {
             e.printStackTrace();
             System.exit(-1);
         }
-        activeScene = new Scene(rootLayout);
-        activeController = loader.getController();
+        sceneData = new SceneData(new Scene(rootLayout), loader.getController());
     }
 
     public static void switchScreen(String path) {
-        Stage stage = (Stage) activeScene.getWindow();
+        Stage stage = (Stage) sceneData.activeScene().getWindow();
         createScene(path);
-        stage.setScene(activeScene);
+        stage.setScene(sceneData.activeScene());
     }
 
     public static Scene getActiveScene() {
-        return activeScene;
+        return sceneData.activeScene();
     }
 
     public static GenericController getActiveController() {
-        return activeController;
+        return sceneData.activeController();
+    }
+
+    /**
+     * This record encapsulate the data of each scene in an atomic constructor, so the data are created and updated
+     * atomically
+     *
+     * @param activeScene      the current active scene
+     * @param activeController the controller of the active scene
+     */
+    private record SceneData(Scene activeScene, GenericController activeController) {
     }
 }

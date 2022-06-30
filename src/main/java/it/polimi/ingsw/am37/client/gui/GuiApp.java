@@ -1,5 +1,6 @@
 package it.polimi.ingsw.am37.client.gui;
 
+import it.polimi.ingsw.am37.client.PlayerAbortException;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.image.Image;
@@ -13,7 +14,7 @@ public class GuiApp extends Application {
     private static GuiApp instance = null;
 
     public GuiApp() {
-        setStartUpTest(this);
+        initialize(this);
     }
 
     public static GuiApp waitForStartUp() {
@@ -25,7 +26,7 @@ public class GuiApp extends Application {
         return instance;
     }
 
-    public static void setStartUpTest(GuiApp startUpTest0) {
+    public static void initialize(GuiApp startUpTest0) {
         instance = startUpTest0;
         latch.countDown();
     }
@@ -47,7 +48,6 @@ public class GuiApp extends Application {
         SceneController.createScene("/assets/scenes/Connection.fxml");
         primaryStage.setScene(SceneController.getActiveScene());
         primaryStage.setTitle("Welcome to Eryantis game!");
-        primaryStage.setResizable(false);
         primaryStage.getIcons()
                 .add(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/assets/images/cranio_logo.jpg"))));
         primaryStage.show();
@@ -71,5 +71,6 @@ public class GuiApp extends Application {
     public void stop() throws Exception {
         Platform.exit();
         super.stop();
+        throw new PlayerAbortException();
     }
 }
