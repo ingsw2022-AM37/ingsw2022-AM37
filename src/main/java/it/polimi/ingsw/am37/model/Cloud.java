@@ -40,12 +40,12 @@ public class Cloud extends UpdatableObject {
     /**
      * Default constructor
      */
-    public Cloud(boolean isFor2) {
+    public Cloud(boolean isFor2, int id) {
         super(CLOUD);
         this.isFor2 = isFor2;
         if (this.isFor2) studentsOnCloud = new LimitedStudentsContainer(studentsPerCloud2Players);
         else studentsOnCloud = new LimitedStudentsContainer(studentsPerCloud3Players);
-        cloudId = Integer.toString(idCounter);
+        cloudId = String.valueOf(id);
         idCounter = idCounter + 1;
     }
 

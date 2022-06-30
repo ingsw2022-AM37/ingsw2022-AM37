@@ -2,11 +2,9 @@ package it.polimi.ingsw.am37.model;
 
 import it.polimi.ingsw.am37.model.character.Character;
 import it.polimi.ingsw.am37.model.character.Effect;
+import it.polimi.ingsw.am37.model.character.EffectDatabase;
 import it.polimi.ingsw.am37.model.character.Option;
-import it.polimi.ingsw.am37.model.exceptions.AssistantImpossibleToPlay;
-import it.polimi.ingsw.am37.model.exceptions.CharacterImpossibleToPlay;
-import it.polimi.ingsw.am37.model.exceptions.MNmovementWrongException;
-import it.polimi.ingsw.am37.model.exceptions.StudentSpaceException;
+import it.polimi.ingsw.am37.model.exceptions.*;
 import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
 
 import java.beans.PropertyChangeListener;
@@ -21,7 +19,11 @@ public class GameManager {
     /**
      * Number of characters available
      */
-    private static final int NUMBER_OF_CHARACTERS = 3;
+    public static final int NUMBER_OF_CHARACTERS = 3;
+    /**
+     *
+     */
+    public static final int[] MAX_FOR_MOVEMENTS = new int[]{3, 4};
     /**
      * Number of player in the game handled by this manager
      */
@@ -146,22 +148,54 @@ public class GameManager {
             //follow the order of the manual of the game
             islandsManager.setUp();
             for (int i = 0; i < numberCloudsForPlayers.get(playersNumber); i++) {
-                clouds.add(new Cloud(playersNumber == 2));
+                clouds.add(new Cloud(playersNumber == 2, i));
             }
             Arrays.fill(notUsedTeachers, true);
             turnManager.setUp(bag);
-            //TODO: handle assistants logic
 
             // advanced logic only
             if (this.advancedMode) {
+                EffectDatabase.setUp();
                 List<Effect> temp = new ArrayList<>(Arrays.stream(Effect.values()).toList());
                 Collections.shuffle(temp);
+                /*                           Character Testing
+                 * -----CHARACTER--------------TEST DIFFICULTY---------------HINT------------------
+                 * -    Monk:                      EASY                      DONE        //No hints
+                 * -    Magic Postman:             EASY                      DONE        //In order to function correctly it must be played before moving mother nature
+                 * -    Knight:                    EASY                      DONE        //No hints
+                 * -    Mushroom Man:              EASY                      DONE        //In order to function correctly it must be played before moving mother nature
+                 * -    Princess:                  EASY                      DONE        //No hints
+                 * -    Farmer:                    MEDIUM                    DONE        //In order to function correctly it must be played before moving students in the dining
+                 * -    Centaur:                   MEDIUM                    DONE        //In order to function correctly it must be played before moving mother nature
+                 * -    Jester:                    MEDIUM                    DONE        //No hints
+                 * -    Minstrel:                  MEDIUM                    DONE        //In order to function correctly you must have at least two students in the dining
+                 * -    Herald:                    MEDIUM                    DONE
+                 * -    Grandma:                   MEDIUM                    DONE        //In order to function correctly it must be played before moving mother nature
+                 * -    Thief:                     HARD                      DONE        //No hints
+                 */
                 for (int i = 0; i < NUMBER_OF_CHARACTERS; i++) {
                     Effect effect = temp.get(i);
-                    characters[i] = new Character(effect.getInitialPrice(), effect);
+                    characters[i] = new Character(effect.getInitialPrice(), effect, bag);
                     if (effect == Effect.GRANDMA) islandsManager.setStateCharacterNoEntryTile(characters[i].getState());
                 }
             }
+        }
+    }
+
+    /**
+     * Move the students to the dining room of the current player
+     *
+     * @param container The students to move inside the dining room
+     * @throws IllegalArgumentException When the container is null
+     */
+    public void moveStudentsToDining(StudentsContainer container) throws IllegalArgumentException {
+        synchronized (lock) {
+            if (container == null) {
+                throw new IllegalArgumentException("container of moveStudentsToDining can't be null");
+            }
+            if (container.size() > MAX_FOR_MOVEMENTS[playersNumber % 2]) throw new RuntimeException();
+            turnManager.getCurrentPlayer().getBoard().getEntrance().removeContainer(container);
+            turnManager.addStudentsToDining(container);
         }
     }
 
@@ -177,8 +211,7 @@ public class GameManager {
             if (container == null) {
                 throw new IllegalArgumentException("container of moveStudentsToIsland can't be null");
             }
-            final int maxForMovement = 3;
-            if (container.size() > maxForMovement) throw new RuntimeException();
+            if (container.size() > MAX_FOR_MOVEMENTS[playersNumber % 2]) throw new RuntimeException();
             Island island = islandsManager.getIslands()
                     .stream()
                     .filter(island1 -> island1.getIslandId() == islandId)
@@ -186,24 +219,6 @@ public class GameManager {
                     .orElseThrow();
             turnManager.getCurrentPlayer().getBoard().getEntrance().removeContainer(container);
             island.addStudents(container);
-        }
-    }
-
-    /**
-     * Move the students to the dining room of the current player
-     *
-     * @param container The students to move inside the dining room
-     * @throws IllegalArgumentException When the container is null
-     */
-    public void moveStudentsToDining(StudentsContainer container) throws IllegalArgumentException {
-        synchronized (lock) {
-            if (container == null) {
-                throw new IllegalArgumentException("container of moveStudentsToDining can't be null");
-            }
-            final int maxForMovement = 3;
-            if (container.size() > maxForMovement) throw new RuntimeException();
-            turnManager.getCurrentPlayer().getBoard().getEntrance().removeContainer(container);
-            turnManager.addStudentsToDining(container);
         }
     }
 
@@ -234,10 +249,27 @@ public class GameManager {
      *
      * @param islandId The num of forward island movement of mother nature
      */
-    public void moveMotherNature(int islandId) throws MNmovementWrongException {
+    public void moveMotherNature(int islandId) throws MNmovementWrongException, WinningException {
         synchronized (lock) {
+            islandsManager.setCurrentPlayer(turnManager.getCurrentPlayer());
             islandsManager.motherNatureActionMovement(islandId, turnManager.getPlayers());
+            if (islandsManager.getIslands().size() <= 3) {
+                throw new WinningException(calculateWinningPlayer());
+            }
         }
+    }
+
+    /**
+     * returns the player which has fewer towers in the board
+     */
+    public Player calculateWinningPlayer() {
+        Player winnerPlayer = turnManager.getCurrentPlayer();
+        for (Player player : turnManager.getPlayers()) {
+            if (player.getBoard().getTowers().getCurrentSize() < winnerPlayer.getBoard().getTowers().getCurrentSize())
+                if (player.getBoard().getPossessedProf() > player.getBoard().getPossessedProf())
+                    winnerPlayer = player;
+        }
+        return winnerPlayer;
     }
 
     /**
@@ -248,9 +280,13 @@ public class GameManager {
     public void playCharacter(Character character, Option option) throws CharacterImpossibleToPlay {
         synchronized (lock) {
             if (turnManager.getCurrentPlayer().getNumberOfCoins() >= character.getCurrentPrice()) {
-                Character used = Arrays.stream(characters).filter(character::equals).findFirst().orElseThrow();
-                used.useEffect(option);
-            } else throw new CharacterImpossibleToPlay("Can't play Character");
+                if (character.getEffectType() == Effect.MONK || character.getEffectType() == Effect.PRINCESS)
+                    if (bag.isEmpty()) {
+                        turnManager.setLastRound(true);
+                        throw new CharacterImpossibleToPlay("Bag is empty, you can't play this character");
+                    }
+                turnManager.getCurrentPlayer().useCharacter(character, option);
+            } else throw new CharacterImpossibleToPlay("You can't play Character, not enough coins");
         }
     }
 
@@ -264,9 +300,6 @@ public class GameManager {
                     .findFirst()
                     .orElseThrow();
             turnManager.getCurrentPlayer().getBoard().getEntrance().uniteContainers(currentCloud.removeStudents());
-            currentCloud.addStudents(bag.extractStudents(currentCloud.getIsFor2()
-                    ? currentCloud.getStudentsPerCloud2Players()
-                    : currentCloud.getStudentsPerCloud3Players()));
         }
     }
 
@@ -275,14 +308,18 @@ public class GameManager {
      */
     public void nextTurn() {
         synchronized (lock) {
+            islandsManager.resetFlags();
+            turnManager.resetFlags();
             turnManager.nextTurn();
+            turnManager.setCurrentPlayer(turnManager.getOrderPlayed().get(0));
+            islandsManager.setCurrentPlayer(turnManager.getCurrentPlayer());
         }
     }
 
     /**
      * This method register the given listeners to all the updatable objects in the model
      *
-     * @param listener  the listener to register inside the model
+     * @param listener the listener to register inside the model
      */
     public void registerListener(PropertyChangeListener listener) {
         for (Island island : islandsManager.getIslands()) {

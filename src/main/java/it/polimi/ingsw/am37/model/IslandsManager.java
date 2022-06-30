@@ -2,7 +2,7 @@ package it.polimi.ingsw.am37.model;
 
 import it.polimi.ingsw.am37.model.character.State;
 import it.polimi.ingsw.am37.model.exceptions.MNmovementWrongException;
-import it.polimi.ingsw.am37.model.exceptions.NoIslandConquerorException;
+import it.polimi.ingsw.am37.model.exceptions.WinningException;
 import it.polimi.ingsw.am37.model.student_container.FixedUnlimitedStudentsContainer;
 
 import java.util.ArrayList;
@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Random;
 
+@SuppressWarnings("ConstantConditions")
 public class IslandsManager {
 
     /**
@@ -134,23 +135,23 @@ public class IslandsManager {
         int islandId = islands.indexOf(island);
         boolean UnitedDx = false;
 
-        if (islands.get(islandId).getCurrentTower() != TowerColor.NONE) {
+        if (island.getCurrentTower() != TowerColor.NONE) {
 
             if (islandId == 0 && islands.size() > 1) {
-                if ((islands.get(islandId).getCurrentTower()) == islands.get(islands.size() - 1).getCurrentTower()) {
-                    islands.get(islandId).setNumIslands(islands.get(islandId).getNumIslands() + islands.get(islands.size() - 1).getNumIslands());
-                    islands.get(islandId).getStudentsOnIsland().uniteContainers(islands.get(islands.size() - 1).getStudentsOnIsland());
+                if (island.getCurrentTower() == islands.get(islands.size() - 1).getCurrentTower()) {
+                    island.setNumIslands(island.getNumIslands() + islands.get(islands.size() - 1).getNumIslands());
+                    island.getStudentsOnIsland().uniteContainers(islands.get(islands.size() - 1).getStudentsOnIsland());
                     int temp = islands.get(islands.size() - 1).getNoEntryTile();
-                    islands.get(islands.size()- 1).setNumIslands(0);
+                    islands.get(islands.size() - 1).setNumIslands(0);
                     islands.remove(islands.size() - 1);
                     island.addNoEntryTile(temp);
                 }
             }
 
             if (islandId + 1 < islands.size() && islands.size() > 1) {
-                if ((islands.get(islandId).getCurrentTower()) == islands.get(islandId + 1).getCurrentTower()) {
-                    islands.get(islandId).setNumIslands(islands.get(islandId).getNumIslands() + islands.get(islandId + 1).getNumIslands());
-                    islands.get(islandId).getStudentsOnIsland().uniteContainers(islands.get(islandId + 1).getStudentsOnIsland());
+                if (island.getCurrentTower() == islands.get(islandId + 1).getCurrentTower()) {
+                    island.setNumIslands(island.getNumIslands() + islands.get(islandId + 1).getNumIslands());
+                    island.getStudentsOnIsland().uniteContainers(islands.get(islandId + 1).getStudentsOnIsland());
 
                     UnitedDx = true;
                     int temp = islands.get(islandId + 1).getNoEntryTile();
@@ -163,9 +164,9 @@ public class IslandsManager {
             }
 
             if (islandId - 1 >= 0 && islands.size() > 1) {
-                if ((islands.get(islandId).getCurrentTower()) == islands.get(islandId - 1).getCurrentTower()) {
-                    islands.get(islandId).setNumIslands(islands.get(islandId).getNumIslands() + islands.get(islandId - 1).getNumIslands());
-                    islands.get(islandId).getStudentsOnIsland().uniteContainers(islands.get(islandId - 1).getStudentsOnIsland());
+                if (island.getCurrentTower() == islands.get(islandId - 1).getCurrentTower()) {
+                    island.setNumIslands(island.getNumIslands() + islands.get(islandId - 1).getNumIslands());
+                    island.getStudentsOnIsland().uniteContainers(islands.get(islandId - 1).getStudentsOnIsland());
                     int temp = islands.get(islandId - 1).getNoEntryTile();
                     islands.get(islandId - 1).setNumIslands(0);
                     islands.remove(islandId - 1);
@@ -177,9 +178,9 @@ public class IslandsManager {
             }
 
             if (islandId == islands.size() - 1 && !UnitedDx && islands.size() > 1) {
-                if ((islands.get(islandId).getCurrentTower()) == islands.get(0).getCurrentTower()) {
-                    islands.get(islandId).setNumIslands(islands.get(islandId).getNumIslands() + islands.get(0).getNumIslands());
-                    islands.get(islandId).getStudentsOnIsland().uniteContainers(islands.get(0).getStudentsOnIsland());
+                if (island.getCurrentTower() == islands.get(0).getCurrentTower()) {
+                    island.setNumIslands(island.getNumIslands() + islands.get(0).getNumIslands());
+                    island.getStudentsOnIsland().uniteContainers(islands.get(0).getStudentsOnIsland());
                     int temp = islands.get(0).getNoEntryTile();
                     islands.get(0).setNumIslands(0);
                     islands.remove(0);
@@ -189,7 +190,6 @@ public class IslandsManager {
                 }
             }
         }
-
     }
 
     /**
@@ -199,14 +199,10 @@ public class IslandsManager {
      *
      * @param island  The island in the array we are looking to
      * @param players It's the ArrayList of all players, it gives the access to all boards
-     * @return The player who conquered the island
-     * @throws NoIslandConquerorException If there isn't a new conqueror due to a draw between the two possible winners
      */
-    public Player checkConqueror(Island island, ArrayList<Player> players) throws NoIslandConquerorException {
-
+    public void checkConqueror(Island island, ArrayList<Player> players) throws WinningException {
         HashMap<Player, Integer> playerPower = new HashMap<>();
         boolean[] controlledProf;
-
         Player exConqueror = null;
         int boolToInt;
         int tmp;
@@ -220,7 +216,7 @@ public class IslandsManager {
         if (island.getNoEntryTile() > 0) {
             island.removeNoEntryTile();
             this.stateCharacterNoEntryTile.setNoEntryTiles(this.stateCharacterNoEntryTile.getNoEntryTiles() + 1);
-            return null;
+            return;
         }
 
         for (Player player : players) {
@@ -238,7 +234,6 @@ public class IslandsManager {
         playerPower.put(currentPlayer, powerBonusFlag + playerPower.get(currentPlayer));
 
         if (island.getCurrentTower() == TowerColor.NONE) {
-
             for (Player player : players) {
                 if (playerPower.get(player) > max1) {
                     max2 = max1;
@@ -247,7 +242,7 @@ public class IslandsManager {
                     max2 = playerPower.get(player);
             }
             if (max1 == max2)
-                throw new NoIslandConquerorException();
+                return;
 
             for (Player player : players)
                 if (playerPower.get(player) > numStudentsControlling) {
@@ -256,7 +251,6 @@ public class IslandsManager {
                 }
             island.getCurrentConqueror().getBoard().removeTowers(island.getNumIslands());
         } else {
-
             for (Player player : players) {
                 if (playerPower.get(player) > max1) {
                     max2 = max1;
@@ -270,7 +264,7 @@ public class IslandsManager {
             }
             if (max1 == max2 && max1 > playerPower.get(island.getCurrentConqueror()) + (this.noTowerFlag ? 0 :
                     island.getNumIslands()) && playerMax1.getBoard().getTowers().getCurrentTower() != island.getCurrentTower() && playerMax2.getBoard().getTowers().getCurrentTower() != island.getCurrentTower())
-                throw new NoIslandConquerorException();
+                return;
 
             numStudentsControlling = playerPower.get(island.getCurrentConqueror());
             exConqueror = island.getCurrentConqueror();
@@ -282,16 +276,12 @@ public class IslandsManager {
                     switchConqueror = true;
                 }
         }
-
         if (switchConqueror) {
             exConqueror.getBoard().addTowers(island.getNumIslands());
             island.getCurrentConqueror().getBoard().removeTowers(island.getNumIslands());
         }
 
         island.setTower(island.getCurrentConqueror().getBoard().getTowers().getCurrentTower());
-
-        return island.getCurrentConqueror();
-
     }
 
     /**
@@ -300,7 +290,7 @@ public class IslandsManager {
      * @param island  The island where Mother Nature is
      * @param players The players in the game
      */
-    public void motherNatureActionNoMovement(Island island, ArrayList<Player> players) {
+    public void motherNatureActionNoMovement(Island island, ArrayList<Player> players) throws WinningException {
         this.checkConqueror(island, players);
         this.uniteIfPossible(island);
     }
@@ -312,7 +302,7 @@ public class IslandsManager {
      * @param players             The list of all players
      * @throws MNmovementWrongException If the movement can't be performed.
      */
-    public void motherNatureActionMovement(int destinationIslandId, ArrayList<Player> players) throws MNmovementWrongException {
+    public void motherNatureActionMovement(int destinationIslandId, ArrayList<Player> players) throws MNmovementWrongException, WinningException {
         int stepsForward = islands.indexOf(getIslands().get(destinationIslandId)) - islands.indexOf(getMotherNaturePosition());
 
         int temp = islands.indexOf(getMotherNaturePosition()) + stepsForward;
@@ -341,7 +331,7 @@ public class IslandsManager {
         int destinationMotherNature = islands.indexOf(this.motherNaturePosition);
 
         if (moveForward > currentPlayer.getLastAssistantPlayed().getMNMovement() + this.additionalMNFlag || moveForward == 0)
-            throw new MNmovementWrongException();
+            throw new MNmovementWrongException("You can't move Mother Nature here");
 
         for (int contMovement = 0; contMovement < moveForward; contMovement++) {
             destinationMotherNature = destinationMotherNature + 1;

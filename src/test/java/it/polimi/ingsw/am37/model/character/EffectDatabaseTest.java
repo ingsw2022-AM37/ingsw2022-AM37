@@ -7,7 +7,6 @@ import it.polimi.ingsw.am37.model.student_container.UnlimitedStudentsContainer;
 import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
 
-import java.beans.PropertyChangeSupport;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -78,7 +77,7 @@ class EffectDatabaseTest {
     @DisplayName("Test base effect 2 - Remove from bag")
     public void testBaseEffect2() {
         BiConsumer<Option, State> singleEffect = baseEffects.get(2);
-        Option option = optionBuilder.intPar(3).bag(manager.getBag()).build();
+        Option option = optionBuilder.intPar(3).build();
         State state = new State(null, 0);
         int oldBag = manager.getBag().size();
         singleEffect.accept(option, state);
@@ -92,7 +91,7 @@ class EffectDatabaseTest {
         BiConsumer<Option, State> singleEffect = baseEffects.get(3);
         LimitedStudentsContainer addContainer = new LimitedStudentsContainer(10);
         addContainer.addStudents(4, FactionColor.BLUE);
-        Option option = optionBuilder.bag(manager.getBag()).build();
+        Option option = optionBuilder.build();
         State state = new State(null, 0);
         state.getServiceContainer().uniteContainers(addContainer);
         int oldBag = manager.getBag().size();
@@ -341,7 +340,7 @@ class EffectDatabaseTest {
         when(board.getDiningRoom()).thenReturn(mockContainer);
         manager.getTurnManager().getPlayers().replaceAll(Mockito::spy);
         manager.getTurnManager().getPlayers().forEach(player -> when(player.getBoard()).thenReturn(board));
-        singleEffect.accept(option, null);
+        singleEffect.accept(option, new State(mockContainer, 0));
         verify(mockContainer, times(manager.getTurnManager().getPlayers().size())).removeContainer(isNotNull());
 
     }

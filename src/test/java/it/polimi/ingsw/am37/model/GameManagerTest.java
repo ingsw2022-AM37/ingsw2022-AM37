@@ -45,16 +45,6 @@ class GameManagerTest {
     }
 
     @Test
-    @DisplayName("Test correct initializing of manager after setup with 4 players and base rule")
-    public void testCorrectCreationAndSetUp4Players() {
-        GameManager manager = new GameManager(4, false);
-        manager.prepareGame();
-        assertEquals(24 * 5 - 7 * 4, manager.getBag().size());
-        assertEquals(4, manager.getClouds().size());
-        assertEquals(4, manager.getTurnManager().getPlayers().size());
-    }
-
-    @Test
     @DisplayName("Test moving students from entrance to island")
     public void testMoveStudentsToIsland() {
         GameManager manager = new GameManager(2, false);

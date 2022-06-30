@@ -1,9 +1,11 @@
 package it.polimi.ingsw.am37.model;
 
+import it.polimi.ingsw.am37.model.exceptions.WinningException;
 import it.polimi.ingsw.am37.model.student_container.LimitedStudentsContainer;
 import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
 
 import java.util.Arrays;
+
 import static it.polimi.ingsw.am37.controller.UpdateController.Properties.*;
 
 
@@ -34,10 +36,6 @@ public class Board {
      */
     private final transient Player player;
     /**
-     * Flag for show if the coin logic should be enabled
-     */
-    private final boolean coinsEnabled;
-    /**
      * It's the array of coins over the board.Represented as a matrix where first dimensions is color index and second is
      * the three coins on a color table; if coinsEnable is false is useless, else it's used to track given and not give
      * coins on the board
@@ -67,13 +65,11 @@ public class Board {
                 maxTableSize = 10,
                 coinsOnStudentTable = 3;
         // Begin of real method
-        this.coinsEnabled = coinsEnabled;
         this.player = player;
         switch (numOfPlayer) {
             case 2 -> towerArea = new LimitedTowerContainer(maxTowerSizeFor2, maxTowerSizeFor2, color);
             case 3 -> towerArea = new LimitedTowerContainer(maxTowerSizeFor3, maxTowerSizeFor3, color);
-            case 4 -> towerArea = new LimitedTowerContainer(maxTowerSizeFor2, 0, color);
-            default -> throw new IllegalArgumentException("number of player must be between 2 and 4");
+            default -> throw new IllegalArgumentException("number of player must be between 2 and 3");
         }
         entranceArea = new LimitedStudentsContainer(numOfPlayer == 3 ? maxEntranceSizeFor3 : maxEntranceSizeFor2);
         int[] temp = new int[FactionColor.values().length];
@@ -114,13 +110,6 @@ public class Board {
     }
 
     /**
-     * @return the size of tower container
-     */
-    public int getTowersSize() {
-        return towerArea.getCurrentSize();
-    }
-
-    /**
      * @param num the number of towers to add
      */
     public void addTowers(int num) {
@@ -132,9 +121,13 @@ public class Board {
     /**
      * @param num the number of towers to remove
      */
-    public void removeTowers(int num) {
+    public void removeTowers(int num) throws WinningException {
         int oldValue = towerArea.getCurrentSize();
-        towerArea.removeTowers(num);
+        try {
+            towerArea.removeTowers(num);
+        } catch (IllegalStateException e) {
+            throw new WinningException(this.player);
+        }
         player.support.firePropertyChange(P_BOARD_TOWER.toString(), oldValue, towerArea.getCurrentSize());
     }
 
@@ -143,6 +136,16 @@ public class Board {
      */
     public boolean[] getProfTable() {
         return profTable;
+    }
+
+    /**
+     * @return the number of professor that the player possess
+     */
+    public int getPossessedProf() {
+        int num = 0;
+        for (boolean b : profTable)
+            if (b) num++;
+        return num;
     }
 
     /**

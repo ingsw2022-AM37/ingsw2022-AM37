@@ -12,14 +12,15 @@ public class StudentSpaceException extends RuntimeException{
 
     /**
      * Enum to define possible type of Exception:
-     * - tooMuch means num is too high for available space;
+     * - tooMany means num is too high for available space;
      * - tooFew means have been tried to remove too many students
      */
     private enum StudentSpaceExceptionType {
-        TOOMUCH("Too much student to add"),
-        TOOFEW("Too much student to remove");
+        TOOMANY("Too many students to add"),
+        TOOFEW("Too many students to remove");
 
         private String code;
+
         StudentSpaceExceptionType(String code) {
         }
     }
@@ -32,25 +33,25 @@ public class StudentSpaceException extends RuntimeException{
         return super.getMessage()+"type: "+type.code;
     }
 
-    public StudentSpaceException(boolean tooMuch) {
+    public StudentSpaceException(boolean tooMany) {
         super();
-        type = tooMuch ? StudentSpaceExceptionType.TOOMUCH : StudentSpaceExceptionType.TOOFEW;
+        type = tooMany ? StudentSpaceExceptionType.TOOMANY : StudentSpaceExceptionType.TOOFEW;
     }
 
-    public StudentSpaceException(String message, boolean tooMuch) {
+    public StudentSpaceException(String message, boolean tooMany) {
         super(message);
-        type = tooMuch ? StudentSpaceExceptionType.TOOMUCH : StudentSpaceExceptionType.TOOFEW;
+        type = tooMany ? StudentSpaceExceptionType.TOOMANY : StudentSpaceExceptionType.TOOFEW;
     }
 
-    public StudentSpaceException(String message, Throwable cause, boolean tooMuch) {
+    public StudentSpaceException(String message, Throwable cause, boolean tooMany) {
         super(message, cause);
-        type = tooMuch ? StudentSpaceExceptionType.TOOMUCH : StudentSpaceExceptionType.TOOFEW;
+        type = tooMany ? StudentSpaceExceptionType.TOOMANY : StudentSpaceExceptionType.TOOFEW;
     }
 
-    public StudentSpaceException(Throwable cause, boolean tooMuch) {
+    public StudentSpaceException(Throwable cause, boolean tooMany) {
 
         super(cause);
 
-        type = tooMuch ? StudentSpaceExceptionType.TOOMUCH : StudentSpaceExceptionType.TOOFEW;
+        type = tooMany ? StudentSpaceExceptionType.TOOMANY : StudentSpaceExceptionType.TOOFEW;
     }
 }

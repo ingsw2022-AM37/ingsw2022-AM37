@@ -20,6 +20,7 @@ public enum MessageType {
     CONFIRM("ConfirmMessage"),
     PING("PingMessage"),
     PLANNING_PHASE("PlanningPhaseMessage"),
+    RESILIENCE("ResilienceMessage"),
     START_GAME("StartGameMessage"),
     END_GAME("EndGameMessage");
 

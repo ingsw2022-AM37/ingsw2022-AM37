@@ -1,11 +1,12 @@
 package it.polimi.ingsw.am37.model.character;
 
+import it.polimi.ingsw.am37.model.Bag;
 import it.polimi.ingsw.am37.model.UpdatableObject;
 
 import java.util.Objects;
 
-import static it.polimi.ingsw.am37.model.UpdatableObject.UpdatableType.CHARACTER;
 import static it.polimi.ingsw.am37.controller.UpdateController.Properties.P_CHARACTER_PLAYED;
+import static it.polimi.ingsw.am37.model.UpdatableObject.UpdatableType.CHARACTER;
 
 /**
  * This class represents the Character in the game. They have special effects to modify and improve the game. They are
@@ -18,7 +19,7 @@ public class Character extends UpdatableObject {
     /**
      * The effect that distinguishes the character.
      */
-    private final transient EffectHandler effectHandler;
+    private final EffectHandler effectHandler;
     /**
      * The id of the Effect.
      */
@@ -33,14 +34,20 @@ public class Character extends UpdatableObject {
     private int currentPrice;
 
     /**
+     * flag to check if the character has been used in this turn.
+     */
+    private boolean playedInThisTurn;
+
+    /**
      * Default constructor
      */
-    public Character(int startPrice, Effect effectType) {
+    public Character(int startPrice, Effect effectType, Bag bag) {
         super(CHARACTER);
         this.startPrice = startPrice;
         this.currentPrice = startPrice;
         this.effectType = effectType;
-        this.effectHandler = new EffectHandler(effectType);
+        this.playedInThisTurn = false;
+        this.effectHandler = new EffectHandler(effectType, bag);
     }
 
     /**
@@ -76,8 +83,22 @@ public class Character extends UpdatableObject {
     /**
      * @return the state of this characters
      */
-    public State getState(){
+    public State getState() {
         return effectHandler.getState();
+    }
+
+    /**
+     * @return true if the character has been used in this turn
+     */
+    public boolean isPlayedInThisTurn() {
+        return playedInThisTurn;
+    }
+
+    /**
+     * @param playedInThisTurn set the playedInThisTurn flag to true if the character has been used in this turn
+     */
+    public void setPlayedInThisTurn(boolean playedInThisTurn) {
+        this.playedInThisTurn = playedInThisTurn;
     }
 
     @Override

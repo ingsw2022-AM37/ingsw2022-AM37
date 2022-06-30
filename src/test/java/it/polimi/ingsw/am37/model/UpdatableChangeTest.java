@@ -1,7 +1,6 @@
 package it.polimi.ingsw.am37.model;
 
 import it.polimi.ingsw.am37.controller.UpdateController;
-import it.polimi.ingsw.am37.model.*;
 import it.polimi.ingsw.am37.model.character.Character;
 import it.polimi.ingsw.am37.model.character.Effect;
 import it.polimi.ingsw.am37.model.character.EffectHandler;
@@ -13,7 +12,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import javax.management.InstanceAlreadyExistsException;
-
 import java.lang.reflect.Field;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -24,7 +22,7 @@ public class UpdatableChangeTest {
     @Test
     @DisplayName("test cloud firing property")
     void testCloudFireProperty() {
-        Cloud cloud = new Cloud(true);
+        Cloud cloud = new Cloud(true, 0);
         UpdateController controller = new UpdateController();
         cloud.support.addPropertyChangeListener("cloud", controller);
         UnlimitedStudentsContainer container = new UnlimitedStudentsContainer();
@@ -62,7 +60,7 @@ public class UpdatableChangeTest {
         player.receiveCoin();
         assertEquals(1, controller.getUpdatedObjects().size());
         player.createDeck(WizardTeam.TEAM1);
-        player.useAssistant(player.getAssistantsDeck().get(0));
+        player.useAssistant(player.getAssistantsDeck().get(1));
         Character mockedCharacter = mock(Character.class);
         when(mockedCharacter.getEffectType()).thenReturn(Effect.MONK);
         player.useCharacter(mockedCharacter, mock(Option.class));
@@ -94,7 +92,7 @@ public class UpdatableChangeTest {
     @DisplayName("Test character firing property")
     void testCharacterFireProperty () throws NoSuchFieldException, IllegalAccessException {
         UpdateController controller = new UpdateController();
-        Character character = new Character(Effect.MONK.getInitialPrice(), Effect.MONK);
+        Character character = new Character(Effect.MONK.getInitialPrice(), Effect.MONK, new Bag());
         character.support.addPropertyChangeListener(controller);
         Field field = character.getClass().getDeclaredField("effectHandler");
         field.setAccessible(true);

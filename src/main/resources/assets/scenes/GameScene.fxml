@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXButton?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.Group?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<Pane xmlns:fx="http://javafx.com/fxml/1" fx:id="wallpaperPane" maxHeight="-Infinity" maxWidth="-Infinity"
+      minHeight="-Infinity" minWidth="-Infinity" prefHeight="980.0" prefWidth="1880.0"
+      xmlns="http://javafx.com/javafx/16"
+      fx:controller="it.polimi.ingsw.am37.client.gui.controller.GameSceneController">
+    <children>
+        <ImageView fitHeight="980.0" fitWidth="1880.0">
+            <image>
+                <Image url="@../images/GameWallpaper.jpg"/>
+            </image>
+        </ImageView>
+        <ImageView fitHeight="367.4" fitWidth="880.0" layoutX="-245.0" layoutY="270.0" rotate="90.0">
+            <image>
+                <Image url="@../images/Board.png"/>
+            </image>
+        </ImageView>
+        <!--
+        <ImageView fx:id="assistant1" fitHeight="166.66" fitWidth="113.33" layoutX="1384.0" layoutY="12.0" onMouseClicked="#playAssistant1">
+            <image>
+                <Image url="@../images/Assistant1.png" />
+            </image>
+        </ImageView>
+        <ImageView fx:id="assistant2" fitHeight="166.66" fitWidth="113.33" layoutX="1509.0" layoutY="12.0" onMouseClicked="#playAssistant2">
+            <image>
+                <Image url="@../images/Assistant2.png" />
+            </image>
+        </ImageView>
+        <ImageView fx:id="assistant3" fitHeight="166.66" fitWidth="113.33" layoutX="1632.0" layoutY="12.0" onMouseClicked="#playAssistant3">
+            <image>
+                <Image url="@../images/Assistant3.png" />
+            </image>
+        </ImageView>
+        <ImageView fx:id="assistant4" fitHeight="166.66" fitWidth="113.33" layoutX="1752.0" layoutY="12.0" onMouseClicked="#playAssistant4">
+            <image>
+                <Image url="@../images/Assistant4.png" />
+            </image>
+        </ImageView>
+        <ImageView fx:id="assistant5" fitHeight="166.66" fitWidth="113.33" layoutX="1384.0" layoutY="179.0" onMouseClicked="#playAssistant5">
+            <image>
+                <Image url="@../images/Assistant5.png" />
+            </image>
+        </ImageView>
+        <ImageView fx:id="assistant6" fitHeight="166.66" fitWidth="113.33" layoutX="1517.0" layoutY="179.0" onMouseClicked="#playAssistant6">
+            <image>
+                <Image url="@../images/Assistant6.png" />
+            </image>
+        </ImageView>
+        <ImageView fx:id="assistant7" fitHeight="166.66" fitWidth="113.33" layoutX="1632.0" layoutY="179.0" onMouseClicked="#playAssistant7">
+            <image>
+                <Image url="@../images/Assistant7.png" />
+            </image>
+        </ImageView>
+        <ImageView fx:id="assistant8" fitHeight="166.66" fitWidth="113.33" layoutX="1752.0" layoutY="179.0" onMouseClicked="#playAssistant8">
+            <image>
+                <Image url="@../images/Assistant8.png" />
+            </image>
+        </ImageView>
+        <ImageView fx:id="assistant9" fitHeight="166.66" fitWidth="113.33" layoutX="1632.0" layoutY="354.0" onMouseClicked="#playAssistant9">
+            <image>
+                <Image url="@../images/Assistant9.png" />
+            </image>
+        </ImageView>
+        <ImageView fx:id="assistant10" fitHeight="166.66" fitWidth="113.33" layoutX="1752.0" layoutY="354.0" onMouseClicked="#playAssistant10">
+            <image>
+                <Image url="@../images/Assistant10.png" />
+            </image>
+        </ImageView> -->
+        <JFXButton fx:id="allBoards" layoutX="48.0" layoutY="901.0" onAction="#showBoards" prefHeight="65.0"
+                   prefWidth="293.0" text="OTHERS' BOARDS" textFill="#00a7fa">
+            <font>
+                <Font name="System Bold Italic" size="30.0"/>
+            </font>
+        </JFXButton>
+        <Label layoutX="1260.0" layoutY="16.0" text="MY DECK" textFill="WHITE">
+            <font>
+                <Font name="System Bold Italic" size="25.0"/>
+            </font>
+        </Label>
+        <ImageView fx:id="entrance" fitHeight="132.0" fitWidth="367.0" layoutX="11.0" layoutY="14.0"
+                   onMouseClicked="#entranceClicked" pickOnBounds="true" preserveRatio="true">
+            <cursor>
+                <Cursor fx:constant="HAND"/>
+            </cursor>
+        </ImageView>
+        <ImageView fx:id="dining" fitHeight="447.0" fitWidth="367.0" layoutX="11.0" layoutY="158.0"
+                   onMouseClicked="#diningClicked" pickOnBounds="true" preserveRatio="true">
+            <cursor>
+                <Cursor fx:constant="HAND"/>
+            </cursor>
+        </ImageView>
+        <Group/>
+        <GridPane fx:id="assistantsGrid" alignment="CENTER" layoutX="1400.0" layoutY="10.0"
+                  nodeOrientation="LEFT_TO_RIGHT">
+            <columnConstraints>
+                <ColumnConstraints/>
+                <ColumnConstraints/>
+                <ColumnConstraints/>
+                <ColumnConstraints/>
+            </columnConstraints>
+            <rowConstraints>
+                <RowConstraints/>
+                <RowConstraints />
+                <RowConstraints />
+            </rowConstraints>
+        </GridPane>
+        <VBox layoutX="1416.0" layoutY="554.0" prefWidth="450.0">
+            <children>
+                <VBox>
+                    <children>
+                        <Label text="ASSISTANT PLAYED" textFill="WHITE">
+                            <font>
+                                <Font name="System Bold Italic" size="25.0" />
+                            </font>
+                        </Label>
+                        <HBox fx:id="assistantsHBox" alignment="CENTER_RIGHT" prefHeight="170.0" prefWidth="500.0" />
+                    </children>
+                </VBox>
+                <VBox fx:id="characterVBox">
+                    <children>
+                        <Label fx:id="charactersLabel" text="CHARACTERS" textFill="WHITE" visible="false">
+                            <font>
+                                <Font name="System Bold Italic" size="25.0" />
+                            </font>
+                        </Label>
+                        <HBox fx:id="charactersHBox" alignment="CENTER_RIGHT" prefHeight="170.0" prefWidth="500.0" />
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+        <HBox fx:id="cloudsHBox" layoutX="668.0" layoutY="415.0" prefHeight="150.0" prefWidth="510.0" />
+      <Label fx:id="numOfCoins" layoutX="1212.0" layoutY="851.0" text="0" visible="false">
+         <font>
+            <Font name="System Bold Italic" size="25.0" />
+         </font>
+      </Label>
+      <ImageView fitHeight="90.0" fitWidth="85.0" layoutX="447.0" layoutY="56.0">
+         <image>
+            <Image url="@../images/Bag.png" />
+         </image>
+      </ImageView>
+    </children>
+</Pane>

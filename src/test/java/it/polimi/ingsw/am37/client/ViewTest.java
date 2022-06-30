@@ -20,6 +20,7 @@ class ViewTest {
         container1.addStudents(2, FactionColor.GREEN);
         Island island1 = new Island(container1, 1);
         island1.setMotherNatureHere(true);
+        island1.addNoEntryTile(1);
         AbstractView view = new CliView();
         view.getReducedModel().update(List.of(island, island1));
         view.showTable();
@@ -30,15 +31,29 @@ class ViewTest {
     void testShowClouds() {
         FixedUnlimitedStudentsContainer container = new FixedUnlimitedStudentsContainer();
         container.addStudents(3, FactionColor.BLUE);
-        Cloud cloud = new Cloud(true);
+        Cloud cloud = new Cloud(true, 0);
         cloud.addStudents(container);
         FixedUnlimitedStudentsContainer container1 = new FixedUnlimitedStudentsContainer();
         container1.addStudents(3, FactionColor.RED);
-        Cloud cloud1 = new Cloud(true);
+        Cloud cloud1 = new Cloud(true, 1);
         cloud1.addStudents(container);
         AbstractView view = new CliView();
         view.getReducedModel().update(List.of(cloud, cloud1));
         view.showTable();
+    }
+
+    @Test
+    @DisplayName("Test display of board")
+    void testShowBoard() {
+        Player player = new Player();
+        player.setPlayerId("bramba2000");
+        LimitedStudentsContainer container = new LimitedStudentsContainer(5);
+        container.addStudents(2, FactionColor.GREEN);
+        Board board = new Board(2, TowerColor.GRAY, false, container, player);
+        player.setBoard(board);
+        AbstractView view = new CliView();
+        view.getReducedModel().update(List.of(player));
+        view.showPlayerStatus(player, false);
     }
 
     @Test
@@ -50,21 +65,7 @@ class ViewTest {
         player.setLastAssistantPlayed(player.getAssistantsDeck().get(1));
         AbstractView view = new CliView();
         view.getReducedModel().update(List.of(player));
-        view.showPlayerStatus(player);
-    }
-
-    @Test
-    @DisplayName("Test display of board")
-    void testShowBoard() {
-        Player player = new Player();
-        player.setPlayerId("bramba2000");
-        LimitedStudentsContainer container = new LimitedStudentsContainer(5);
-        container.addStudents(2, FactionColor.GREEN);
-        Board board = new Board(2, TowerColor.GRAY, false, container, player );
-        player.setBoard(board);
-        AbstractView view = new CliView();
-        view.getReducedModel().update(List.of(player));
-        view.showPlayerStatus(player);
+        view.showPlayerStatus(player, false);
     }
 
     @Test

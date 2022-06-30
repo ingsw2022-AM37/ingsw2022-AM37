@@ -1,209 +1,74 @@
 package it.polimi.ingsw.am37.client;
 
-import it.polimi.ingsw.am37.model.Player;
+import it.polimi.ingsw.am37.client.gui.GuiApp;
+import it.polimi.ingsw.am37.client.gui.SceneController;
+import it.polimi.ingsw.am37.client.gui.controller.*;
+import it.polimi.ingsw.am37.client.gui.observer.GuiObserver;
+import it.polimi.ingsw.am37.message.UpdateMessage;
+import it.polimi.ingsw.am37.model.*;
+import it.polimi.ingsw.am37.model.character.Character;
+import it.polimi.ingsw.am37.model.character.Effect;
+import it.polimi.ingsw.am37.model.student_container.FixedUnlimitedStudentsContainer;
+import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
+import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.scene.control.ChoiceDialog;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
-import java.util.HashMap;
-import java.util.Scanner;
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class GuiView extends AbstractView {
+    private final GuiApp app;
 
-    /**
-     * This method notifies if address is unknown
-     *
-     * @param address Address written by the player during connection to server
-     */
-    public void ifNonLocalhostAddress(String address) {
-        if (!address.equals("localhost"))
-            System.out.println(" You have put an address different from \"localhost\", if this doesn't exists it will be considered \"localhost\" \n");
-    }
-
-    /**
-     * Method to notify if client or server has lost the connection
-     */
-    public void notifyInternetCrash() { //TODO
-
-    }
-
-    @Override
-    public void showCharacters() {
-
-    }
-
-    /**
-     * Notify if a player has inserted fewer parameters than expected during opening of the terminal
-     */
-    public void wrongInsertFewArguments() {
-        System.out.println(" You have written too few arguments \n");
-    }
-
-    /**
-     * Generic notification of an input error
-     */
-    public void wrongInsert() {
-        System.out.println(" You have written wrong parameters \n");
-    }
-
-    /**
-     * Notify when a number port is expected but another input was given
-     */
-    public void wrongInsertPort() {
-        System.out.println(" You haven't written a number as server's port \n");
-    }
-
-    /**
-     * Notify when a string between "cli" or "gui" was expected but another string was given
-     */
-    public void wrongInsertGraphics() {
-        System.out.println(" You had to choose between \"cli\" or \"gui\" \n");
-    }
-
-    /**
-     * Notify when requested server is unreachable
-     */
-    public void wrongServer() {
-        System.out.println(" This server is unreachable \n");
-    }
-
-    /**
-     * Method used to ask if player wants to use default parameters for connection
-     *
-     * @return Client's response
-     */
-    public String askDefault() {
-        String s;
-        Scanner scanner = new Scanner(System.in);
-        while (true) {
-            System.out.println(" Do you want to use default options? Please write \"yes\" or \"no\" or \"close game\": \n");
-            s = scanner.nextLine().toLowerCase().trim().replaceAll(" +", " ");
-            if (s.equals("yes") || s.equals("no") || s.equals("close game"))
-                return s;
-            wrongInsert();
-        }
-    }
-
-    /**
-     * Method used if player decided to don't use default setting for connection, so he will be asked to insert his parameters
-     *
-     * @param address  It's how address parameter is called
-     * @param port     It's how port parameter is called
-     * @param graphics It's how graphics parameter is called
-     * @return Client's decision
-     */
-    public String insertYourParameters(String address, String port, String graphics) {
-        Scanner scanner = new Scanner(System.in);
-
-        while (true) {
-            System.out.println(" Write server's address or \"close game\": \n");
-            String s = scanner.nextLine().toLowerCase().trim().replaceAll(" +", " ");
-            if (s.equals("close game"))
-                return s;
-            ifNonLocalhostAddress(s);
-            Client.getParams().put(address, s);
-            System.out.println(" Write server's port or \"close game\": \n");
-            s = scanner.nextLine().toLowerCase().trim().replaceAll(" +", " ");
-            if (s.equals("close game"))
-                return s;
-            try {
-                int num = Integer.parseInt(s);
-                Client.getParams().put(port, Integer.toString(num));
-            } catch (NumberFormatException e) {
-                wrongInsertPort();
-                continue;
-            }
-            System.out.println(" Write \"cli\" or \"gui\" or \"close game\": \n");
-            s = scanner.nextLine().toLowerCase().trim().replaceAll(" +", " ");
-            if (s.equals("cli"))
-                Client.getParams().put(graphics, "cli");
-            else if (s.equals("gui"))
-                Client.getParams().put(graphics, "gui");
-            else if (s.equals("close game"))
-                return s;
-            else {
-                wrongInsertGraphics();
-                continue;
-            }
-
-            return "true";
-        }
-    }
-
-    /**
-     * Method used to ask a nickname
-     *
-     * @return The chosen nickname
-     */
-    public String chooseNickname() { //TODO
-        return null;
-    }
-
-    /**
-     * Method used to ask player if he wants to use advanced rules or not
-     *
-     * @return Player's choice
-     */
-    public String requestAdvancedRules() { //TODO
-        return null;
-    }
-
-    /**
-     * Method used to ask player the total players of the game he wants to join in
-     *
-     * @return Player's choice
-     */
-    public String requestNumPlayers() { //TODO
-        return null;
-    }
+    private final GuiObserver observer;
 
     /**
      * Method used to ask which assistant player want to use
      *
+     * @param client the client to get the nickname of the current player
      * @return The chosen assistant
      */
     @Override
-    public int askAssistant() {
-        return 0;
+    public int askAssistant(Client client) {
+        while (observer.getLastClickedObjectType() != GuiObserver.ClickableObjectType.CO_ASSISTANT) {
+            System.err.println("Unexpected object clicked: " + observer.getLastClickedObjectType());
+            try {
+                observer.nextClickedObjectType();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return Integer.parseInt(observer.getLastRetrievedObjectId());
+    }
+
+    public GuiView() {
+        observer = new GuiObserver();
+        new Thread(() -> Application.launch(GuiApp.class)).start();
+        app = GuiApp.waitForStartUp();
     }
 
     /**
-     * Method used to tell player possible commands
-     */
-    @Override
-    public void possibleChoices() {
-
-    }
-
-    /**
-     * @return Player's command at any time
-     */
-    @Override
-    public String takeInput() {
-        return null;
-    }
-
-    /**
-     * Tell player this input isn't ok for now
-     */
-    @Override
-    public void impossibleInputForNow() {
-
-    }
-
-    /**
-     * Ask player which students want to move and where
+     * Method used to ask a player which character he wants to play
      *
-     * @return HashMap with responses of the player
+     * @return the effect of the select character
      */
     @Override
-    public HashMap<String, String> askStudents() {
-        return null;
-    }
-
-    /**
-     * @return Where mother nature has to go
-     */
-    @Override
-    public int askMotherNature() {
-        return 0;
+    public Effect askCharacter() {
+        while (observer.getLastClickedObjectType() != GuiObserver.ClickableObjectType.CO_CHARACTER) {
+            System.err.println("Unexpected object clicked: " + observer.getLastClickedObjectType());
+            try {
+                observer.nextClickedObjectType();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return Effect.valueOf(observer.getLastRetrievedObjectId());
     }
 
     /**
@@ -211,71 +76,95 @@ public class GuiView extends AbstractView {
      */
     @Override
     public String askCloud() {
-        return null;
+        while (observer.getLastClickedObjectType() != GuiObserver.ClickableObjectType.CO_CLOUD) {
+            System.err.println("Unexpected object clicked: " + observer.getLastClickedObjectType());
+            try {
+                observer.nextClickedObjectType();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return observer.getLastRetrievedObjectId();
+    }
+
+    @Override
+    public boolean askDestination() {
+        GuiObserver.ClickableObjectType objectType = null;
+        try {
+            objectType = observer.nextClickedObjectType();
+            while (objectType != GuiObserver.ClickableObjectType.CO_ISLAND &&
+                    objectType != GuiObserver.ClickableObjectType.CO_DINING) {
+                objectType = observer.nextClickedObjectType();
+            }
+            if (objectType == GuiObserver.ClickableObjectType.CO_ISLAND) return true;
+            else if (objectType == GuiObserver.ClickableObjectType.CO_DINING) return false;
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        throw new IllegalStateException("Should not reach this point");
     }
 
     /**
-     * Tell the player it's his turn
+     * Method used to ask user to confirm at the provided message
+     *
+     * @param message a string containing the text to express confirm or negation
+     * @return Client's response
      */
     @Override
-    public void yourTurn() {
-
+    public Boolean askConfirm(String message) {
+        return false;
     }
 
     /**
-     * @param nick nickname of player who has to play the current turn
+     * Method used if player decided to don't use default setting for connection, so he will be asked to insert his
+     * parameters
+     *
+     * @return Client's provided parameters
      */
     @Override
-    public void hisTurn(String nick) {
+    public Client.ConnectionParameters askConnectionParameters() {
+        synchronized (SceneController.waitObject) {
+            try {
+                SceneController.waitObject.wait();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
 
+        }
+        return ((ConnectionController) SceneController.getActiveController()).getConnectionParameters();
     }
 
     /**
-     * Method used to tell a player he has to play the assistant card
+     * @param assistant the assistant chosen by the players
+     * @return Where mother nature has to go
      */
     @Override
-    public void mustPlayAssistant() {
-
+    public int askMotherNature(Assistant assistant) {
+        while (true) {
+            try {
+                if (observer.nextClickedObjectType() == GuiObserver.ClickableObjectType.CO_ISLAND) break;
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return Integer.parseInt(observer.getLastRetrievedObjectId());
     }
 
-    /**
-     * Method used to tell the player he is waiting for the match
-     */
     @Override
-    public void waitingMatch() {
-
+    public Client.LobbyParameters askLobbyParameters() {
+        return ((EnterInGameController) SceneController.getActiveController()).getLobbyParameters();
     }
 
-    /**
-     * Method to tell the player the game has begun
-     */
     @Override
-    public void gameStarted() {
-
-    }
-
-    /**
-     * @param nick the winner player
-     */
-    @Override
-    public void printWinner(String nick) {
-
-    }
-
-    /**
-     * Method used to ask a player which character he wants to play
-     */
-    @Override
-    public void askCharacter() {
-
-    }
-
-    /**
-     * Method used when an error message come from server
-     */
-    @Override
-    public void impossibleAssistant() {
-
+    public int askIsland() {
+        while (observer.getLastClickedObjectType() != GuiObserver.ClickableObjectType.CO_ISLAND) {
+            try {
+                observer.nextClickedObjectType();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return Integer.parseInt(observer.getLastRetrievedObjectId());
     }
 
     /**
@@ -285,59 +174,214 @@ public class GuiView extends AbstractView {
      */
     @Override
     public Player askPlayer() {
-        return null;
+        throw new IllegalStateException("Only CLI method called in GUI");
+    }
+
+    @Override
+    public FactionColor askColor(Client client) {
+        AtomicReference<FactionColor> color = new AtomicReference<>();
+        CountDownLatch latch = new CountDownLatch(1);
+        Platform.runLater(() -> {
+            Stage colorDialog = new Stage();
+            colorDialog.initModality(Modality.APPLICATION_MODAL);
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/assets/scenes/ChooseColor.fxml"));
+            try {
+                colorDialog.setScene(new Scene(loader.load()));
+                ChooseColorController controller = loader.getController();
+                colorDialog.showAndWait();
+                color.set(controller.getColor());
+                latch.countDown();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        return color.get();
+    }
+
+    @Override
+    public StudentsContainer askStudentFromDining(Client client, int num) {
+        StudentsContainer container;
+        while (true) {
+            container = askStudents(num, reducedModel.getBoards().get(client.getNickname()).getDiningRoom());
+            if (container == null) return null;
+            if (container.size() != num) {
+                displayError(client.getMessageString("e.toManyStudents"));
+                continue;
+            } else break;
+        }
+        return container;
+    }
+
+    @Override
+    public StudentsContainer askStudentsFromCharacter(Character character, int num, Client client) {
+        StudentsContainer container;
+        while (true) {
+            container = askStudents(num, character.getState().getContainer());
+            if (container == null) return null;
+            if (container.size() != num) {
+                displayError(client.getMessageString("e.toManyStudents"));
+                continue;
+            } else break;
+        }
+        return container;
     }
 
     /**
-     * Method used to show players in game
+     * Ask player which students want to move and where
+     *
+     * @param client the client to get the status of the current player
+     * @param num    the num of students to move; put 0 for normal 3 students movements
+     * @return HashMap with responses of the player
      */
     @Override
-    public void showPlayersNicknames() {
+    public StudentsContainer askStudentsFromEntrance(Client client, int num) {
+        StudentsContainer container;
+        while (true) {
+            int studentsToMove = (num == 0 ? (GameManager.MAX_FOR_MOVEMENTS[client.getSettings().lobbySize() % 2] -
+                    client.getTotalStudentsInTurn()) : num);
+            container = askStudents(studentsToMove, reducedModel.getBoards().get(client.getNickname()).getEntrance());
+            if (container == null) return null;
+            if (num == 0 ? container.size() > studentsToMove : container.size() != num) {
+                displayError(client.getMessageString("e.toManyStudents"));
+                continue;
+            }
+            if (num == 0) {
+                client.addTotalStudentsInTurn(container.size());
+                if (client.getTotalStudentsInTurn() ==
+                        GameManager.MAX_FOR_MOVEMENTS[client.getSettings().lobbySize() % 2] ||
+                        !askConfirm("Do you want to move more students?")) break;
+            } else if (container.size() == num) break;
+        }
+        return container;
+    }
 
+    /**
+     * Show all the character of this match
+     */
+    @Override
+    public void showCharacters() {
+
+    }
+
+    /**
+     * @param client the client to get the status of the current player
+     * @return Player's command at any time
+     */
+    @Override
+    public ActionType takeInput(Client client) {
+        List<ActionType> availableActions = ActionType.getActions();
+        ActionType value;
+        while (true) {
+            try {
+                GuiObserver.ClickableObjectType objectType = observer.nextClickedObjectType();
+                value = switch (objectType) {
+                    case CO_ENTRANCE -> ActionType.MOVE_STUDENTS_UNDEFINED;
+                    case CO_ASSISTANT -> ActionType.PLAY_ASSISTANT;
+                    case CO_MOTHER_NATURE -> ActionType.MOVE_MOTHER_NATURE;
+                    case CO_CHARACTER -> ActionType.PLAY_CHARACTER;
+                    case CO_CLOUD -> ActionType.CHOOSE_CLOUD;
+                    default -> null;
+                };
+                if (value != null && availableActions.contains(value)) break;
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return value;
+    }
+
+    /**
+     * Method used to ask a nickname
+     *
+     * @return The chosen nickname
+     */
+    @Override
+    public String askNickname() {
+        Platform.runLater(() -> SceneController.switchScreen("/assets/scenes/EnterInGame.fxml"));
+        synchronized (SceneController.waitObject) {
+            try {
+                SceneController.waitObject.wait();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return ((EnterInGameController) SceneController.getActiveController()).getNickname();
+    }
+
+    /**
+     * Method to tell the player the game has begun
+     */
+    @Override
+    public void gameStarted() {
+        Platform.runLater(() -> {
+            SceneController.switchScreen("/assets/scenes/GameScene.fxml");
+            ((GameSceneController) SceneController.getActiveController()).registerListener(observer);
+        });
+    }
+
+    /**
+     * Show to the view that now is the turn of the provided user's nickname
+     *
+     * @param nick nickname of player who has to play the current turn
+     */
+    @Override
+    public void hisTurn(String nick) {
+        displayImportant("It's " + nick + "'s turn");
     }
 
     /**
      * Method used to display connection info
      *
-     * @param params
-     * @param address How we named address in connection phase (args)
-     * @param port    How we named port in connection phase (args)
+     * @param client the client to show info about
      */
     @Override
-    public void showConnection(HashMap<String, String> params, String address, String port) {
-
+    public void showConnection(Client client) {
+        throw new IllegalStateException("Only CLI method called in GUI");
     }
 
     /**
-     * Method used when an error message come from server
+     * Method used to display the assistant deck of a player
+     *
+     * @param player the player to show the deck of
      */
     @Override
-    public void impossibleStudents() {
-
+    public void showDeck(Player player) {
+        throw new IllegalStateException("Only CLI method called in GUI");
     }
 
     /**
-     * Method used when an error message come from server
+     * Method used to display the last Assistant played except the client's one
+     *
+     * @param players      the players to show the last assistant played
+     * @param playerToSkip the player to skip
      */
     @Override
-    public void impossibleMotherNature() {
-
+    public void showLastAssistantPlayed(Collection<Player> players, Player playerToSkip) {
+        throw new IllegalStateException("Only CLI method called in GUI");
     }
 
     /**
-     * Method used when an error message come from server
+     * This function print the view of a player's status: his last assistant and board
+     *
+     * @param player        the players to show status of
+     * @param advancedRules if the advanced rules are enabled
      */
     @Override
-    public void impossibleCloud() {
-
+    public void showPlayerStatus(Player player, boolean advancedRules) {
+        throw new IllegalStateException("Only CLI method called in GUI");
     }
 
     /**
-     * Method used when an error message come from server
+     * Method used to show the nickname of all players in this match
      */
     @Override
-    public void impossibleCharacter() {
-
+    public void showPlayersNicknames() {
+        throw new IllegalStateException("Only CLI method called in GUI");
     }
 
     /**
@@ -345,21 +389,184 @@ public class GuiView extends AbstractView {
      */
     @Override
     public void showTable() {
-
+        throw new IllegalStateException("Only CLI method called in GUI");
     }
 
     /**
-     * This function print the view of a player's status: his last assistant and board
+     * Method used to show where mother nature can go
      *
-     * @param player the players to show status of
+     * @param assistant the assistant to know how many steps can mother nature take
      */
     @Override
-    public void showPlayerStatus(Player player) {
-
+    public void showPossibleIslandDestination(Assistant assistant) {
+        throw new IllegalStateException("Only CLI method called in GUI");
     }
 
     @Override
-    public void showDeck(Player player) {
+    public void updateView(UpdateMessage updateMessage, Client client) {
+        reducedModel.update(updateMessage.getUpdatedObjects().values().stream().flatMap(List::stream).toList());
+        if (updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.ISLAND) != null &&
+                updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.ISLAND).size() != 0) {
+            Platform.runLater(() -> ((GameSceneController) SceneController.getActiveController()).drawIslands(reducedModel.getIslands()));
+        }
+        if (updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.CLOUD) != null &&
+                updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.CLOUD).size() != 0) {
+            Platform.runLater(() -> ((GameSceneController) SceneController.getActiveController()).drawClouds(reducedModel.getClouds()
+                    .values()
+                    .stream()
+                    .toList()));
+        }
+        if (updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.PLAYER) != null &&
+                updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.PLAYER).size() != 0) {
+            Platform.runLater(() -> ((GameSceneController) SceneController.getActiveController()).drawPlayedAssistants(reducedModel.getPlayers()
+                    .values()
+                    .stream()
+                    .toList()));
+            if (updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.PLAYER)
+                    .stream()
+                    .anyMatch(p -> Objects.equals(((Player) p).getPlayerId(), client.getNickname()))) {
+                Platform.runLater(() -> ((GameSceneController) SceneController.getActiveController()).drawDeck(reducedModel.getPlayers()
+                        .get(client.getNickname())
+                        .getAssistantsDeck()
+                        .values()
+                        .stream()
+                        .toList()));
 
+                //Write number of coins
+                if (client.getSettings().advancedRulesEnabled())
+                    Platform.runLater(() -> ((GameSceneController) SceneController.getActiveController()).changeCoins(reducedModel.getPlayers()
+                            .get(client.getNickname())
+                            .getNumberOfCoins()));
+
+                //Start update my board -----------------------------
+                HashMap<FactionColor, Integer> entrance = new HashMap<>();
+                HashMap<FactionColor, Integer> dining = new HashMap<>();
+                boolean[] professors;
+                LimitedTowerContainer towers;
+
+                for (FactionColor color : FactionColor.values()) {
+                    entrance.put(color, reducedModel.getBoards()
+                            .get(client.getNickname())
+                            .getEntrance()
+                            .getByColor(color));
+                    dining.put(color, reducedModel.getBoards()
+                            .get(client.getNickname())
+                            .getDiningRoom()
+                            .getByColor(color));
+                }
+                professors = reducedModel.getBoards().get(client.getNickname()).getProfTable();
+                towers = reducedModel.getBoards().get(client.getNickname()).getTowers();
+                Platform.runLater(() -> ((GameSceneController) SceneController.getActiveController()).drawBoard(entrance, dining, professors, towers));
+                //My board drawn ------------------------------
+                Platform.runLater(() -> ((GameSceneController) SceneController.getActiveController()).drawOthersBoard(updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.PLAYER)
+                        .stream()
+                        .filter(p -> !Objects.equals(((Player) p).getPlayerId(), client.getNickname()))
+                        .map(p -> (Player) p)
+                        .toList()));
+            } else {
+                Platform.runLater(() -> ((GameSceneController) SceneController.getActiveController()).drawOthersBoard(updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.PLAYER)
+                        .stream()
+                        .map(p -> (Player) p)
+                        .toList()));
+            }
+        }
+        if (client.getSettings().advancedRulesEnabled() &&
+                updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.CHARACTER) != null &&
+                updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.CHARACTER).size() != 0) {
+            Platform.runLater(() -> ((GameSceneController) SceneController.getActiveController()).drawCharacters(updateMessage.getUpdatedObjects(UpdatableObject.UpdatableType.CHARACTER)
+                    .stream()
+                    .map(o -> (Character) o)
+                    .toList()));
+        }
+    }
+
+    /**
+     * Generic notification of an input error
+     */
+    @Override
+    public void wrongInsert() {
+        throw new IllegalStateException("Only CLI method called in GUI");
+    }
+
+    /**
+     * Notify when a number port is expected but another input was given
+     */
+    @Override
+    public void wrongInsertPort() {
+        displayError("You haven't written a number as server's port");
+    }
+
+    /**
+     * Tell the player it's his turn
+     */
+    @Override
+    public void yourTurn() {
+        displayImportant("It's your turn");
+    }
+
+    @Override
+    public void displayInfo(String message) {
+        Platform.runLater(() -> SceneController.getActiveController().showInfo(message));
+    }
+
+    @Override
+    public void displayImportant(String message) {
+        Platform.runLater(() -> SceneController.getActiveController().showImportant(message));
+    }
+
+    @Override
+    public void displayError(String message) {
+        Platform.runLater(() -> SceneController.getActiveController().showError(message));
+    }
+
+    /**
+     * This functions display a modal window to let the user input some students with spinner field. The spinners are
+     * limited with the student contained in the provided container
+     *
+     * @param studentsToMove
+     */
+    private StudentsContainer askStudents(int studentsToMove, StudentsContainer sourceContainer) {
+        AtomicReference<StudentsContainer> atomicContainer =
+                new AtomicReference<>(new FixedUnlimitedStudentsContainer());
+        CountDownLatch latch = new CountDownLatch(1);
+        Platform.runLater(() -> {
+            Stage studentsDialog = new Stage();
+            studentsDialog.initModality(Modality.APPLICATION_MODAL);
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/assets/scenes/ChooseNumStudents.fxml"));
+            try {
+                studentsDialog.setScene(new Scene(loader.load()));
+                ChooseNumStudentsController controller = loader.getController();
+                controller.setSourceContainer(sourceContainer, studentsToMove);
+                studentsDialog.showAndWait();
+                atomicContainer.set(controller.getStudents());
+                latch.countDown();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        return atomicContainer.get();
+    }
+
+    /**
+     * Show a dialog button to choose a number between multiple possibilities; if user close the dialog a new one reopen
+     * until the user click on OK button to correctly close one
+     *
+     * @param choices the choices available
+     * @return the number choose by the user
+     */
+    @Override
+    public int askStudentsNumber(ArrayList<Integer> choices) {
+        ChoiceDialog<Integer> dialog = new ChoiceDialog<>(choices.get(0), choices);
+        dialog.setHeaderText(null);
+        dialog.setContentText("How many students would you like to move?");
+        do {
+            dialog.showAndWait();
+        } while (dialog.getSelectedItem() == null);
+        return dialog.getSelectedItem();
     }
 }

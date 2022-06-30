@@ -17,11 +17,11 @@ Group components:
 | Basic rules                           |  🟢   |
 | Complete rules                        |  🟢   |
 | Socket                                |  🟢   |
-| GUI                                   |  🔴   |
-| CLI                                   |  🟡   |
+| GUI                                   |  🟢   |
+| CLI                                   |  🟢   |
 | Advanced characters                   |  🟢   |
-| Resilience to disconnections          |  🟡   |
-| Multiple games                        |  🟡   |
+| Resilience to disconnections          |  🟢   |
+| Multiple games                        |  🟢   |
 
 ### Libraries and Plugins
 

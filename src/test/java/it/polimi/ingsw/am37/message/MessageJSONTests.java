@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import it.polimi.ingsw.am37.model.*;
 import it.polimi.ingsw.am37.model.character.Effect;
 import it.polimi.ingsw.am37.model.character.Option;
+import it.polimi.ingsw.am37.model.character.OptionBuilder;
 import it.polimi.ingsw.am37.model.student_container.UnlimitedStudentsContainer;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -13,6 +14,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class MessageJSONTests {
     static Gson gson;
@@ -150,8 +152,11 @@ public class MessageJSONTests {
     @Test
     @DisplayName("Serialization and deserialization of PlayCharacterMessage")
     void playCharacterMessageJSONTest() {
+        Player player = mock(Player.class);
+        when(player.getPlayerId()).thenReturn("bramba2000");
+        Option option = OptionBuilder.newBuilder(mock(GameManager.class), player).build();
         PlayCharacterMessage playCharacterMessage = new PlayCharacterMessage("110011", Effect.GRANDMA,
-                mock(Option.class));
+                option);
         String json = gson.toJson(playCharacterMessage);
         assertNotNull(json);
         Message newMessage = gson.fromJson(json, Message.class);
@@ -192,7 +197,7 @@ public class MessageJSONTests {
     @Test
     @DisplayName("Serialization and deserialization of UpdateMessage")
     void updateMessageJSONTest() {
-        UpdateMessage updateMessage = new UpdateMessage("110011", List.of(new Cloud(true), new Island(null, 3)),
+        UpdateMessage updateMessage = new UpdateMessage("110011", List.of(new Cloud(true, 0), new Island(null, 3)),
                 MessageType.PING, "Last action " + "description");
         String json = gson.toJson(updateMessage);
         assertNotNull(json);

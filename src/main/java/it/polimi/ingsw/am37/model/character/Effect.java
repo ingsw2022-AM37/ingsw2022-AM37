@@ -4,19 +4,23 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public enum Effect {
-    MONK(new int[]{18, 0, 4, 2, 1}, 1),
-    FARMER(new int[]{5}, 2),
-    HERALD(new int[]{6}, 3),
-    MAGIC_POSTMAN(new int[]{7}, 1),
-    GRANDMA(new int[]{8, 9}, 2),
-    CENTAUR(new int[]{10}, 3),
-    JESTER(new int[]{18, 11, 19, 12, 1}, 1),
-    KNIGHT(new int[]{15}, 2),
-    MUSHROOM_MAN(new int[]{16}, 3),
-    MINSTREL(new int[]{18, 12, 13, 19, 14, 11}, 1),
-    PRINCESS(new int[]{18, 0, 11, 2, 1}, 2),
-    THIEF(new int[]{14, 3}, 3);
+    MONK("Monk", new int[]{18, 0, 4, 2, 1}, 1),
+    FARMER("Farmer", new int[]{5}, 2),
+    HERALD("Herald", new int[]{6}, 3),
+    MAGIC_POSTMAN("Magic Postman", new int[]{7}, 1),
+    GRANDMA("Grandma", new int[]{8, 9}, 2),
+    CENTAUR("Centaur", new int[]{10}, 3),
+    JESTER("Jester", new int[]{18, 0, 19, 12, 18, 11, 19, 1}, 1),
+    KNIGHT("Knight", new int[]{15}, 2),
+    MUSHROOM_MAN("Mushroom Man", new int[]{16}, 3),
+    MINSTREL("Minstrel", new int[]{18, 12, 19, 14, 18, 13, 19, 11}, 1),
+    PRINCESS("Princess", new int[]{18, 0, 13, 2, 1}, 2),
+    THIEF("Thief", new int[]{17, 3}, 3);
 
+    /**
+     * Character name
+     */
+    private final String characterName;
     /**
      * the array of baseEffect needed to create the effect
      */
@@ -33,7 +37,8 @@ public enum Effect {
      * @param array        the array of base effect that compose this effect
      * @param initialPrice the initial price of this effect
      */
-    Effect(int[] array, int initialPrice) {
+    Effect(String characterName, int[] array, int initialPrice) {
+        this.characterName = characterName;
         this.baseEffects = new ArrayList<>(Arrays.stream(array).boxed().toList());
         this.initialPrice = initialPrice;
     }
@@ -50,5 +55,12 @@ public enum Effect {
      */
     public int getInitialPrice() {
         return initialPrice;
+    }
+
+    /**
+     * @return the name of the character
+     */
+    public String getCharacterName() {
+        return characterName;
     }
 }

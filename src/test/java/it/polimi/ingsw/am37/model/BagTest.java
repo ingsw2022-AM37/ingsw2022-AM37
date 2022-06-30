@@ -3,8 +3,7 @@ package it.polimi.ingsw.am37.model;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit test for simple App.
@@ -16,9 +15,11 @@ public class BagTest
      */
     @Test
     @DisplayName("Tests the case where too many students are extracted.")
-    public void extractTooManyStudents(){
+    public void extractTooManyStudents() {
         Bag bag = new Bag();
-        assertThrows(IllegalArgumentException.class, () -> bag.extractStudents(121));
+        bag.extractStudents(121);
+        assertEquals(0, bag.size());
+        assertTrue(bag.isEmpty());
     }
 
     /**
@@ -30,6 +31,7 @@ public class BagTest
         Bag bag = new Bag();
         bag.extractStudents(50);
         assertEquals(70, bag.size());
+        assertFalse(bag.isEmpty());
     }
 
     /**
@@ -41,5 +43,6 @@ public class BagTest
         Bag bag = new Bag();
         bag.extractStudents(120);
         assertEquals(0, bag.size());
+        assertFalse(bag.isEmpty());
     }
 }

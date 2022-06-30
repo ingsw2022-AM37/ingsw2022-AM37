@@ -14,6 +14,7 @@ import java.util.Random;
 
 import static it.polimi.ingsw.am37.controller.UpdateController.Properties.P_BOARD_DINING;
 
+@SuppressWarnings("ConstantConditions")
 public class TurnManager {
 
     /**
@@ -35,6 +36,11 @@ public class TurnManager {
      * If coins are enabled in the game
      */
     private final boolean coinsEnabled;
+
+    /**
+     * If the game is in the last round
+     */
+    private boolean lastRound;
 
     /**
      * Total number of players
@@ -65,6 +71,7 @@ public class TurnManager {
         this.coinsEnabled = coinsEnabled;
         this.numOfPlayers = numOfPlayers;
         this.getProfWithDraw = false;
+        this.lastRound = false;
     }
 
     /**
@@ -203,12 +210,11 @@ public class TurnManager {
             }
             i++;
         }
-        if (numOfPlayers == 2 || numOfPlayers == 4) for (Player player : players) {
-            player.getBoard().addStudentsToEntrance(bag.extractStudents(studentEntranceTwoPlayers));
+
+        for (Player player : players) {
+            player.getBoard().addStudentsToEntrance(bag.extractStudents(numOfPlayers == 2 ? studentEntranceTwoPlayers : studentEntranceThreePlayers));
         }
-        else for (Player player : players) {
-            player.getBoard().addStudentsToEntrance(bag.extractStudents(studentEntranceThreePlayers));
-        }
+
         this.currentPlayer = getPlayers().get(random.nextInt(getPlayers().size()));
         i = players.indexOf(currentPlayer);
         for (int j = 0; j < numOfPlayers; j++) {
@@ -257,6 +263,20 @@ public class TurnManager {
      */
     public HashMap<Player, Assistant> getAssistantPlayed() {
         return assistantPlayed;
+    }
+
+    /**
+     * @return if it's the last round of the game.
+     */
+    public boolean isLastRound() {
+        return this.lastRound;
+    }
+
+    /**
+     * set the last round of the game.
+     */
+    public void setLastRound(boolean lastRound) {
+        this.lastRound = lastRound;
     }
 
     /**
@@ -342,6 +362,17 @@ public class TurnManager {
     }
 
     /**
+     * Creates the deck of the Player.
+     */
+    public void createDeck(WizardTeam team) throws InstanceAlreadyExistsException {
+        try {
+            currentPlayer.createDeck(team);
+        } catch (InstanceAlreadyExistsException exception) {
+            throw new InstanceAlreadyExistsException(exception.toString());
+        }
+    }
+
+    /**
      * Checks whether the given Assistant can be played and if so it plays it
      *
      * @param assistant the Assistant that the current Player wants to play
@@ -350,7 +381,8 @@ public class TurnManager {
     public void playAssistant(Assistant assistant) throws AssistantImpossibleToPlay {
         for (Player p : players) {
             if (!p.equals(currentPlayer)) {
-                if (p.getLastAssistantPlayed() == assistant)
+                //p.getLastAssistantPlayed() is null only at the very first time (when there's no lastAssistantPlayed)
+                if (p.getLastAssistantPlayed() != null && p.getLastAssistantPlayed().getCardValue() == assistant.getCardValue())
                     //if in the current player's deck there is another playable card different from another player's
                     // card
                     if (currentPlayer.getAssistantsDeck()
@@ -364,20 +396,15 @@ public class TurnManager {
         }
         useAssistant(assistant);
         this.assistantPlayed.put(currentPlayer, assistant);
-        //FIXME: questo setta un nuovo current player, corretto farlo qua?
         if (orderPlayed.indexOf(currentPlayer) != orderPlayed.size() - 1)
-            setCurrentPlayer(orderPlayed.get(orderPlayed.indexOf(currentPlayer) + 1));
+            nextPlayer();
     }
 
     /**
-     *
+     * sets the current player to the next player in the order;
      */
-    public void createDeck(WizardTeam team) throws InstanceAlreadyExistsException {
-        try {
-            currentPlayer.createDeck(team);
-        } catch (InstanceAlreadyExistsException exception) {
-            throw new InstanceAlreadyExistsException(exception.toString());
-        }
+    public void nextPlayer() {
+        setCurrentPlayer(orderPlayed.get(orderPlayed.indexOf(currentPlayer) + 1));
     }
 
     /**
@@ -385,7 +412,6 @@ public class TurnManager {
      * Player
      */
     public void nextTurn() {
-        resetFlags();
         orderPlayed.clear();
         this.orderPlayed.addAll(this.assistantPlayed.keySet().stream().sorted(new Comparator<>() {
             /**
@@ -403,6 +429,5 @@ public class TurnManager {
                 return assistantPlayed.get(p1).getCardValue() - assistantPlayed.get(p2).getCardValue();
             }
         }).toList());
-        setCurrentPlayer(orderPlayed.get(0));
     }
 }

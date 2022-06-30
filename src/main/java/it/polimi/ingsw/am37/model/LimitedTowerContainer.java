@@ -63,18 +63,15 @@ public class LimitedTowerContainer {
     /**
      * This method remove a certain number of towers of the same color after checking it's possible
      *
-     * @param num It's the number of towers to remove in the object
+     * @param numToRemove It's the number of towers to remove in the object
      * @throws IllegalArgumentException The parameter is wrong if negative, zero or the difference is lower than zero
      */
-    public void removeTowers(int num) throws IllegalArgumentException {
-        if (num <= 0)
-            throw new IllegalArgumentException("Negative number or zero");
+    public void removeTowers(int numToRemove) throws IllegalArgumentException {
+        int tmp = this.currentSize - numToRemove;
 
-        int tmp = this.currentSize - num;
-        if (tmp < 0)
-            throw new IllegalArgumentException("Number is too big");
-
-        this.currentSize = this.currentSize - num;
+        if (numToRemove <= 0) throw new IllegalArgumentException("Negative number or zero");
+        if (tmp < 0) throw new IllegalStateException("Number is too big");
+        this.currentSize = this.currentSize - numToRemove;
     }
 
     public String getTowersAsString() {

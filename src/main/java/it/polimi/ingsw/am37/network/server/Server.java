@@ -13,6 +13,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * It represents the Server that manage Players login and game Lobbies.
@@ -20,7 +22,7 @@ import java.util.HashMap;
 public class Server implements MessageReceiver {
 
     /**
-     *
+     * singleton server
      */
     public static Server server;
 
@@ -75,6 +77,7 @@ public class Server implements MessageReceiver {
     public void loadServer(int serverPort) {
         LOGGER.printf(Level.OFF, "=====================================================Server Started=====================================================");
         new Thread(() -> {
+            Timer timer = new Timer();
             Socket socket = null;
             try (ServerSocket serverSocket = new ServerSocket(serverPort)) {
                 LOGGER.info("Awaiting connections...");
@@ -89,8 +92,14 @@ public class Server implements MessageReceiver {
                     ClientHandler ch = new ClientHandler(socket);
                     ch.setMessageReceiver(this);
                     new Thread(ch).start();
-                    Message response = new ActiveLobbiesMessage(activeLobbies.stream().map(Lobby::getMatchID).toList());
-                    ch.sendMessageToClient(response);
+                    timer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            Message response = new ActiveLobbiesMessage(activeLobbies.stream().map(Lobby::getMatchID).toList());
+                            ch.sendMessageToClient(response);
+                        }
+                    }, 500);
+
                 } while (!serverSocket.isClosed());
             } catch (IOException e) {
                 e.printStackTrace();
@@ -120,6 +129,7 @@ public class Server implements MessageReceiver {
         switch (message.getMessageType()) {
             case LOGIN -> {
                 LOGGER.info("Received LoginMessage");
+                ch.setUUID(message.getUUID());
                 if (!nicknames.containsValue(((LoginMessage) message).getNickname())) {
                     clientHandlerMap.put(message.getUUID(), ch);
                     nicknames.put(message.getUUID(), ((LoginMessage) message).getNickname());
@@ -140,7 +150,7 @@ public class Server implements MessageReceiver {
                     ch.disconnect();
                 }
                 for (Lobby lobby : activeLobbies) {
-                    //Da testare questo if
+                    //TODO: THIS METHOD IS INVOLVED IN RESILIANCE, MUST BE TESTED
                     if (lobby.isPlayerInLobby(message.getUUID())) {
                         onReconnect(message.getUUID());
                         lobby.onReconnect(message.getUUID());
@@ -159,7 +169,7 @@ public class Server implements MessageReceiver {
                     new Thread(lobbyFound).start();
                     activeLobbies.add(lobbyFound);
                     lobbyFound.addPlayerInLobby(message.getUUID(), ch, nicknames.get(message.getUUID()));
-                    LOGGER.info(nicknames.get(message.getUUID()) + "entered lobby " + lobbyFound.getMatchID());
+                    LOGGER.info(nicknames.get(message.getUUID()) + " entered lobby " + lobbyFound.getMatchID());
                     ch.setMessageReceiver(lobbyFound);
                 }
                 for (Lobby lobby : activeLobbies) {
@@ -184,6 +194,11 @@ public class Server implements MessageReceiver {
      * @param lobby the Lobby to be closed.
      */
     public void closeLobby(Lobby lobby) {
+        while (lobby.getPlayers().size() > 0) {
+            String uuidToRemove = lobby.getPlayers().keySet().iterator().next();
+            clientHandlerMap.get(uuidToRemove).disconnect();
+            onDisconnect(uuidToRemove);
+        }
         nicknames.keySet().removeAll(lobby.getPlayerNicknames().keySet());
         activeLobbies.remove(lobby);
         LOGGER.info("Lobby " + lobby.getMatchID() + " closed");
@@ -232,7 +247,9 @@ public class Server implements MessageReceiver {
         if (!found)
             nicknames.remove(clientUUID);
 
-        clientToDisconnect.disconnect();
-        LOGGER.info("Disconnected " + nicknames.get(clientUUID) + " from the Server");
+        if (nicknames.get(clientUUID) != null)
+            LOGGER.info("Disconnected " + nicknames.get(clientUUID) + " from the Server");
+        else
+            LOGGER.info("Disconnected " + clientUUID + " from the Server");
     }
 }

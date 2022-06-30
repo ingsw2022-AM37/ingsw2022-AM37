@@ -1,126 +1,82 @@
 package it.polimi.ingsw.am37.network;
 
+import com.google.gson.Gson;
 import it.polimi.ingsw.am37.client.Client;
 import it.polimi.ingsw.am37.client.ClientStatus;
 import it.polimi.ingsw.am37.message.*;
 
 import java.io.*;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
+import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
-
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class ClientSocket implements Runnable {
-
     /**
      * Flag to disable disconnection for debug purpose
      */
-    final static boolean debugMode = true;
-
-    /**
-     * Used for creating a loop for client's waiting after a message is received
-     */
-    private static boolean waitingMessage = true;
-
-    /**
-     * Object used by main thread for waiting on after it sent a message
-     */
-    private static final Object waitObject = new Object();
-
-    /**
-     * Buffer used to store a message (different from ping) when the secondary thread reads it
-     */
-    private static Message messageBuffer = null;
+    final static boolean debug_disableTimers = false;
+    private final static Gson defaultMessageSerializer = new MessageGsonBuilder().registerMessageAdapter()
+            .registerUpdatableObjectAdapter()
+            .registerStudentContainerAdapter()
+            .getGsonBuilder()
+            .create();
 
     /**
      * Socket used to connect
      */
-    private static Socket socket;
-
+    private final Socket socket;
+    private final Client client;
+    /**
+     * This blocking queue contains the response or the status message sent by server after each action; contains only
+     * messages of type {@link ConfirmMessage},{@link ErrorMessage},{@link UpdateMessage} or
+     * {@link ActiveLobbiesMessage}
+     */
+    private final BlockingQueue<Message> responseBuffer;
     /**
      * Boolean which represents the current state of client's connection
      */
-    private static boolean connectedToServer = false;
-
+    private boolean connectedToServer;
     /**
      * Input stream
      */
-    private static InputStream inputStream;
-
+    private InputStream inputStream;
     /**
      * Output stream
      */
-    private static OutputStream outputStream;
-
+    private OutputStream outputStream;
     /**
      * DataOutput stream used for sending messages
      */
-    private static DataOutputStream dataOutputStream;
-
+    private DataOutputStream dataOutputStream;
     /**
      * DataInput stream used for reading messages
      */
-    private static DataInputStream dataInputStream;
+    private DataInputStream dataInputStream;
 
     /**
+     * Construct a socket to comunicate with the server using provided parameters, then try to communicate with it
+     *
      * @param address Server's IP
      * @param port    Server's port
      * @throws IOException When connection is failed
      */
-    static public void connectToServer(String address, int port) throws IOException {
-
+    public ClientSocket(String address, int port, Client client) throws IOException {
         socket = new Socket(address, port);
         connectedToServer = true;
+        this.client = client;
+        this.responseBuffer = new LinkedBlockingQueue<>();
         setInputAndOutput();
-    }
-
-    /**
-     * @return waitObject used for synchronize
-     */
-    static public Object getWaitObject() {
-        return waitObject;
-    }
-
-    /**
-     * @return if a message is received from server
-     */
-    static public boolean getWaitingMessage() {
-        return waitingMessage;
-    }
-
-    /**
-     * Set messageReceived to false
-     */
-    static public void setWaitingMessage(boolean bool) {
-        waitingMessage = bool;
-    }
-
-
-    /**
-     * @return buffer used to trade messages
-     */
-    static public Message getMessageBuffer() {
-        return messageBuffer;
-    }
-
-    /**
-     * @return Current state of client's connection
-     */
-    static public boolean isConnectedToServer() {
-
-        return connectedToServer;
     }
 
     /**
      * Tries to close socket and input/output stream and set connectedToServer to false, then close the game
      */
-    static public void closeGame() {
-
+    public void closeGame() {
         if (connectedToServer) {
             connectedToServer = false;
-
             Timer timer = new Timer();
             timer.schedule(new TimerTask() {
                 @Override
@@ -128,7 +84,6 @@ public class ClientSocket implements Runnable {
                     killGame();
                 }
             }, 2000);
-
             try {
                 dataInputStream.close();
                 dataOutputStream.close();
@@ -145,14 +100,53 @@ public class ClientSocket implements Runnable {
     }
 
     /**
+     * @return if we are connected to the server or not
+     */
+    public boolean isConnectedToServer() {
+        return connectedToServer;
+    }
+
+    public BlockingQueue<Message> getResponseBuffer() {
+        return responseBuffer;
+    }
+
+    /**
+     * close the game
+     */
+    private void killGame() {
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                Runtime.getRuntime().halt(0);
+            }
+        }, 3000);
+        System.exit(0);
+        timer.cancel();
+    }
+
+    /**
+     * Method used for sending ping
+     */
+    private void messagePing() {
+        Timer timer = new Timer();
+
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                Message message;
+                message = new PingMessage(client.getUUID());
+                sendMessage(message);
+            }
+        }, 300, 300);
+    }
+
+    /**
      * Tries to close socket and input/output stream and set connectedToServer to false, then close the game
      */
-    static private void disconnect() {
-
+    private void onDisconnect() {
         connectedToServer = false;
-
-        Client.getView().notifyInternetCrash();
-
+        client.getView().notifyInternetCrash();
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
             @Override
@@ -160,7 +154,6 @@ public class ClientSocket implements Runnable {
                 killGame();
             }
         }, 3000);
-
         try {
             dataInputStream.close();
             dataOutputStream.close();
@@ -173,217 +166,60 @@ public class ClientSocket implements Runnable {
     }
 
     /**
-     * @param message Client's message needed to be sent to server, if error occurs client will be disconnected
-     */
-    static public void sendMessage(Message message) {
-
-        //TODO PER ORA LO LASCIAMO IN SOSPESO, POI DECIDIAMO SE METTERE QUESTA FUNZIONE
-        // ogni 0,3 secondi manda un ping, metto un contatore statico che incremento ad ogni messaggio, arrivato a
-        // 700 avviso che se non viene mandato un messaggio valido a breve verrà disconnesso
-        // gestisco anche quando non è il mio turno ovviamente questo non deve accadere
-
-        if (connectedToServer) {
-            String json = new MessageGsonBuilder().registerMessageAdapter()
-                    .registerStudentContainerAdapter()
-                    .getGsonBuilder()
-                    .create()
-                    .toJson(message);
-
-            Timer timer = new Timer();
-
-            timer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    disconnect();
-                }
-            }, 5000);
-
-            try {
-                dataOutputStream.writeUTF(json);
-                dataOutputStream.flush();
-                timer.cancel();
-            } catch (IOException e) {
-                disconnect();
-            }
-        }
-    }
-
-    /**
-     * Create socket's OutputStream
-     */
-    static private void setOutput() {
-
-        Timer timer = new Timer();
-
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                disconnect();
-            }
-        }, 5000);
-
-        try {
-            outputStream = socket.getOutputStream();
-            dataOutputStream = new DataOutputStream(outputStream);
-            timer.cancel();
-        } catch (IOException e) {
-            disconnect();
-        }
-    }
-
-    /**
-     * Create socket's InputStream
-     */
-    static private void setInput() {
-
-        Timer timer = new Timer();
-
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                disconnect();
-            }
-        }, 5000);
-
-        try {
-            inputStream = socket.getInputStream();
-            dataInputStream = new DataInputStream(inputStream);
-            timer.cancel();
-        } catch (IOException e) {
-            disconnect();
-        }
-    }
-
-    /**
-     * Create streams for socket
-     */
-    static private void setInputAndOutput() {
-        setInput();
-        setOutput();
-    }
-
-    /**
      * Message received from server and executed
      */
-    static private void readMessage() {
-
+    private void readMessage() {
         String json;
-        Message message = null;
+        Message message;
         Timer timer = new Timer();
-
-        if (!debugMode) {
+        if (!debug_disableTimers) {
             timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    disconnect();
+                    onDisconnect();
                 }
             }, 5000);
         }
-
         try {
             json = dataInputStream.readUTF();
-            message = new MessageGsonBuilder().registerMessageAdapter()
-                    .registerStudentContainerAdapter()
-                    .registerUpdatableObjectAdapter()
-                    .getGsonBuilder()
-                    .create()
+            message = defaultMessageSerializer
                     .fromJson(json, Message.class);
             timer.cancel();
-            if (message.getMessageType() != MessageType.PING && message.getMessageType() != MessageType.NEXT_TURN &&
-                    message.getMessageType() != MessageType.PLANNING_PHASE && message.getMessageType() != MessageType.START_GAME && message.getMessageType() != MessageType.END_GAME) {
-                messageBuffer = new MessageGsonBuilder().registerMessageAdapter()
-                        .registerStudentContainerAdapter()
-                        .getGsonBuilder()
-                        .create()
-                        .fromJson(json, Message.class);
-                waitingMessage = false;
-                synchronized (waitObject) {
-                    waitObject.notifyAll();
+            if (message.getMessageType() != MessageType.PING) {
+                switch (message.getMessageType()) {
+                    case START_GAME -> {
+                        synchronized (client) {
+                            client.notify();
+                        }
+                    }
+                    case PLANNING_PHASE -> {
+                        client.setStatus(ClientStatus.PLAYINGASSISTANT);
+                        client.getView().yourTurn();
+                    }
+                    case UPDATE -> {
+                        responseBuffer.add(message);
+                        UpdateMessage updateMessage = (UpdateMessage) message;
+                        client.getView()
+                                .updateView(updateMessage, client);
+                    }
+                    case NEXT_TURN -> {
+                        NextTurnMessage nextTurnMessage = (NextTurnMessage) message;
+                        if (Objects.equals(nextTurnMessage.getNextPlayerNickname(), client.getNickname())) {
+                            client.getView().yourTurn();
+                            client.setStatus(ClientStatus.MOVINGSTUDENTS);
+
+                        } else {
+                            client.getView().hisTurn(nextTurnMessage.getNextPlayerNickname());
+                            client.setStatus(ClientStatus.WAITINGFORTURN);
+                        }
+                    }
+                    case END_GAME -> client.getView().printWinner(((EndGameMessage) message).getWinnerNickname());
+                    case CONFIRM, ERROR, ACTIVE_LOBBIES -> responseBuffer.add(message);
                 }
             }
-
-            if (message.getMessageType() == MessageType.START_GAME) {
-                synchronized (waitObject) {
-                    waitObject.notifyAll();
-                }
-                Client.beginGame();
-            } else if (message.getMessageType() == MessageType.END_GAME) {
-                EndGameMessage endGameMessage;
-                endGameMessage = (EndGameMessage) message;
-
-                Client.setStatus(ClientStatus.ENDGAME);
-
-                Client.getView().printWinner(endGameMessage.getWinnerNickname());
-
-                //It empties the file with configurations because game is ended correctly
-                OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream("src/myConfigurations/resilience.txt"), StandardCharsets.UTF_8);
-
-            } else if (message.getMessageType() == MessageType.UPDATE) {
-                Client.getView()
-                        .getReducedModel()
-                        .update(((UpdateMessage) message).getUpdatedObjects()
-                                .values()
-                                .stream()
-                                .flatMap(List::stream)
-                                .toList());
-            } else if (message.getMessageType() == MessageType.NEXT_TURN) {
-                NextTurnMessage nextTurnMessage;
-
-                nextTurnMessage = (NextTurnMessage) message;
-
-                if (nextTurnMessage.getNextPlayerNickname().equals(Client.getNickname())) {
-                    Client.setStatus(ClientStatus.MOVINGSTUDENTS);
-                    Client.getView().yourTurn();
-                } else
-                    Client.getView().hisTurn(nextTurnMessage.getNextPlayerNickname());
-
-            } else if (message.getMessageType() == MessageType.PLANNING_PHASE) {
-                Client.getView().mustPlayAssistant();
-                Client.setStatus(ClientStatus.PLAYINGASSISTANT);
-            }
-
-
         } catch (IOException e) {
-            disconnect();
-
+            onDisconnect();
         }
-
-    }
-
-    /**
-     * close the game
-     */
-    static private void killGame() {
-        Timer timer = new Timer();
-
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                Runtime.getRuntime().halt(0);
-            }
-        }, 3000);
-
-        System.exit(0);
-        timer.cancel();
-    }
-
-    /**
-     * Method used for sending ping
-     */
-    static private void messagePing() {
-
-        Timer timer = new Timer();
-
-        timer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                Message message;
-                message = new PingMessage(Client.getUUID());
-
-                sendMessage(message);
-            }
-        }, 300, 300);
-
 
     }
 
@@ -392,14 +228,83 @@ public class ClientSocket implements Runnable {
      */
     @Override
     public void run() {
-
         messagePing();
-
-        while (connectedToServer)
-            readMessage();
-
+        while (connectedToServer) readMessage();
     }
 
+    /**
+     * Send a message to the server and clear the queue of read message; if any error occur disconnect the socket
+     *
+     * @param message the message to be sent
+     */
+    public void sendMessage(Message message) {
+        responseBuffer.clear();
+        if (connectedToServer) {
+            String json = defaultMessageSerializer.toJson(message);
+            Timer timer = new Timer();
+            if (!debug_disableTimers) timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    onDisconnect();
+                }
+            }, 5000);
+            try {
+                dataOutputStream.writeUTF(json);
+                dataOutputStream.flush();
+                timer.cancel();
+            } catch (IOException e) {
+                onDisconnect();
+            }
+        }
+    }
+
+    /**
+     * Create socket's InputStream
+     */
+    private void setInput() {
+        Timer timer = new Timer();
+        if (!debug_disableTimers) timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                onDisconnect();
+            }
+        }, 5000);
+        try {
+            inputStream = socket.getInputStream();
+            dataInputStream = new DataInputStream(inputStream);
+            timer.cancel();
+        } catch (IOException e) {
+            onDisconnect();
+        }
+    }
+
+    /**
+     * Create streams for socket
+     */
+    private void setInputAndOutput() {
+        setInput();
+        setOutput();
+    }
+
+    /**
+     * Create socket's OutputStream
+     */
+    private void setOutput() {
+        Timer timer = new Timer();
+        if (!debug_disableTimers) timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                onDisconnect();
+            }
+        }, 5000);
+        try {
+            outputStream = socket.getOutputStream();
+            dataOutputStream = new DataOutputStream(outputStream);
+            timer.cancel();
+        } catch (IOException e) {
+            onDisconnect();
+        }
+    }
 }
 
 
