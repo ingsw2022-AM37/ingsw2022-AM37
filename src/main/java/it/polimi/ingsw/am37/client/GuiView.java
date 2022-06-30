@@ -14,14 +14,12 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.ChoiceDialog;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -553,5 +551,23 @@ public class GuiView extends AbstractView {
             throw new RuntimeException(e);
         }
         return atomicContainer.get();
+    }
+
+    /**
+     * Show a dialog button to choose a number between multiple possibilities; if user close the dialog a new one reopen
+     * until the user click on OK button to correctly close one
+     *
+     * @param choices the choices available
+     * @return the number choose by the user
+     */
+    @Override
+    public int askStudentsNumber(ArrayList<Integer> choices) {
+        ChoiceDialog<Integer> dialog = new ChoiceDialog<>(choices.get(0), choices);
+        dialog.setHeaderText(null);
+        dialog.setContentText("How many students would you like to move?");
+        do {
+            dialog.showAndWait();
+        } while (dialog.getSelectedItem() == null);
+        return dialog.getSelectedItem();
     }
 }
