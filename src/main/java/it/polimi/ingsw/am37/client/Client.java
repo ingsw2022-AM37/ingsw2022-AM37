@@ -64,7 +64,7 @@ public class Client {
      */
     private final Properties savedProperties;
     /**
-     *
+     * Properties saving
      */
     private final Properties messagesConstants;
     /**
@@ -292,14 +292,26 @@ public class Client {
         return nickname;
     }
 
+    /**
+     *
+     * @return port of server
+     */
     public int getPort() {
         return port;
     }
 
+    /**
+     *
+     * @return chosen lobby parameters
+     */
     public LobbyParameters getSettings() {
         return settings;
     }
 
+    /**
+     *
+     * @return player's status
+     */
     public ClientStatus getStatus() {
         return status;
     }

@@ -182,11 +182,19 @@ public class CliView extends AbstractView {
         }
     }
 
+    /**
+     *
+     * @return if dining or island is selected as next move
+     */
     @Override
     public boolean askDestination() {
         throw new IllegalStateException("Only GUI method called in CLI mode");
     }
 
+    /**
+     * Method to ask lobby parameters
+     * @return chosen lobby parameters
+     */
     @Override
     public Client.LobbyParameters askLobbyParameters() {
         Boolean advancedRules = askConfirm(
@@ -278,6 +286,10 @@ public class CliView extends AbstractView {
         else return null;
     }
 
+    /**
+     * method to select a specific island
+     * @return island id which is selected
+     */
     @Override
     public int askIsland() {
         Scanner scanner = new Scanner(System.in);
@@ -308,6 +320,11 @@ public class CliView extends AbstractView {
         }
     }
 
+    /**
+     * Method used for asking student color to player
+     * @param client client who is playing this instruction
+     * @return chosen color
+     */
     @Override
     public FactionColor askColor(Client client) {
         String input;
@@ -329,6 +346,12 @@ public class CliView extends AbstractView {
         return color.get();
     }
 
+    /**
+     * Method used to select students from dining
+     * @param client client who is playing this instruction
+     * @param num number of students you want to select in dining
+     * @return chosen students
+     */
     @Override
     public StudentsContainer askStudentFromDining(Client client, int num) {
         int students;
@@ -426,6 +449,13 @@ public class CliView extends AbstractView {
         }
     }
 
+    /**
+     *
+     * @param character character played
+     * @param num max number of possible students to choose, it depends on the character
+     * @param client player who is playing the card
+     * @return chosen students
+     */
     @Override
     public StudentsContainer askStudentsFromCharacter(Character character, int num, Client client) {
         int students;
@@ -556,6 +586,7 @@ public class CliView extends AbstractView {
     }
 
     /**
+     * Method used to choose to pick students on cloud
      * @return which cloud player has chosen to take
      */
     public String askCloud() {
@@ -750,21 +781,42 @@ public class CliView extends AbstractView {
         displayImportant("\nIt's your turn. Please press enter to proceed...");
     }
 
+
+    /**
+     *
+     * @param message string needed to be displayed
+     */
     @Override
     public void displayInfo(String message) {
         System.out.println(ansi().fgDefault().render(message).reset());
     }
 
+
+    /**
+     *
+     * @param message message to be displayed
+     */
     @Override
     public void displayImportant(String message) {
         System.out.println(ansi().fgYellow().render(message).reset());
     }
 
+
+    /**
+     *
+     * @param message error to be displayed
+     */
     @Override
     public void displayError(String message) {
         System.out.println(ansi().fgRed().render(message).reset());
     }
 
+
+    /**
+     * Method to update the view
+     * @param updateMessage message containing new information
+     * @param client client who has the message
+     */
     @Override
     public void updateView(UpdateMessage updateMessage, Client client) {
         reducedModel.update(updateMessage.getUpdatedObjects()
@@ -806,9 +858,9 @@ public class CliView extends AbstractView {
     }
 
     /**
-     *
-     * @param choices
-     * @return
+     * Ask player a number among displayed ones
+     * @param choices ArrayList with possible numbers for selection
+     * @return chosen number
      */
     public int askStudentsNumber(ArrayList<Integer> choices){
 

@@ -5,10 +5,25 @@ import java.util.Locale;
 
 public class ClientApp {
 
+    /**
+     * address name
+     */
     final static String addressOptionName = "address";
+
+    /**
+     * port name
+     */
     final static String portOptionName = "port";
+
+    /**
+     * graphics name
+     */
     final static String graphicsOptionName = "graphics";
 
+    /**
+     * main method
+     * @param args
+     */
     public static void main(String[] args) {
         Client client;
         Locale.setDefault(Locale.ENGLISH);

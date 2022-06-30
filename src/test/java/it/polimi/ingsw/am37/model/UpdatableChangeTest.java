@@ -19,6 +19,9 @@ import static org.mockito.Mockito.*;
 
 public class UpdatableChangeTest {
 
+    /**
+     * test cloud firing property
+     */
     @Test
     @DisplayName("test cloud firing property")
     void testCloudFireProperty() {
@@ -33,6 +36,9 @@ public class UpdatableChangeTest {
         assertEquals(2, controller.getUpdateList().size());
     }
 
+    /**
+     * test island firing property
+     */
     @Test
     @DisplayName("test island firing property")
     void testIslandFireProperty() {
@@ -50,6 +56,10 @@ public class UpdatableChangeTest {
         assertEquals(1, controller.getUpdatedObjects().size());
     }
 
+    /**
+     * test player firing property
+     * @throws InstanceAlreadyExistsException
+     */
     @Test
     @DisplayName("test player firing property")
     void testPlayerFireProperty() throws InstanceAlreadyExistsException {
@@ -68,6 +78,9 @@ public class UpdatableChangeTest {
         assertEquals(1, controller.getUpdatedObjects().size());
     }
 
+    /**
+     * test board firing property
+     */
     @Test
     @DisplayName("test board firing property")
     void testBoardFireProperty () {
@@ -88,6 +101,11 @@ public class UpdatableChangeTest {
         assertEquals(1, controller.getUpdatedObjects().size());
     }
 
+    /**
+     * Test character firing property
+     * @throws NoSuchFieldException
+     * @throws IllegalAccessException
+     */
     @Test
     @DisplayName("Test character firing property")
     void testCharacterFireProperty () throws NoSuchFieldException, IllegalAccessException {

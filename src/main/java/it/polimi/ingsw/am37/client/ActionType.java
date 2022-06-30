@@ -23,23 +23,45 @@ public enum ActionType {
     PLAY_ASSISTANT("Play an assistant"),
     PLAY_CHARACTER("Play a character");
 
+    /**
+     * Description of action type
+     */
     public final String description;
 
+    /**
+     * Default constructor
+     */
     ActionType(String description) {
         this.description = description;
     }
 
+    /**
+     * List of available actions
+     */
     private final static List<ActionType> availableActions = new ArrayList<>();
 
+    /**
+     * @return all possible actions
+     */
     public static List<ActionType> getActions() {
         return availableActions;
     }
 
+    /**
+     * Method used to update available actions based on client status
+     * @param status client status
+     * @param advancedRules if advanced rules are activated
+     */
     public static void updateAvailableAction(ClientStatus status, boolean advancedRules) {
         availableActions.clear();
         availableActions.addAll(getActionByStatus(status, advancedRules));
     }
 
+    /**
+     * @param status client status
+     * @param advancedRules if advanced rules are activated
+     * @return list of possible actions
+     */
     private static List<ActionType> getActionByStatus(ClientStatus status, boolean advancedRules) {
         List<ActionType> list = new ArrayList<>(List.of(
                 SHOW_MENU,

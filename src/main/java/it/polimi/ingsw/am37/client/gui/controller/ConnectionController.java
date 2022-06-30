@@ -9,12 +9,31 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 
 public class ConnectionController extends GenericController {
+
+    /**
+     * field used to save IP of server
+     */
     public TextField ipField;
+
+    /**
+     * field used to save server's port
+     */
     public TextField portField;
+
+    /**
+     * label used to show some errors
+     */
     public Label errorLabel;
 
+    /**
+     * saved client connection parameters
+     */
     private Client.ConnectionParameters connectionParameters;
 
+    /**
+     * method used to connect to server when the button is clicked, if a field is missing will be used default setting
+     * @param actionEvent event used to notify when button for connection is clicked
+     */
     public void connect(ActionEvent actionEvent) {
         int port;
         if (ipField.getText().trim().replaceAll(" ", "").equals("") || portField.getText().trim().replaceAll(" ", "").equals("")) {
@@ -35,6 +54,10 @@ public class ConnectionController extends GenericController {
         }
     }
 
+    /**
+     *
+     * @return client connection parameters
+     */
     public Client.ConnectionParameters getConnectionParameters() {
         return connectionParameters;
     }

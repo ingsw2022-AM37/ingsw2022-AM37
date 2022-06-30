@@ -13,6 +13,9 @@ public enum ClientStatus {
     WAITINGFORTURN,
     ENDGAME;
 
+    /**
+     * List of status during game in lobby
+     */
     public final static List<ClientStatus> activeStatus = List.of(PLAYINGASSISTANT, MOVINGSTUDENTS,
             MOVINGMOTHERNATURE, CHOOSINGCLOUD);
 }

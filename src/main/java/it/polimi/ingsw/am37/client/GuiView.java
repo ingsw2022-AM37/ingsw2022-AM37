@@ -24,8 +24,15 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class GuiView extends AbstractView {
+
+    /**
+     * needed for graphics
+     */
     private final GuiApp app;
 
+    /**
+     * Observer used for tracking player choices
+     */
     private final GuiObserver observer;
 
     /**
@@ -47,6 +54,9 @@ public class GuiView extends AbstractView {
         return Integer.parseInt(observer.getLastRetrievedObjectId());
     }
 
+    /**
+     * Default constructor
+     */
     public GuiView() {
         observer = new GuiObserver();
         new Thread(() -> Application.launch(GuiApp.class)).start();
@@ -72,6 +82,7 @@ public class GuiView extends AbstractView {
     }
 
     /**
+     * * Method used to choose to pick students on cloud
      * @return which cloud player has chosen to take
      */
     @Override
@@ -87,6 +98,10 @@ public class GuiView extends AbstractView {
         return observer.getLastRetrievedObjectId();
     }
 
+    /**
+     *
+     * @return if dining or island is selected as next move
+     */
     @Override
     public boolean askDestination() {
         GuiObserver.ClickableObjectType objectType = null;
@@ -150,11 +165,19 @@ public class GuiView extends AbstractView {
         return Integer.parseInt(observer.getLastRetrievedObjectId());
     }
 
+    /**
+     * Method to ask lobby parameters
+     * @return chosen lobby parameters
+     */
     @Override
     public Client.LobbyParameters askLobbyParameters() {
         return ((EnterInGameController) SceneController.getActiveController()).getLobbyParameters();
     }
 
+    /**
+     * method to select a specific island
+     * @return island id which is selected
+     */
     @Override
     public int askIsland() {
         while (observer.getLastClickedObjectType() != GuiObserver.ClickableObjectType.CO_ISLAND) {
@@ -177,6 +200,11 @@ public class GuiView extends AbstractView {
         throw new IllegalStateException("Only CLI method called in GUI");
     }
 
+    /**
+     * Method used for asking student color to player
+     * @param client client who is playing this instruction
+     * @return chosen color
+     */
     @Override
     public FactionColor askColor(Client client) {
         AtomicReference<FactionColor> color = new AtomicReference<>();
@@ -203,6 +231,12 @@ public class GuiView extends AbstractView {
         return color.get();
     }
 
+    /**
+     * Method used to select students from dining
+     * @param client client who is playing this instruction
+     * @param num number of students you want to select in dining
+     * @return chosen students
+     */
     @Override
     public StudentsContainer askStudentFromDining(Client client, int num) {
         StudentsContainer container;
@@ -217,6 +251,13 @@ public class GuiView extends AbstractView {
         return container;
     }
 
+    /**
+     *
+     * @param character character played
+     * @param num max number of possible students to choose, it depends on the character
+     * @param client player who is playing the card
+     * @return chosen students
+     */
     @Override
     public StudentsContainer askStudentsFromCharacter(Character character, int num, Client client) {
         StudentsContainer container;
@@ -402,6 +443,11 @@ public class GuiView extends AbstractView {
         throw new IllegalStateException("Only CLI method called in GUI");
     }
 
+    /**
+     * Method to update the view
+     * @param updateMessage message containing new information
+     * @param client client who has the message
+     */
     @Override
     public void updateView(UpdateMessage updateMessage, Client client) {
         reducedModel.update(updateMessage.getUpdatedObjects().values().stream().flatMap(List::stream).toList());
@@ -504,16 +550,27 @@ public class GuiView extends AbstractView {
         displayImportant("It's your turn");
     }
 
+    /**
+     *
+     * @param message string needed to be displayed
+     */
     @Override
     public void displayInfo(String message) {
         Platform.runLater(() -> SceneController.getActiveController().showInfo(message));
     }
-
+    /**
+     *
+     * @param message message to be displayed
+     */
     @Override
     public void displayImportant(String message) {
         Platform.runLater(() -> SceneController.getActiveController().showImportant(message));
     }
 
+    /**
+     *
+     * @param message error to be displayed
+     */
     @Override
     public void displayError(String message) {
         Platform.runLater(() -> SceneController.getActiveController().showError(message));

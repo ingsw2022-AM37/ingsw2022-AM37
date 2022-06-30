@@ -18,11 +18,34 @@ import javafx.stage.Stage;
  */
 public class ChooseNumStudentsController {
 
+    /**
+     * spinner for blue students
+     */
     public Spinner<Integer> spinner_blue;
+
+    /**
+     * spinner for green students
+     */
     public Spinner<Integer> spinner_green;
+
+    /**
+     * spinner for red students
+     */
     public Spinner<Integer> spinner_red;
+
+    /**
+     * spinner for yellow students
+     */
     public Spinner<Integer> spinner_yellow;
+
+    /**
+     * spinner for pink students
+     */
     public Spinner<Integer> spinner_pink;
+
+    /**
+     * confirm button
+     */
     public JFXButton confirm_button;
 
     /**

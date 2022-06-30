@@ -27,6 +27,9 @@ public class MessageJSONTests {
                 .create();
     }
 
+    /**
+     * Serialization and deserialization of LoginMessage
+     */
     @Test
     @DisplayName("Serialization and deserialization of LoginMessage")
     void loginJSONTest() {
@@ -39,6 +42,9 @@ public class MessageJSONTests {
         assertEquals(loginMessage.getNickname(), loginMessage.getNickname());
     }
 
+    /**
+     * Serialization and deserialization of ConfirmMessage
+     */
     @Test
     @DisplayName("Serialization and deserialization of ConfirmMessage")
     void confirmJSONTest() {
@@ -50,6 +56,9 @@ public class MessageJSONTests {
         assertEquals(confirmMessage.UUID, newConfirmMessage.UUID);
     }
 
+    /**
+     * Serialization and deserialization of ErrorMessage
+     */
     @Test
     @DisplayName("Serialization and deserialization of ErrorMessage")
     void errorMessageJSONTest() {
@@ -62,6 +71,9 @@ public class MessageJSONTests {
         assertEquals(errorMessage.getMessage(), newErrorMessage.getMessage());
     }
 
+    /**
+     * Serialization and deserialization of ChooseCloudMessage
+     */
     @Test
     @DisplayName("Serialization and deserialization of ChooseCloudMessage")
     void chooseCloudMessageJSONTest() {
@@ -74,6 +86,9 @@ public class MessageJSONTests {
         assertEquals(chooseCloudMessage.getCloudId(), newChooseCloudMessage.getCloudId());
     }
 
+    /**
+     * Serialization and deserialization of ChooseTeamMessage
+     */
     @Test
     @DisplayName("Serialization and deserialization of ChooseTeamMessage")
     void chooseTeamMessageJSONTest() {
@@ -86,6 +101,9 @@ public class MessageJSONTests {
         assertEquals(WizardTeam.TEAM1, newChooseTeamMessage.getDesiredTeam());
     }
 
+    /**
+     * Serialization and deserialization of LobbyRequestMessage
+     */
     @Test
     @DisplayName("Serialization and deserialization of LobbyRequestMessage")
     void lobbyRequestMessageJSONTest() {
@@ -99,6 +117,9 @@ public class MessageJSONTests {
         assertEquals(2, newLobbyRequestMessage.getDesiredSize());
     }
 
+    /**
+     * Serialization and deserialization of MoveMotherNatureMessage
+     */
     @Test
     @DisplayName("Serialization and deserialization of MoveMotherNatureMessage")
     void moveMotherNatureMessageJSONTest() {
@@ -111,6 +132,9 @@ public class MessageJSONTests {
         assertEquals(2, newMoveMotherNatureMessage.getIslandId());
     }
 
+    /**
+     * Serialization and deserialization of NextTurnMessage
+     */
     @Test
     @DisplayName("Serialization and deserialization of NextTurnMessage")
     void nextTurnMessageJSONTest() {
@@ -125,6 +149,9 @@ public class MessageJSONTests {
         assertNotNull(newNextTurnMessage.getMessageType());
     }
 
+    /**
+     * Serialization and deserialization of PingMessage
+     */
     @Test
     @DisplayName("Serialization and deserialization of PingMessage")
     void pingMessageJSONTest() {
@@ -137,6 +164,9 @@ public class MessageJSONTests {
         assertEquals(MessageType.PING, newPingMessage.getMessageType());
     }
 
+    /**
+     * Serialization and deserialization of PlayAssistantMessage
+     */
     @Test
     @DisplayName("Serialization and deserialization of PlayAssistantMessage")
     void playAssistantMessageJSONTest() {
@@ -149,6 +179,9 @@ public class MessageJSONTests {
         assertEquals(40, newPlayAssistantMessage.getCardValue());
     }
 
+    /**
+     * Serialization and deserialization of PlayCharacterMessage
+     */
     @Test
     @DisplayName("Serialization and deserialization of PlayCharacterMessage")
     void playCharacterMessageJSONTest() {
@@ -165,6 +198,9 @@ public class MessageJSONTests {
         assertEquals(Effect.GRANDMA, newPlayCharacterMessage.getChosenCharacter());
     }
 
+    /**
+     * Serialization and deserialization of StudentsToDiningMessage
+     */
     @Test
     @DisplayName("Serialization and deserialization of StudentsToDiningMessage")
     void studentsToDiningMessageJSONTest() {
@@ -179,6 +215,9 @@ public class MessageJSONTests {
         assertEquals(3, newStudentsToDiningMessage.getContainer().getByColor(FactionColor.BLUE));
     }
 
+    /**
+     * Serialization and deserialization of StudentsToIslandMessage
+     */
     @Test
     @DisplayName("Serialization and deserialization of StudentsToIslandMessage")
     void studentsToIslandMessageJSONTest() {
@@ -194,6 +233,9 @@ public class MessageJSONTests {
         assertEquals(4, newStudentsToIslandMessage.getIslandId());
     }
 
+    /**
+     * Serialization and deserialization of UpdateMessage
+     */
     @Test
     @DisplayName("Serialization and deserialization of UpdateMessage")
     void updateMessageJSONTest() {
@@ -218,6 +260,9 @@ public class MessageJSONTests {
                 .get(0)).getIslandId());
     }
 
+    /**
+     * Serialization and deserialization of StartGameMessage
+     */
     @Test
     @DisplayName("Serialization and deserialization of StartGameMessage")
     void startGameMessageJSONTest() {
@@ -229,6 +274,9 @@ public class MessageJSONTests {
         assertEquals(startGameMessage.UUID, newStartGameMessage.UUID);
     }
 
+    /**
+     * Serialization and deserialization of EndGameMessage
+     */
     @Test
     @DisplayName("Serialization and deserialization of EndGameMessage")
     void endGameMessageJSONTest() {
@@ -242,6 +290,9 @@ public class MessageJSONTests {
         assertEquals("axios011", endGameMessage.getWinnerNickname());
     }
 
+    /**
+     * Serialization and deserialization of PlanningPhaseMessage
+     */
     @Test
     @DisplayName("Serialization and deserialization of PlanningPhaseMessage")
     void planningPhaseMessageJSONTest() {

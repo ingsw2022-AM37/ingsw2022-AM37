@@ -20,6 +20,9 @@ public abstract class AbstractView {
      */
     protected final ReducedModel reducedModel;
 
+    /**
+     * used to save properties
+     */
     protected final Properties messagesConstants;
 
     /**
@@ -51,6 +54,7 @@ public abstract class AbstractView {
     public abstract Effect askCharacter();
 
     /**
+     * Method used to choose to pick students on cloud
      * @return which cloud player has chosen to take
      */
     public abstract String askCloud();
@@ -71,13 +75,26 @@ public abstract class AbstractView {
      */
     public abstract Client.ConnectionParameters askConnectionParameters();
 
+    /**
+     *
+     * @return if dining or island is selected as next move
+     */
     public abstract boolean askDestination();
 
+    /**
+     * Method to ask lobby parameters
+     * @return chosen lobby parameters
+     */
     public abstract Client.LobbyParameters askLobbyParameters();
 
+    /**
+     * method to select a specific island
+     * @return island id which is selected
+     */
     public abstract int askIsland();
 
     /**
+     * Method to ask movement of Mother Nature
      * @param assistant the assistant chosen by the player
      * @return Where mother nature has to go
      */
@@ -90,10 +107,29 @@ public abstract class AbstractView {
      */
     public abstract Player askPlayer();
 
+    /**
+     * Method used for asking student color to player
+     * @param client client who is playing this instruction
+     * @return chosen color
+     */
     public abstract FactionColor askColor(Client client);
 
+    /**
+     * Method used to select students from dining
+     * @param client client who is playing this instruction
+     * @param num number of students you want to select in dining
+     * @return chosen students
+     */
     public abstract StudentsContainer askStudentFromDining(Client client, int num);
 
+
+    /**
+     *
+     * @param character character played
+     * @param num max number of possible students to choose, it depends on the character
+     * @param client player who is playing the card
+     * @return chosen students
+     */
     public abstract StudentsContainer askStudentsFromCharacter(Character character, int num, Client client);
 
     /**
@@ -227,13 +263,35 @@ public abstract class AbstractView {
      */
     public abstract void yourTurn();
 
+    /**
+     *
+     * @param message string needed to be displayed
+     */
     public abstract void displayInfo(String message);
 
+    /**
+     *
+     * @param message message to be displayed
+     */
     public abstract void displayImportant(String message);
 
+    /**
+     *
+     * @param message error to be displayed
+     */
     public abstract void displayError(String message);
 
+    /**
+     * Method to update the view
+     * @param updateMessage message containing new information
+     * @param client client who has the message
+     */
     public abstract void updateView(UpdateMessage updateMessage, Client client);
 
+    /**
+     * Ask player a number among displayed ones
+     * @param choices ArrayList with possible numbers for selection
+     * @return chosen number
+     */
     public abstract int askStudentsNumber(ArrayList<Integer> choices);
 }

@@ -18,6 +18,9 @@ public class GUIViewTest {
         view.gameStarted();
     }
 
+    /**
+     * Test draw islands
+     */
     @Test
     void testIslandDraw() {
         ArrayList<UpdatableObject> islands = new ArrayList<>();

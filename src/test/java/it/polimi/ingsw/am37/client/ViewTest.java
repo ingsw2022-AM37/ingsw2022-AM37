@@ -10,6 +10,10 @@ import javax.management.InstanceAlreadyExistsException;
 import java.util.List;
 
 class ViewTest {
+
+    /**
+     * Test display of islands
+     */
     @Test
     @DisplayName("Test display of islands")
     void testShowIslands() {
@@ -26,6 +30,9 @@ class ViewTest {
         view.showTable();
     }
 
+    /**
+     * Test display of clouds
+     */
     @Test
     @DisplayName("Test display of clouds")
     void testShowClouds() {
@@ -42,6 +49,9 @@ class ViewTest {
         view.showTable();
     }
 
+    /**
+     * Test display of board
+     */
     @Test
     @DisplayName("Test display of board")
     void testShowBoard() {
@@ -56,6 +66,10 @@ class ViewTest {
         view.showPlayerStatus(player, false);
     }
 
+    /**
+     * Test display of last assistant
+     * @throws InstanceAlreadyExistsException
+     */
     @Test
     @DisplayName("Test display of last assistant")
     void testShowLastAssistant() throws InstanceAlreadyExistsException {
@@ -68,6 +82,10 @@ class ViewTest {
         view.showPlayerStatus(player, false);
     }
 
+    /**
+     * Test display of deck
+     * @throws InstanceAlreadyExistsException
+     */
     @Test
     @DisplayName("Test display of deck")
     void testShowDeck() throws InstanceAlreadyExistsException {

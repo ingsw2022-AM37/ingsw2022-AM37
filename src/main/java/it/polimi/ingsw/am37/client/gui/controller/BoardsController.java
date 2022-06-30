@@ -12,17 +12,61 @@ import java.util.List;
 import static it.polimi.ingsw.am37.client.gui.controller.GameSceneController.*;
 
 public class BoardsController extends GenericController {
+
+    /**
+     * shift to right for 590 pixels, it's useful to draw elements on second (right) board
+     */
     private final static int leftShift = 590;
+
+    /**
+     * ArrayList with all nicknames
+     */
     private final List<String> playersNickname = new ArrayList<>();
+
+    /**
+     * ArrayList with ImageView of students on board's entrance, useful to save them for removing from screen when necessary
+     */
     private final List<ImageView> entranceStudentImageViews = new ArrayList<>();
+
+    /**
+     * ArrayList with ImageView of students on board's dining, useful to save them for removing from screen when necessary
+     */
     private final List<ImageView> diningStudentImageViews = new ArrayList<>();
+
+    /**
+     * ArrayList with ImageView of professors on board's table, useful to save them for removing from screen when necessary
+     */
     private final List<ImageView> professorImageViews = new ArrayList<>();
+
+    /**
+     * ArrayList with ImageView of towers on board's, useful to save them for removing from screen when necessary
+     */
     private final List<ImageView> towerImageViews = new ArrayList<>();
+
+    /**
+     * nickname of second player
+     */
     public Label nickname2;
+
+    /**
+     * nickname of third player
+     */
     public Label nickname3;
+
+    /**
+     * board of third player
+     */
     public ImageView board_3;
+
+    /**
+     * Pane of the scene
+     */
     public Pane boardsPane;
 
+    /**
+     * Method used to control the logic of drawing others' boards
+     * @param players players in the game
+     */
     public void draw(List<Player> players) {
         if (playersNickname.isEmpty()) {
             players.forEach(player -> playersNickname.add(player.getPlayerId()));
@@ -49,6 +93,11 @@ public class BoardsController extends GenericController {
         }
     }
 
+    /**
+     * Method used to draw boards of other players
+     * @param board It's th board of another player
+     * @param shift It's a number which tell if the player's board is second or third
+     */
     private void drawBoard(Board board, int shift) {
         drawEntrance(board.getEntrance(), shift);
         drawDining(board.getDiningRoom(), shift);
@@ -56,6 +105,11 @@ public class BoardsController extends GenericController {
         drawTowers(board.getTowers(), shift);
     }
 
+    /**
+     * Method used for drawing students on dining
+     * @param diningRoom Student container with students on dining
+     * @param shift It's a number which tell if the player's board is second or third
+     */
     private void drawDining(LimitedStudentsContainer diningRoom, int shift) {
 
 
@@ -83,6 +137,11 @@ public class BoardsController extends GenericController {
 
     }
 
+    /**
+     * Method used for drawing students on entrance
+     * @param entrance Student container with students on entrance
+     * @param shift It's a number which tell if the player's board is second or third
+     */
     private void drawEntrance(LimitedStudentsContainer entrance, int shift) {
 
         int posInLine = 0;
@@ -117,6 +176,11 @@ public class BoardsController extends GenericController {
 
     }
 
+    /**
+     * Method used for drawing students on prof table
+     * @param profTable boolean which shows controlled professors
+     * @param shift It's a number which tell if the player's board is second or third
+     */
     private void drawProfessors(boolean[] profTable, int shift) {
 
         for (FactionColor color : FactionColor.values())
@@ -133,6 +197,11 @@ public class BoardsController extends GenericController {
 
     }
 
+    /**
+     *
+     * @param towers containers of towers, useful to know their color and number
+     * @param shift It's a number which tell if the player's board is second or third
+     */
     private void drawTowers(LimitedTowerContainer towers, int shift) {
 
         int posInLine = 0;

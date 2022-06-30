@@ -345,8 +345,8 @@ public class Lobby implements Runnable, MessageReceiver {
                 sendMessage(response);
                 clientStatus = ClientStatus.CHOOSINGCLOUD;
             } catch (MNmovementWrongException e) {
-                response = new ErrorMessage(message.getUUID(), e.getMessage().substring(e.getMessage().indexOf(" ")));
-                LOGGER.error(e.getMessage().substring(e.getMessage().indexOf(" ")));
+                response = new ErrorMessage(message.getUUID(), e.getMessage());
+                LOGGER.error(e.getMessage());
                 sendMessage(response);
             } catch (WinningException winner) {
                 LOGGER.debug("[Lobby " + matchID + "] WinningException caught: The game should be over");

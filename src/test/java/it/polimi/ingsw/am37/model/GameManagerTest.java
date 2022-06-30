@@ -18,6 +18,9 @@ import static org.mockito.Mockito.*;
 
 class GameManagerTest {
 
+    /**
+     * Test correct initializing of manager after setup with basic settings
+     */
     @Test
     @DisplayName("Test correct initializing of manager after setup with basic settings")
     public void testCorrectCreationAndSetUp() {
@@ -34,6 +37,9 @@ class GameManagerTest {
         assertEquals(2, manager.getTurnManager().getPlayers().size());
     }
 
+    /**
+     * Test correct initializing of manager after setup with 3 players and base rule
+     */
     @Test
     @DisplayName("Test correct initializing of manager after setup with 3 players and base rule")
     public void testCorrectCreationAndSetUp3Players() {
@@ -44,6 +50,9 @@ class GameManagerTest {
         assertEquals(3, manager.getTurnManager().getPlayers().size());
     }
 
+    /**
+     * Test moving students from entrance to island
+     */
     @Test
     @DisplayName("Test moving students from entrance to island")
     public void testMoveStudentsToIsland() {
@@ -65,6 +74,9 @@ class GameManagerTest {
                 manager.getTurnManager().getCurrentPlayer().getBoard().getEntrance().size());
     }
 
+    /**
+     * Test moving students from entrance to island
+     */
     @Test
     @DisplayName("Test moving students from entrance to island")
     public void testMoveStudentsToDining() {
@@ -80,6 +92,9 @@ class GameManagerTest {
         manager.moveStudentsToDining(container);
     }
 
+    /**
+     * Test assistant logic
+     */
     @Test
     @DisplayName("Test assistant logic")
     public void testPlayAssistant() {
@@ -98,6 +113,9 @@ class GameManagerTest {
         assertNull(manager.getTurnManager().getCurrentPlayer().getLastAssistantPlayed());
     }
 
+    /**
+     * Test character logic
+     */
     @Test
     @DisplayName("Test character logic")
     public void testPlayCharacter() {
@@ -122,6 +140,9 @@ class GameManagerTest {
         }
     }
 
+    /**
+     * Test a bad played character logic
+     */
     @Test
     @DisplayName("Test a bad played character logic")
     public void testBadPlayedCharacter() {
