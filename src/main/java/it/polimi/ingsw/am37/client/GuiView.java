@@ -523,7 +523,6 @@ public class GuiView extends AbstractView {
      * This functions display a modal window to let the user input some students with spinner field. The spinners are
      * limited with the student contained in the provided container
      *
-     * @param container
      * @param studentsToMove
      */
     private StudentsContainer askStudents(int studentsToMove, StudentsContainer sourceContainer) {
