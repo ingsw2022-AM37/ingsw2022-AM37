@@ -10,6 +10,7 @@ import it.polimi.ingsw.am37.model.character.Effect;
 import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Properties;
 
@@ -231,4 +232,6 @@ public abstract class AbstractView {
     public abstract void displayError(String message);
 
     public abstract void updateView(UpdateMessage updateMessage, Client client);
+
+    public abstract int askStudentsNumber(ArrayList<Integer> choices);
 }
