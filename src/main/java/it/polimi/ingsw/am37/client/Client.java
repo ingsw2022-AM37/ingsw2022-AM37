@@ -13,9 +13,7 @@ import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
 import it.polimi.ingsw.am37.network.ClientSocket;
 
 import java.io.*;
-import java.util.Objects;
-import java.util.Properties;
-import java.util.Scanner;
+import java.util.*;
 
 /**
  * This class represent the user interface of the game. Construct it providing initial arguments for connections and
@@ -479,15 +477,8 @@ public class Client {
                     oBuilder.intPar(3);
             }
             case MINSTREL -> {
-                int MINSTREL_STUDENTS = 2;
-                view.displayImportant("Would you like to move 1 or 2 students? (Default: 2)");
-                Scanner scanner = new Scanner(System.in);
 
-                try {
-                    MINSTREL_STUDENTS = Integer.parseInt(scanner.nextLine());
-                } catch (NumberFormatException e) {
-                    view.displayError("Invalid number of students");
-                }
+                int MINSTREL_STUDENTS = view.askStudentsNumber(new ArrayList<Integer>(Arrays.asList(1,2)));
 
                 if (MINSTREL_STUDENTS == 1 || MINSTREL_STUDENTS == 2) {
                     LimitedStudentsContainer container1 =

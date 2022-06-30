@@ -804,4 +804,45 @@ public class CliView extends AbstractView {
     public ReducedModel getReducedModel() {
         return super.getReducedModel();
     }
+
+    /**
+     *
+     * @param choices
+     * @return
+     */
+    public int askStudentsNumber(ArrayList<Integer> choices){
+
+        boolean falseAnswer = true;
+        int num = 0;
+
+        while (falseAnswer) {
+
+            displayInfo("How many students would you like to move? You can choose among these: ");
+            for (int i = 0; i < choices.size(); i++) {
+                int z = i + 1;
+                displayInfo(z + ") " + choices.get(i));
+            }
+
+            Scanner scanner = new Scanner(System.in);
+            String response = scanner.nextLine();
+
+            try{
+                num = Integer.parseInt(response);
+            }catch (NumberFormatException e){
+                displayError("You haven't put a number, try again please! \n");
+                continue;
+            }
+
+            if(!choices.contains(num)){
+                displayError("You haven't put an available number \n");
+                continue;
+            }
+
+            falseAnswer = false;
+        }
+
+        return num;
+    }
+
+
 }

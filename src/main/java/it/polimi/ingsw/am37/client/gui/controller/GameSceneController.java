@@ -621,6 +621,7 @@ public class GameSceneController extends GenericController {
                 Label label = new Label(p.getPlayerId());
                 label.setFont(labelFont);
                 label.setRotate(270);
+                label.setTextFill(Paint.valueOf("#ffffff"));
                 assistantsHBox.getChildren().add(new Group(label));
                 totalLabelsAssistantsView.add(label);
             }
