@@ -135,14 +135,16 @@ public abstract class AbstractView {
      * Method to notify if client or server has lost the connection
      */
     public void notifyInternetCrash() {
-        displayError("Game has lost the connection, it tried to reconnect but it failed. Game is now closing");
+        displayError("Game has lost the connection");
     }
 
     /**
      * @param nick the winner player
      */
     public void printWinner(String nick) {
-        displayImportant(nick.toUpperCase() + " has won the game!!!");
+        displayImportant(nick.toUpperCase() + " has won the game!");
+        displayImportant("@|bold Thank you for playing!|@");
+        displayImportant("Game is closing in about 30 seconds");
     }
 
     /**

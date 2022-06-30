@@ -106,7 +106,7 @@ public class CliView extends AbstractView {
      * Method to notify if client or server has lost the connection
      */
     public void notifyInternetCrash() {
-        displayError("Game has lost the connection, it tried to reconnect but it failed. Game is now closing");
+        displayError("Game has lost the connection");
     }
 
     /**
@@ -141,8 +141,7 @@ public class CliView extends AbstractView {
         Scanner scanner = new Scanner(System.in);
         while (true) {
             System.out.print(ansi().render(message));
-            System.out.print(ansi().render(" Please insert @|bold,italic yes|@ or @|bold,italic no|@ or @|bold,italic" +
-                    " exit|@: "));
+            System.out.print(ansi().render(" Please insert @|bold,italic yes|@ or @|bold,italic no|@: "));
             s = scanner.nextLine().toLowerCase().trim().replaceAll(" +", " ");
             switch (s.toLowerCase()) {
                 case "yes", "y" -> {
@@ -150,9 +149,6 @@ public class CliView extends AbstractView {
                 }
                 case "no", "n" -> {
                     return false;
-                }
-                case "exit" -> {
-                    return null;
                 }
                 default -> wrongInsert();
             }
@@ -355,7 +351,7 @@ public class CliView extends AbstractView {
             if (color.isEmpty()) {
                 displayError(client.getMessageString("e.wrongColor"));
                 if (!askConfirm("Do you want to try again to move some students?"))
-                    return null;
+                    return container;
                 continue;
             } else {
                 displayInfo("Write the number of students you want to move of color " + color.get());
@@ -368,14 +364,14 @@ public class CliView extends AbstractView {
                             .getByColor(color.get())) {
                         displayError("You have tried to move too many students");
                         if (!askConfirm("Do you want to try again to move some students?"))
-                            return null;
+                            return container;
                         continue;
                     }
                     container.addStudents(students, color.get());
                 } catch (NumberFormatException e) {
                     displayError(client.getMessageString("e.wrongNumber"));
                     if (!askConfirm("Do you want to try again to move some students?"))
-                        return null;
+                        return container;
                     continue;
                 }
             }
@@ -455,7 +451,7 @@ public class CliView extends AbstractView {
             if (color.isEmpty()) {
                 displayError(client.getMessageString("e.wrongColor"));
                 if (!askConfirm("Do you want to try again to move some students?"))
-                    return null;
+                    return container;
                 continue;
             } else {
                 displayInfo("Write the number of students you want to move of color " + color.get());
@@ -464,14 +460,14 @@ public class CliView extends AbstractView {
                     if (students > num || students > character.getState().getContainer().getByColor(color.get())) {
                         displayError("You have tried to move too many students");
                         if (!askConfirm("Do you want to try again to move some students?"))
-                            return null;
+                            return container;
                         continue;
                     }
                     container.addStudents(students, color.get());
                 } catch (NumberFormatException e) {
                     displayError(client.getMessageString("e.wrongNumber"));
                     if (!askConfirm("Do you want to try again to move some students?"))
-                        return null;
+                        return container;
                     continue;
                 }
             }
@@ -514,8 +510,9 @@ public class CliView extends AbstractView {
                         .findFirst();
             if (color.isEmpty()) {
                 displayError(client.getMessageString("e.wrongColor"));
-                if (!askConfirm("Do you want to try again to move some students?"))
-                    return null;
+                if (!askConfirm("Do you want to try again to move some students?")) {
+                    return container;
+                }
                 continue;
             } else {
                 displayInfo("Write the number of students you want to move of color " + color.get() +
@@ -531,15 +528,17 @@ public class CliView extends AbstractView {
                                     .getEntrance()
                                     .getByColor(color.get())) {
                         displayError("You have tried to move too many students");
-                        if (!askConfirm("Do you want to try again to move some students?"))
-                            return null;
+                        if (!askConfirm("Do you want to try again to move some students?")) {
+                            return container;
+                        }
                         continue;
                     }
                     container.addStudents(students, color.get());
                 } catch (NumberFormatException e) {
                     displayError(client.getMessageString("e.wrongNumber"));
-                    if (!askConfirm("Do you want to try again to move some students?"))
-                        return null;
+                    if (!askConfirm("Do you want to try again to move some students?")) {
+                        return container;
+                    }
                     continue;
                 }
             }
@@ -563,6 +562,10 @@ public class CliView extends AbstractView {
         String response;
         Scanner scanner = new Scanner(System.in);
         HashMap<String, Cloud> cloudsToPrint = new HashMap<>();
+        if (getReducedModel().getClouds().values().stream().noneMatch(cloud -> cloud.size() > 0)) {
+            displayError("There are no clouds to choose from, you can't take one, game will continue");
+            return null;
+        }
         for (Cloud cloud : reducedModel.getClouds().values()) {
             if (cloud.size() != 0) {
                 drawCloud(cloud);
@@ -789,8 +792,9 @@ public class CliView extends AbstractView {
      * @param nick the winner player
      */
     public void printWinner(String nick) {
-        System.out.println(nick.toUpperCase() + " has won the game!!!");
-
+        displayImportant(nick.toUpperCase() + " has won the game!");
+        displayImportant("@|bold Thank you for playing!|@");
+        displayImportant("Game is closing in about 30 seconds");
     }
 
     /**

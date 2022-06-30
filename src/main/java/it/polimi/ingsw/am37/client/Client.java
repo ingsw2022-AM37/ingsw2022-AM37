@@ -190,9 +190,13 @@ public class Client {
             }
         } else {
             status = ClientStatus.CHOOSINGNAME;
-            chooseNickname();
-            status = ClientStatus.CHOOSINGLOBBY;
-            chooseLobby();
+            try {
+                chooseNickname();
+                chooseLobby();
+            } catch (PlayerAbortException e) {
+                socket.closeGame();
+                return;
+            }
         }
         view.displayImportant(messagesConstants.getProperty("i.waitingStart"));
         if (!debug_disabledResilience) {
@@ -378,23 +382,18 @@ public class Client {
         StudentsContainer container;
         while (true) {
             container = view.askStudentsFromEntrance(this, 0);
-            if (container == null ||
-                    !view.getReducedModel().getBoards().get(nickname).getEntrance().contains(container)) {
-                view.displayError("Students error");
-                if (container == null) return false;
-            } else {
+            if (container == null || !view.getReducedModel().getBoards().get(nickname).getEntrance().contains(container) || container.size() == 0)
+                return false;
+            else {
                 break;
             }
         }
         Message message;
-        if (isToIsland == null) {
-            isToIsland = view.askDestination();
-        }
-        if (isToIsland) {
-            message = new StudentsToIslandMessage(UUID, container, view.askIsland());
-        } else {
-            message = new StudentsToDiningMessage(UUID, container);
-        }
+        if (isToIsland == null) isToIsland = view.askDestination();
+
+        if (isToIsland) message = new StudentsToIslandMessage(UUID, container, view.askIsland());
+        else message = new StudentsToDiningMessage(UUID, container);
+
         socket.sendMessage(message);
         return !hasReceivedError();
 

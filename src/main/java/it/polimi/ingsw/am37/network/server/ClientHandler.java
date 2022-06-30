@@ -114,7 +114,6 @@ public class ClientHandler implements Runnable {
             f.get(5, TimeUnit.SECONDS);
         } catch (final InterruptedException | ExecutionException | TimeoutException e) {
             disconnect();
-            e.printStackTrace();
             throw new InternetException();
         } finally {
             service.shutdown();

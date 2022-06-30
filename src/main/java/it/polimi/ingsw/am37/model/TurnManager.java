@@ -38,6 +38,11 @@ public class TurnManager {
     private final boolean coinsEnabled;
 
     /**
+     * If the game is in the last round
+     */
+    private boolean lastRound;
+
+    /**
      * Total number of players
      */
     private final int numOfPlayers;
@@ -66,6 +71,7 @@ public class TurnManager {
         this.coinsEnabled = coinsEnabled;
         this.numOfPlayers = numOfPlayers;
         this.getProfWithDraw = false;
+        this.lastRound = false;
     }
 
     /**
@@ -204,12 +210,11 @@ public class TurnManager {
             }
             i++;
         }
-        if (numOfPlayers == 2 || numOfPlayers == 4) for (Player player : players) {
-            player.getBoard().addStudentsToEntrance(bag.extractStudents(studentEntranceTwoPlayers));
+
+        for (Player player : players) {
+            player.getBoard().addStudentsToEntrance(bag.extractStudents(numOfPlayers == 2 ? studentEntranceTwoPlayers : studentEntranceThreePlayers));
         }
-        else for (Player player : players) {
-            player.getBoard().addStudentsToEntrance(bag.extractStudents(studentEntranceThreePlayers));
-        }
+
         this.currentPlayer = getPlayers().get(random.nextInt(getPlayers().size()));
         i = players.indexOf(currentPlayer);
         for (int j = 0; j < numOfPlayers; j++) {
@@ -258,6 +263,20 @@ public class TurnManager {
      */
     public HashMap<Player, Assistant> getAssistantPlayed() {
         return assistantPlayed;
+    }
+
+    /**
+     * @return if it's the last round of the game.
+     */
+    public boolean isLastRound() {
+        return this.lastRound;
+    }
+
+    /**
+     * set the last round of the game.
+     */
+    public void setLastRound(boolean lastRound) {
+        this.lastRound = lastRound;
     }
 
     /**

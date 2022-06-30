@@ -2,6 +2,7 @@ package it.polimi.ingsw.am37.model;
 
 import it.polimi.ingsw.am37.model.character.State;
 import it.polimi.ingsw.am37.model.exceptions.MNmovementWrongException;
+import it.polimi.ingsw.am37.model.exceptions.WinningException;
 import it.polimi.ingsw.am37.model.student_container.FixedUnlimitedStudentsContainer;
 
 import java.util.ArrayList;
@@ -189,7 +190,6 @@ public class IslandsManager {
                 }
             }
         }
-
     }
 
     /**
@@ -200,7 +200,7 @@ public class IslandsManager {
      * @param island  The island in the array we are looking to
      * @param players It's the ArrayList of all players, it gives the access to all boards
      */
-    public void checkConqueror(Island island, ArrayList<Player> players) {
+    public void checkConqueror(Island island, ArrayList<Player> players) throws WinningException {
         HashMap<Player, Integer> playerPower = new HashMap<>();
         boolean[] controlledProf;
         Player exConqueror = null;
@@ -290,7 +290,7 @@ public class IslandsManager {
      * @param island  The island where Mother Nature is
      * @param players The players in the game
      */
-    public void motherNatureActionNoMovement(Island island, ArrayList<Player> players) {
+    public void motherNatureActionNoMovement(Island island, ArrayList<Player> players) throws WinningException {
         this.checkConqueror(island, players);
         this.uniteIfPossible(island);
     }
@@ -302,7 +302,7 @@ public class IslandsManager {
      * @param players             The list of all players
      * @throws MNmovementWrongException If the movement can't be performed.
      */
-    public void motherNatureActionMovement(int destinationIslandId, ArrayList<Player> players) throws MNmovementWrongException {
+    public void motherNatureActionMovement(int destinationIslandId, ArrayList<Player> players) throws MNmovementWrongException, WinningException {
         int stepsForward = islands.indexOf(getIslands().get(destinationIslandId)) - islands.indexOf(getMotherNaturePosition());
 
         int temp = islands.indexOf(getMotherNaturePosition()) + stepsForward;
@@ -331,7 +331,7 @@ public class IslandsManager {
         int destinationMotherNature = islands.indexOf(this.motherNaturePosition);
 
         if (moveForward > currentPlayer.getLastAssistantPlayed().getMNMovement() + this.additionalMNFlag || moveForward == 0)
-            throw new MNmovementWrongException("Cannot move Mother Nature here");
+            throw new MNmovementWrongException("You can't move Mother Nature here");
 
         for (int contMovement = 0; contMovement < moveForward; contMovement++) {
             destinationMotherNature = destinationMotherNature + 1;

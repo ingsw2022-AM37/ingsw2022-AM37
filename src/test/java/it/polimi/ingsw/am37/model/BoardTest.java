@@ -77,8 +77,6 @@ class BoardTest {
         assertEquals(8, board.getTowers().getCurrentSize());
         board = new Board(3, TowerColor.BLACK, false, new Player());
         assertEquals(6, board.getTowers().getCurrentSize());
-        board = new Board(4, TowerColor.BLACK, false, new Player());
-        assertEquals(0, board.getTowers().getCurrentSize());
         assertThrows(IllegalArgumentException.class, () -> new Board(5, TowerColor.BLACK, false, new Player()));
     }
 
