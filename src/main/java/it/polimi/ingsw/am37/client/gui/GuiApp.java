@@ -7,6 +7,8 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import java.util.Objects;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 
 public class GuiApp extends Application {
@@ -71,6 +73,15 @@ public class GuiApp extends Application {
     public void stop() throws Exception {
         Platform.exit();
         super.stop();
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                Runtime.getRuntime().halt(0);
+            }
+        }, 3000);
+        System.exit(0);
+        timer.cancel();
         throw new PlayerAbortException();
     }
 }
