@@ -1,0 +1,14 @@
+unnamed package
+it.polimi.ingsw.am37.client
+it.polimi.ingsw.am37.client.gui
+it.polimi.ingsw.am37.client.gui.controller
+it.polimi.ingsw.am37.client.gui.observer
+it.polimi.ingsw.am37.controller
+it.polimi.ingsw.am37.message
+it.polimi.ingsw.am37.model
+it.polimi.ingsw.am37.model.character
+it.polimi.ingsw.am37.model.exceptions
+it.polimi.ingsw.am37.model.student_container
+it.polimi.ingsw.am37.network
+it.polimi.ingsw.am37.network.exceptions
+it.polimi.ingsw.am37.network.server
