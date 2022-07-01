@@ -8,11 +8,11 @@ Tests line coverage: client 4%, controller 17%, message 54%, model 82%, network 
 
 ### Starting game
 1) In order to launch the server you have to go with terminal in its jar folder and write: java -jar nameJar.jar --port port
-   --port port is an optional field
+   (--port port is an optional field).
    
 2) You have two option for launching the game: you can repeat the same procedure and write java -jar nameJar.jar --graphics cli --address address --port port 
    or you can double click on the file for playing with graphics. 
-   --address address and --port port are otpional fields. 
+   (--address address and --port port are otpional fields). 
 Group components:
 
 - ##### 10697104    Baggetto Matteo ([@Matteo-Baggetto](https://github.com/Matteo-Baggetto)) [✉ Contact Me](mailto:matteo.baggetto@mail.polimi.it)
