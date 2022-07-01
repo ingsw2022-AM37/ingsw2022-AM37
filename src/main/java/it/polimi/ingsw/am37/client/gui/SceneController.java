@@ -41,7 +41,12 @@ public class SceneController {
     }
 
     public static GenericController getActiveController() {
-        return sceneData.activeController();
+        try {
+            return sceneData.activeController();
+        }catch (NullPointerException e){
+            ;
+        }
+        return null;
     }
 
     /**

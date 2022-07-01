@@ -562,7 +562,13 @@ public class GuiView extends AbstractView {
      */
     @Override
     public void displayInfo(String message) {
-        Platform.runLater(() -> SceneController.getActiveController().showInfo(message));
+        Platform.runLater(() -> {
+            try {
+                SceneController.getActiveController().showInfo(message);
+            }catch (NullPointerException e){
+                ;
+            }
+        });
     }
     /**
      *
