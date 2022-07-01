@@ -2,6 +2,7 @@ package it.polimi.ingsw.am37.client.gui.controller;
 
 import com.jfoenix.controls.JFXButton;
 import it.polimi.ingsw.am37.model.FactionColor;
+import it.polimi.ingsw.am37.model.student_container.LimitedStudentsContainer;
 import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
 import it.polimi.ingsw.am37.model.student_container.UnlimitedStudentsContainer;
 import javafx.event.ActionEvent;
@@ -66,7 +67,7 @@ public class ChooseNumStudentsController {
      * @param actionEvent the button pressing event
      */
     public void confirmStudents(ActionEvent actionEvent) {
-        container = new UnlimitedStudentsContainer();
+        container = new LimitedStudentsContainer(120);
         container.addStudents(spinner_blue.getValue(), FactionColor.BLUE);
         container.addStudents(spinner_red.getValue(), FactionColor.RED);
         container.addStudents(spinner_green.getValue(), FactionColor.GREEN);

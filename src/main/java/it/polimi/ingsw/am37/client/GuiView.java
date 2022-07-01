@@ -9,6 +9,7 @@ import it.polimi.ingsw.am37.model.*;
 import it.polimi.ingsw.am37.model.character.Character;
 import it.polimi.ingsw.am37.model.character.Effect;
 import it.polimi.ingsw.am37.model.student_container.FixedUnlimitedStudentsContainer;
+import it.polimi.ingsw.am37.model.student_container.LimitedStudentsContainer;
 import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -599,7 +600,7 @@ public class GuiView extends AbstractView {
      */
     private StudentsContainer askStudents(int studentsToMove, StudentsContainer sourceContainer) {
         AtomicReference<StudentsContainer> atomicContainer =
-                new AtomicReference<>(new FixedUnlimitedStudentsContainer());
+                new AtomicReference<>(new LimitedStudentsContainer(120));
         CountDownLatch latch = new CountDownLatch(1);
         Platform.runLater(() -> {
             Stage studentsDialog = new Stage();
