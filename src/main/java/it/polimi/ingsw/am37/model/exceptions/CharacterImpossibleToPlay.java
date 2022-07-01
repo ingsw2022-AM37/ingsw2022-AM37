@@ -1,5 +1,8 @@
 package it.polimi.ingsw.am37.model.exceptions;
 
+/**
+ * When you can't play a certain character because of the price or because you've already played one in your turn
+ */
 public class CharacterImpossibleToPlay extends RuntimeException {
 
     /**

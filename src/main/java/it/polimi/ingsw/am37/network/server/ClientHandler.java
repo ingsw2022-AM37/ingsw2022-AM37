@@ -13,6 +13,9 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.*;
 
+/**
+ * This is the counterpart of client in server
+ */
 public class ClientHandler implements Runnable {
     /**
      * Flag for disable disconnection when ping timeout fails on debug

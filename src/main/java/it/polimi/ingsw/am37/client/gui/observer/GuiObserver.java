@@ -7,6 +7,9 @@ import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+/**
+ * Observer used between graphics controllers and guiView
+ */
 public class GuiObserver implements PropertyChangeListener {
     /**
      * A blocking FIFO queue that contains the list of clicked objects not yet processed by the game controller

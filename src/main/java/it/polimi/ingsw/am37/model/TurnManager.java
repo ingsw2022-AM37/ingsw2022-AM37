@@ -15,6 +15,9 @@ import java.util.Random;
 import static it.polimi.ingsw.am37.controller.UpdateController.Properties.P_BOARD_DINING;
 
 @SuppressWarnings("ConstantConditions")
+/**
+ * Class which control everything about players
+ */
 public class TurnManager {
 
     /**

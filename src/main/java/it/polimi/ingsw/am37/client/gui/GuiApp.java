@@ -11,6 +11,9 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 
+/**
+ * Class used to start JavaFX
+ */
 public class GuiApp extends Application {
     public static final CountDownLatch latch = new CountDownLatch(1);
     private static GuiApp instance = null;

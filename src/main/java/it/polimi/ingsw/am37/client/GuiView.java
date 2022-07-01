@@ -23,6 +23,9 @@ import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 
+/**
+ * Class having methods to update graphical view
+ */
 public class GuiView extends AbstractView {
 
     /**

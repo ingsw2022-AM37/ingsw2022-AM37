@@ -8,6 +8,9 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 
+/**
+ * Controller used at the beginning for the first connection screen
+ */
 public class ConnectionController extends GenericController {
 
     /**

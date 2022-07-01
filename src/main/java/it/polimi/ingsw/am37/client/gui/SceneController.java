@@ -8,6 +8,9 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
+/**
+ * Class used for creating and switching scenes
+ */
 public class SceneController {
 
     public static final Object waitObject = new Object();

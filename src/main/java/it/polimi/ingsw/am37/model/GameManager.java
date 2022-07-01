@@ -10,6 +10,9 @@ import it.polimi.ingsw.am37.model.student_container.StudentsContainer;
 import java.beans.PropertyChangeListener;
 import java.util.*;
 
+/**
+ * External class of model used to control everything and make every possible action
+ */
 public class GameManager {
     /**
      * A lock to ensure synchronized methods.

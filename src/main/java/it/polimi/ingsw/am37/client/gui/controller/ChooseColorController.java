@@ -5,6 +5,9 @@ import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
+/**
+ * Controller used for giving a choice for choosing a color
+ */
 public class ChooseColorController {
 
     /**

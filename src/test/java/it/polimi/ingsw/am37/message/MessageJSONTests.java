@@ -16,6 +16,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+/**
+ * Class used for testing gson
+ */
 public class MessageJSONTests {
     static Gson gson;
 

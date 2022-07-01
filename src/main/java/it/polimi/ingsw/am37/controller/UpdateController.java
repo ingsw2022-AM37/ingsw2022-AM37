@@ -11,6 +11,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Class used to check what is changed and needed to be updated
+ */
 public class UpdateController implements PropertyChangeListener {
 
     private List<String> updateList = new ArrayList<>();

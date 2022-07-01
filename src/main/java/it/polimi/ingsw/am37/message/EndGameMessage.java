@@ -1,5 +1,8 @@
 package it.polimi.ingsw.am37.message;
 
+/**
+ * Message sent at the end of a match
+ */
 public class EndGameMessage extends Message {
 
     /**

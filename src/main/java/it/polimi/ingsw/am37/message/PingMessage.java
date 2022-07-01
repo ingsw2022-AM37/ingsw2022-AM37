@@ -1,5 +1,8 @@
 package it.polimi.ingsw.am37.message;
 
+/**
+ * Simple message to check the connection
+ */
 public class PingMessage extends Message {
     /**
      * The fromJSON receiver side constructor where all data are accessible

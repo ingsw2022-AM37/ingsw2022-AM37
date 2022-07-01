@@ -15,6 +15,9 @@ import java.util.*;
 
 import static org.fusesource.jansi.Ansi.ansi;
 
+/**
+ * Class used to print the game in terminal
+ */
 public class CliView extends AbstractView {
     /**
      * Construct a new console type view, registering and enabling the Jansi library output stream above the

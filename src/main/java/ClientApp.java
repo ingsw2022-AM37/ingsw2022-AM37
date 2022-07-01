@@ -3,6 +3,9 @@ import it.polimi.ingsw.am37.client.PlayerAbortException;
 
 import java.util.Locale;
 
+/**
+ * Used to launch the game
+ */
 public class ClientApp {
 
     /**

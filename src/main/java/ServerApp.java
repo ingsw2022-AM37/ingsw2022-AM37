@@ -5,7 +5,7 @@ import java.util.*;
 import static org.fusesource.jansi.Ansi.ansi;
 
 /**
- *
+ * Server launcher
  */
 public class ServerApp {
     /**

@@ -13,6 +13,9 @@ import java.util.TimerTask;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+/**
+ * This class connect the client with its clientHandler
+ */
 public class ClientSocket implements Runnable {
     /**
      * Flag to disable disconnection for debug purpose

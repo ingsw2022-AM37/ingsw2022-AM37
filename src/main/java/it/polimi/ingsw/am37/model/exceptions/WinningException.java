@@ -2,6 +2,9 @@ package it.polimi.ingsw.am37.model.exceptions;
 
 import it.polimi.ingsw.am37.model.Player;
 
+/**
+ * Exception used to notify who is the winner
+ */
 public class WinningException extends RuntimeException {
 
     final Player winner;

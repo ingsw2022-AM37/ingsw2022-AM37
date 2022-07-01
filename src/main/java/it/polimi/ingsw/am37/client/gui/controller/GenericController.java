@@ -4,6 +4,9 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.DialogEvent;
 
+/**
+ * External controller used by everyone else
+ */
 public class GenericController {
 
     private Alert currentAlert = null;

@@ -3,6 +3,9 @@ package it.polimi.ingsw.am37.model.character;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+/**
+ * All characters in the game with theirs price and information
+ */
 public enum Effect {
     MONK("Monk", new int[]{18, 0, 4, 2, 1}, 1),
     FARMER("Farmer", new int[]{5}, 2),

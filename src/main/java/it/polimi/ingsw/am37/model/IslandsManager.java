@@ -11,6 +11,9 @@ import java.util.HashMap;
 import java.util.Random;
 
 @SuppressWarnings("ConstantConditions")
+/**
+ * Class used to control all actions on islands
+ */
 public class IslandsManager {
 
     /**

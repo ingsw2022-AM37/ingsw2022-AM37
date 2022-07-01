@@ -1,5 +1,8 @@
 package it.polimi.ingsw.am37.message;
 
+/**
+ * Message used for notifying disconnection or re-connection
+ */
 public class ResilienceMessage extends Message {
 
     /**

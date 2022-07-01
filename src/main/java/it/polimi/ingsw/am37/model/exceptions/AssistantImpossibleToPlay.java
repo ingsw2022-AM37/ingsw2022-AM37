@@ -1,5 +1,8 @@
 package it.polimi.ingsw.am37.model.exceptions;
 
+/**
+ * When you can't play a certain assistant because already just used
+ */
 public class AssistantImpossibleToPlay extends RuntimeException {
 
     /**

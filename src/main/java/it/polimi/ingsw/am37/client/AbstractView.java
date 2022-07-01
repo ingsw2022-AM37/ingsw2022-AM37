@@ -14,6 +14,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Properties;
 
+/**
+ * Class with all abstract methods for printing or displaying images
+ */
 public abstract class AbstractView {
     /**
      * Model in client

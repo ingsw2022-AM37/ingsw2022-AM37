@@ -11,6 +11,9 @@ import java.util.List;
 
 import static it.polimi.ingsw.am37.client.gui.controller.GameSceneController.*;
 
+/**
+ * Controller used for the graphics of other's players boards
+ */
 public class BoardsController extends GenericController {
 
     /**

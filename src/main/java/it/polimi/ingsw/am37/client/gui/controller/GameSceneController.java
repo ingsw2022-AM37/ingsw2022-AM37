@@ -32,6 +32,9 @@ import static it.polimi.ingsw.am37.client.gui.observer.GuiObserver.ClickableObje
 import static java.lang.Math.*;
 import static java.util.Map.entry;
 
+/**
+ * Controller of main scene during the game
+ */
 public class GameSceneController extends GenericController {
 
     /**

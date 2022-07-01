@@ -1,7 +1,7 @@
 package it.polimi.ingsw.am37.message;
 
 /**
- *
+ * Enumeration of possible messages between server and clients
  */
 public enum MessageType {
     LOGIN("LoginMessage"),

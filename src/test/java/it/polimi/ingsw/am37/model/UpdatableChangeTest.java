@@ -17,6 +17,9 @@ import java.lang.reflect.Field;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
+/**
+ * Test updates for objects in game
+ */
 public class UpdatableChangeTest {
 
     /**

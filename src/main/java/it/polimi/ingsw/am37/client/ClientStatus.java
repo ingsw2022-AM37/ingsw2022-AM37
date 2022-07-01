@@ -2,6 +2,9 @@ package it.polimi.ingsw.am37.client;
 
 import java.util.List;
 
+/**
+ * Used to keep track of client possible actions
+ */
 public enum ClientStatus {
     LOGIN,
     CHOOSINGNAME,
