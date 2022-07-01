@@ -59,9 +59,6 @@ class BoardTest {
             Field privateField = Board.class.getDeclaredField("coinsArray");
             privateField.setAccessible(true);
             assertNotNull(privateField.get(board));
-            privateField = Board.class.getDeclaredField("coinsEnabled");
-            privateField.setAccessible(true);
-            assertTrue((boolean) privateField.get(board));
         } catch (NoSuchFieldException | IllegalAccessException e) {
             e.printStackTrace();
         }

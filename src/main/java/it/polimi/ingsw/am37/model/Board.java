@@ -121,12 +121,13 @@ public class Board {
     /**
      * @param num the number of towers to remove
      */
-    public void removeTowers(int num) throws WinningException {
+    public void removeTowers(int num) throws WinningException, IllegalStateException {
         int oldValue = towerArea.getCurrentSize();
         try {
             towerArea.removeTowers(num);
+            if (towerArea.getCurrentSize() == 0) throw new WinningException(this.player);
         } catch (IllegalStateException e) {
-            throw new WinningException(this.player);
+            throw new IllegalStateException(e.getMessage());
         }
         player.support.firePropertyChange(P_BOARD_TOWER.toString(), oldValue, towerArea.getCurrentSize());
     }

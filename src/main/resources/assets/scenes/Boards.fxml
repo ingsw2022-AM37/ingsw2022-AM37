@@ -6,7 +6,7 @@
 <?import javafx.scene.text.Font?>
 <Pane xmlns:fx="http://javafx.com/fxml/1" fx:id="boardsPane" maxHeight="-Infinity" maxWidth="-Infinity"
       minHeight="-Infinity" minWidth="-Infinity" prefHeight="980.0" prefWidth="980.0"
-      xmlns="http://javafx.com/javafx/18" fx:controller="it.polimi.ingsw.am37.client.gui.controller.BoardsController">
+      xmlns="http://javafx.com/javafx/17" fx:controller="it.polimi.ingsw.am37.client.gui.controller.BoardsController">
     <children>
         <ImageView fitHeight="980.0" fitWidth="980.0">
             <image>

@@ -102,11 +102,6 @@ class GameManagerTest {
         manager.prepareGame();
         assertNull(manager.getTurnManager().getCurrentPlayer().getLastAssistantPlayed());
         Player oldPlayer = manager.getTurnManager().getCurrentPlayer();
-        try {
-            manager.getTurnManager().createDeck(WizardTeam.TEAM1);
-        } catch (InstanceAlreadyExistsException e) {
-            e.printStackTrace();
-        }
         manager.playAssistant(oldPlayer.getAssistantsDeck().get(4));
         assertNotNull(oldPlayer.getLastAssistantPlayed());
         assertNotEquals(oldPlayer, manager.getTurnManager().getCurrentPlayer());

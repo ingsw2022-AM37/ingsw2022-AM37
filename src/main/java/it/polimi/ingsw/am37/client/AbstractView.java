@@ -177,11 +177,7 @@ public abstract class AbstractView {
     /**
      * @param nick the winner player
      */
-    public void printWinner(String nick) {
-        displayImportant(nick.toUpperCase() + " has won the game!");
-        displayImportant("@|bold Thank you for playing!|@");
-        displayImportant("Game is closing in about 30 seconds");
-    }
+    public abstract void printWinner(String nick);
 
     /**
      * Show all the character of this match

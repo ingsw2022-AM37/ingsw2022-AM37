@@ -11,7 +11,7 @@
 <?import javafx.scene.text.Font?>
 <Pane xmlns:fx="http://javafx.com/fxml/1" fx:id="loginScene" maxHeight="-Infinity" maxWidth="-Infinity"
       minHeight="-Infinity" minWidth="-Infinity" prefHeight="550.0" prefWidth="500.0"
-      xmlns="http://javafx.com/javafx/18"
+      xmlns="http://javafx.com/javafx/17"
       fx:controller="it.polimi.ingsw.am37.client.gui.controller.ConnectionController">
     <children>
         <ImageView fitHeight="500.0" fitWidth="500.0">

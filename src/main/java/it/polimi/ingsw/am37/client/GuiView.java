@@ -375,6 +375,12 @@ public class GuiView extends AbstractView {
         displayImportant("It's " + nick + "'s turn");
     }
 
+    @Override
+    public void printWinner(String nick) {
+        displayImportant(nick.toUpperCase() + " has won the game!\n" + "Thank you for playing!\n" +
+                "Game is closing in about 30 seconds");
+    }
+
     /**
      * Method used to display connection info
      *

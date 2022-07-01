@@ -9,7 +9,7 @@
 <?import javafx.scene.text.*?>
 <Pane xmlns:fx="http://javafx.com/fxml/1" fx:id="wallpaperPane" maxHeight="-Infinity" maxWidth="-Infinity"
       minHeight="-Infinity" minWidth="-Infinity" prefHeight="980.0" prefWidth="1880.0"
-      xmlns="http://javafx.com/javafx/16"
+      xmlns="http://javafx.com/javafx/17"
       fx:controller="it.polimi.ingsw.am37.client.gui.controller.GameSceneController">
     <children>
         <ImageView fitHeight="980.0" fitWidth="1880.0">
