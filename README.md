@@ -4,6 +4,16 @@ This is the repository of main project for "_Progetto di Ingegneria del Software
 
 Gamerules provided [here](https://www.craniocreations.it/wp-content/uploads/2021/11/Eriantys_ITA_bassa.pdf)
 
+Tests line coverage: client 4%, controller 17%, message 54%, model 82%, network 0%
+
+### Starting game
+1) In order to launch the server you have to go with terminal in its jar folder and write: java -jar nameJar.jar --port port
+   --port port is an optional field
+   
+2) You have two option for launching the game: you can repeat the same procedure and write java -jar nameJar.jar --graphics cli --address address --port port 
+   or you can double click on the file. 
+   --address address and --port port are otpional fields. You can write gui instead of cli
+
 Group components:
 
 - ##### 10697104    Baggetto Matteo ([@Matteo-Baggetto](https://github.com/Matteo-Baggetto)) [✉ Contact Me](mailto:matteo.baggetto@mail.polimi.it)
