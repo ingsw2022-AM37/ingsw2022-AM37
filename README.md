@@ -20,7 +20,7 @@ Group components:
 | GUI                                   |  🟢   |
 | CLI                                   |  🟢   |
 | Advanced characters                   |  🟢   |
-| Resilience to disconnections          |  🟢   |
+| Resilience to disconnections          |  🟡   |
 | Multiple games                        |  🟢   |
 
 ### Libraries and Plugins
