@@ -11,7 +11,7 @@ Tests line coverage: client 4%, controller 17%, message 54%, model 82%, network 
    --port port is an optional field
    
 2) You have two option for launching the game: you can repeat the same procedure and write java -jar nameJar.jar --graphics cli --address address --port port 
-   or you can double click on the file. 
+   or you can double click on the file for playing with graphics. 
    --address address and --port port are otpional fields. 
 Group components:
 
